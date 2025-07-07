@@ -1,0 +1,19 @@
+/* .sidebar-nav .nav-link { */
+/* This is the key fix: It allows a flex item to shrink below its
+       content's natural minimum width, enabling truncation. */
+/* min-width: 0;
+
+    overflow: hidden;
+} */
+
+.bg-default-blue {
+    background-color: #448aff;
+}
+
+.bg-default-white {
+    background-color: #eff5f7;
+}
+
+.bg-secondary-dark-blue {
+    background-color: #3f629d;
+}
