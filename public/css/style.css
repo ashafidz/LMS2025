@@ -26,6 +26,12 @@ File: style.css
 /**  =====================
       Custom css start
 ==========================  **/
+
+select.form-control {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
     .bg-default-blue {
     background-color: #448aff;
     }

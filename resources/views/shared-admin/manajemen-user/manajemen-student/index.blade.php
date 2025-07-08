@@ -25,7 +25,7 @@
                                 </a>
                             </li>
                             <li class="breadcrumb-item">
-                                <a href="#!">Instructor Application</a>
+                                <a href="#!">Manajemen Student</a>
                             </li>
                         </ul>
                     </div>
@@ -45,8 +45,8 @@
                             <div class="col-sm-12">
                                 <div class="card table-card">
                                     <div class="card-header">
-                                        <h5>Instructor Application</h5>
-                                        <p>List pendaftaran sebagai Instructor</p>
+                                        <h5>List Student</h5>
+                                        <p>List student yang terdaftar</p>
                                         <div class="card-header-right">
                                             {{-- <ul class="list-unstyled card-option">
                                                 <li>
@@ -73,16 +73,13 @@
                                                 <thead>
                                                     <tr>
                                                         <th>
-                                                            Instructor Name
+                                                            Nama Student
                                                         </th>
                                                         <th>
                                                             Email
                                                         </th>
-                                                        <th>
-                                                            Portofolio
-                                                        </th>
                                                         <th class="text-center">
-                                                            Application Status
+                                                            Student Status
                                                         </th>
                                                         <th class="text-center">
                                                             Action
@@ -90,17 +87,18 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @forelse($applications as $application)
+                                                    @forelse($students_status_data as $student_status_data)
 
                                                     {{-- handle route --}}
                                                     @php
-                                                        $actionRouteApprove = Auth::user()->hasRole('admin') 
-                                                        ? route('admin.instructor-applications.approve', $application)
-                                                        : route('superadmin.instructor-applications.approve', $application);
+                                                        $actionRouteDeactive = Auth::user()->hasRole('admin') 
+                                                        ? route('admin.manajemen-student.deactive', $student_status_data)
+                                                        : route('superadmin.manajemen-student.deactive', $student_status_data);
 
-                                                        $actionRouteReject = Auth::user()->hasRole('admin') 
-                                                        ? route('admin.instructor-applications.reject', $application)
-                                                        : route('superadmin.instructor-applications.reject', $application);
+                                                                   
+                                                        $actionRouteReactivate = Auth::user()->hasRole('admin') 
+                                                            ? route('admin.manajemen-student.reactivate', $student_status_data) 
+                                                            : route('superadmin.manajemen-student.reactivate', $student_status_data); 
                                                     @endphp
                                                     {{-- end handle route --}}
 
@@ -109,60 +107,57 @@
                                                             <td>
                                                                 <div class="d-inline-block align-middle">
                                                                     {{-- retrive from users profile_picture_url --}}
-                                                                    <img src="{{ $application->user->profile_picture_url ?? 'https://placehold.co/32x32/EBF4FF/767676?text=SA' }}"
+                                                                    <img src="{{ $student_status_data->user->profile_picture_url ?? 'https://placehold.co/32x32/EBF4FF/767676?text=SA' }}"
                                                                         alt="user image"
                                                                         class="img-radius img-40 align-top m-r-15" />
                                                                     <div class="d-inline-block">
                                                                         <h6>
-                                                                            {{ $application->user->name }}
+                                                                            {{ $student_status_data->user->name }}
                                                                         </h6>
                                                                         <p class="text-muted m-b-0">
-                                                                            {{ $application->headline }}
+                                                                            {{ $student_status_data->headline }}
                                                                         </p>
                                                                     </div>
                                                                 </div>
                                                             </td>
                                                             <td>
-                                                                {{ $application->user->email }}
-                                                            </td>
-                                                            <td>
-                                                                <a href="{{ $application->website_url }}" target="_blank"
-                                                                    rel="noopener noreferrer">
-                                                                    View Link
-                                                                </a>
+                                                                {{ $student_status_data->user->email }}
                                                             </td>
                                                             <td class="text-center">
                                                                 <span
                                                                     class="badge 
-                                                                    @if ($application->application_status == 'pending') bg-warning text-dark 
-                                                                    @elseif($application->application_status == 'approved') bg-success 
+                                                                    @if ($student_status_data->student_status == 'pending') bg-warning text-dark 
+                                                                    @elseif($student_status_data->student_status == 'active') bg-success 
                                                                     @else bg-danger @endif">
-                                                                    {{ ucfirst($application->application_status) }}
+                                                                    {{ ucfirst($student_status_data->student_status) }}
                                                                 </span>
                                                             </td>
                                                             <td>
-                                                                @if ($application->application_status === 'pending')
+                                                                @if ($student_status_data->student_status === 'active') 
                                                                     <div class="btn-group d-flex justify-content-center" role="group">
                                                                         <form
-                                                                            action="{{ $actionRouteApprove }}"
+                                                                            action="{{ $actionRouteDeactive }}"
                                                                             method="POST"
-                                                                            onsubmit="return confirm('Are you sure you want to approve this application?');">
+                                                                            onsubmit="return confirm('Apakah kamu yakin ingin deactive Instructor ini?');">
                                                                             @csrf
                                                                             @method('PATCH')
                                                                             <button type="submit"
-                                                                                class="btn btn-sm btn-success">Approve</button>
-                                                                        </form>
-                                                                        <form
-                                                                            action="{{ $actionRouteReject }}"
-                                                                            method="POST"
-                                                                            onsubmit="return confirm('Are you sure you want to reject this application?');"
-                                                                            class="ms-1">
-                                                                            @csrf
-                                                                            @method('PATCH')
-                                                                            <button type="submit"
-                                                                                class="btn btn-sm btn-danger">Reject</button>
+                                                                                class="btn btn-sm btn-danger">Deactive</button>
                                                                         </form>
                                                                     </div>
+                                                                @elseif ($student_status_data->student_status === 'deactive')
+                                                                    <div class="btn-group d-flex justify-content-center" role="group">
+                                                                        <form
+                                                                            action="{{ $actionRouteReactivate }}"
+                                                                            method="POST"
+                                                                            onsubmit="return confirm('Apakah kamu yakin ingin Re-active Instructor ini?');">
+                                                                            @csrf
+                                                                            @method('PATCH')
+                                                                            <button type="submit"
+                                                                                class="btn btn-sm btn-success">Re-active</button>
+                                                                        </form>
+                                                                    </div>
+
                                                                 @else
                                                                     <span ><p class="text-center">No actions</p></span>
                                                                 @endif
@@ -170,7 +165,7 @@
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="6" class="text-center">No applications found.
+                                                            <td colspan="6" class="text-center">Tidak ada data.
                                                             </td>
                                                         </tr>
                                                     @endforelse
@@ -178,7 +173,7 @@
                                             </table>
                                         </div>
                                         <div class="card-footer">
-                                            {{ $applications->links() }}
+                                            {{ $students_status_data->links() }}
                                         </div>
                                     </div>
                                 </div>

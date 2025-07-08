@@ -83,6 +83,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(InstructorProfile::class);
     }
 
+    public function studentProfile(): HasOne
+    {
+        return $this->hasOne(StudentProfile::class);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

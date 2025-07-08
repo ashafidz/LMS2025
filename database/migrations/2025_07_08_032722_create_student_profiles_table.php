@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('instructor_profiles', function (Blueprint $table) {
+        Schema::create('student_profiles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('headline')->nullable();
             $table->text('bio')->nullable();
             $table->string('website_url')->nullable();
-            $table->enum('application_status', ['pending', 'approved', 'rejected', 'deactive'])->default('pending');
+            $table->enum('student_status', ['active', 'deactive'])->default('active');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('instructor_profiles');
+        Schema::dropIfExists('student_profiles');
     }
 };

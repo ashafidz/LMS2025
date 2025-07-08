@@ -69,6 +69,27 @@ class FortifyServiceProvider extends ServiceProvider
                     return redirect()->route('instructor.dashboard');
                 }
 
+                // Check if user chose "Instructor" AND is an deative instructor
+                if (
+                    $loginPreference === 'instructor' &&
+                    $user->hasRole('instructor') &&
+                    $user->instructorProfile?->application_status === 'deactive'
+                ) {
+
+                    session(['active_role' => 'instructor']); // <-- Add this
+                    return redirect()->route('instructor.deactive');
+                }
+
+                // check if user chose "Instructor" AND is a rejected instructor
+                if (
+                    $loginPreference === 'instructor' &&
+                    $user->hasRole('instructor') &&
+                    $user->instructorProfile?->application_status === 'rejected'
+                ) {
+                    session(['active_role' => 'instructor']);
+                    return redirect()->route('instructor.rejected');
+                }
+
                 // --- STUDENT (DEFAULT / FALLBACK) ---
                 // This will now handle:
                 // 1. Users who only have the 'student' role.
@@ -78,8 +99,13 @@ class FortifyServiceProvider extends ServiceProvider
                     session(['active_role' => 'student']); // <-- Add this
 
                     // If they are a pending instructor, send them to the pending page
-                    if ($user->hasRole('instructor') && $user->instructorProfile?->application_status === 'pending') {
+                    if ($loginPreference === 'instructor' && $user->hasRole('instructor') && $user->instructorProfile?->application_status === 'pending') {
                         return redirect()->route('instructor.pending');
+                    }
+
+                    // If they are a deactive instructor, send them to the deactive page
+                    if ($loginPreference === 'instructor' && $user->hasRole('instructor') && $user->instructorProfile?->application_status === 'deactive') {
+                        return redirect()->route('instructor.deactive');
                     }
 
                     // Otherwise, send them to the regular student dashboard

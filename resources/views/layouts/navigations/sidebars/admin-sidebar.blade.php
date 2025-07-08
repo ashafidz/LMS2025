@@ -52,5 +52,72 @@
                                     </li>
                                 </ul>
 
+                                                                {{-- menu level managemen user --}}
+                                <ul class="pcoded-item pcoded-left-item">
+                                    <li class="pcoded-hasmenu">
+                                        <a href="javascript:void(0)" class="waves-effect waves-dark">
+                                            <span class="pcoded-micon"><i class="ti-direction-alt"></i><b>M</b></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.menu-levels.main">Manajemen User</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                        <ul class="pcoded-submenu">
+                                            {{-- end menu level manajemen user admin --}}
+                                            {{-- menu level manajemen user instructor --}}
+                                            <li class="pcoded-hasmenu">
+                                                <a href="javascript:void(0)" class="waves-effect waves-dark">
+                                                    <span class="pcoded-micon"><i class="ti-direction-alt"></i></span>
+                                                    <span class="pcoded-mtext"
+                                                        data-i18n="nav.menu-levels.menu-level-22.main">User Instructor</span>
+                                                    <span class="pcoded-mcaret"></span>
+                                                </a>
+                                                <ul class="pcoded-submenu">
+                                                    <li class="{{ Request::routeIs('admin.instructor-application.index') ? 'active' : '' }}">
+                                                        <a href="{{ route('admin.instructor-application.index') }}" class="waves-effect waves-dark">
+                                                            <span class="pcoded-micon"><i
+                                                                    class="ti-angle-right"></i></span>
+                                                            <span class="pcoded-mtext"
+                                                                data-i18n="nav.menu-levels.menu-level-22.menu-level-31">Status Instructor</span>
+                                                            <span class="pcoded-mcaret"></span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            {{-- end menu level manajemen user instructor --}}
+
+                                            {{-- menu level manajemen user student --}}
+                                            <li class="pcoded-hasmenu">
+                                                <a href="javascript:void(0)" class="waves-effect waves-dark">
+                                                    <span class="pcoded-micon"><i class="ti-direction-alt"></i></span>
+                                                    <span class="pcoded-mtext"
+                                                        data-i18n="nav.menu-levels.menu-level-22.main">User Student</span>
+                                                    <span class="pcoded-mcaret"></span>
+                                                </a>
+                                                <ul class="pcoded-submenu">
+                                                    <li class="">
+                                                        <a href="{{ route('admin.manajemen-student.index') }}" class="waves-effect waves-dark">
+                                                            <span class="pcoded-micon"><i
+                                                                    class="ti-angle-right"></i></span>
+                                                            <span class="pcoded-mtext"
+                                                                data-i18n="nav.menu-levels.menu-level-22.menu-level-31">Status Student</span>
+                                                            <span class="pcoded-mcaret"></span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            {{-- end menu level manajemen user student --}}
+                                            
+                                            <li class="">
+                                                <a href="javascript:void(0)" class="waves-effect waves-dark">
+                                                    <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                    <span class="pcoded-mtext"
+                                                        data-i18n="nav.menu-levels.menu-level-23">Menu Level 2.3</span>
+                                                    <span class="pcoded-mcaret"></span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                                {{-- end menu level managemen user --}}
+
                             </div>
                         </nav>

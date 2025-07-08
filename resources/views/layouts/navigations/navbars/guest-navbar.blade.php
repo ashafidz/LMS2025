@@ -76,25 +76,6 @@
                             <a href="{{ route('student.dashboard') }}" class="btn btn-primary btn-lg px-4 gap-3">Dashboard</a>
                         @endif
                     @endauth
-
-                    <!-- User Dropdown -->
-                    {{-- <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            {{ Auth::user()->name }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                        onclick="event.preventDefault(); this.closest('form').submit();">
-                                        {{ __('Log Out') }}
-                                    </a>
-                                </form>
-                            </li>
-                        </ul>
-                    </li> --}}
                 </ul>
             </div>
         </div>
