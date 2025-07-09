@@ -1,159 +1,149 @@
 @extends('layouts.app-layout')
 
 @section('content')
+<section class="login-block">
+    <div class="container-fluid px-0">
+        <div class="row no-gutters shift-up" style="height: 100vh; overflow: hidden;">
 
-    <section class="login-block">
-        <!-- Container-fluid starts -->
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-12">
+            <!-- KIRI: Gambar dalam kotak biru -->
+            <div class="col-md-6 d-none d-md-flex align-items-center justify-content-center bg-primary"
+                style="min-height: 100vh;">
+                <div
+                    style="width: 620px; height: 620px; background-color: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <img src="{{ asset('images/side-images/annie-unsplash.jpg') }}" alt="Login Illustration"
+                        style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                </div>
+            </div>
 
+            <!-- KANAN: Form Login -->
+            <div class="col-md-6 align-items-center d-flex" style="min-height: 100vh;">
+                <form class="md-float-material form-material w-100 px-4" method="POST" action="{{ route('login') }}">
+                    @csrf
+                    <div class="auth-box card">
+                        <div class="card-block">
 
-                    {{-- <div class="text-center mb-3">
-                        <div class="btn-group" role="group">
-                            <input type="radio" class="btn-check" name="login_preference" id="login_as_student" value="student" checked>
-                            <label class="btn btn-outline-primary" for="login_as_student">🎓 Student</label>
-                            <input type="radio" class="btn-check" name="login_preference" id="login_as_instructor" value="instructor">
-                            <label class="btn btn-outline-primary" for="login_as_instructor">🧑‍🏫 Instructor</label>
-                        </div>
-                    </div> --}}
-
-
-
-
-                    <form method="POST" action="{{ route('login') }}" class="md-float-material form-material">
-                        @csrf
-                        <div class="auth-box card">
-                            <div class="card-block">
-                                <div class="row m-b-20">
-                                        <div class="col-md-12">
-                                            <h3 class="text-center">Sign In</h3>
-                                        </div>
+                            <div class="text-center mb-3">
+                                <h3 class="text-center">Log In</h3>
+                                <p class="font-weight-bold">Login As</p>
+                                <div class="d-flex justify-content-center mb-2">
+                                    <div class="role-btn btn btn-primary mr-2 active"
+                                        onclick="selectRole(this, 'student')">
+                                        👨‍🎓 Student
                                     </div>
-                                <!-- Authentication card start -->
-                                @if ($errors->any())
-                                    <div class="alert alert-danger">
-                                        <ul class="mb-0">
-                                            @foreach ($errors->all() as $error)
-                                                <li>{{ $error }}</li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @endif
-                                <!-- Role Dropdown -->
-                                <div class="form-group form-primary">
-                                    {{-- <label class="float-label" for="login_preference">Login as</label> --}}
-                                    <select id="login_preference" name="login_preference" class="form-control" required>
-                                        <option value="student"
-                                            {{ old('login_preference') == 'student' ? 'selected' : '' }}>🎓 Student
-                                        </option>
-                                        <option value="instructor"
-                                            {{ old('login_preference') == 'instructor' ? 'selected' : '' }}>🧑‍🏫
-                                            Instructor</option>
-                                    </select>
-                                    <span class="form-bar"></span>
-                                </div>
-                                <!-- Email input -->
-                                <div class="form-group form-primary">
-                                    <input type="email" name="email" class="form-control" required
-                                        value="{{ old('email') }}">
-                                    <span class="form-bar"></span>
-                                    <label class="float-label">Your Email Address</label>
-                                </div>
-
-                                <!-- Password input -->
-                                <div class="form-group form-primary">
-                                    <input type="password" name="password" class="form-control" required>
-                                    <span class="form-bar"></span>
-                                    <label class="float-label">Password</label>
-                                </div>
-
-                                <div class="row m-t-25 text-left">
-                                    <div class="col-12">
-
-
-                                        {{-- <div class="checkbox-fade fade-in-primary d-">
-                                            <label for="remember_me">
-                                                <input type="checkbox" id="remember_me" name="remember">
-                                                <span class="cr"><i
-                                                        class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
-                                                <span class="text-inverse">Remember me</span>
-                                            </label>
-                                        </div> --}}
-
-                                        <div class="checkbox-fade fade-in-primary">
-                                            <label>
-                                                <input type="checkbox" id="remember_me" name="remember">
-                                                <span class="cr">
-                                                    <i class="cr-icon icofont icofont-ui-check txt-primary"></i>
-                                                </span>
-                                                <span class="text-inverse">Remember me</span>
-                                            </label>
-                                        </div>
-
-
-
-                                        @if (Route::has('password.request'))
-                                            <div class="forgot-phone text-right f-right">
-                                                <a href="{{ route('password.request') }}" class="text-right f-w-600"> Forgot
-                                                    Password?</a>
-                                            </div>
-                                        @endif
+                                    <div class="role-btn btn btn-outline-secondary"
+                                        onclick="selectRole(this, 'instructor')">
+                                        🧑‍🏫 Instructor
                                     </div>
                                 </div>
+                                <input type="hidden" id="selected-role" name="login_preference" value="student">
+                            </div>
 
 
-                                <!-- Submit -->
-                                <div class="row m-t-30">
-                                    <div class="col-md-12">
-                                        <button type="submit"
-                                            class="btn btn-primary btn-md btn-block waves-effect waves-light text-center m-b-20">
-                                            {{ __('Sign in') }}
-                                        </button>
+
+                            <!-- Validation Errors -->
+                             @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    {{ $errors->first() }}
+                                </div>
+                            @endif
+
+                            <div class="form-group form-primary">
+                                <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" required placeholder="" value="{{ old('email') }}">
+                                <span class="form-bar"></span>
+                                <label class="float-label">Email Address</label>
+                                @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="form-group form-primary">
+                                <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required placeholder="">
+                                <span class="form-bar"></span>
+                                <label class="float-label">Password</label>
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="row mt-2 mb-3">
+                                <div class="col text-left">
+                                    <div class="checkbox-fade fade-in-primary">
+                                        <label>
+                                            <input type="checkbox" name="remember">
+                                            <span class="cr"><i
+                                                    class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
+                                            <span class="text-inverse">Remember me</span>
+                                        </label>
                                     </div>
+                                </div>
+                                <div class="col text-right">
+                                     @if (Route::has('password.request'))
+                                        <a href="{{ route('password.request') }}" class="f-w-600">Forgot Password?</a>
+                                    @endif
                                 </div>
                             </div>
-                        </div>
-                    </form>
 
-                    <!-- end of form -->
-                </div>
-                <!-- end of col-sm-12 -->
+                            <div class="row mt-4">
+                                <div class="col-md-12">
+                                    <button type="submit"
+                                        class="btn btn-primary btn-md btn-block waves-effect text-center m-b-20">
+                                        Log In
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <p class="text-muted">Don't have an account? <a href="{{ route('register') }}"
+                                        class="text-primary">Sign up</a></p>
+                            </div>
+
+                            <hr>
+
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <p class="text-inverse text-left m-b-0">Thank You</p>
+                                    <p class="text-inverse text-left"><a href="{{ route('home') }}"><b>Back to website</b></a>
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
             </div>
-            <!-- end of row -->
         </div>
-        <!-- end of container-fluid -->
-    </section>
+    </div>
+</section>
 @endsection
 
-{{-- CHANGE 3: A smarter script to handle both forms --}}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Find all role-switching radio buttons on the page
-        const roleRadios = document.querySelectorAll('.btn-check[name^="login_as_"]');
 
-        roleRadios.forEach((radio) => {
-            radio.addEventListener("change", function(event) {
-                // Get the form that this radio button is inside
-                const form = event.target.closest('form');
-                if (form) {
-                    // Find the hidden input *within that specific form*
-                    const hiddenInput = form.querySelector('.login-preference-input');
-                    if (hiddenInput) {
-                        hiddenInput.value = event.target.value;
-                    }
-                }
-            });
-        });
-    });
-</script>
+@push('scripts')
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
 
-{{-- Script to auto-open modal (this part is still correct) --}}
-@if ((session('status') && str_contains(session('status'), 'link')) || ($errors->any() && old('is_forgot_password')))
+        .shift-up {
+            transform: translateY(-30px);
+        }
+    </style>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var forgotPasswordModal = new bootstrap.Modal(document.getElementById('forgotPasswordModal'));
-            forgotPasswordModal.show();
-        });
+        function selectRole(element, role) {
+            // Remove 'active' from all buttons and add 'btn-outline-secondary'
+            document.querySelectorAll('.role-btn').forEach(btn => {
+                btn.classList.remove('btn-primary', 'active');
+                btn.classList.add('btn-outline-secondary');
+            });
+
+            // Add 'active' to the clicked button and remove 'btn-outline-secondary'
+            element.classList.add('btn-primary', 'active');
+            element.classList.remove('btn-outline-secondary');
+
+            // Set the value of the hidden input
+            document.getElementById('selected-role').value = role;
+        }
     </script>
-@endif
+@endpush

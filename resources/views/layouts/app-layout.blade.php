@@ -37,6 +37,8 @@
     <!-- am chart export.css -->
     <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css"
         media="all" />
+            <!-- ico font -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('icon/icofont/css/icofont.css') }}">
     <!-- Style.css -->
     <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}" />
     {{-- =============================================== --}}
@@ -129,9 +131,9 @@
                 @elseif (Auth::user()->hasRole('superadmin'))
                     @include('layouts.navigations.navbars.superadmin-navbar')
                 @endif
-                @else
+                {{-- @else --}}
                     {{-- Optional: Include a navbar for guests/unauthenticated users --}}
-                    @include('layouts.navigations.navbars.guest-navbar')
+                    {{-- @include('layouts.navigations.navbars.guest-navbar') --}}
             @endauth
 
 
@@ -204,7 +206,10 @@
     <!-- menu js -->
     <script src="{{ asset('js/pcoded.min.js') }}"></script>
     <script src="{{ asset('js/vertical-layout.min.js') }} "></script>
+    
+
     <!-- custom js -->
+    @stack('scripts')
     <script type="text/javascript" src="{{ asset('pages/dashboard/custom-dashboard.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/script.js') }}"></script>
 </body>

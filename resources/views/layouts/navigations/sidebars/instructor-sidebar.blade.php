@@ -36,13 +36,37 @@
                                     Menu Sidebar
                                 </div>
                                 <ul class="pcoded-item pcoded-left-item">
-                                    <li class="{{ Request::routeIs('student.dashboard') ? 'active' : '' }}">
-                                        <a href="{{ route('student.dashboard') }}" class="waves-effect waves-dark">
+                                    {{-- sidebar dashboard --}}
+                                    <li class="{{ Request::routeIs('instructor.dashboard') ? 'active' : '' }}">
+                                        <a href="{{ route('instructor.dashboard') }}" class="waves-effect waves-dark">
                                             <span class="pcoded-micon"><i class="ti-home"></i><b>D</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.dash.main">Dashboard</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>
+                                    {{-- end sidebar dashboard --}}
+
+                                    {{-- sidebar manajemen course --}}
+                                    <li class="{{ Request::routeIs('instructor.courses.index') ? 'active' : '' }}">
+                                        <a href="{{ route('instructor.courses.index') }}" class="waves-effect waves-dark">
+                                            <span class="pcoded-micon"><i class="ti-home"></i><b>D</b></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Manajemen Course</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    {{-- end sidebar manajemen course --}}
+
+                                    {{-- sidebar Bank Soal --}}
+                                    <li class="">
+                                        <a href="{{ route('instructor.question-bank.topics.index') }}" class="waves-effect waves-dark">
+                                            <span class="pcoded-micon"><i class="ti-layers"></i><b>FC</b></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.form-components.main">Bank Soal</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    {{-- end sidebar banksoal --}}
+
+                                    {{-- template sidebar menu 1 --}}
                                     <li class="">
                                         <a href="#" class="waves-effect waves-dark">
                                             <span class="pcoded-micon"><i class="ti-layers"></i><b>FC</b></span>
@@ -50,7 +74,137 @@
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>
+                                    {{-- endtemplate sidebar menu 1 --}}
                                 </ul>
+                                {{-- start menu levels question bank --}}
+                                <ul class="pcoded-item pcoded-left-item">
+                                    <li class="pcoded-hasmenu">
+                                        {{-- label menu level question bank --}}
+                                        <a
+                                            href="javascript:void(0)"
+                                            class="waves-effect waves-dark"
+                                        >
+                                            <span class="pcoded-micon"
+                                                ><i class="ti-direction-alt"></i
+                                                ><b>M</b></span
+                                            >
+                                            <span
+                                                class="pcoded-mtext"
+                                                data-i18n="nav.menu-levels.main"
+                                                >Bank Soal</span
+                                            >
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                        {{-- end label menu level question bank --}}
+                                        <ul class="pcoded-submenu">
+                                            <li class="">
+                                                <a
+                                                    href="javascript:void(0)"
+                                                    class="waves-effect waves-dark"
+                                                >
+                                                    <span class="pcoded-micon"
+                                                        ><i
+                                                            class="ti-angle-right"
+                                                        ></i
+                                                    ></span>
+                                                    <span
+                                                        class="pcoded-mtext"
+                                                        data-i18n="nav.menu-levels.menu-level-21"
+                                                        >Materi</span
+                                                    >
+                                                    <span
+                                                        class="pcoded-mcaret"
+                                                    ></span>
+                                                </a>
+                                            </li>
+                                            <li class="">
+                                                <a
+                                                    href="javascript:void(0)"
+                                                    class="waves-effect waves-dark"
+                                                >
+                                                    <span class="pcoded-micon"
+                                                        ><i
+                                                            class="ti-angle-right"
+                                                        ></i
+                                                    ></span>
+                                                    <span
+                                                        class="pcoded-mtext"
+                                                        data-i18n="nav.menu-levels.menu-level-21"
+                                                        >Materi</span
+                                                    >
+                                                    <span
+                                                        class="pcoded-mcaret"
+                                                    ></span>
+                                                </a>
+                                            </li>
+                                            {{-- <li class="pcoded-hasmenu">
+                                                <a
+                                                    href="javascript:void(0)"
+                                                    class="waves-effect waves-dark"
+                                                >
+                                                    <span class="pcoded-micon"
+                                                        ><i
+                                                            class="ti-direction-alt"
+                                                        ></i
+                                                    ></span>
+                                                    <span
+                                                        class="pcoded-mtext"
+                                                        data-i18n="nav.menu-levels.menu-level-22.main"
+                                                        >Menu Level 2.2</span
+                                                    >
+                                                    <span
+                                                        class="pcoded-mcaret"
+                                                    ></span>
+                                                </a>
+                                                <ul class="pcoded-submenu">
+                                                    <li class="">
+                                                        <a
+                                                            href="javascript:void(0)"
+                                                            class="waves-effect waves-dark"
+                                                        >
+                                                            <span
+                                                                class="pcoded-micon"
+                                                                ><i
+                                                                    class="ti-angle-right"
+                                                                ></i
+                                                            ></span>
+                                                            <span
+                                                                class="pcoded-mtext"
+                                                                data-i18n="nav.menu-levels.menu-level-22.menu-level-31"
+                                                                >Menu Level
+                                                                3.1</span
+                                                            >
+                                                            <span
+                                                                class="pcoded-mcaret"
+                                                            ></span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li class="">
+                                                <a
+                                                    href="javascript:void(0)"
+                                                    class="waves-effect waves-dark"
+                                                >
+                                                    <span class="pcoded-micon"
+                                                        ><i
+                                                            class="ti-angle-right"
+                                                        ></i
+                                                    ></span>
+                                                    <span
+                                                        class="pcoded-mtext"
+                                                        data-i18n="nav.menu-levels.menu-level-23"
+                                                        >Menu Level 2.3</span
+                                                    >
+                                                    <span
+                                                        class="pcoded-mcaret"
+                                                    ></span>
+                                                </a>
+                                            </li> --}}
+                                        </ul>
+                                    </li>
+                                </ul>
+                                {{-- end menu levels question bank --}}
 
                             </div>
                         </nav>
