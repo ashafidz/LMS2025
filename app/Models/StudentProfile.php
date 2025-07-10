@@ -14,6 +14,12 @@ class StudentProfile extends Model
         'headline',
         'website_url',
         'student_status',
+        'bio',
+        'highest_level_of_education',
+        'profession',
+        'company_or_institution_name',
+        'company_address',
+        'company_tax_id',
     ];
 
     public function user(): BelongsTo

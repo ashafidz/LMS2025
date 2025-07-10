@@ -24,6 +24,18 @@ Route::get('/about', function () {
     return view('about');
 })->name('about');
 
+use App\Http\Controllers\UserProfileController;
+
+Route::middleware(['auth'])->group(function () {
+    // profile index
+    Route::get('/user/profile/view', [UserProfileController::class, 'index'])->name('user.profile.index');
+    Route::get('/user/profile/edit', [UserProfileController::class, 'edit'])->name('user.profile.edit');
+    Route::put('/user/profile', [UserProfileController::class, 'update'])->name('user.profile.update');
+    Route::get('/user/password', function () {
+        return view('auth.password');
+    })->name('user.password.edit');
+});
+
 // * group route for superadmin
 Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     Route::view('/superadmin/dashboard', 'superadmin.dashboard')->name('superadmin.dashboard');
