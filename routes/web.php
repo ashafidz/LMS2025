@@ -4,12 +4,12 @@ use App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleSwitchController;
+use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\Instructor\CourseController;
+use App\Http\Controllers\Instructor\LessonController;
 use App\Http\Controllers\Instructor\ModuleController;
 use App\Http\Controllers\Instructor\QuestionController;
 use App\Http\Controllers\Shared\StudentStatusController;
-use App\Http\Controllers\Instructor\QuestionTopicController;
-use App\Http\Controllers\Shared\InstructorApplicationController;
 
 
 Route::get('/switch-role/{role}', [RoleSwitchController::class, 'switch'])->name('role.switch');
@@ -24,7 +24,9 @@ Route::get('/about', function () {
     return view('about');
 })->name('about');
 
-use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\Instructor\QuizQuestionController;
+use App\Http\Controllers\Instructor\QuestionTopicController;
+use App\Http\Controllers\Shared\InstructorApplicationController;
 
 Route::middleware(['auth'])->group(function () {
     // profile index
@@ -143,6 +145,37 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         Route::put('/instructor/modules/{module}', [ModuleController::class, 'update'])->name('instructor.modules.update');
         Route::delete('/instructor/modules/{module}', [ModuleController::class, 'destroy'])->name('instructor.modules.destroy');
     });
+
+
+    // --- Routes untuk Mengelola Pelajaran (Lessons) dalam sebuah Modul ---
+
+    // Menampilkan daftar pelajaran & menangani pengurutan
+    Route::get('/instructor/modules/{module}/lessons', [LessonController::class, 'index'])->name('instructor.modules.lessons.index');
+    Route::post('/instructor/modules/{module}/lessons/reorder', [LessonController::class, 'reorder'])->name('instructor.modules.lessons.reorder');
+
+    // Membuat (Create) dan Menyimpan (Store) pelajaran baru
+    Route::get('/instructor/modules/{module}/lessons/create', [LessonController::class, 'create'])->name('instructor.modules.lessons.create');
+    Route::post('/instructor/modules/{module}/lessons', [LessonController::class, 'store'])->name('instructor.modules.lessons.store');
+
+    // Mengedit (Edit), Memperbarui (Update), dan Menghapus (Destroy) pelajaran (rute dangkal/shallow)
+    Route::get('/instructor/lessons/{lesson}/edit', [LessonController::class, 'edit'])->name('instructor.lessons.edit');
+    Route::put('/instructor/lessons/{lesson}', [LessonController::class, 'update'])->name('instructor.lessons.update');
+    Route::delete('/instructor/lessons/{lesson}', [LessonController::class, 'destroy'])->name('instructor.lessons.destroy');
+
+
+    // --- Routes untuk Mengelola Soal di dalam sebuah Kuis ---
+
+    // Halaman utama yang menampilkan daftar soal dalam kuis
+    Route::get('/instructor/quizzes/{quiz}/manage-questions', [QuizQuestionController::class, 'index'])->name('instructor.quizzes.manage_questions');
+
+    // Halaman untuk memilih soal dari Bank Soal
+    Route::get('/instructor/quizzes/{quiz}/browse-bank', [QuizQuestionController::class, 'browseBank'])->name('instructor.quizzes.browse_bank');
+
+    // Menyimpan soal yang dipilih dari Bank Soal ke dalam kuis
+    Route::post('/instructor/quizzes/{quiz}/attach-questions', [QuizQuestionController::class, 'attachQuestions'])->name('instructor.quizzes.attach_questions');
+
+    // Menghapus satu soal dari kuis
+    Route::delete('/instructor/quizzes/{quiz}/detach-question/{question}', [QuizQuestionController::class, 'detachQuestion'])->name('instructor.quizzes.detach_question');
 });
 
 // // * group route for instructor

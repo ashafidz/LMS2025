@@ -58,7 +58,7 @@
                                                         <span class="badge badge-info ml-2">{{ $module->lessons->count() }} Lessons</span>
                                                     </div>
                                                     <div>
-                                                        <a href="#" class="btn btn-success btn-sm">View Lessons</a>
+                                                        <a href="{{ route('instructor.modules.lessons.index', $module->id) }}" class="btn btn-success btn-sm">View Lessons</a>
                                                         <a href="{{ route('instructor.modules.edit', $module->id) }}" class="btn btn-info btn-sm">Edit</a>
                                                         <form action="{{ route('instructor.modules.destroy', $module->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this module and all its lessons?');">
                                                             @csrf
