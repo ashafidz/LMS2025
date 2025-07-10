@@ -15,6 +15,7 @@ class Question extends Model
         'question_text',
         'question_type',
         'score',
+        'explanation',
     ];
 
     /**

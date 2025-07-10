@@ -206,7 +206,6 @@
     <!-- menu js -->
     <script src="{{ asset('js/pcoded.min.js') }}"></script>
     <script src="{{ asset('js/vertical-layout.min.js') }} "></script>
-    
 
     <!-- custom js -->
     @stack('scripts')

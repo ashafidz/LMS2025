@@ -48,10 +48,7 @@
                                         <h5>Question List</h5>
                                         <span>Here is a list of all questions for this topic.</span>
                                         <div class="card-header-right">
-                                            {{-- UPDATE: This button now triggers the modal --}}
-                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#selectQuestionTypeModal">
-                                                Create Question
-                                            </button>
+                                            <button type="button" class="btn btn-primary">Create Question</button>
                                         </div>
                                     </div>
                                     <div class="card-block table-border-style">
@@ -74,9 +71,7 @@
                                                 <tbody>
                                                     @forelse ($questions as $question)
                                                         @php
-                                                            // Check if the question is used in any quiz.
-                                                            // This assumes your controller uses `with('quizzes')`.
-                                                            $isLocked = $question->quizzes->isNotEmpty();
+                                                            $isLocked = $question->quizzes_count > 0;
                                                         @endphp
                                                         <tr>
                                                             <th scope="row">{{ $loop->iteration + $questions->firstItem() - 1 }}</th>
@@ -90,23 +85,20 @@
                                                                 @endif
                                                             </td>
                                                             <td class="text-center">
-                                                                {{-- Show Edit button only if not locked --}}
-                                                                @if (!$isLocked)
-                                                                    <a href="{{ route('instructor.question-bank.questions.edit', $question->id) }}" class="btn btn-info btn-sm">Edit</a>
-                                                                @endif
-
-                                                                {{-- Always show Clone button --}}
+                                                                <a href="{{ route('instructor.question-bank.questions.edit', $question->id) }}" class="btn btn-info btn-sm">Edit</a>
+                                                                
                                                                 <form action="{{ route('instructor.question-bank.questions.clone', $question->id) }}" method="POST" class="d-inline">
                                                                     @csrf
                                                                     <button type="submit" class="btn btn-primary btn-sm">Clone</button>
                                                                 </form>
 
-                                                                {{-- Disable Delete button if locked --}}
-                                                                <form action="{{ route('instructor.question-bank.questions.destroy', $question->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this question?');">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <button type="submit" class="btn btn-danger btn-sm" {{ $isLocked ? 'disabled' : '' }} title="{{ $isLocked ? 'This question is locked and cannot be deleted.' : '' }}">Delete</button>
-                                                                </form>
+                                                                <span {{ $isLocked ? 'data-toggle=tooltip' : '' }} title="{{ $isLocked ? 'This question is used in a quiz and cannot be deleted.' : '' }}">
+                                                                    <form action="{{ route('instructor.question-bank.questions.destroy', $question->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this question?');">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                        <button type="submit" class="btn btn-danger btn-sm" {{ $isLocked ? 'disabled' : '' }}>Delete</button>
+                                                                    </form>
+                                                                </span>
                                                             </td>
                                                         </tr>
                                                     @empty
@@ -131,46 +123,7 @@
             </div>
         </div>
     </div>
-
-    <!-- ADDITION: Modal for Selecting Question Type -->
-    <div class="modal fade" id="selectQuestionTypeModal" tabindex="-1" role="dialog" aria-labelledby="selectQuestionTypeModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="selectQuestionTypeModalLabel">Choose Question Type</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>Please select the type of question you would like to create.</p>
-                    <div class="list-group">
-                        {{-- Link to create Multiple Choice (Single) --}}
-                        <a href="{{ route('instructor.question-bank.questions.create', ['topic' => $topic, 'type' => 'multiple_choice_single']) }}" class="list-group-item list-group-item-action">
-                            <strong>Multiple Choice (Single Answer)</strong>
-                            <br><small>Students can only select one correct answer from a list.</small>
-                        </a>
-                        {{-- Link to create Multiple Choice (Multiple) --}}
-                        <a href="{{ route('instructor.question-bank.questions.create', ['topic' => $topic, 'type' => 'multiple_choice_multiple']) }}" class="list-group-item list-group-item-action">
-                            <strong>Multiple Choice (Multiple Answers)</strong>
-                            <br><small>Students can select more than one correct answer.</small>
-                        </a>
-                        {{-- Link to create True/False --}}
-                        <a href="{{ route('instructor.question-bank.questions.create', ['topic' => $topic, 'type' => 'true_false']) }}" class="list-group-item list-group-item-action">
-                            <strong>True / False</strong>
-                            <br><small>A simple question with "True" or "False" as answers.</small>
-                        </a>
-                        {{-- Link to create Drag & Drop --}}
-                        <a href="{{ route('instructor.question-bank.questions.create', ['topic' => $topic, 'type' => 'drag_and_drop']) }}" class="list-group-item list-group-item-action">
-                            <strong>Drag and Drop (Fill in the Blanks)</strong>
-                            <br><small>Students drag words into the correct blanks in a sentence.</small>
-                        </a>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
+
+
+@endpush

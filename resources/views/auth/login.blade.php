@@ -78,7 +78,7 @@
                                 </div>
                                 <div class="col text-right">
                                      @if (Route::has('password.request'))
-                                        <a href="{{ route('password.request') }}" class="f-w-600">Forgot Password?</a>
+                                        <a href="#" data-toggle="modal" data-target="#forgotModal" class="f-w-600">Forgot Password?</a>
                                     @endif
                                 </div>
                             </div>
@@ -114,6 +114,59 @@
         </div>
     </div>
 </section>
+
+
+{{-- modal forgot password --}}
+<div class="modal fade" id="forgotModal" tabindex="-1" role="dialog" aria-labelledby="forgotModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content rounded">
+      <div class="modal-header">
+        <h5 class="modal-title" id="forgotModalLabel">🔐 Forgot Your Password</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-4 text-sm text-muted">
+            {{ __('No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+        </div>
+
+        @if (session('status'))
+            <div class="alert alert-success mb-4" role="alert">
+                {{ session('status') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="alert alert-danger mb-4">
+                <ul class="mb-0 ps-3">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('password.email') }}">
+            @csrf
+
+            <div class="mb-3">
+                <label for="email" class="form-label">{{ __('Email') }}</label>
+                <input id="email" class="form-control" type="email" name="email" value="{{ old('email') }}" required autofocus />
+            </div>
+
+            <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-dark">
+                    {{ __('Email Password Reset Link') }}
+                </button>
+            </div>
+        </form>
+        
+      </div>
+    </div>
+  </div>
+</div>
+{{-- end modal forgot password --}}
 @endsection
 
 

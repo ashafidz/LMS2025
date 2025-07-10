@@ -2,85 +2,96 @@
 
 namespace App\Http\Controllers\Instructor;
 
-use App\Http\Controllers\Controller;
 use App\Models\Question;
-use Illuminate\Http\Request;
 use App\Models\QuestionTopic;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-
+use App\Http\Controllers\Controller;
 
 class QuestionController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the questions for a given topic.
      */
-    public function index($topicId)
+    public function index(QuestionTopic $topic)
     {
-        $topic = \App\Models\QuestionTopic::find($topicId); // Manually load
-
-        // Ownership check
-        if (!$topic || $topic->instructor_id !== \Illuminate\Support\Facades\Auth::id()) {
+        // Manual Authorization Check
+        if (Auth::id() !== $topic->instructor_id) {
             abort(403, 'Unauthorized action.');
         }
 
-        $questions = $topic->questions()
-            ->withCount('quizzes') // Eager load the count of quizzes
-            ->with('options')
-            ->latest()
-            ->paginate(10);
-        // count the question and insert it in questions variable as
+        // Eager load relationships to check lock status and show options in the view
+        $questions = $topic->questions()->with('options', 'quizzes')->latest()->paginate(10);
+
         return view('instructor.question_bank.questions.index', compact('topic', 'questions'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new question.
      */
-    public function create($topicId)
+    public function create(Request $request, QuestionTopic $topic)
     {
-        $topic = \App\Models\QuestionTopic::find($topicId); // Manually load
-
-        // Ownership check
-        if (!$topic || $topic->instructor_id !== \Illuminate\Support\Facades\Auth::id()) {
+        // Manual Authorization Check
+        if (Auth::id() !== $topic->instructor_id) {
             abort(403, 'Unauthorized action.');
         }
 
-        return view('instructor.question_bank.questions.create', compact('topic'));
+        // Get the requested question type from the URL query string
+        $questionType = $request->query('type');
+
+        // Define the valid types and their corresponding view files
+        $validTypes = [
+            'multiple_choice_single',
+            'multiple_choice_multiple',
+            'true_false',
+            'drag_and_drop'
+        ];
+
+        // Check if the requested type is valid
+        if (!in_array($questionType, $validTypes)) {
+            // Or redirect back to the modal/index page with an error
+            abort(404, 'Invalid question type specified.');
+        }
+
+        // Construct the view name dynamically and pass the topic
+        $viewName = "instructor.question_bank.questions.create-{$questionType}";
+
+        return view($viewName, compact('topic'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created question in storage.
      */
-    public function store(Request $request, $topicId)
+    public function store(Request $request, QuestionTopic $topic)
     {
-        $topic = \App\Models\QuestionTopic::find($topicId); // Manually load
-
-        // Ownership check
-        if (!$topic || $topic->instructor_id !== \Illuminate\Support\Facades\Auth::id()) {
+        // Manual Authorization Check
+        if (Auth::id() !== $topic->instructor_id) {
             abort(403, 'Unauthorized action.');
         }
 
         $validated = $request->validate([
             'question_text' => 'required|string',
             'score' => 'required|integer|min:1',
+            'explanation' => 'nullable|string',
             'question_type' => ['required', Rule::in(['multiple_choice_single', 'multiple_choice_multiple', 'true_false', 'drag_and_drop'])],
-            // Add validation rules for options based on type
             'options' => 'required|array|min:2',
             'options.*.text' => 'required|string',
             'options.*.is_correct' => 'nullable|boolean',
             'options.*.gap_id' => 'nullable|string',
         ]);
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $topic) {
-            // 1. Create the Question
+        DB::transaction(function () use ($validated, $topic) {
+            // Create the Question
             $question = $topic->questions()->create([
                 'question_text' => $validated['question_text'],
                 'score' => $validated['score'],
+                'explanation' => $validated['explanation'],
                 'question_type' => $validated['question_type'],
             ]);
 
-            // 2. Create the Options
+            // Create the Options based on the validated data
             foreach ($validated['options'] as $optionData) {
                 $question->options()->create([
                     'option_text' => $optionData['text'],
@@ -96,51 +107,67 @@ class QuestionController extends Controller
 
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the correct edit form based on the question's type.
      */
-    public function edit($questionId)
+    public function edit(Question $question)
     {
-        $question = \App\Models\Question::find($questionId); // Manually load
-
-        // Ownership check
-        if (!$question || $question->topic->instructor_id !== \Illuminate\Support\Facades\Auth::id()) {
+        // Manual Authorization Check
+        if (Auth::id() !== $question->topic->instructor_id) {
             abort(403, 'Unauthorized action.');
         }
 
-        $question->load('options', 'topic'); // Eager load relationships
-        return view('instructor.question_bank.questions.edit', compact('question'));
+        // Server-side lock check. Redirect with an error if the question is in use.
+        // This is a safeguard in case the 'Edit' button was somehow visible on a locked question.
+        if ($question->quizzes()->exists()) {
+            return redirect()->route('instructor.question-bank.questions.index', $question->topic)
+                ->with('error', 'This question is locked and cannot be edited. Please clone it instead.');
+        }
+
+        // Get the question type directly from the model
+        $questionType = $question->question_type;
+
+        // Construct the view name dynamically based on the type
+        $viewName = "instructor.question_bank.questions.edit-{$questionType}";
+
+        // Eager load the relationships needed for the view
+        $question->load('options');
+
+        // Return the specific view for that question type
+        return view($viewName, compact('question'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified question in storage.
      */
-    public function update(Request $request, $questionId)
+    public function update(Request $request, Question $question)
     {
-        $question = \App\Models\Question::find($questionId); // Manually load
-
-        // Ownership check
-        if (!$question || $question->topic->instructor_id !== \Illuminate\Support\Facades\Auth::id()) {
+        // Manual Authorization & Lock Check
+        if (Auth::id() !== $question->topic->instructor_id) {
             abort(403, 'Unauthorized action.');
+        }
+        if ($question->quizzes()->exists()) {
+            abort(403, 'This question is locked and cannot be edited.');
         }
 
         $validated = $request->validate([
             'question_text' => 'required|string',
             'score' => 'required|integer|min:1',
-            // Can't change question type after creation to avoid data inconsistency
+            'explanation' => 'nullable|string',
             'options' => 'required|array|min:2',
             'options.*.text' => 'required|string',
             'options.*.is_correct' => 'nullable|boolean',
             'options.*.gap_id' => 'nullable|string',
         ]);
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $question) {
-            // 1. Update the Question
+        DB::transaction(function () use ($validated, $question) {
+            // Update the Question details
             $question->update([
                 'question_text' => $validated['question_text'],
                 'score' => $validated['score'],
+                'explanation' => $validated['explanation'],
             ]);
 
-            // 2. Delete old options and create new ones (simplest approach)
+            // Soft-delete old options and recreate them
             $question->options()->delete();
 
             foreach ($validated['options'] as $optionData) {
@@ -158,43 +185,37 @@ class QuestionController extends Controller
 
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified question from storage (soft delete).
      */
-    public function destroy($questionId)
+    public function destroy(Question $question)
     {
-        $question = \App\Models\Question::find($questionId); // Manually load
-
-        // Ownership check
-        if (!$question || $question->topic->instructor_id !== \Illuminate\Support\Facades\Auth::id()) {
+        // Manual Authorization Check
+        if (Auth::id() !== $question->topic->instructor_id) {
             abort(403, 'Unauthorized action.');
         }
 
         $topic = $question->topic;
-        $question->delete(); // This triggers the soft delete and the 'deleting' event in the model
+        $question->delete();
 
         return redirect()->route('instructor.question-bank.questions.index', $topic)
             ->with('success', 'Question moved to trash.');
     }
 
     /**
-     * Clone a question and its options.
+     * Clone a locked question and its options.
      */
-    public function clone($questionId)
+    public function clone(Question $question)
     {
-        $question = \App\Models\Question::find($questionId); // Manually load
-
-        // Ownership check
-        if (!$question || $question->topic->instructor_id !== \Illuminate\Support\Facades\Auth::id()) {
+        // Manual Authorization Check (user must own the question to clone it)
+        if (Auth::id() !== $question->topic->instructor_id) {
             abort(403, 'Unauthorized action.');
         }
 
-        $newQuestion = \Illuminate\Support\Facades\DB::transaction(function () use ($question) {
-            // 1. Replicate the question to create a new, unsaved instance
+        $newQuestion = DB::transaction(function () use ($question) {
             $newQuestion = $question->replicate();
             $newQuestion->question_text = $question->question_text . ' (Copy)';
-            $newQuestion->push(); // push() saves the model and its relationships
+            $newQuestion->push();
 
-            // 2. Replicate each option and associate it with the new question
             foreach ($question->options as $option) {
                 $newOption = $option->replicate();
                 $newQuestion->options()->save($newOption);
@@ -203,7 +224,6 @@ class QuestionController extends Controller
             return $newQuestion;
         });
 
-        // Redirect the instructor to the edit page for the newly created question
         return redirect()->route('instructor.question-bank.questions.edit', $newQuestion)
             ->with('success', 'Question cloned successfully. You are now editing the copy.');
     }
