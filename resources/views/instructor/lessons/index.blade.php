@@ -36,7 +36,7 @@
                                     <span>Seret dan lepas pelajaran untuk mengubah urutan.</span>
                                     <div class="card-header-right">
                                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#selectLessonTypeModal">
-                                            <i class="fa fa-plus"></i> Buat Pelajaran Baru
+                                            Buat Pelajaran Baru
                                         </button>
                                     </div>
                                 </div>

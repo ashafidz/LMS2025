@@ -49,7 +49,7 @@
                                     {{-- sidebar manajemen course --}}
                                     <li class="{{ Request::routeIs('instructor.courses.index') ? 'active' : '' }}">
                                         <a href="{{ route('instructor.courses.index') }}" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-home"></i><b>D</b></span>
+                                            <span class="pcoded-micon"><i class="ti-desktop"></i><b>D</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.dash.main">Manajemen Course</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
@@ -57,9 +57,9 @@
                                     {{-- end sidebar manajemen course --}}
 
                                     {{-- sidebar Bank Soal --}}
-                                    <li class="">
+                                    <li class="{{ Request::routeIs('instructor.question-bank.topics.index') ? 'active' : '' }}">
                                         <a href="{{ route('instructor.question-bank.topics.index') }}" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-layers"></i><b>FC</b></span>
+                                            <span class="pcoded-micon"><i class="fa fa-university"></i><b>FC</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.form-components.main">Bank Soal</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
@@ -91,7 +91,7 @@
                                             <span
                                                 class="pcoded-mtext"
                                                 data-i18n="nav.menu-levels.main"
-                                                >Bank Soal</span
+                                                >menu level</span
                                             >
                                             <span class="pcoded-mcaret"></span>
                                         </a>

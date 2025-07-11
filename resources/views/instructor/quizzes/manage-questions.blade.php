@@ -34,9 +34,10 @@
                                 <div class="card">
                                     <div class="card-header">
                                         <h5>Daftar Soal dalam Kuis Ini</h5>
+                                        <span>Daftar soal yang telah ditambahkan ke kuis.</span>
                                         <div class="card-header-right">
                                             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addQuestionModal">
-                                                <i class="fa fa-plus"></i> Tambah Soal
+                                                Tambah Soal
                                             </button>
                                         </div>
                                     </div>
