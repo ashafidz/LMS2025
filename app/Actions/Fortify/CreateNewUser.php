@@ -54,8 +54,8 @@ class CreateNewUser implements CreatesNewUsers
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => $this->passwordRules(),
             'role' => ['required', 'string', Rule::in(['student', 'instructor'])],
-            'headline' => ['required_if:role,instructor', 'string', 'max:255'],
-            'website_url' => ['required_if:role,instructor', 'url', 'max:255'],
+            'headline' => ['required_if:role,instructor', 'nullable', 'string', 'max:255'],
+            'website_url' => ['required_if:role,instructor', 'nullable', 'url', 'max:255'],
         ])->validate();
 
         return DB::transaction(function () use ($input) {
@@ -74,9 +74,17 @@ class CreateNewUser implements CreatesNewUsers
                     'headline' => $input['headline'],
                     'website_url' => $input['website_url'],
                 ]);
+                $user->studentProfile()->create([
+                    'headline' => 'default headline',
+                    'website_url' => 'https://example.com/default-website-url',
+                ]);
             } else {
                 // Assign only the student role
                 $user->assignRole('student');
+                $user->studentProfile()->create([
+                    'headline' => 'default headline',
+                    'website_url' => 'https://example.com/default-website-url',
+                ]);
             }
 
             return $user;

@@ -2,7 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Question;
+use App\Models\QuestionTopic;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use App\Policies\Instructor\QuestionPolicy;
+use App\Policies\Instructor\QuestionTopicPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,5 +26,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
+        // Gate::policy(QuestionTopic::class, QuestionTopicPolicy::class);
+        // Gate::policy(Question::class, QuestionPolicy::class);
     }
 }

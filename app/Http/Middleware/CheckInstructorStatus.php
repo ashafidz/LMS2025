@@ -23,6 +23,16 @@ class CheckInstructorStatus
                 return $next($request);
             }
             return redirect()->route('instructor.pending');
+        } elseif ($user && $user->hasRole('instructor') && $user->instructorProfile?->application_status === 'deactive') {
+            if ($request->routeIs('instructor.deactive')) {
+                return $next($request);
+            }
+            return redirect()->route('instructor.deactive');
+        } elseif ($user && $user->hasRole('instructor') && $user->instructorProfile?->application_status === 'rejected') {
+            if ($request->routeIs('instructor.rejected')) {
+                return $next($request);
+            }
+            return redirect()->route('instructor.rejected');
         }
         return $next($request);
     }

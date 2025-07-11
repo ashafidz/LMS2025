@@ -1,156 +1,177 @@
-@extends('layouts.guest-layout') 
+@extends('layouts.app-layout')
 
-{{-- I've added one new style here for the side image --}}
-<style> 
-    /* This new rule makes the image fill its column completely */
-    .side-image-fill {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        min-height: 100vh;
-    }
-    
-    /* Your original button styles are perfect and remain unchanged */
-    .btn-outline-primary { 
-        color: #448aff; 
-        border-color: #448aff; 
-        background-color: white; 
-    }
-    .btn-outline-primary:hover { 
-        background-color: #333; 
-        color: white; 
-        border-color: #448aff; 
-    }
-    .btn-check:checked+.btn-outline-primary { 
-        background-color: #448aff !important; 
-        color: white !important; 
-        border-color: #448aff !important; 
-    } 
-</style> 
+@section('content')
+<section class="login-block">
+    <div class="container-fluid px-0">
+        <div class="row no-gutters shift-up" style="height: 100vh; overflow: hidden;">
 
-@section('content') 
+            <!-- KIRI: Gambar dalam kotak biru -->
+            <div class="col-md-6 d-none d-md-flex align-items-center justify-content-center bg-primary"
+                style="min-height: 100vh;">
+                <div
+                    style="width: 620px; height: 620px; background-color: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <img src="{{ asset('images/side-images/studio-unsplash.jpg') }}" alt="Registration Illustration"
+                        style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                </div>
+            </div>
 
-{{-- CHANGE 1: Added g-0 to remove gutters and h-100 to make the row full height --}}
-<div class="container-fluid p-0 h-100">
-    <div class="row g-0 h-100"> 
+            <!-- KANAN: Form Registrasi -->
+            <div class="col-md-6 align-items-center d-flex" style="min-height: 100vh;">
+                <form class="md-float-material form-material w-100 px-4" method="POST" action="{{ route('register') }}">
+                    @csrf
+                    <div class="auth-box card">
+                        <div class="card-block">
 
-    {{-- column for side image --}} 
-    <div class="col-md-6 d-none d-lg-block"> 
-        {{-- CHANGE 2: Added the new side-image-fill class and kept img-fluid --}}
-        <img src="{{ asset('images/side-images/annie-unsplash.jpg') }}" class="img-fluid side-image-fill" alt="Photo by Annie Spratt on Unsplash"> 
-    </div> 
+                            <div class="text-center mb-3">
+                                <h3 class="text-center">Sign Up</h3>
+                                <p class="font-weight-bold">Register As</p>
+                                <div class="d-flex justify-content-center mb-2">
+                                    <div class="role-btn btn btn-primary mr-2 active" onclick="selectRole(this, 'student')">
+                                        👨‍🎓 Student
+                                    </div>
+                                    <div class="role-btn btn btn-outline-secondary" onclick="selectRole(this, 'instructor')">
+                                        🧑‍🏫 Instructor
+                                    </div>
+                                </div>
+                                <input type="hidden" id="selected-role" name="role" value="student">
+                            </div>
 
+                            <!-- Validation Errors -->
+                            @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
 
-    {{-- Login Card Column --}}
-    <div class="col-12 col-lg-6 d-flex justify-content-center align-items-center bg-light">
-        <div class="card shadow-sm border-0" style="max-width: 450px; width: 100%;">
-            <div class="card-body p-5">
-                <h3 class="text-center mb-4">Register</h3>
-                
-                    @if ($errors->any()) 
-                        <div class="alert alert-danger mb-4"> 
-                            <ul class="mb-0 ps-3"> 
-                                @foreach ($errors->all() as $error) 
-                                    <li>{{ $error }}</li> 
-                                @endforeach 
-                            </ul> 
-                        </div> 
-                    @endif 
+                            {{-- Common Fields --}}
+                            <div class="form-group form-primary">
+                                <input type="text" name="name" class="form-control" required value="{{ old('name') }}">
+                                <span class="form-bar"></span>
+                                <label class="float-label">Full Name</label>
+                            </div>
 
-                    <form method="POST" action="{{ route('register') }}"> 
-                        @csrf 
+                            <div class="form-group form-primary">
+                                <input type="email" name="email" class="form-control" required value="{{ old('email') }}">
+                                <span class="form-bar"></span>
+                                <label class="float-label">Email Address</label>
+                            </div>
 
-                        <div class="mb-4 text-center"> 
-                            <label class="form-label d-block">{{ __('Register as') }}</label> 
-                            <div class="btn-group" role="group" aria-label="Register as role"> 
-                                <input type="radio" class="btn-check" name="role" id="role_student" value="student" 
-                                    autocomplete="off" @if (old('role', 'student') == 'student') checked @endif> 
-                                <label class="btn btn-outline-primary" for="role_student">🎓 Student</label> 
+                            {{-- Instructor-only fields --}}
+                            <div id="instructor-fields" style="display: none;">
+                                <div class="form-group form-primary">
+                                    <input type="text" name="headline" class="form-control" value="{{ old('headline') }}">
+                                    <span class="form-bar"></span>
+                                    <label class="float-label">Headline (e.g., Web Developer)</label>
+                                </div>
+                                <div class="form-group form-primary">
+                                    <input type="url" name="website_url" class="form-control" value="{{ old('website_url') }}">
+                                    <span class="form-bar"></span>
+                                    <label class="float-label">Website URL (Optional)</label>
+                                </div>
+                            </div>
 
-                                <input type="radio" class="btn-check" name="role" id="role_instructor" 
-                                    value="instructor" autocomplete="off" @if (old('role') == 'instructor') checked @endif> 
-                                <label class="btn btn-outline-primary" for="role_instructor">🧑‍🏫 Instructor</label> 
-                            </div> 
-                        </div> 
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group form-primary">
+                                        <input type="password" name="password" class="form-control" required>
+                                        <span class="form-bar"></span>
+                                        <label class="float-label">Password</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group form-primary">
+                                        <input type="password" name="password_confirmation" class="form-control" required>
+                                        <span class="form-bar"></span>
+                                        <label class="float-label">Confirm Password</label>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <div id="instructor-fields" style="display: none;"> 
-                            <div class="mb-3"> 
-                                <label for="headline" class="form-label">Profession / Headline</label> 
-                                <input type="text" name="headline" id="headline" class="form-control" 
-                                    value="{{ old('headline') }}" placeholder="e.g., Web Developer, English Teacher"> 
-                            </div> 
-                            <div class="mb-3"> 
-                                <label for="website_url" class="form-label">Portfolio/LinkedIn URL</label> 
-                                <input type="url" name="website_url" id="website_url" class="form-control" 
-                                    value="{{ old('website_url') }}" placeholder="Link to your work or profile"> 
-                            </div> 
-                        </div> 
-                        <div class="mb-3"> 
-                            <label for="name" class="form-label">{{ __('Name') }}</label> 
-                            <input id="name" class="form-control" type="text" name="name" 
-                                value="{{ old('name') }}" required autofocus autocomplete="name" /> 
-                        </div> 
+                            <div class="row m-t-30">
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-primary btn-md btn-block waves-effect text-center m-b-20">
+                                        Sign up now
+                                    </button>
+                                </div>
+                            </div>
 
-                        <div class="mb-3"> 
-                            <label for="email" class="form-label">{{ __('Email') }}</label> 
-                            <input id="email" class="form-control" type="email" name="email" 
-                                value="{{ old('email') }}" required /> 
-                        </div> 
+                            <div class="text-center mt-3">
+                                <p class="text-muted">Already have an account? <a href="{{ route('login') }}" class="text-primary">Log in</a></p>
+                            </div>
 
-                        <div class="mb-3"> 
-                            <label for="password" class="form-label">{{ __('Password') }}</label> 
-                            <input id="password" class="form-control" type="password" name="password" required 
-                                autocomplete="new-password" /> 
-                        </div> 
+                            <hr/>
 
-                        <div class="mb-3"> 
-                            <label for="password_confirmation" class="form-label">{{ __('Confirm Password') }}</label> 
-                            <input id="password_confirmation" class="form-control" type="password" 
-                                name="password_confirmation" required autocomplete="new-password" /> 
-                        </div> 
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <p class="text-inverse text-left m-b-0">Thank You</p>
+                                    <p class="text-inverse text-left"><a href="{{ route('home') }}"><b>Back to website</b></a></p>
+                                </div>
+                            </div>
 
-                        <div class="d-flex justify-content-end align-items-center mt-4"> 
-                            <a class="text-decoration-none me-3" href="{{ route('login') }}"> 
-                                {{ __('Already registered?') }} 
-                            </a> 
-
-                            <button type="submit" class="btn bg-default-blue text-white"> 
-                                {{ __('Register') }} 
-                            </button> 
-                        </div> 
-                    </form> 
-
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-    </div> 
-</div> 
+</section>
+@endsection
 
-@endsection 
-
-{{-- CHANGE 4: Moved your original script into the conventional @push stack --}}
 @push('scripts')
-<script> 
-    document.addEventListener('DOMContentLoaded', function() { 
-        const roleRadios = document.querySelectorAll('input[name="role"]'); 
-        const instructorFields = document.getElementById('instructor-fields'); 
+<style>
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+    }
 
-        function toggleInstructorFields() { 
-            const selectedRole = document.querySelector('input[name="role"]:checked').value; 
-            if (selectedRole === 'instructor') { 
-                instructorFields.style.display = 'block'; 
-            } else { 
-                instructorFields.style.display = 'none'; 
-            } 
-        } 
+    .shift-up {
+        transform: translateY(-30px);
+    }
+</style>
+<script>
+    function selectRole(element, role) {
+        // --- Button Visuals ---
+        document.querySelectorAll('.role-btn').forEach(btn => {
+            btn.classList.remove('btn-primary', 'active');
+            btn.classList.add('btn-outline-secondary');
+        });
+        element.classList.add('btn-primary', 'active');
+        element.classList.remove('btn-outline-secondary');
+
+        // --- Form Logic ---
+        document.getElementById('selected-role').value = role;
+        const instructorFields = document.getElementById('instructor-fields');
+        const headlineInput = document.querySelector('input[name="headline"]');
+        const websiteInput = document.querySelector('input[name="website_url"]');
+
+        if (role === 'instructor') {
+            instructorFields.style.display = 'block';
+            headlineInput.required = true;
+            websiteInput.required = true;
+        } else {
+            instructorFields.style.display = 'none';
+            headlineInput.required = false;
+            websiteInput.required = false;
+        }
+    }
+
+    // Ensure the correct fields are shown if there's an old('role') value from a validation error
+    document.addEventListener('DOMContentLoaded', function() {
+        const initialRole = '{{ old("role", "student") }}';
+        const instructorButton = document.querySelector('.role-btn[onclick*="instructor"]');
+        const studentButton = document.querySelector('.role-btn[onclick*="student"]');
         
-        // Run the function on page load to handle validation errors 
-        toggleInstructorFields(); 
-
-        // Add an event listener to each radio button 
-        roleRadios.forEach(radio => { 
-            radio.addEventListener('change', toggleInstructorFields); 
-        }); 
-    }); 
+        if (initialRole === 'instructor') {
+            selectRole(instructorButton, 'instructor');
+        } else {
+            selectRole(studentButton, 'student');
+        }
+    });
 </script>
 @endpush

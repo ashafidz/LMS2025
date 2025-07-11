@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             SuperadminUserSeeder::class,
             AdminUserSeeder::class,
+            CourseCategorySeeder::class,
             // You can add other seeders here
         ]);
     }

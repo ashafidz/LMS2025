@@ -21,7 +21,7 @@ class InstructorApplicationController extends Controller
         // Fetch all instructor profiles and load their associated user data
         $applications = InstructorProfile::with('user')->latest()->paginate(10);
 
-        return view('shared-admin.instructor-application.index', compact('applications'));
+        return view('shared-admin.manajemen-user.instructor-application.index', compact('applications'));
     }
 
     /**
@@ -50,5 +50,30 @@ class InstructorApplicationController extends Controller
         Mail::to($application->user->email)->send(new InstructorRejected($application->user));
 
         return back()->with('success', 'Instructor application has been rejected.');
+    }
+
+    /**
+     *  Deactivate the instructor.
+     */
+    public function deactive(InstructorProfile $application): RedirectResponse
+    {
+
+        // Update the status to 'deactivate'
+        $application->update(['application_status' => 'deactive']);
+
+        return back()->with('success', 'Instructor has been deactivated.');
+    }
+
+    /**
+     * Reactivate the instructor.
+     */
+    public function reactivate(InstructorProfile $application): RedirectResponse
+    {
+        // Update the status back to 'approved'
+        $application->update(['application_status' => 'approved']);
+
+        // Optionally, you could send a notification email here.
+
+        return back()->with('success', 'Instructor has been reactivated.');
     }
 }

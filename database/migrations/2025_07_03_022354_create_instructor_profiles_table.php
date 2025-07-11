@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('headline')->nullable();
             $table->text('bio')->nullable();
             $table->string('website_url')->nullable();
-            $table->enum('application_status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->enum('application_status', ['pending', 'approved', 'rejected', 'deactive'])->default('pending');
             $table->timestamps();
         });
     }

@@ -1,0 +1,74 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
+
+class Course extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'instructor_id',
+        'category_id',
+        'title',
+        'slug',
+        'description',
+        'price',
+        'status',
+        'thumbnail_url',
+        // Add the new fields
+        'availability_type',
+        'start_date',
+        'end_date',
+    ];
+
+    /**
+     * Boot method to auto-generate slug from title if not provided.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($course) {
+            if (empty($course->slug)) {
+                $course->slug = Str::slug($course->title);
+            }
+        });
+    }
+
+    /**
+     * Get the category that the course belongs to.
+     */
+    public function category()
+    {
+        return $this->belongsTo(CourseCategory::class, 'category_id');
+    }
+
+    /**
+     * Get the instructor that owns the course.
+     */
+    public function instructor()
+    {
+        return $this->belongsTo(User::class, 'instructor_id');
+    }
+
+    /**
+     * The students that are enrolled in the course.
+     */
+    public function students()
+    {
+        return $this->belongsToMany(User::class, 'course_enrollments')
+            ->withTimestamps()->withPivot('enrolled_at');
+    }
+
+    /**
+     * Get all of the modules for the Course.
+     */
+    public function modules()
+    {
+        return $this->hasMany(Module::class);
+    }
+}

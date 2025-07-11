@@ -3,15 +3,17 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Filament\Panel;
 use App\Models\InstructorProfile;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Notifications\Notifiable;
-use Filament\Models\Contracts\FilamentUser;
+use App\Models\QuestionTopic;
+use App\Models\StudentProfile;
+use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * 
@@ -74,6 +76,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'role',
+        'phone_number',
+        'address',
+        'gender',
+        'birth_date',
+        'profile_picture_url',
     ];
 
 
@@ -81,6 +88,55 @@ class User extends Authenticatable implements MustVerifyEmail
     public function instructorProfile(): HasOne
     {
         return $this->hasOne(InstructorProfile::class);
+    }
+
+    public function studentProfile(): HasOne
+    {
+        return $this->hasOne(StudentProfile::class);
+    }
+
+    public function questionTopics(): HasMany
+    {
+        return $this->hasMany(QuestionTopic::class, 'instructor_id');
+    }
+
+    public function courses()
+    {
+        return $this->hasMany(Course::class, 'instructor_id');
+    }
+
+    /**
+     * The courses that the user is enrolled in.
+     */
+    public function enrollments()
+    {
+        return $this->belongsToMany(Course::class, 'course_enrollments')
+            ->withTimestamps()->withPivot('enrolled_at');
+    }
+
+    public function completedLessons()
+    {
+        return $this->belongsToMany(Lesson::class, 'lesson_user')->withPivot('completed_at');
+    }
+
+    public function courseReviews()
+    {
+        return $this->hasMany(CourseReview::class);
+    }
+
+    public function quizAttempts()
+    {
+        return $this->hasMany(QuizAttempt::class, 'student_id');
+    }
+
+    public function assignmentSubmissions()
+    {
+        return $this->hasMany(AssignmentSubmission::class);
+    }
+
+    public function lessonDiscussions()
+    {
+        return $this->hasMany(LessonDiscussion::class);
     }
 
     /**
