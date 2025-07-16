@@ -39,7 +39,6 @@
                                     <div class="card-block">
                                         <form action="{{ route('instructor.modules.lessons.store', $module) }}" method="POST">
                                             @csrf
-                                            {{-- Input tersembunyi untuk memberitahu controller tipe pelajaran yang dibuat --}}
                                             <input type="hidden" name="lesson_type" value="article">
 
                                             <div class="form-group row">
@@ -52,8 +51,8 @@
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Konten Artikel</label>
                                                 <div class="col-sm-10">
-                                                    {{-- Untuk pengalaman terbaik, Anda bisa mengganti textarea ini dengan editor teks kaya seperti TinyMCE atau CKEditor --}}
-                                                    <textarea rows="15" name="content" class="form-control" required placeholder="Tulis konten artikel Anda di sini...">{{ old('content') }}</textarea>
+                                                    {{-- Beri ID pada textarea ini agar bisa ditarget oleh JavaScript --}}
+                                                    <textarea id="article-content" rows="15" name="content" class="form-control">{{ old('content') }}</textarea>
                                                 </div>
                                             </div>
 
@@ -74,3 +73,17 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    {{-- 1. Tambahkan script TinyMCE dari CDN --}}
+    <script src="https://cdn.tiny.cloud/1/fl2a5lp7k46s1mglp4rekz1mbeugac2hok87g2ca88v4mwja/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+    {{-- 2. Inisialisasi TinyMCE pada textarea dengan ID 'article-content' --}}
+    <script>
+        tinymce.init({
+            selector: 'textarea#article-content',
+            plugins: 'code table lists image link',
+            toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | code | table | image link'
+        });
+    </script>
+@endpush

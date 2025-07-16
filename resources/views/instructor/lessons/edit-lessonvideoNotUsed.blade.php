@@ -9,7 +9,7 @@
                     <div class="col-md-8">
                         <div class="page-header-title">
                             <h5 class="m-b-10">Edit Pelajaran</h5>
-                            <p class="m-b-0">Tipe: Pelajaran Artikel</p>
+                            <p class="m-b-0">Tipe: Pelajaran Video</p>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -17,7 +17,7 @@
                             <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
                             <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $lesson->module->course) }}">Modul</a></li>
                             <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}">{{ Str::limit($lesson->module->title, 20) }}</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Edit Artikel</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Edit Video</a></li>
                         </ul>
                     </div>
                 </div>
@@ -33,10 +33,11 @@
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Edit Detail Pelajaran Artikel</h5>
+                                        <h5>Edit Detail Pelajaran Video</h5>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.lessons.update', $lesson->id) }}" method="POST">
+                                        {{-- Penting: tambahkan enctype untuk unggahan file --}}
+                                        <form action="{{ route('instructor.lessons.update', $lesson->id) }}" method="POST" enctype="multipart/form-data">
                                             @csrf
                                             @method('PUT')
 
@@ -48,10 +49,26 @@
                                             </div>
 
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Konten Artikel</label>
+                                                <label class="col-sm-2 col-form-label">Video Saat Ini</label>
                                                 <div class="col-sm-10">
-                                                    {{-- Beri ID pada textarea ini --}}
-                                                    <textarea id="article-content" rows="15" name="content" class="form-control">{{ old('content', $lesson->lessonable->content) }}</textarea>
+                                                    {{-- Menampilkan video yang sedang digunakan --}}
+                                                    @if($lesson->lessonable->video_s3_key)
+                                                        <video width="320" height="240" controls>
+                                                            <source src="{{ Storage::url($lesson->lessonable->video_s3_key) }}" type="video/mp4">
+                                                            Browser Anda tidak mendukung tag video.
+                                                        </video>
+                                                        <p class="mt-2">Nama file: <code>{{ basename($lesson->lessonable->video_s3_key) }}</code></p>
+                                                    @else
+                                                        <p>Tidak ada video yang diunggah.</p>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label class="col-sm-2 col-form-label">Unggah Video Baru (Opsional)</label>
+                                                <div class="col-sm-10">
+                                                    <input type="file" name="video_file" class="form-control" accept="video/mp4,video/x-matroska,video/quicktime">
+                                                    <small class="form-text text-muted">Pilih file baru jika Anda ingin mengganti video saat ini. Format: MP4, MKV, MOV. Ukuran maksimal: 100MB.</small>
                                                 </div>
                                             </div>
 
@@ -72,17 +89,3 @@
         </div>
     </div>
 @endsection
-
-@push('scripts')
-    {{-- 1. Tambahkan script TinyMCE dari CDN --}}
-    <script src="https://cdn.tiny.cloud/1/fl2a5lp7k46s1mglp4rekz1mbeugac2hok87g2ca88v4mwja/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-
-    {{-- 2. Inisialisasi TinyMCE pada textarea dengan ID 'article-content' --}}
-    <script>
-        tinymce.init({
-            selector: 'textarea#article-content',
-            plugins: 'code table lists image link',
-            toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | code | table | image link'
-        });
-    </script>
-@endpush

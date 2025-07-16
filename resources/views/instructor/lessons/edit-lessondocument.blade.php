@@ -9,7 +9,7 @@
                     <div class="col-md-8">
                         <div class="page-header-title">
                             <h5 class="m-b-10">Edit Pelajaran</h5>
-                            <p class="m-b-0">Tipe: Pelajaran Artikel</p>
+                            <p class="m-b-0">Tipe: Pelajaran Dokumen (PDF)</p>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -17,7 +17,7 @@
                             <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
                             <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $lesson->module->course) }}">Modul</a></li>
                             <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}">{{ Str::limit($lesson->module->title, 20) }}</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Edit Artikel</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Edit Dokumen</a></li>
                         </ul>
                     </div>
                 </div>
@@ -33,12 +33,34 @@
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Edit Detail Pelajaran Artikel</h5>
+                                        <h5>Edit Detail Pelajaran Dokumen</h5>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.lessons.update', $lesson->id) }}" method="POST">
+                                        <form action="{{ route('instructor.lessons.update', $lesson->id) }}" method="POST" enctype="multipart/form-data">
                                             @csrf
                                             @method('PUT')
+
+                                            {{-- Bagian Pratinjau PDF --}}
+                                            <div class="form-group row">
+                                                <label class="col-sm-2 col-form-label">Pratinjau File Saat Ini</label>
+                                                <div class="col-sm-10">
+                                                    @if($lesson->lessonable->file_path)
+                                                        <div class="embed-responsive embed-responsive-4by3" style="max-width: 800px; border: 1px solid #ddd;">
+                                                            {{-- Menggunakan tag <embed> untuk menampilkan PDF secara langsung --}}
+                                                            <embed src="{{ Storage::url($lesson->lessonable->file_path) }}" type="application/pdf" width="100%" height="500px" />
+                                                        </div>
+                                                        <p class="mt-2">
+                                                            <i class="fa fa-file-pdf-o"></i>
+                                                            <code>{{ basename($lesson->lessonable->file_path) }}</code>
+                                                            <a href="{{ Storage::url($lesson->lessonable->file_path) }}" target="_blank" class="ml-2">(Unduh)</a>
+                                                        </p>
+                                                    @else
+                                                        <p class="text-muted">Tidak ada file yang diunggah.</p>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            {{-- Akhir Bagian Pratinjau --}}
 
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Judul Pelajaran</label>
@@ -48,10 +70,10 @@
                                             </div>
 
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Konten Artikel</label>
+                                                <label class="col-sm-2 col-form-label">Unggah File Baru (Opsional)</label>
                                                 <div class="col-sm-10">
-                                                    {{-- Beri ID pada textarea ini --}}
-                                                    <textarea id="article-content" rows="15" name="content" class="form-control">{{ old('content', $lesson->lessonable->content) }}</textarea>
+                                                    <input type="file" name="document_file" class="form-control" accept=".pdf">
+                                                    <small class="form-text text-muted">Pilih file baru jika Anda ingin mengganti file saat ini. Format: PDF. Maks: 20MB.</small>
                                                 </div>
                                             </div>
 
@@ -72,17 +94,3 @@
         </div>
     </div>
 @endsection
-
-@push('scripts')
-    {{-- 1. Tambahkan script TinyMCE dari CDN --}}
-    <script src="https://cdn.tiny.cloud/1/fl2a5lp7k46s1mglp4rekz1mbeugac2hok87g2ca88v4mwja/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-
-    {{-- 2. Inisialisasi TinyMCE pada textarea dengan ID 'article-content' --}}
-    <script>
-        tinymce.init({
-            selector: 'textarea#article-content',
-            plugins: 'code table lists image link',
-            toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | code | table | image link'
-        });
-    </script>
-@endpush

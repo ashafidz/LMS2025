@@ -8,16 +8,16 @@
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <div class="page-header-title">
-                            <h5 class="m-b-10">Edit Pelajaran</h5>
-                            <p class="m-b-0">Tipe: Pelajaran Artikel</p>
+                            <h5 class="m-b-10">Buat Pelajaran Baru</h5>
+                            <p class="m-b-0">Tipe: Pelajaran Dokumen (PDF)</p>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <ul class="breadcrumb-title">
                             <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $lesson->module->course) }}">Modul</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}">{{ Str::limit($lesson->module->title, 20) }}</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Edit Artikel</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $module->course) }}">Modul</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $module) }}">{{ Str::limit($module->title, 20) }}</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Buat Dokumen</a></li>
                         </ul>
                     </div>
                 </div>
@@ -33,32 +33,34 @@
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Edit Detail Pelajaran Artikel</h5>
+                                        <h5>Detail Pelajaran Dokumen</h5>
+                                        <span>Isi detail untuk pelajaran baru Anda.</span>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.lessons.update', $lesson->id) }}" method="POST">
+                                        {{-- Penting: tambahkan enctype untuk unggahan file --}}
+                                        <form action="{{ route('instructor.modules.lessons.store', $module) }}" method="POST" enctype="multipart/form-data">
                                             @csrf
-                                            @method('PUT')
+                                            <input type="hidden" name="lesson_type" value="document">
 
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Judul Pelajaran</label>
                                                 <div class="col-sm-10">
-                                                    <input type="text" name="title" class="form-control" value="{{ old('title', $lesson->title) }}" required>
+                                                    <input type="text" name="title" class="form-control" value="{{ old('title') }}" required placeholder="Masukkan judul pelajaran...">
                                                 </div>
                                             </div>
 
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Konten Artikel</label>
+                                                <label class="col-sm-2 col-form-label">File Dokumen (PDF)</label>
                                                 <div class="col-sm-10">
-                                                    {{-- Beri ID pada textarea ini --}}
-                                                    <textarea id="article-content" rows="15" name="content" class="form-control">{{ old('content', $lesson->lessonable->content) }}</textarea>
+                                                    <input type="file" name="document_file" class="form-control" required accept=".pdf">
+                                                    <small class="form-text text-muted">Format yang didukung: PDF. Ukuran maksimal: 20MB.</small>
                                                 </div>
                                             </div>
 
                                             <div class="form-group row mt-4">
                                                 <div class="col-sm-12 text-right">
-                                                    <a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}" class="btn btn-secondary">Batal</a>
-                                                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                                                    <a href="{{ route('instructor.modules.lessons.index', $module) }}" class="btn btn-secondary">Batal</a>
+                                                    <button type="submit" class="btn btn-primary">Simpan Pelajaran</button>
                                                 </div>
                                             </div>
                                         </form>
@@ -72,17 +74,3 @@
         </div>
     </div>
 @endsection
-
-@push('scripts')
-    {{-- 1. Tambahkan script TinyMCE dari CDN --}}
-    <script src="https://cdn.tiny.cloud/1/fl2a5lp7k46s1mglp4rekz1mbeugac2hok87g2ca88v4mwja/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-
-    {{-- 2. Inisialisasi TinyMCE pada textarea dengan ID 'article-content' --}}
-    <script>
-        tinymce.init({
-            selector: 'textarea#article-content',
-            plugins: 'code table lists image link',
-            toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | code | table | image link'
-        });
-    </script>
-@endpush

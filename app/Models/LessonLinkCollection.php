@@ -5,23 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class LessonVideo extends Model
+class LessonLinkCollection extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['links'];
+
     /**
-     * Atribut yang dapat diisi secara massal.
+     * Casts atribut Eloquent.
      *
      * @var array
      */
-    protected $fillable = [
-        'source_type', // 'upload' atau 'youtube'
-        'video_path',  // Path file lokal atau URL YouTube
-        'duration',
+    protected $casts = [
+        'links' => 'array', // Secara otomatis mengubah JSON menjadi array dan sebaliknya
     ];
 
     /**
-     * Dapatkan pelajaran (lesson) yang memiliki konten video ini.
+     * Dapatkan pelajaran (lesson) yang memiliki kumpulan link ini.
      */
     public function lesson()
     {

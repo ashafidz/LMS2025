@@ -14,12 +14,14 @@ class QuestionController extends Controller
 {
     public function index(QuestionTopic $topic)
     {
+        // Otorisasi dihapus
         $questions = $topic->questions()->with('options', 'quizzes')->latest()->paginate(10);
         return view('instructor.question_bank.questions.index', compact('topic', 'questions'));
     }
 
     public function create(Request $request, QuestionTopic $topic)
     {
+        // Otorisasi dihapus
         $questionType = $request->query('type');
         $validTypes = ['multiple_choice_single', 'multiple_choice_multiple', 'true_false', 'drag_and_drop'];
 
@@ -31,11 +33,9 @@ class QuestionController extends Controller
         return view($viewName, compact('topic'));
     }
 
-    /**
-     * Store a newly created question in storage.
-     */
     public function store(Request $request, QuestionTopic $topic)
     {
+        // Otorisasi dihapus
         $validated = $request->validate([
             'question_text' => 'required|string',
             'score' => 'required|integer|min:1',
@@ -56,17 +56,10 @@ class QuestionController extends Controller
             ]);
 
             foreach ($validated['options'] as $optionData) {
-                // LOGIKA BARU YANG DISEMPURNAKAN
-                $isCorrect = $optionData['is_correct'] ?? false;
-                if ($validated['question_type'] === 'drag_and_drop') {
-                    // Jika ini soal drag and drop, is_correct ditentukan oleh keberadaan gap_id
-                    $isCorrect = !empty($optionData['gap_id']);
-                }
-
                 $question->options()->create([
                     'option_text' => $optionData['text'],
-                    'is_correct' => $isCorrect,
-                    'correct_gap_identifier' => $validated['question_type'] === 'drag_and_drop' ? ($optionData['gap_id'] ?? null) : null,
+                    'is_correct' => $optionData['is_correct'] ?? false,
+                    'correct_gap_identifier' => $validated['question_type'] === 'drag_and_drop' ? $optionData['gap_id'] : null,
                 ]);
             }
         });
@@ -77,6 +70,7 @@ class QuestionController extends Controller
 
     public function edit(Question $question)
     {
+        // Otorisasi dihapus
         if ($question->quizzes()->exists()) {
             return redirect()->route('instructor.question-bank.questions.index', $question->topic)
                 ->with('error', 'This question is locked and cannot be edited. Please clone it instead.');
@@ -87,11 +81,9 @@ class QuestionController extends Controller
         return view($viewName, compact('question'));
     }
 
-    /**
-     * Update the specified question in storage.
-     */
     public function update(Request $request, Question $question)
     {
+        // Otorisasi dihapus
         if ($question->quizzes()->exists()) {
             abort(403, 'This question is locked and cannot be edited.');
         }
@@ -112,20 +104,12 @@ class QuestionController extends Controller
                 'score' => $validated['score'],
                 'explanation' => $validated['explanation'],
             ]);
-
             $question->options()->delete();
-
             foreach ($validated['options'] as $optionData) {
-                // LOGIKA BARU YANG DISEMPURNAKAN
-                $isCorrect = $optionData['is_correct'] ?? false;
-                if ($question->question_type === 'drag_and_drop') {
-                    $isCorrect = !empty($optionData['gap_id']);
-                }
-
                 $question->options()->create([
                     'option_text' => $optionData['text'],
-                    'is_correct' => $isCorrect,
-                    'correct_gap_identifier' => $question->question_type === 'drag_and_drop' ? ($optionData['gap_id'] ?? null) : null,
+                    'is_correct' => $optionData['is_correct'] ?? false,
+                    'correct_gap_identifier' => $question->question_type === 'drag_and_drop' ? $optionData['gap_id'] : null,
                 ]);
             }
         });
@@ -136,6 +120,7 @@ class QuestionController extends Controller
 
     public function destroy(Question $question)
     {
+        // Otorisasi dihapus
         $topic = $question->topic;
         $question->delete();
         return redirect()->route('instructor.question-bank.questions.index', $topic)
@@ -144,6 +129,7 @@ class QuestionController extends Controller
 
     public function clone(Question $question)
     {
+        // Otorisasi dihapus
         $newQuestion = DB::transaction(function () use ($question) {
             $newQuestion = $question->replicate();
             $newQuestion->question_text = $question->question_text . ' (Copy)';
