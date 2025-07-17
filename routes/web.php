@@ -8,8 +8,9 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\Instructor\CourseController;
 use App\Http\Controllers\Instructor\LessonController;
 use App\Http\Controllers\Instructor\ModuleController;
+use App\Http\Controllers\Shared\PublicationController;
 use App\Http\Controllers\Instructor\QuestionController;
-use App\Http\Controllers\Shared\StudentStatusController;
+use App\Http\Controllers\Student\StudentQuizController;
 
 
 Route::get('/switch-role/{role}', [RoleSwitchController::class, 'switch'])->name('role.switch');
@@ -24,9 +25,11 @@ Route::get('/about', function () {
     return view('about');
 })->name('about');
 
+use App\Http\Controllers\Shared\StudentStatusController;
 use App\Http\Controllers\Instructor\QuizQuestionController;
 use App\Http\Controllers\Instructor\QuestionTopicController;
 use App\Http\Controllers\Shared\InstructorApplicationController;
+use App\Http\Controllers\Student\CourseController as StudentCourseController;
 
 Route::middleware(['auth'])->group(function () {
     // profile index
@@ -36,6 +39,28 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/user/password', function () {
         return view('auth.password');
     })->name('user.password.edit');
+
+    Route::get('/courses/{course:slug}', [StudentCourseController::class, 'show'])->name('student.courses.show');
+    // Rute baru untuk mengambil konten pelajaran secara dinamis (AJAX)
+    Route::get('/lessons/{lesson}/content', [StudentCourseController::class, 'getContent'])->name('student.lessons.content')->middleware('auth');
+
+    // Halaman perkenalan sebelum memulai kuis
+    Route::get('/quiz/{quiz}/start', [StudentQuizController::class, 'start'])->name('student.quiz.start');
+
+    // Aksi untuk memulai kuis dan membuat 'attempt'
+    Route::post('/quiz/{quiz}/begin', [StudentQuizController::class, 'begin'])->name('student.quiz.begin');
+
+    // Halaman utama pengerjaan kuis
+    Route::get('/quiz/attempt/{attempt}', [StudentQuizController::class, 'take'])->name('student.quiz.take');
+
+    // Aksi untuk mengirimkan semua jawaban
+    Route::post('/quiz/attempt/{attempt}/submit', [StudentQuizController::class, 'submit'])->name('student.quiz.submit');
+
+    // Halaman untuk menampilkan hasil akhir kuis
+    Route::get('/quiz/attempt/{attempt}/result', [StudentQuizController::class, 'result'])->name('student.quiz.result');
+
+    // RUTE BARU UNTUK MENGECEK JAWABAN SECARA REAL-TIME (AJAX)
+    Route::post('/quiz/check-answer', [StudentQuizController::class, 'checkAnswerAjax'])->name('student.quiz.check_answer');
 });
 
 // * group route for superadmin
@@ -51,6 +76,10 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     Route::get('/superadmin/student-management', [StudentStatusController::class, 'index'])->name('superadmin.manajemen-student.index');
     Route::patch('/superadmin/student-management/{student_status_data}/deactive', [StudentStatusController::class, 'deactive'])->name('superadmin.manajemen-student.deactive');
     Route::patch('/superadmin/student-management/{student_status_data}/reactivate', [StudentStatusController::class, 'reactivate'])->name('superadmin.manajemen-student.reactivate');
+
+    Route::get('/superadmin/publication', [PublicationController::class, 'index'])->name('superadmin.publication.index');
+    Route::patch('/superadmin/publication/{course}/publish', [PublicationController::class, 'publish'])->name('superadmin.publication.publish');
+    Route::patch('/superadmin/publication/{course}/reject', [PublicationController::class, 'reject'])->name('superadmin.publication.reject');
 });
 
 // * group route for admin
@@ -65,6 +94,10 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/admin/student-management', [StudentStatusController::class, 'index'])->name('admin.manajemen-student.index');
     Route::patch('/admin/student-management/{student_status_data}/deactive', [StudentStatusController::class, 'deactive'])->name('admin.manajemen-student.deactive');
     Route::patch('/admin/student-management/{student_status_data}/reactivate', [StudentStatusController::class, 'reactivate'])->name('admin.manajemen-student.reactivate');
+
+    Route::get('/admin/publication', [PublicationController::class, 'index'])->name('admin.publication.index');
+    Route::patch('/admin/publication/{course}/publish', [PublicationController::class, 'publish'])->name('admin.publication.publish');
+    Route::patch('/admin/publication/{course}/reject', [PublicationController::class, 'reject'])->name('admin.publication.reject');
 });
 
 
@@ -176,6 +209,9 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
 
     // Menghapus satu soal dari kuis
     Route::delete('/instructor/quizzes/{quiz}/detach-question/{question}', [QuizQuestionController::class, 'detachQuestion'])->name('instructor.quizzes.detach_question');
+
+    Route::patch('/instructor/courses/{course}/submit-review', [CourseController::class, 'submitForReview'])->name('instructor.courses.submit_review');
+    Route::patch('/instructor/courses/{course}/make-private', [CourseController::class, 'makePrivate'])->name('instructor.courses.make_private');
 });
 
 // // * group route for instructor

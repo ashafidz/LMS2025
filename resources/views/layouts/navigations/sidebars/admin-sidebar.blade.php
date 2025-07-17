@@ -43,10 +43,10 @@
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>
-                                    <li class="{{ Request::routeIs('admin.instructor-application.index') ? 'active' : '' }}">
-                                        <a href="{{ route('admin.instructor-application.index') }}" class="waves-effect waves-dark">
+                                    <li class="{{ Request::routeIs('admin.publication.index') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.publication.index') }}" class="waves-effect waves-dark">
                                             <span class="pcoded-micon"><i class="ti-layers"></i><b>FC</b></span>
-                                            <span class="pcoded-mtext" data-i18n="nav.form-components.main">Instructor Application</span>
+                                            <span class="pcoded-mtext" data-i18n="nav.form-components.main">Publikasi</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>
