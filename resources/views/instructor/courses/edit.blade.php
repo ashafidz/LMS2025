@@ -8,181 +8,126 @@
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <div class="page-header-title">
-                            <h5 class="m-b-10">
-                                Courses
-                            </h5>
-                            <p class="m-b-0">
-                                Edit your course details.
-                            </p>
+                            <h5 class="m-b-10">Edit Kursus</h5>
+                            <p class="m-b-0">Perbarui detail untuk kursus: {{ $course->title }}</p>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item">
-                                <a href="{{ route('instructor.dashboard') }}">
-                                    <i class="fa fa-home"></i>
-                                </a>
-                            </li>
-                            <li class="breadcrumb-item">
-                                <a href="{{ route('instructor.courses.index') }}">Courses</a>
-                            </li>
-                            <li class="breadcrumb-item">
-                                <a href="#!">Edit</a>
-                            </li>
+                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i
+                                        class="fa fa-home"></i></a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('instructor.courses.index') }}">Kursus</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Edit</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
         <!-- Page-header end -->
+
         <div class="pcoded-inner-content">
-            <!-- Main-body start -->
             <div class="main-body">
                 <div class="page-wrapper">
-                    <!-- Page-body start -->
                     <div class="page-body">
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Edit Course</h5>
-                                        <span>Update the details for your course.</span>
+                                        <h5>Detail Kursus</h5>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.courses.update', $course->id) }}" method="POST" enctype="multipart/form-data">
+                                        <form action="{{ route('instructor.courses.update', $course->id) }}" method="POST"
+                                            enctype="multipart/form-data">
                                             @csrf
                                             @method('PUT')
-
-                                            {{-- Title --}}
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Title</label>
+                                                <label class="col-sm-2 col-form-label">Judul Kursus</label>
                                                 <div class="col-sm-10">
-                                                    <input type="text" name="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title', $course->title) }}" required>
-                                                    @error('title')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
+                                                    <input type="text" name="title" class="form-control"
+                                                        value="{{ old('title', $course->title) }}" required>
                                                 </div>
                                             </div>
-
-                                            {{-- Category --}}
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Category</label>
+                                                <label class="col-sm-2 col-form-label">Kategori</label>
                                                 <div class="col-sm-10">
-                                                    <select name="category_id" class="form-control @error('category_id') is-invalid @enderror" required>
+                                                    <select name="category_id" class="form-control" required>
                                                         @foreach ($categories as $category)
-                                                            <option value="{{ $category->id }}" {{ old('category_id', $course->category_id) == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                                                            <option value="{{ $category->id }}"
+                                                                {{ old('category_id', $course->category_id) == $category->id ? 'selected' : '' }}>
+                                                                {{ $category->name }}</option>
                                                         @endforeach
                                                     </select>
-                                                    @error('category_id')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
                                                 </div>
                                             </div>
-
-                                            {{-- Description --}}
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Description</label>
+                                                <label class="col-sm-2 col-form-label">Deskripsi</label>
                                                 <div class="col-sm-10">
-                                                    <textarea name="description" rows="5" class="form-control @error('description') is-invalid @enderror" required>{{ old('description', $course->description) }}</textarea>
+                                                    {{-- Menambahkan class is-invalid jika ada error --}}
+                                                    <textarea name="description" class="form-control @error('description') is-invalid @enderror" rows="5">{{ old('description', $course->description) }}</textarea>
+
+                                                    {{-- Menampilkan pesan error validasi --}}
                                                     @error('description')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                        <div class="invalid-feedback">
+                                                            {{ $message }}
+                                                        </div>
                                                     @enderror
                                                 </div>
                                             </div>
-
-                                            {{-- Price --}}
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Price</label>
+                                                <label class="col-sm-2 col-form-label">Thumbnail</label>
                                                 <div class="col-sm-10">
-                                                    <input type="number" name="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price', $course->price) }}" min="0" step="0.01" required>
-                                                    @error('price')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div>
-
-                                            {{-- Status --}}
-                                            <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Status</label>
-                                                <div class="col-sm-10">
-                                                    <select name="status" class="form-control @error('status') is-invalid @enderror" required>
-                                                        <option value="draft" {{ old('status', $course->status) == 'draft' ? 'selected' : '' }}>Draft</option>
-                                                        <option value="pending_review" {{ old('status', $course->status) == 'pending_review' ? 'selected' : '' }}>Pending Review</option>
-                                                        <option value="published" {{ old('status', $course->status) == 'published' ? 'selected' : '' }}>Published</option>
-                                                        <option value="rejected" {{ old('status', $course->status) == 'rejected' ? 'selected' : '' }}>Rejected</option>
-                                                        <option value="private" {{ old('status', $course->status) == 'private' ? 'selected' : '' }}>Private</option>
-                                                    </select>
-                                                    @error('status')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div>
-
-                                            {{-- Current Thumbnail --}}
-                                            <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Current Thumbnail</label>
-                                                <div class="col-sm-10">
-                                                    @if($course->thumbnail_url)
-                                                        <img src="{{ Storage::url($course->thumbnail_url) }}" alt="Thumbnail" width="150">
-                                                    @else
-                                                        <p>No thumbnail uploaded.</p>
+                                                    <input type="file" name="thumbnail" class="form-control"
+                                                        accept="image/*">
+                                                    <small class="form-text text-muted">Kosongkan jika tidak ingin mengubah
+                                                        thumbnail saat ini.</small>
+                                                    @if ($course->thumbnail_url)
+                                                        <img src="{{ Storage::url($course->thumbnail_url) }}"
+                                                            alt="Thumbnail" class="img-thumbnail mt-2" width="200">
                                                     @endif
                                                 </div>
                                             </div>
-
-                                            {{-- New Thumbnail --}}
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">New Thumbnail</label>
+                                                <label class="col-sm-2 col-form-label">Tipe Ketersediaan</label>
                                                 <div class="col-sm-10">
-                                                    <input type="file" name="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror">
-                                                    <small class="form-text text-muted">Leave blank if you don't want to change the thumbnail.</small>
-                                                    @error('thumbnail')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            </div>
-
-                                            {{-- Availability --}}
-                                            <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Availability</label>
-                                                <div class="col-sm-10">
-                                                    <select name="availability_type" id="availability_type" class="form-control @error('availability_type') is-invalid @enderror" required>
-                                                        <option value="lifetime" {{ old('availability_type', $course->availability_type) == 'lifetime' ? 'selected' : '' }}>Lifetime</option>
-                                                        <option value="period" {{ old('availability_type', $course->availability_type) == 'period' ? 'selected' : '' }}>Period</option>
+                                                    <select name="availability_type" id="availability-type"
+                                                        class="form-control">
+                                                        <option value="lifetime"
+                                                            {{ old('availability_type', $course->availability_type) == 'lifetime' ? 'selected' : '' }}>
+                                                            Selamanya (Lifetime)</option>
+                                                        <option value="period"
+                                                            {{ old('availability_type', $course->availability_type) == 'period' ? 'selected' : '' }}>
+                                                            Periode Tertentu</option>
                                                     </select>
-                                                    @error('availability_type')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                    @enderror
                                                 </div>
                                             </div>
-
-                                            {{-- Date Period Fields (Initially Hidden) --}}
-                                            <div id="date_period_fields" style="{{ old('availability_type', $course->availability_type) == 'period' ? '' : 'display: none;' }}">
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">Start Date</label>
-                                                    <div class="col-sm-4">
-                                                        <input type="date" name="start_date" class="form-control @error('start_date') is-invalid @enderror" value="{{ old('start_date', $course->start_date ? $course->start_date->format('Y-m-d') : '') }}">
-                                                        @error('start_date')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
+                                            <div id="period-fields" class="form-group row"
+                                                style="{{ old('availability_type', $course->availability_type) == 'period' ? '' : 'display: none;' }}">
+                                                <label class="col-sm-2 col-form-label">Tanggal Periode</label>
+                                                <div class="col-sm-5">
+                                                    <input type="date" name="start_date" class="form-control"
+                                                        value="{{ old('start_date', $course->start_date ? \Carbon\Carbon::parse($course->start_date)->format('Y-m-d') : '') }}">
+                                                    <small class="form-text text-muted">Tanggal Mulai</small>
                                                 </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-2 col-form-label">End Date</label>
-                                                    <div class="col-sm-4">
-                                                        <input type="date" name="end_date" class="form-control @error('end_date') is-invalid @enderror" value="{{ old('end_date', $course->end_date ? $course->end_date->format('Y-m-d') : '') }}">
-                                                        @error('end_date')
-                                                            <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
+                                                <div class="col-sm-5">
+                                                    <input type="date" name="end_date" class="form-control"
+                                                        value="{{ old('end_date', $course->end_date ? \Carbon\Carbon::parse($course->end_date)->format('Y-m-d') : '') }}">
+                                                    <small class="form-text text-muted">Tanggal Selesai</small>
                                                 </div>
                                             </div>
-
                                             <div class="form-group row">
-                                                <label class="col-sm-2"></label>
+                                                <label class="col-sm-2 col-form-label">Status</label>
                                                 <div class="col-sm-10">
-                                                    <button type="submit" class="btn btn-primary">Update Course</button>
-                                                    <a href="{{ route('instructor.courses.index') }}" class="btn btn-secondary">Cancel</a>
+                                                    <input type="text" class="form-control"
+                                                        value="{{ ucfirst($course->status) }}" readonly>
+                                                    <small class="form-text text-muted">Status hanya bisa diubah melalui
+                                                        tombol aksi di halaman daftar kursus.</small>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-sm-12 text-right">
+                                                    <a href="{{ route('instructor.courses.index') }}"
+                                                        class="btn btn-secondary">Batal</a>
+                                                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                                                 </div>
                                             </div>
                                         </form>
@@ -191,27 +136,23 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Page-body end -->
                 </div>
-                <div id="styleSelector"></div>
             </div>
         </div>
     </div>
 @endsection
 
+{{-- Diubah: Menghapus @push('scripts') untuk TinyMCE --}}
 @push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const availabilityType = document.getElementById('availability_type');
-        const datePeriodFields = document.getElementById('date_period_fields');
-
-        availabilityType.addEventListener('change', function () {
+    <script>
+        // Hanya menyisakan script untuk availability
+        document.getElementById('availability-type').addEventListener('change', function() {
+            const periodFields = document.getElementById('period-fields');
             if (this.value === 'period') {
-                datePeriodFields.style.display = 'block';
+                periodFields.style.display = '';
             } else {
-                datePeriodFields.style.display = 'none';
+                periodFields.style.display = 'none';
             }
         });
-    });
-</script>
+    </script>
 @endpush

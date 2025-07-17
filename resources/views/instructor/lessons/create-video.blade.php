@@ -37,7 +37,6 @@
                                         <span>Isi detail untuk pelajaran baru Anda.</span>
                                     </div>
                                     <div class="card-block">
-                                        {{-- Penting: tambahkan enctype untuk unggahan file --}}
                                         <form action="{{ route('instructor.modules.lessons.store', $module) }}" method="POST" enctype="multipart/form-data">
                                             @csrf
                                             <input type="hidden" name="lesson_type" value="video">
@@ -50,12 +49,42 @@
                                             </div>
 
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">File Video</label>
+                                                <label class="col-sm-2 col-form-label">Sumber Video</label>
                                                 <div class="col-sm-10">
-                                                    <input type="file" name="video_file" class="form-control" required accept="video/mp4,video/x-matroska,video/quicktime">
-                                                    <small class="form-text text-muted">Format yang didukung: MP4, MKV, MOV. Ukuran maksimal: 100MB.</small>
+                                                    <div class="form-radio">
+                                                        <div class="radio radio-inline">
+                                                            <label>
+                                                                <input type="radio" name="source_type" value="upload" checked="checked" onchange="toggleVideoSource(this.value)">
+                                                                <i class="helper"></i>Unggah File
+                                                            </label>
+                                                        </div>
+                                                        <div class="radio radio-inline">
+                                                            <label>
+                                                                <input type="radio" name="source_type" value="youtube" onchange="toggleVideoSource(this.value)">
+                                                                <i class="helper"></i>Tautan YouTube
+                                                            </label>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
+
+                                            {{-- Input untuk Unggah File (ditampilkan secara default) --}}
+                                            <div id="upload-source" class="form-group row">
+                                                <label class="col-sm-2 col-form-label">File Video</label>
+                                                <div class="col-sm-10">
+                                                    <input type="file" name="video_file" class="form-control" accept="video/mp4,video/x-matroska,video/quicktime">
+                                                    <small class="form-text text-muted">Format: MP4, MKV, MOV. Maks: 100MB.</small>
+                                                </div>
+                                            </div>
+
+                                            {{-- Input untuk Tautan YouTube (disembunyikan secara default) --}}
+                                            <div id="youtube-source" class="form-group row" style="display: none;">
+                                                <label class="col-sm-2 col-form-label">URL YouTube</label>
+                                                <div class="col-sm-10">
+                                                    <input type="url" name="video_path" class="form-control" placeholder="Contoh: https://www.youtube.com/watch?v=xxxxxx">
+                                                </div>
+                                            </div>
+
 
                                             <div class="form-group row mt-4">
                                                 <div class="col-sm-12 text-right">
@@ -74,3 +103,32 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    function toggleVideoSource(source) {
+        const uploadDiv = document.getElementById('upload-source');
+        const youtubeDiv = document.getElementById('youtube-source');
+        const fileInput = uploadDiv.querySelector('input');
+        const urlInput = youtubeDiv.querySelector('input');
+
+        if (source === 'upload') {
+            uploadDiv.style.display = '';
+            youtubeDiv.style.display = 'none';
+            fileInput.required = true;
+            urlInput.required = false;
+        } else {
+            uploadDiv.style.display = 'none';
+            youtubeDiv.style.display = '';
+            fileInput.required = false;
+            urlInput.required = true;
+        }
+    }
+
+    // Panggil fungsi saat halaman dimuat untuk memastikan keadaan awal benar
+    document.addEventListener('DOMContentLoaded', function() {
+        const initialSource = document.querySelector('input[name="source_type"]:checked').value;
+        toggleVideoSource(initialSource);
+    });
+</script>
+@endpush

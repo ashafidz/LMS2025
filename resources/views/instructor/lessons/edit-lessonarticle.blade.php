@@ -36,15 +36,13 @@
                                         <h5>Edit Detail Pelajaran Artikel</h5>
                                     </div>
                                     <div class="card-block">
-                                        {{-- Form mengarah ke route 'update' --}}
                                         <form action="{{ route('instructor.lessons.update', $lesson->id) }}" method="POST">
                                             @csrf
-                                            @method('PUT') {{-- Wajib untuk metode update --}}
+                                            @method('PUT')
 
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Judul Pelajaran</label>
                                                 <div class="col-sm-10">
-                                                    {{-- Terisi otomatis dengan data yang ada --}}
                                                     <input type="text" name="title" class="form-control" value="{{ old('title', $lesson->title) }}" required>
                                                 </div>
                                             </div>
@@ -52,8 +50,8 @@
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Konten Artikel</label>
                                                 <div class="col-sm-10">
-                                                    {{-- Terisi otomatis dengan konten artikel yang ada --}}
-                                                    <textarea rows="15" name="content" class="form-control" required>{{ old('content', $lesson->lessonable->content) }}</textarea>
+                                                    {{-- Beri ID pada textarea ini --}}
+                                                    <textarea id="article-content" rows="15" name="content" class="form-control">{{ old('content', $lesson->lessonable->content) }}</textarea>
                                                 </div>
                                             </div>
 
@@ -74,3 +72,17 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    {{-- 1. Tambahkan script TinyMCE dari CDN --}}
+    <script src="https://cdn.tiny.cloud/1/fl2a5lp7k46s1mglp4rekz1mbeugac2hok87g2ca88v4mwja/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+    {{-- 2. Inisialisasi TinyMCE pada textarea dengan ID 'article-content' --}}
+    <script>
+        tinymce.init({
+            selector: 'textarea#article-content',
+            plugins: 'code table lists image link',
+            toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | code | table | image link'
+        });
+    </script>
+@endpush

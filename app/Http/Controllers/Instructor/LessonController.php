@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Lesson;
 use App\Models\LessonArticle;
 use App\Models\LessonAssignment;
+use App\Models\LessonLinkCollection;
+// Diperbarui: Menggunakan LessonDocument
+use App\Models\LessonDocument;
 use App\Models\LessonVideo;
 use App\Models\Module;
 use App\Models\Quiz;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -21,13 +23,7 @@ class LessonController extends Controller
      */
     public function index(Module $module)
     {
-        // Otorisasi: Pastikan instruktur yang login adalah pemilik kursus dari modul ini
-        if (Auth::id() !== $module->course->instructor_id) {
-            abort(403, 'Akses ditolak.');
-        }
-
         $lessons = $module->lessons()->orderBy('order')->get();
-
         return view('instructor.lessons.index', compact('module', 'lessons'));
     }
 
@@ -36,12 +32,9 @@ class LessonController extends Controller
      */
     public function create(Request $request, Module $module)
     {
-        if (Auth::id() !== $module->course->instructor_id) {
-            abort(403, 'Akses ditolak.');
-        }
-
         $type = $request->query('type');
-        $validTypes = ['article', 'video', 'quiz', 'assignment'];
+        // Diperbarui: Mengganti 'powerpoint' menjadi 'document'
+        $validTypes = ['article', 'video', 'quiz', 'assignment', 'document', 'link'];
 
         if (!in_array($type, $validTypes)) {
             abort(404, 'Tipe pelajaran tidak valid.');
@@ -56,33 +49,32 @@ class LessonController extends Controller
      */
     public function store(Request $request, Module $module)
     {
-        if (Auth::id() !== $module->course->instructor_id) {
-            abort(403, 'Akses ditolak.');
-        }
-
         $request->validate([
             'title' => 'required|string|max:255',
-            'lesson_type' => 'required|in:article,video,quiz,assignment',
+            // Diperbarui: Mengganti 'powerpoint' menjadi 'document'
+            'lesson_type' => 'required|in:article,video,quiz,assignment,document,link',
         ]);
 
         $lessonable = null;
 
-        // Menggunakan DB Transaction untuk memastikan semua data tersimpan atau tidak sama sekali
         DB::transaction(function () use ($request, $module, &$lessonable) {
             $lessonType = $request->input('lesson_type');
 
-            // Logika SWITCH CASE untuk menangani setiap tipe pelajaran
             switch ($lessonType) {
                 case 'article':
                     $validated = $request->validate(['content' => 'required|string']);
-                    $lessonable = LessonArticle::create(['content' => $validated['content']]);
+                    $lessonable = LessonArticle::create($validated);
                     break;
 
                 case 'video':
-                    $validated = $request->validate(['video_file' => 'required|file|mimes:mp4,mov,avi,wmv|max:102400']); // max 100MB
-                    // Simpan file video ke storage lokal
-                    $path = $validated['video_file']->store('lesson_videos', 'public');
-                    $lessonable = LessonVideo::create(['video_s3_key' => $path]); // Kita tetap gunakan kolom yang sama
+                    $validated = $request->validate([
+                        'source_type' => 'required|in:upload,youtube',
+                        'video_file' => 'required_if:source_type,upload|file|mimes:mp4,mov,avi,wmv|max:102400',
+                        'video_path' => 'required_if:source_type,youtube|url',
+                    ]);
+                    $sourceType = $validated['source_type'];
+                    $path = ($sourceType === 'upload') ? $validated['video_file']->store('lesson_videos', 'public') : $validated['video_path'];
+                    $lessonable = LessonVideo::create(['source_type' => $sourceType, 'video_path' => $path]);
                     break;
 
                 case 'quiz':
@@ -101,15 +93,26 @@ class LessonController extends Controller
                     break;
 
                 case 'assignment':
-                    $validated = $request->validate([
-                        'instructions' => 'required|string',
-                        'due_date' => 'nullable|date',
-                    ]);
+                    $validated = $request->validate(['instructions' => 'required|string', 'due_date' => 'nullable|date']);
                     $lessonable = LessonAssignment::create($validated);
+                    break;
+
+                case 'document': // Diperbarui dari 'powerpoint'
+                    $validated = $request->validate(['document_file' => 'required|file|mimes:pdf|max:20480']); // Hanya PDF, max 20MB
+                    $path = $validated['document_file']->store('lesson_documents', 'public'); // Folder baru
+                    $lessonable = LessonDocument::create(['file_path' => $path]);
+                    break;
+
+                case 'link':
+                    $validated = $request->validate([
+                        'links' => 'required|array|min:1',
+                        'links.*.title' => 'required|string|max:255',
+                        'links.*.url' => 'required|url',
+                    ]);
+                    $lessonable = LessonLinkCollection::create(['links' => $validated['links']]);
                     break;
             }
 
-            // Buat record utama di tabel 'lessons' setelah konten spesifik dibuat
             $lastOrder = $module->lessons()->max('order') ?? 0;
             $lessonable->lesson()->create([
                 'module_id' => $module->id,
@@ -126,14 +129,8 @@ class LessonController extends Controller
      */
     public function edit(Lesson $lesson)
     {
-        if (Auth::id() !== $lesson->module->course->instructor_id) {
-            abort(403, 'Akses ditolak.');
-        }
-
-        $lesson->load('lessonable'); // Eager load a polymorphic relationship
-        $type = $lesson->lessonable_type; // e.g., "App\Models\LessonVideo"
-
-        // Ambil nama pendek dari tipe (video, article, dll.)
+        $lesson->load('lessonable');
+        $type = $lesson->lessonable_type;
         $shortType = strtolower(class_basename($type));
 
         $viewName = "instructor.lessons.edit-{$shortType}";
@@ -145,20 +142,13 @@ class LessonController extends Controller
      */
     public function update(Request $request, Lesson $lesson)
     {
-        if (Auth::id() !== $lesson->module->course->instructor_id) {
-            abort(403, 'Akses ditolak.');
-        }
-
         $request->validate(['title' => 'required|string|max:255']);
 
         DB::transaction(function () use ($request, $lesson) {
-            // Update judul pelajaran utama
             $lesson->update(['title' => $request->input('title')]);
-
             $lessonable = $lesson->lessonable;
             $shortType = strtolower(class_basename($lessonable));
 
-            // Logika SWITCH CASE untuk memperbarui konten spesifik
             switch ($shortType) {
                 case 'lessonarticle':
                     $validated = $request->validate(['content' => 'required|string']);
@@ -166,14 +156,25 @@ class LessonController extends Controller
                     break;
 
                 case 'lessonvideo':
-                    if ($request->hasFile('video_file')) {
-                        $validated = $request->validate(['video_file' => 'required|file|mimes:mp4,mov,avi|max:102400']);
-                        // Hapus video lama
-                        Storage::disk('public')->delete($lessonable->video_s3_key);
-                        // Simpan video baru
+                    $validated = $request->validate([
+                        'source_type' => 'required|in:upload,youtube',
+                        'video_file' => 'nullable|required_if:source_type,upload|file|mimes:mp4,mov,avi|max:102400',
+                        'video_path' => 'nullable|required_if:source_type,youtube|url',
+                    ]);
+                    $sourceType = $validated['source_type'];
+                    $path = $lessonable->video_path;
+                    if ($sourceType === 'upload' && $request->hasFile('video_file')) {
+                        if ($lessonable->source_type === 'upload' && $lessonable->video_path) {
+                            Storage::disk('public')->delete($lessonable->video_path);
+                        }
                         $path = $validated['video_file']->store('lesson_videos', 'public');
-                        $lessonable->update(['video_s3_key' => $path]);
+                    } elseif ($sourceType === 'youtube') {
+                        if ($lessonable->source_type === 'upload' && $lessonable->video_path) {
+                            Storage::disk('public')->delete($lessonable->video_path);
+                        }
+                        $path = $validated['video_path'];
                     }
+                    $lessonable->update(['source_type' => $sourceType, 'video_path' => $path]);
                     break;
 
                 case 'quiz':
@@ -192,11 +193,26 @@ class LessonController extends Controller
                     break;
 
                 case 'lessonassignment':
-                    $validated = $request->validate([
-                        'instructions' => 'required|string',
-                        'due_date' => 'nullable|date',
-                    ]);
+                    $validated = $request->validate(['instructions' => 'required|string', 'due_date' => 'nullable|date']);
                     $lessonable->update($validated);
+                    break;
+
+                case 'lessondocument': // Diperbarui dari 'lessonpowerpoint'
+                    if ($request->hasFile('document_file')) {
+                        $validated = $request->validate(['document_file' => 'required|file|mimes:pdf|max:20480']);
+                        Storage::disk('public')->delete($lessonable->file_path);
+                        $path = $validated['document_file']->store('lesson_documents', 'public');
+                        $lessonable->update(['file_path' => $path]);
+                    }
+                    break;
+
+                case 'lessonlinkcollection':
+                    $validated = $request->validate([
+                        'links' => 'required|array|min:1',
+                        'links.*.title' => 'required|string|max:255',
+                        'links.*.url' => 'required|url',
+                    ]);
+                    $lessonable->update(['links' => $validated['links']]);
                     break;
             }
         });
@@ -209,21 +225,17 @@ class LessonController extends Controller
      */
     public function destroy(Lesson $lesson)
     {
-        if (Auth::id() !== $lesson->module->course->instructor_id) {
-            abort(403, 'Akses ditolak.');
-        }
-
         DB::transaction(function () use ($lesson) {
-            // Hapus konten spesifik (video, artikel, dll.)
             $lessonable = $lesson->lessonable;
             if ($lessonable) {
-                // Jika ini adalah video, hapus juga filenya dari storage
-                if (strtolower(class_basename($lessonable)) === 'lessonvideo') {
-                    Storage::disk('public')->delete($lessonable->video_s3_key);
+                $shortType = strtolower(class_basename($lessonable));
+                if ($shortType === 'lessonvideo' && $lessonable->source_type === 'upload') {
+                    Storage::disk('public')->delete($lessonable->video_path);
+                } elseif ($shortType === 'lessondocument') { // Diperbarui dari 'lessonpowerpoint'
+                    Storage::disk('public')->delete($lessonable->file_path);
                 }
                 $lessonable->delete();
             }
-            // Hapus record pelajaran utama
             $lesson->delete();
         });
 
@@ -235,10 +247,6 @@ class LessonController extends Controller
      */
     public function reorder(Request $request, Module $module)
     {
-        if (Auth::id() !== $module->course->instructor_id) {
-            abort(403, 'Akses ditolak.');
-        }
-
         $request->validate([
             'lesson_ids' => 'required|array',
             'lesson_ids.*' => 'exists:lessons,id',
@@ -246,7 +254,7 @@ class LessonController extends Controller
 
         foreach ($request->lesson_ids as $index => $lessonId) {
             Lesson::where('id', $lessonId)
-                ->where('module_id', $module->id) // Keamanan ekstra
+                ->where('module_id', $module->id)
                 ->update(['order' => $index + 1]);
         }
 
