@@ -11,6 +11,8 @@ use App\Http\Controllers\Instructor\ModuleController;
 use App\Http\Controllers\Shared\PublicationController;
 use App\Http\Controllers\Instructor\QuestionController;
 use App\Http\Controllers\Student\StudentQuizController;
+use App\Http\Controllers\Shared\CouponController;
+
 
 
 Route::get('/switch-role/{role}', [RoleSwitchController::class, 'switch'])->name('role.switch');
@@ -80,6 +82,14 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     Route::get('/superadmin/publication', [PublicationController::class, 'index'])->name('superadmin.publication.index');
     Route::patch('/superadmin/publication/{course}/publish', [PublicationController::class, 'publish'])->name('superadmin.publication.publish');
     Route::patch('/superadmin/publication/{course}/reject', [PublicationController::class, 'reject'])->name('superadmin.publication.reject');
+
+    // --- Rute untuk Manajemen Kupon ---
+    Route::get('/superadmin/coupons', [CouponController::class, 'index'])->name('superadmin.coupons.index');
+    Route::get('/superadmin/coupons/create', [CouponController::class, 'create'])->name('superadmin.coupons.create');
+    Route::post('/superadmin/coupons', [CouponController::class, 'store'])->name('superadmin.coupons.store');
+    Route::get('/superadmin/coupons/{coupon}/edit', [CouponController::class, 'edit'])->name('superadmin.coupons.edit');
+    Route::put('/superadmin/coupons/{coupon}', [CouponController::class, 'update'])->name('superadmin.coupons.update');
+    Route::delete('/superadmin/coupons/{coupon}', [CouponController::class, 'destroy'])->name('superadmin.coupons.destroy');
 });
 
 // * group route for admin
@@ -98,6 +108,15 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/admin/publication', [PublicationController::class, 'index'])->name('admin.publication.index');
     Route::patch('/admin/publication/{course}/publish', [PublicationController::class, 'publish'])->name('admin.publication.publish');
     Route::patch('/admin/publication/{course}/reject', [PublicationController::class, 'reject'])->name('admin.publication.reject');
+
+
+    // --- Rute untuk Manajemen Kupon ---
+    Route::get('/admin/coupons', [CouponController::class, 'index'])->name('admin.coupons.index');
+    Route::get('/admin/coupons/create', [CouponController::class, 'create'])->name('admin.coupons.create');
+    Route::post('/admin/coupons', [CouponController::class, 'store'])->name('admin.coupons.store');
+    Route::get('/admin/coupons/{coupon}/edit', [CouponController::class, 'edit'])->name('admin.coupons.edit');
+    Route::put('/admin/coupons/{coupon}', [CouponController::class, 'update'])->name('admin.coupons.update');
+    Route::delete('/admin/coupons/{coupon}', [CouponController::class, 'destroy'])->name('admin.coupons.destroy');
 });
 
 
