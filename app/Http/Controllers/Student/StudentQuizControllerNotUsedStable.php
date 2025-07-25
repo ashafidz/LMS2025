@@ -42,9 +42,6 @@ class StudentQuizController extends Controller
     public function take($attemptId)
     {
         $attempt = QuizAttempt::findOrFail($attemptId);
-        if ($attempt->student_id !== Auth::id()) {
-            abort(403);
-        }
         if ($attempt->status !== 'in_progress') {
             return redirect()->route('student.quiz.result', $attempt)->with('info', 'Anda sudah menyelesaikan kuis ini.');
         }
@@ -116,9 +113,7 @@ class StudentQuizController extends Controller
     public function result($attemptId)
     {
         $attempt = QuizAttempt::findOrFail($attemptId);
-        if ($attempt->student_id !== Auth::id()) {
-            abort(403);
-        }
+
         if ($attempt->status === 'in_progress') {
             return redirect()->route('student.quiz.take', $attempt)->with('error', 'Anda harus menyelesaikan kuis terlebih dahulu.');
         }

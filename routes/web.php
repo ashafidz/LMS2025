@@ -12,6 +12,20 @@ use App\Http\Controllers\Shared\PublicationController;
 use App\Http\Controllers\Instructor\QuestionController;
 use App\Http\Controllers\Student\StudentQuizController;
 use App\Http\Controllers\Shared\CouponController;
+use App\Http\Controllers\Student\CartController;
+use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\Student\CheckoutController;
+use App\Http\Controllers\MidtransCallbackController;
+use App\Http\Controllers\Student\TransactionHistoryController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Superadmin\SiteSettingController;
+use App\Http\Controllers\Student\StudentDashboardController;
+use App\Http\Controllers\Student\StudentAssignmentController;
+use App\Http\Controllers\Instructor\InstructorAssignmentController;
+use App\Http\Controllers\Shared\LikertQuestionController;
+use App\Http\Controllers\Student\CourseReviewController;
+use App\Http\Controllers\Student\CertificateController;
+use App\Http\Controllers\Student\StudentReviewController;
 
 
 
@@ -20,12 +34,21 @@ Route::get('/switch-role/{role}', [RoleSwitchController::class, 'switch'])->name
 Route::get('/', function () {
     return view('home');
 })->name('home');
-Route::get('/courses', function () {
-    return view('catalog');
-})->name('courses');
+// Route::get('/courses', function () {
+//     return view('catalog');
+// })->name('courses');
+Route::get('/courses', [CatalogController::class, 'index'])->name('courses');
+Route::get('/courses/{course:slug}', [CatalogController::class, 'show'])->name('courses.show');
 Route::get('/about', function () {
     return view('about');
 })->name('about');
+Route::get('/contact', function () {
+    return view('contact');
+})->name('contact');
+Route::get('/faqs', function () {
+    return view('faq');
+})->name('faqs');
+
 
 use App\Http\Controllers\Shared\StudentStatusController;
 use App\Http\Controllers\Instructor\QuizQuestionController;
@@ -42,27 +65,27 @@ Route::middleware(['auth'])->group(function () {
         return view('auth.password');
     })->name('user.password.edit');
 
-    Route::get('/courses/{course:slug}', [StudentCourseController::class, 'show'])->name('student.courses.show');
+    Route::get('/student/courses/{course:slug}', [StudentCourseController::class, 'show'])->name('student.courses.show');
     // Rute baru untuk mengambil konten pelajaran secara dinamis (AJAX)
-    Route::get('/lessons/{lesson}/content', [StudentCourseController::class, 'getContent'])->name('student.lessons.content')->middleware('auth');
+    Route::get('/student/lessons/{lesson}/content', [StudentCourseController::class, 'getContent'])->name('student.lessons.content')->middleware('auth');
 
     // Halaman perkenalan sebelum memulai kuis
-    Route::get('/quiz/{quiz}/start', [StudentQuizController::class, 'start'])->name('student.quiz.start');
+    Route::get('/student/quiz/{quiz}/start', [StudentQuizController::class, 'start'])->name('student.quiz.start');
 
     // Aksi untuk memulai kuis dan membuat 'attempt'
-    Route::post('/quiz/{quiz}/begin', [StudentQuizController::class, 'begin'])->name('student.quiz.begin');
+    Route::post('/student/quiz/{quiz}/begin', [StudentQuizController::class, 'begin'])->name('student.quiz.begin');
 
     // Halaman utama pengerjaan kuis
-    Route::get('/quiz/attempt/{attempt}', [StudentQuizController::class, 'take'])->name('student.quiz.take');
+    Route::get('/student/quiz/attempt/{attempt}', [StudentQuizController::class, 'take'])->name('student.quiz.take');
 
     // Aksi untuk mengirimkan semua jawaban
-    Route::post('/quiz/attempt/{attempt}/submit', [StudentQuizController::class, 'submit'])->name('student.quiz.submit');
+    Route::post('/student/quiz/attempt/{attempt}/submit', [StudentQuizController::class, 'submit'])->name('student.quiz.submit');
 
     // Halaman untuk menampilkan hasil akhir kuis
-    Route::get('/quiz/attempt/{attempt}/result', [StudentQuizController::class, 'result'])->name('student.quiz.result');
+    Route::get('/student/quiz/attempt/{attempt}/result', [StudentQuizController::class, 'result'])->name('student.quiz.result');
 
     // RUTE BARU UNTUK MENGECEK JAWABAN SECARA REAL-TIME (AJAX)
-    Route::post('/quiz/check-answer', [StudentQuizController::class, 'checkAnswerAjax'])->name('student.quiz.check_answer');
+    Route::post('/student/quiz/check-answer', [StudentQuizController::class, 'checkAnswerAjax'])->name('student.quiz.check_answer');
 });
 
 // * group route for superadmin
@@ -90,6 +113,20 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     Route::get('/superadmin/coupons/{coupon}/edit', [CouponController::class, 'edit'])->name('superadmin.coupons.edit');
     Route::put('/superadmin/coupons/{coupon}', [CouponController::class, 'update'])->name('superadmin.coupons.update');
     Route::delete('/superadmin/coupons/{coupon}', [CouponController::class, 'destroy'])->name('superadmin.coupons.destroy');
+
+
+    // --- Rute untuk Pengaturan Situs ---
+    Route::get('/superadmin/settings', [SiteSettingController::class, 'edit'])->name('superadmin.settings.edit');
+    Route::put('/superadmin/settings', [SiteSettingController::class, 'update'])->name('superadmin.settings.update');
+
+
+    // --- Rute untuk Manajemen Pertanyaan Skala Likert ---
+    Route::get('/superadmin/likert-questions', [LikertQuestionController::class, 'index'])->name('superadmin.likert-questions.index');
+    Route::get('/superadmin/likert-questions/create', [LikertQuestionController::class, 'create'])->name('superadmin.likert-questions.create');
+    Route::post('/superadmin/likert-questions', [LikertQuestionController::class, 'store'])->name('superadmin.likert-questions.store');
+    Route::get('/superadmin/likert-questions/{likertQuestion}/edit', [LikertQuestionController::class, 'edit'])->name('superadmin.likert-questions.edit');
+    Route::put('/superadmin/likert-questions/{likertQuestion}', [LikertQuestionController::class, 'update'])->name('superadmin.likert-questions.update');
+    Route::delete('/superadmin/likert-questions/{likertQuestion}', [LikertQuestionController::class, 'destroy'])->name('superadmin.likert-questions.destroy');
 });
 
 // * group route for admin
@@ -117,6 +154,15 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/admin/coupons/{coupon}/edit', [CouponController::class, 'edit'])->name('admin.coupons.edit');
     Route::put('/admin/coupons/{coupon}', [CouponController::class, 'update'])->name('admin.coupons.update');
     Route::delete('/admin/coupons/{coupon}', [CouponController::class, 'destroy'])->name('admin.coupons.destroy');
+
+
+    // --- Rute untuk Manajemen Pertanyaan Skala Likert ---
+    Route::get('/admin/likert-questions', [LikertQuestionController::class, 'index'])->name('admin.likert-questions.index');
+    Route::get('/admin/likert-questions/create', [LikertQuestionController::class, 'create'])->name('admin.likert-questions.create');
+    Route::post('/admin/likert-questions', [LikertQuestionController::class, 'store'])->name('admin.likert-questions.store');
+    Route::get('/admin/likert-questions/{likertQuestion}/edit', [LikertQuestionController::class, 'edit'])->name('admin.likert-questions.edit');
+    Route::put('/admin/likert-questions/{likertQuestion}', [LikertQuestionController::class, 'update'])->name('admin.likert-questions.update');
+    Route::delete('/admin/likert-questions/{likertQuestion}', [LikertQuestionController::class, 'destroy'])->name('admin.likert-questions.destroy');
 });
 
 
@@ -196,6 +242,12 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         Route::get('/instructor/modules/{module}/edit', [ModuleController::class, 'edit'])->name('instructor.modules.edit');
         Route::put('/instructor/modules/{module}', [ModuleController::class, 'update'])->name('instructor.modules.update');
         Route::delete('/instructor/modules/{module}', [ModuleController::class, 'destroy'])->name('instructor.modules.destroy');
+
+        // Halaman untuk menampilkan daftar semua pengumpulan tugas untuk satu pelajaran
+        Route::get('/instructor/assignments/{assignment}/submissions', [InstructorAssignmentController::class, 'index'])->name('instructor.assignment.submissions');
+
+        // Aksi untuk menyimpan nilai dan feedback
+        Route::post('/submissions/{submission}/grade', [InstructorAssignmentController::class, 'grade'])->name('instructor.submission.grade');
     });
 
 
@@ -284,5 +336,97 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
     //! This nested group IS protected by the status-checking middleware.
     Route::middleware(['checkStudentStatus'])->group(function () {
         Route::view('/student/dashboard', 'student.dashboard')->name('student.dashboard');
+
+
+
+
+        // Halaman utama untuk menampilkan isi keranjang
+        Route::get('/cart', [CartController::class, 'index'])->name('student.cart.index');
+
+        // Aksi untuk menambahkan kursus ke keranjang
+        Route::post('/cart/add/{course}', [CartController::class, 'add'])->name('student.cart.add');
+
+        // Aksi untuk menghapus item dari keranjang
+        Route::delete('/cart/remove/{cart}', [CartController::class, 'remove'])->name('student.cart.remove');
+
+        // Aksi untuk menerapkan kode kupon
+        Route::post('/cart/apply-coupon', [CartController::class, 'applyCoupon'])->name('student.cart.apply_coupon');
+
+        // Aksi untuk menghapus kupon yang sudah diterapkan
+        Route::post('/cart/remove-coupon', [CartController::class, 'removeCoupon'])->name('student.cart.remove_coupon');
+
+
+        // --- RUTE UNTUK PROSES CHECKOUT ---
+        // Aksi untuk memproses keranjang menjadi pesanan
+        Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+
+        // Halaman untuk menampilkan detail pesanan dan tombol bayar
+        Route::get('/orders/{order}', [CheckoutController::class, 'show'])->name('checkout.show');
+
+
+        Route::get('/my-transactions', [TransactionHistoryController::class, 'index'])->name('student.transactions.index');
+
+
+        Route::get('/orders/{order}/success', [PaymentController::class, 'success'])->name('payment.success');
+        Route::get('/orders/{order}/pending', [PaymentController::class, 'pending'])->name('payment.pending');
+        Route::get('/orders/{order}/failed', [PaymentController::class, 'failed'])->name('payment.failed');
+        Route::get('/orders/{order}/cancelled', [PaymentController::class, 'cancelled'])->name('payment.cancelled');
+        Route::get('/my-transactions/{order}/download', [TransactionHistoryController::class, 'downloadInvoice'])->name('student.transactions.download');
+
+        Route::get('/my-courses', [StudentDashboardController::class, 'myCourses'])->name('student.my_courses');
+        Route::post('/lessons/{lesson}/complete', [StudentCourseController::class, 'markAsComplete'])->name('student.lessons.complete');
+        Route::post('/assignments/{assignment}/submit', [StudentAssignmentController::class, 'submit'])->name('student.assignment.submit');
+
+        // Rute untuk mengambil form ulasan via AJAX
+        Route::get('/courses/{course}/review/create', [CourseReviewController::class, 'create'])->name('student.course.review.create');
+
+        // Rute untuk menyimpan data ulasan yang dikirim dari form
+        Route::post('/courses/{course}/review', [CourseReviewController::class, 'store'])->name('student.course.review.store');
+
+        // Rute untuk mengambil pratinjau sertifikat via AJAX
+        Route::get('/courses/{course}/certificate/preview', [CertificateController::class, 'preview'])->name('student.certificate.preview');
+
+        // Rute untuk mengunduh sertifikat sebagai PDF
+        Route::get('/courses/{course}/certificate/download', [CertificateController::class, 'download'])->name('student.certificate.download');
+
+
+        // Halaman utama untuk menampilkan semua ulasan
+        Route::get('/my-reviews', [StudentReviewController::class, 'index'])->name('student.reviews.index');
+
+        // Aksi untuk menyimpan/memperbarui ulasan platform
+        Route::post('/reviews/platform', [StudentReviewController::class, 'storeOrUpdatePlatformReview'])->name('student.reviews.platform.store');
+
+        // Aksi untuk memperbarui ulasan kursus yang sudah ada
+        Route::put('/reviews/course/{review}', [StudentReviewController::class, 'updateCourseReview'])->name('student.reviews.course.update');
+
+        // Aksi untuk memperbarui ulasan instruktur yang sudah ada
+        Route::put('/reviews/instructor/{review}', [StudentReviewController::class, 'updateInstructorReview'])->name('student.reviews.instructor.update');
     });
+
+
+
+
+
+
+
+
+
+
+    // --- RUTE UNTUK STATUS PEMBAYARAN & NOTIFIKASI MIDTRANS ---
+
+    // Halaman status yang dilihat oleh pengguna
+    // Route::get('/payment/success', function () {
+    //     return view('student.checkout.success');
+    // })->name('payment.success');
+    // Route::get('/payment/pending', function () {
+    //     return view('student.checkout.pending');
+    // })->name('payment.pending');
+    // Route::get('/payment/failed', function () {
+    //     return view('student.checkout.failed');
+    // })->name('payment.failed');
+
+    // // Rute untuk menerima notifikasi dari server Midtrans (Webhook)
+    // Route::post('/midtrans/notification', [MidtransCallbackController::class, 'handle'])->name('midtrans.notification');
+
+
 });

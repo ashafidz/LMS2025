@@ -33,6 +33,7 @@
                             <div class="card">
                                 <div class="card-header">
                                     <h5>Daftar Kupon</h5>
+                                    <span>Menampilkan semua kupon diskon</span>
                                     <div class="card-header-right">
                                         <a href="{{ route(Auth::user()->getRoleNames()->first() . '.coupons.create') }}" class="btn btn-primary">Buat Kupon Baru</a>
                                     </div>

@@ -106,7 +106,8 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form action="{{ route('admin.publication.publish', $course->id) }}" method="POST">
+{{-- {{ Auth::user()->usertype == 'admin' ? route('admin.category.edit', $category->id) : route('superadmin.category.edit', $category->id) }} --}}
+                    <form action="{{ Auth::user()->hasRole('admin') ? route('admin.publication.publish', $course->id) : route('superadmin.publication.publish', $course->id) }}" method="POST">
                         @csrf
                         @method('PATCH')
                         <div class="modal-body">

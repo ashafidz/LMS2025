@@ -43,22 +43,35 @@
 
       <nav id="navmenu" class="navmenu">
         <ul>
-          <li><a href="{{ url('/home') }}">Beranda</a></li>
+          <li><a href="{{ route('home') }}">Beranda</a></li>
           <li><a href="{{ url('/about') }}">Tentang Kami</a></li>
-          <li><a href="{{ url('/catalog') }}">Katalog</a></li>
-          <li><a href="{{ url('/faq') }}">FAQ</a></li>
+          <li><a href="{{ route('courses') }}">Katalog</a></li>
+          <li><a href="{{ url('/faqs') }}">FAQ</a></li>
           <li><a href="{{ url('/contact') }}">Kontak</a></li>
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
 
       <div class="d-flex align-items-center gap-2">
-        <a href="{{ url('/cart') }}" class="btn-cart"
-          onmouseover="this.firstElementChild.style.color='#0d6efd'"
-          onmouseout="this.firstElementChild.style.color='black'">
-          <i class="bi bi-cart" style="font-size: 1.4rem; color: black;"></i>
-        </a>
-        <a class="btn-getstarted ms-2" href="{{ url('/home') }}">Get Started</a>
+        @auth
+          <a href="{{ url('/cart') }}" class="btn-cart"
+            onmouseover="this.firstElementChild.style.color='#0d6efd'"
+            onmouseout="this.firstElementChild.style.color='black'">
+            <i class="bi bi-cart" style="font-size: 1.4rem; color: black;"></i>
+          </a>
+          @if (Auth::user()->hasRole('superadmin'))
+            <a class="btn-getstarted ms-2" href="{{ route('superadmin.dashboard') }}">Dashboard</a>
+          @elseif (Auth::user()->hasRole('admin'))
+            <a class="btn-getstarted ms-2" href="{{ route('admin.dashboard') }}">Dashboard</a>
+          @elseif (Auth::user()->hasRole('instructor') && Auth::user()->instructorProfile?->application_status === 'approved')
+            <a class="btn-getstarted ms-2" href="{{ route('instructor.dashboard') }}">Dashboard</a>
+          @elseif (Auth::user()->hasRole('student'))
+            <a class="btn-getstarted ms-2" href="{{ route('student.dashboard') }}">Dashboard</a>
+          @endif
+        @endauth
+        @guest
+          <a class="btn-getstarted ms-2" href="{{ url('/register') }}">Register</a>
+        @endguest
       </div>
     </div>
   </header>

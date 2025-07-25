@@ -2,7 +2,6 @@
 
 @section('content')
 <div class="pcoded-content">
-    <!-- Page-header start -->
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
@@ -22,22 +21,18 @@
             </div>
         </div>
     </div>
-    <!-- Page-header end -->
-
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
                 <div class="page-body">
-                    {{-- Menampilkan notifikasi jika ini adalah mode pratinjau --}}
                     @if($is_preview)
                     <div class="alert alert-warning text-center">
                         <strong>Mode Pratinjau</strong><br>
-                        Anda melihat halaman ini sebagai Admin/Superadmin. Hasil kuis atau progres tidak akan disimpan.
+                        Anda melihat halaman ini sebagai Admin/Superadmin/Instruktur. Progres tidak akan disimpan.
                     </div>
                     @endif
 
                     <div class="row">
-
                         {{-- Kolom Konten Pelajaran (Utama) --}}
                         <div class="col-lg-8">
                             <div class="card">
@@ -45,18 +40,18 @@
                                     <h5 id="lesson-title">Selamat Datang di Kursus!</h5>
                                 </div>
                                 <div class="card-block" id="lesson-content" style="min-height: 500px;">
-                                    {{-- Konten pelajaran akan dimuat di sini menggunakan JavaScript --}}
                                     <div class="text-center text-muted">
                                         <p><i class="fa fa-arrow-left fa-2x"></i></p>
-                                        <h5>Pilih pelajaran dari daftar isi di sebelah kiri untuk memulai.</h5>
+                                        <h5>Pilih pelajaran dari daftar isi di sebelah kanan untuk memulai.</h5>
                                         <hr>
                                         <p class="mt-4"><strong>Deskripsi Kursus:</strong></p>
-                                        <p>{{ $course->description }}</p>
+                                        <div>{!! $course->description !!}</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                                                {{-- Kolom Daftar Isi (Sidebar) --}}
+
+                        {{-- Kolom Daftar Isi (Sidebar) --}}
                         <div class="col-lg-4">
                             <div class="card">
                                 <div class="card-header">
@@ -73,16 +68,14 @@
                                                         </button>
                                                     </h5>
                                                 </div>
-
                                                 <div id="collapse-{{ $module->id }}" class="collapse show" aria-labelledby="heading-{{ $module->id }}" data-parent="#syllabus-accordion">
                                                     <div class="card-body p-0">
                                                         <ul class="list-group list-group-flush">
                                                             @foreach ($module->lessons as $lesson)
-                                                                <li class="list-group-item">
-                                                                    {{-- Tombol untuk memuat konten pelajaran --}}
-                                                                    <a href="#" class="load-lesson" data-lesson-id="{{ $lesson->id }}">
+                                                                <li class="list-group-item d-flex justify-content-between align-items-center" id="sidebar-lesson-{{ $lesson->id }}">
+                                                                    <a href="#" class="load-lesson text-dark" data-lesson-id="{{ $lesson->id }}">
                                                                         @php
-                                                                            $icon = 'fa-file-text-o'; // default
+                                                                            $icon = 'fa-file-text-o';
                                                                             $type = strtolower(class_basename($lesson->lessonable_type));
                                                                             if ($type === 'lessonvideo') $icon = 'fa-play-circle';
                                                                             if ($type === 'quiz') $icon = 'fa-question-circle';
@@ -92,6 +85,9 @@
                                                                         @endphp
                                                                         <i class="fa {{ $icon }} mr-2"></i> {{ $lesson->title }}
                                                                     </a>
+                                                                    @if(in_array($lesson->id, $completedLessonIds))
+                                                                        <i class="fa fa-check-circle text-success"></i>
+                                                                    @endif
                                                                 </li>
                                                             @endforeach
                                                         </ul>
@@ -101,12 +97,38 @@
                                         @empty
                                             <p class="text-muted">Kursus ini belum memiliki modul.</p>
                                         @endforelse
+
+                                        {{-- TOMBOL BARU UNTUK FEEDBACK --}}
+                                        {{-- <div class="card mb-2">
+                                            <div class="card-header">
+                                                <h5 class="mb-0">
+                                                    <button class="btn btn-link" id="load-review-form">
+                                                        <strong><i class="fa fa-star mr-2"></i> Beri Ulasan & Rating</strong>
+                                                    </button>
+                                                </h5>
+                                            </div>
+                                        </div> --}}
+                                        <div class="mt-4 mb-4">
+                                            <button class="btn btn-outline-primary w-100 mb-2" id="load-review-form">
+                                                <i class="fa fa-star mr-2"></i> Feedback
+                                            </button>
+                                            @if($isEligibleForCertificate)
+                                            <button class="btn btn-outline-primary w-100 mb-2" id="load-certificate-preview">
+                                                <i class="bi bi-award-fill me-2"></i> Sertifikat
+                                            </button>
+                                            @else
+                                            <button class="btn btn-outline-primary w-100 mb-2" disabled>
+                                                <i class="bi bi-award-fill me-2"></i> Sertifikat
+                                            </button>
+                                            @endif
+                                            <a href="" class="btn btn-outline-primary w-100">
+                                            <i class="bi bi-chat-fill me-2"></i> Forum
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
             </div>
@@ -116,47 +138,191 @@
 @endsection
 
 @push('scripts')
-{{-- Script untuk memuat konten pelajaran secara dinamis --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const lessonLinks = document.querySelectorAll('.load-lesson');
     const lessonTitleEl = document.getElementById('lesson-title');
     const lessonContentEl = document.getElementById('lesson-content');
-    // Cek apakah halaman ini sedang dalam mode pratinjau
     const isPreview = @json($is_preview);
+    let completedLessons = @json($completedLessonIds);
+
+    // --- FUNGSI UNTUK MEMUAT KONTEN PELAJARAN ---
+    function loadLessonContent(lessonId) {
+        lessonTitleEl.innerText = 'Memuat...';
+        lessonContentEl.innerHTML = '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
+
+        let url = `/student/lessons/${lessonId}/content`;
+        if (isPreview) {
+            url += '?preview=true';
+        }
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    lessonTitleEl.innerText = data.title;
+                    let completeButtonHtml = '';
+                    if (!isPreview && !completedLessons.includes(parseInt(lessonId))) {
+                        completeButtonHtml = `<hr><div class="text-center mt-4"><button class="btn btn-success mark-as-complete-btn" data-lesson-id="${lessonId}"><i class="fa fa-check"></i> Tandai Selesai</button></div>`;
+                    }
+                    lessonContentEl.innerHTML = data.html + completeButtonHtml;
+                } else {
+                    lessonTitleEl.innerText = 'Gagal Memuat';
+                    lessonContentEl.innerHTML = `<p class="text-danger">${data.message || 'Terjadi kesalahan.'}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching lesson content:', error);
+                lessonTitleEl.innerText = 'Gagal Memuat';
+                lessonContentEl.innerHTML = '<p class="text-danger">Terjadi kesalahan jaringan.</p>';
+            });
+    }
 
     lessonLinks.forEach(link => {
         link.addEventListener('click', function (e) {
             e.preventDefault();
-            const lessonId = this.dataset.lessonId;
-            
-            lessonTitleEl.innerText = 'Memuat...';
+            loadLessonContent(this.dataset.lessonId);
+        });
+    });
+
+    // --- LOGIKA BARU UNTUK TOMBOL FEEDBACK ---
+    const reviewButton = document.getElementById('load-review-form');
+    if (reviewButton) {
+        reviewButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            lessonTitleEl.innerText = 'Ulasan & Rating Kursus';
             lessonContentEl.innerHTML = '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
 
-            // DIPERBARUI: Tambahkan parameter preview jika ada
-            let url = `/lessons/${lessonId}/content`;
-            if (isPreview) {
-                url += '?preview=true';
-            }
+            const url = "{{ route('student.course.review.create', $course->id) }}";
 
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        lessonTitleEl.innerText = data.title;
                         lessonContentEl.innerHTML = data.html;
                     } else {
-                        lessonTitleEl.innerText = 'Gagal Memuat';
-                        lessonContentEl.innerHTML = '<p class="text-danger">Terjadi kesalahan saat memuat konten pelajaran.</p>';
+                        lessonContentEl.innerHTML = `<p class="text-danger">${data.message || 'Gagal memuat form ulasan.'}</p>`;
                     }
                 })
                 .catch(error => {
-                    console.error('Error fetching lesson content:', error);
-                    lessonTitleEl.innerText = 'Gagal Memuat';
+                    console.error('Error fetching review form:', error);
                     lessonContentEl.innerHTML = '<p class="text-danger">Terjadi kesalahan jaringan.</p>';
                 });
         });
+    }
+
+    // --- Event listener untuk tombol "Tandai Selesai" ---
+    lessonContentEl.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('mark-as-complete-btn')) {
+            const button = e.target;
+            const lessonId = button.dataset.lessonId;
+            button.disabled = true;
+            button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Memproses...';
+            fetch(`/lessons/${lessonId}/complete`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    button.style.display = 'none';
+                    const sidebarItem = document.getElementById(`sidebar-lesson-${lessonId}`);
+                    if (sidebarItem && !sidebarItem.querySelector('.fa-check-circle')) {
+                        sidebarItem.insertAdjacentHTML('beforeend', ' <i class="fa fa-check-circle text-success"></i>');
+                    }
+                    completedLessons.push(parseInt(lessonId));
+                } else {
+                    alert(data.message || 'Gagal menandai pelajaran.');
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fa fa-check"></i> Tandai Selesai';
+                }
+            })
+            .catch(error => {
+                console.error('Error marking lesson complete:', error);
+                alert('Terjadi kesalahan jaringan.');
+                button.disabled = false;
+                button.innerHTML = '<i class="fa fa-check"></i> Tandai Selesai';
+            });
+        }
     });
+
+
+    lessonContentEl.addEventListener('submit', function(e) {
+        if (e.target && e.target.id === 'course-review-form') {
+            e.preventDefault(); // Mencegah form submit secara normal
+            const form = e.target;
+            const submitButton = form.querySelector('button[type="submit"]');
+            const errorAlert = document.getElementById('review-error-alert');
+
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Mengirim...';
+            errorAlert.style.display = 'none';
+            
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    lessonContentEl.innerHTML = `
+                        <div class="text-center p-5">
+                            <i class="fa fa-check-circle text-success" style="font-size: 4rem;"></i>
+                            <h4 class="mt-3">Terima Kasih!</h4>
+                            <p class="text-muted">Ulasan Anda telah berhasil kami terima.</p>
+                        </div>
+                    `;
+                    // Sembunyikan tombol feedback setelah berhasil submit
+                    if(reviewButton) reviewButton.style.display = 'none';
+                } else {
+                    errorAlert.innerText = data.message || 'Terjadi kesalahan. Pastikan semua kolom terisi.';
+                    errorAlert.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting review:', error);
+                errorAlert.innerText = 'Terjadi kesalahan jaringan. Silakan coba lagi.';
+                errorAlert.style.display = 'block';
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+                submitButton.innerText = 'Kirim Ulasan';
+            });
+        }
+    });
+
+        // --- LOGIKA BARU UNTUK TOMBOL SERTIFIKAT ---
+    const certificateButton = document.getElementById('load-certificate-preview');
+    if (certificateButton) {
+        certificateButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            lessonTitleEl.innerText = 'Sertifikat Kelulusan';
+            lessonContentEl.innerHTML = '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
+            const url = "{{ route('student.certificate.preview', $course->id) }}";
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        lessonContentEl.innerHTML = data.html;
+                    } else {
+                        lessonContentEl.innerHTML = `<p class="text-danger">${data.message || 'Gagal memuat pratinjau sertifikat.'}</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching certificate preview:', error);
+                    lessonContentEl.innerHTML = '<p class="text-danger">Terjadi kesalahan jaringan.</p>';
+                });
+        });
+    }
+
+
+
 });
 </script>
 @endpush

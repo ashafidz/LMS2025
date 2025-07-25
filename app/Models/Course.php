@@ -71,4 +71,33 @@ class Course extends Model
     {
         return $this->hasMany(Module::class);
     }
+    public function lessons()
+    {
+        return $this->hasManyThrough(Lesson::class, Module::class);
+    }
+
+    /**
+     * Mendapatkan ulasan instruktur yang terkait dengan kursus ini.
+     */
+    public function instructorReviews()
+    {
+        return $this->hasMany(InstructorReview::class);
+    }
+
+    /**
+     * Mendefinisikan relasi bahwa satu Course memiliki banyak ulasan (reviews).
+     */
+    public function reviews()
+    {
+        // Ganti CourseReview::class dengan nama model ulasan kursus Anda yang sebenarnya.
+        return $this->hasMany(CourseReview::class);
+    }
+
+    /**
+     * Mendapatkan semua sertifikat yang telah diterbitkan untuk kursus ini.
+     */
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class);
+    }
 }

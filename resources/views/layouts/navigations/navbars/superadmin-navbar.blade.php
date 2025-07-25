@@ -116,6 +116,12 @@
                     </a>
                     <ul class="show-notification profile-notification">
                         <li class="waves-effect waves-light">
+                            <a href="{{ route('home') }}">
+                                <i class="ti-home"></i>
+                                Home
+                            </a>
+                        </li>
+                        <li class="waves-effect waves-light">
                             <a href="#!">
                                 <i class="ti-settings"></i>
                                 Settings

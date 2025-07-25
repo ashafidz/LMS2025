@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Http\Controllers\Student;
+
+use App\Http\Controllers\Controller;
+use App\Models\LessonAssignment;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class StudentAssignmentController extends Controller
+{
+    /**
+     * Menerima dan menyimpan file tugas yang dikumpulkan oleh siswa.
+     */
+    public function submit(Request $request, LessonAssignment $assignment)
+    {
+        $user = Auth::user();
+
+        // Validasi: pastikan file ada dan tipenya adalah pdf atau zip
+        $validated = $request->validate([
+            'submission_file' => 'required|file|mimes:pdf,zip|max:104800', // Maksimal 20MB
+        ]);
+
+        // Cek apakah siswa sudah pernah mengumpulkan untuk tugas ini
+        $existingSubmission = $assignment->submissions()->where('user_id', $user->id)->first();
+        if ($existingSubmission) {
+            // Jika sudah ada, kita bisa memilih untuk menimpanya atau menolak.
+            // Untuk sekarang, kita akan menimpanya.
+            // Anda bisa menambahkan logika untuk menghapus file lama di sini jika perlu.
+        }
+
+        // Simpan file ke storage lokal
+        // Format path: assignment_submissions/{assignment_id}/{user_id}/nama_file.pdf
+        $path = $validated['submission_file']->store(
+            'assignment_submissions/' . $assignment->id . '/' . $user->id,
+            'public'
+        );
+
+        // Buat atau perbarui catatan pengumpulan di database
+        $assignment->submissions()->updateOrCreate(
+            ['user_id' => $user->id], // Kunci untuk mencari
+            [
+                'file_path' => $path,
+                'submitted_at' => now(),
+            ]
+        );
+
+        return back()->with('success', 'Tugas Anda berhasil dikumpulkan!');
+    }
+}

@@ -1,7 +1,6 @@
-{{-- File ini hanya berisi konten pratinjau untuk pelajaran kuis --}}
+{{-- 
 
 <h4 class="font-weight-bold">{{ $lesson->title }}</h4>
-<p>Ini adalah pratinjau halaman informasi yang akan dilihat siswa sebelum memulai kuis.</p>
 <hr>
 
 <div class="card">
@@ -25,4 +24,6 @@
             <button class="btn btn-primary btn-lg" disabled>Mulai Kuis</button>
         </div>
     </div>
-</div>
+</div> --}}
+
+

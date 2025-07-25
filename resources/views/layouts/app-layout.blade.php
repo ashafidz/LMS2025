@@ -30,6 +30,15 @@
     <link rel="stylesheet" href="{{ asset('pages/waves/css/waves.min.css') }}" type="text/css" media="all" />
     <!-- themify icon -->
     <link rel="stylesheet" type="text/css" href="{{ asset('icon/themify-icons/themify-icons.css') }}" />
+            <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+        />
+
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        />
     <!-- Font Awesome -->
     <link rel="stylesheet" type="text/css" href="{{ asset('icon/font-awesome/css/font-awesome.min.css') }}" />
     <!-- scrollbar.css -->
@@ -42,6 +51,28 @@
     <!-- Style.css -->
     <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}" />
     {{-- =============================================== --}}
+
+
+            <style>
+            .star-rating {
+                display: inline-flex;
+                gap: 8px;
+                font-size: 20px;
+            }
+
+            .star-rating i {
+                color: #ddd;
+                transition: transform 0.2s, color 0.3s;
+                cursor: pointer;
+            }
+
+            .star-rating i.hovered,
+            .star-rating i.selected {
+                color: #facc15; /* kuning keemasan */
+                transform: scale(1.2);
+            }
+        </style>
+        @stack('styles')
 </head>
 
 <body>
@@ -206,11 +237,14 @@
     <!-- menu js -->
     <script src="{{ asset('js/pcoded.min.js') }}"></script>
     <script src="{{ asset('js/vertical-layout.min.js') }} "></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- custom js -->
     @stack('scripts')
     <script type="text/javascript" src="{{ asset('pages/dashboard/custom-dashboard.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/script.js') }}"></script>
+
+
 </body>
 
 </html>

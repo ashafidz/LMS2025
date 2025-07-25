@@ -140,6 +140,54 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Mendapatkan item keranjang belanja milik pengguna.
+     */
+    public function carts()
+    {
+        return $this->hasMany(Cart::class);
+    }
+
+    /**
+     * Mendapatkan riwayat pesanan milik pengguna.
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Mendapatkan ulasan instruktur yang diberikan oleh pengguna ini.
+     */
+    public function instructorReviews()
+    {
+        return $this->hasMany(InstructorReview::class);
+    }
+
+    /**
+     * Mendapatkan jawaban skala Likert yang diberikan oleh pengguna ini.
+     */
+    public function likertAnswers()
+    {
+        return $this->hasMany(LikertAnswer::class);
+    }
+
+    /**
+     * Mendapatkan semua sertifikat yang dimiliki oleh pengguna ini.
+     */
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class);
+    }
+
+    /**
+     * Mendapatkan ulasan platform yang diberikan oleh pengguna ini.
+     */
+    public function platformReview()
+    {
+        return $this->hasOne(PlatformReview::class);
+    }
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>

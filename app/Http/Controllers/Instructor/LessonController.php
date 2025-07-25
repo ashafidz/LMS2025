@@ -24,7 +24,8 @@ class LessonController extends Controller
     public function index(Module $module)
     {
         $lessons = $module->lessons()->orderBy('order')->get();
-        return view('instructor.lessons.index', compact('module', 'lessons'));
+        $is_preview = false;
+        return view('instructor.lessons.index', compact('module', 'lessons', 'is_preview'));
     }
 
     /**

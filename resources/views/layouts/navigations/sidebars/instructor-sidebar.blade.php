@@ -6,7 +6,9 @@
                                 <div class="">
                                     <div class="main-menu-header">
                                         <img class="rounded-circle mr-4" style="width: 80px; height: 80px; border: 3px;"
-                                            src="{{ asset(Auth::user()->profile_picture_url ?? 'https://placehold.co/32x32/EBF4FF/767676?text=SA') }}"
+                                            src="{{ Auth::user()->profile_picture_url 
+        ? asset('storage/' . ltrim(Auth::user()->profile_picture_url, '/')) 
+        : 'https://placehold.co/80x80/EBF4FF/767676?text=SA' }}"
                                             alt="{{ Auth::user()->name }}" />
                                         <div class="user-details">
                                             <span id="more-details">{{ Auth::user()->name }}<i
@@ -17,7 +19,8 @@
                                     <div class="main-menu-content">
                                         <ul>
                                             <li class="more-details">
-                                                <a href="{{ route('user.profile.index') }}"><i class="ti-user"></i>View
+                                                <a href="{{ route('home') }}"><i class="ti-home"></i>Home</a>
+                                                <a href="{{ route('user.profile.index') }}"><i class="ti-user"></i>
                                                     Profile</a>
                                                 <a href="#!"><i class="ti-settings"></i>Settings</a>
                                                 <a href="{{ route('logout') }}"
