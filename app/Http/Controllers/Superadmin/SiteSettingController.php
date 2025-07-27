@@ -37,6 +37,14 @@ class SiteSettingController extends Controller
             'vat_percentage' => 'required|numeric|min:0|max:100',
             'transaction_fee_fixed' => 'required|numeric|min:0',
             'transaction_fee_percentage' => 'required|numeric|min:0|max:100',
+
+            // Validasi baru untuk nominal poin
+            'points_for_purchase' => 'required|integer|min:0',
+            'points_for_article' => 'required|integer|min:0',
+            'points_for_video' => 'required|integer|min:0',
+            'points_for_document' => 'required|integer|min:0',
+            'points_for_quiz' => 'required|integer|min:0',
+            'points_for_assignment' => 'required|integer|min:0',
         ]);
 
         // Logika untuk menangani unggahan logo

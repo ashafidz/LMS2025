@@ -51,7 +51,14 @@
                                     <li class="{{ Request::routeIs('student.my_courses') ? 'active' : '' }}">
                                         <a href="{{ route('student.my_courses') }}" class="waves-effect waves-dark">
                                             <span class="pcoded-micon"><i class="ti-home"></i><b>D</b></span>
-                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Kursus Saya</span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Kursusku</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="{{ Request::routeIs('student.points.index') ? 'active' : '' }}">
+                                        <a href="{{ route('student.points.index') }}" class="waves-effect waves-dark">
+                                            <span class="pcoded-micon"><i class="ti-home"></i><b>D</b></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Pointku</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>

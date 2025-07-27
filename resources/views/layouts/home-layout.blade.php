@@ -27,6 +27,10 @@
 <link href="{{ asset('home-page/assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
 <link href="{{ asset('home-page/assets/css/main.css') }}" rel="stylesheet">
 
+<link rel="stylesheet" type="text/css" href="{{ asset('icon/icofont/css/icofont.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('icon/themify-icons/themify-icons.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
   <!-- Main CSS File -->
   <link href="home-page/assets/css/main.css" rel="stylesheet">
 </head>
@@ -48,12 +52,41 @@
           <li><a href="{{ route('courses') }}">Katalog</a></li>
           <li><a href="{{ url('/faqs') }}">FAQ</a></li>
           <li><a href="{{ url('/contact') }}">Kontak</a></li>
+          <div class="d-flex flex-column d-xl-none">
+            @auth
+              <a href="{{ url('/cart') }}" class="btn-cart">
+                Keranjang
+              </a>
+              @if (session('active_role') == 'superadmin')
+                <a class="" href="{{ route('superadmin.dashboard') }}">Dashboard</a>
+              @elseif (session('active_role') == 'admin')
+                <a class="" href="{{ route('admin.dashboard') }}">Dashboard</a>
+              @elseif (session('active_role') == 'instructor' && Auth::user()->instructorProfile?->application_status === 'approved')
+                <a class="" href="{{ route('instructor.dashboard') }}">Dashboard</a>
+              @elseif (session('active_role') == 'student')
+                <a class="" href="{{ route('student.dashboard') }}">Dashboard</a>
+              @endif
+            @endauth
+            @if (session('active_role') == 'student')
+                <div class="d-flex align-items-center gap-2 ms-3 py-2">
+                  <i class="fa fa-diamond text-warning d-block f-40"></i>
+                  <p class="mb-0 align-self-center text-warning">{{ number_format(Auth::user()->points_balance, 0, ',', '.') }}</p>
+                </div>
+              @endif
+            @guest
+              <a class="" href="{{ url('/register') }}">Register</a>
+            @endguest
+          </div>
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
 
-      <div class="d-flex align-items-center gap-2">
+      <div class="d-flex align-items-center gap-2 d-none d-xl-flex">
         @auth
+          @if (session('active_role') == 'student')
+            <i class="fa fa-diamond text-warning d-block f-40"></i>
+            <p class="mb-0 align-self-center text-warning">{{ number_format(Auth::user()->points_balance, 0, ',', '.') }}</p>
+          @endif
           <a href="{{ url('/cart') }}" class="btn-cart"
             onmouseover="this.firstElementChild.style.color='#0d6efd'"
             onmouseout="this.firstElementChild.style.color='black'">
@@ -72,6 +105,7 @@
         @guest
           <a class="btn-getstarted ms-2" href="{{ url('/register') }}">Register</a>
         @endguest
+
       </div>
     </div>
   </header>

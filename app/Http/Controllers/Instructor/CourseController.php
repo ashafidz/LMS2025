@@ -39,6 +39,7 @@ class CourseController extends Controller
             'availability_type' => ['required', Rule::in(['lifetime', 'period'])],
             'start_date' => 'required_if:availability_type,period|nullable|date',
             'end_date' => 'required_if:availability_type,period|nullable|date|after_or_equal:start_date',
+            'payment_type' => ['required', Rule::in(['money', 'points'])],
         ]);
 
         $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
@@ -48,12 +49,16 @@ class CourseController extends Controller
             'slug' => Str::slug($validated['title']),
             'category_id' => $validated['category_id'],
             'description' => $validated['description'],
-            'price' => 0,
             'thumbnail_url' => $thumbnailPath,
             'status' => 'draft',
             'availability_type' => $validated['availability_type'],
             'start_date' => $validated['availability_type'] === 'period' ? $validated['start_date'] : null,
             'end_date' => $validated['availability_type'] === 'period' ? $validated['end_date'] : null,
+            // Simpan tipe pembayaran
+            'payment_type' => $validated['payment_type'],
+            // Reset harga yang tidak relevan
+            'price' => $validated['payment_type'] === 'money' ? 0 : 0, // Harga akan di-set oleh admin
+            'points_price' => $validated['payment_type'] === 'points' ? 0 : 0, // Harga akan di-set oleh admin
         ]);
 
         return redirect()->route('instructor.courses.index')->with('success', 'Course created successfully.');
@@ -79,34 +84,33 @@ class CourseController extends Controller
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:course_categories,id',
             'description' => 'nullable|string',
-            // DIHAPUS: Aturan validasi untuk 'status' dihapus dari sini
-            // 'status' => ['required', Rule::in(['draft', ...])], 
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'availability_type' => ['required', Rule::in(['lifetime', 'period'])],
             'start_date' => 'required_if:availability_type,period|nullable|date',
             'end_date' => 'required_if:availability_type,period|nullable|date|after_or_equal:start_date',
+            // Validasi baru untuk tipe pembayaran
+            'payment_type' => ['required', Rule::in(['money', 'points'])],
         ]);
 
-        $course->title = $validated['title'];
-        $course->slug = Str::slug($validated['title']);
-        $course->category_id = $validated['category_id'];
-        $course->description = $validated['description'];
-        // Kita tidak lagi memperbarui status dari sini
-        // $course->status = $validated['status']; 
-        $course->availability_type = $validated['availability_type'];
-        $course->start_date = $validated['availability_type'] === 'period' ? $validated['start_date'] : null;
-        $course->end_date = $validated['availability_type'] === 'period' ? $validated['end_date'] : null;
+        $courseData = $validated;
+        $courseData['slug'] = Str::slug($validated['title']);
 
         if ($request->hasFile('thumbnail')) {
             if ($course->thumbnail_url) {
                 Storage::disk('public')->delete($course->thumbnail_url);
             }
-            $course->thumbnail_url = $request->file('thumbnail')->store('thumbnails', 'public');
+            $courseData['thumbnail_url'] = $request->file('thumbnail')->store('thumbnails', 'public');
         }
 
-        $course->save();
+        // Jika tipe pembayaran diubah, reset harga yang tidak relevan
+        if ($course->payment_type !== $validated['payment_type']) {
+            $courseData['price'] = 0;
+            $courseData['points_price'] = 0;
+        }
 
-        return redirect()->route('instructor.courses.index')->with('success', 'Course updated successfully.');
+        $course->update($courseData);
+
+        return redirect()->route('instructor.courses.index')->with('success', 'Kursus berhasil diperbarui.');
     }
 
     public function destroy(Course $course)

@@ -7,6 +7,7 @@ use App\Models\AssignmentSubmission;
 use App\Models\LessonAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\PointService;
 
 class InstructorAssignmentController extends Controller
 {
@@ -16,9 +17,6 @@ class InstructorAssignmentController extends Controller
     public function index(LessonAssignment $assignment)
     {
         // Otorisasi: Pastikan instruktur yang mengakses adalah pemilik kursus
-        if ($assignment->lesson->module->course->instructor_id !== Auth::id()) {
-            abort(403, 'Akses ditolak.');
-        }
 
         // Ambil semua data pengumpulan, beserta data siswa, urutkan dari yang terbaru
         $submissions = $assignment->submissions()
@@ -29,30 +27,84 @@ class InstructorAssignmentController extends Controller
         return view('instructor.assignments.submissions', compact('assignment', 'submissions'));
     }
 
-    /**
-     * Menyimpan nilai dan umpan balik untuk sebuah pengumpulan tugas.
-     */
+
+
     public function grade(Request $request, AssignmentSubmission $submission)
     {
-        // Otorisasi: Pastikan instruktur adalah pemilik kursus dari tugas ini
-        if ($submission->assignment->lesson->module->course->instructor_id !== Auth::id()) {
-            abort(403, 'Akses ditolak.');
-        }
+        // if ($submission->assignment->lesson->module->course->instructor_id !== Auth::id()) {
+        //     abort(403, 'Akses ditolak.');
+        // }
 
         $validated = $request->validate([
             'grade' => 'required|numeric|min:0|max:100',
             'feedback' => 'nullable|string',
         ]);
 
-        // Perbarui record pengumpulan dengan nilai dan feedback
+        $assignment = $submission->assignment;
+        $student = $submission->user;
+        $lesson = $assignment->lesson;
+
+        // Cek apakah siswa sudah pernah lulus tugas ini sebelumnya
+        $hasPassedBefore = $student->assignmentSubmissions()
+            ->where('assignment_id', $assignment->id)
+            ->where('status', 'passed')
+            ->exists();
+
+        $newStatus = 'revision_required';
+        if ($validated['grade'] >= $assignment->pass_mark) {
+            $newStatus = 'passed';
+
+            // Tandai pelajaran sebagai selesai
+            $student->completedLessons()->syncWithoutDetaching($lesson->id);
+
+            // Berikan poin HANYA jika statusnya 'passed' DAN belum pernah lulus sebelumnya
+            if (!$hasPassedBefore) {
+                PointService::addPoints($student, 'pass_assignment', $lesson->title);
+            }
+        }
+
         $submission->update([
             'grade' => $validated['grade'],
             'feedback' => $validated['feedback'],
+            'status' => $newStatus,
         ]);
-
-        // Di sini Anda bisa menambahkan logika untuk mengirim notifikasi ke siswa
-        // bahwa tugasnya telah dinilai.
 
         return back()->with('success', 'Tugas berhasil dinilai.');
     }
+
+
+    /**
+     * Menyimpan nilai dan umpan balik, serta memicu progres otomatis.
+     */
+    // public function grade(Request $request, AssignmentSubmission $submission)
+    // {
+
+
+    //     $validated = $request->validate([
+    //         'grade' => 'required|numeric|min:0|max:100',
+    //         'feedback' => 'nullable|string',
+    //     ]);
+
+    //     $assignment = $submission->assignment;
+    //     $newStatus = 'revision_required'; 
+
+
+    //     if ($validated['grade'] >= $assignment->pass_mark) {
+    //         $newStatus = 'passed';
+
+    //         // --- LOGIKA PROGRES OTOMATIS ---
+    //         $student = $submission->user;
+    //         $lesson = $assignment->lesson;
+    //         $student->completedLessons()->syncWithoutDetaching($lesson->id);
+    //     }
+
+    //     // Perbarui record pengumpulan dengan nilai, feedback, dan status baru
+    //     $submission->update([
+    //         'grade' => $validated['grade'],
+    //         'feedback' => $validated['feedback'],
+    //         'status' => $newStatus, // Simpan status baru
+    //     ]);
+
+    //     return back()->with('success', 'Tugas berhasil dinilai.');
+    // }
 }

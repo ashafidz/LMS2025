@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\PointService;
 
 class PaymentController extends Controller
 {
@@ -19,7 +20,8 @@ class PaymentController extends Controller
         if ($order->status === 'pending') {
             $order->status = 'paid';
             $order->save();
-            $this->enrollStudent($order);
+            // $this->enrollStudent($order); // ! Not Used
+            $this->enrollStudentAndAddPoints($order);
         }
 
         return view('student.checkout.success', compact('order'));
@@ -68,13 +70,28 @@ class PaymentController extends Controller
 
 
     /**
-     * Helper method untuk mendaftarkan siswa ke kursus.
+     * Helper method untuk mendaftarkan siswa ke kursus. // !! Not Used
      */
     private function enrollStudent(Order $order)
     {
         $order->load('items.course', 'user');
         foreach ($order->items as $item) {
             $order->user->enrollments()->syncWithoutDetaching($item->course_id);
+        }
+    }
+
+    /**
+     * Helper method baru untuk mendaftarkan siswa DAN memberikan poin.
+     */
+    private function enrollStudentAndAddPoints(Order $order)
+    {
+        $order->load('items.course', 'user');
+        foreach ($order->items as $item) {
+            // Daftarkan siswa ke kursus
+            $order->user->enrollments()->syncWithoutDetaching($item->course_id);
+
+            // Berikan poin untuk pembelian kursus
+            PointService::addPoints($order->user, 'purchase', $item->course->title);
         }
     }
 }

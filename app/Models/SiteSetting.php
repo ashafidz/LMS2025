@@ -19,6 +19,12 @@ class SiteSetting extends Model
         'vat_percentage',
         'transaction_fee_fixed',
         'transaction_fee_percentage',
+        'points_for_purchase',
+        'points_for_article',
+        'points_for_video',
+        'points_for_document',
+        'points_for_quiz',
+        'points_for_assignment',
     ];
 
     protected $casts = [

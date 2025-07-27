@@ -12,7 +12,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="text-right font-weight-bold" id="quiz-timer"></div>
+                    <div class="text-right font-weight-bold" id="quiz-timer" style="font-size: 1.2rem;"></div>
                 </div>
             </div>
         </div>
@@ -213,6 +213,39 @@ document.addEventListener('DOMContentLoaded', function () {
     const finishBtn = document.getElementById('finish-btn');
     const questionNavContainer = document.getElementById('question-navigation');
     const form = document.getElementById('quiz-form');
+    const timerEl = document.getElementById('quiz-timer');
+
+    const timeLimitInMinutes = {{ $attempt->quiz->time_limit ?? 0 }};
+    const allowExceedTime = {{ $attempt->quiz->allow_exceed_time_limit ? 'true' : 'false' }};
+    let timeRemaining = timeLimitInMinutes * 60;
+    let timerInterval;
+
+    function startTimer() {
+        if (timeLimitInMinutes <= 0) {
+            timerEl.innerText = "Tanpa Batas Waktu";
+            return;
+        }
+
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+
+            const minutes = Math.floor(Math.abs(timeRemaining) / 60);
+            const seconds = Math.abs(timeRemaining) % 60;
+            const displayTime = `${timeRemaining < 0 ? '-' : ''}${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            
+            timerEl.innerText = displayTime;
+
+            if (timeRemaining < 0) {
+                timerEl.classList.add('text-danger');
+            }
+
+            if (timeRemaining === 0 && !allowExceedTime) {
+                clearInterval(timerInterval);
+                alert('Waktu habis! Jawaban Anda akan dikirim secara otomatis.');
+                form.submit();
+            }
+        }, 1000);
+    }
 
     function createNavigation() {
         questions.forEach((question, index) => {
@@ -328,7 +361,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Inisialisasi
     createNavigation();
-    showQuestion(0); // Memanggil showQuestion di awal untuk setup UI
+    showQuestion(0);
+    startTimer(); 
 });
 </script>
 @endpush

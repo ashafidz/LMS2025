@@ -26,6 +26,8 @@ use App\Http\Controllers\Shared\LikertQuestionController;
 use App\Http\Controllers\Student\CourseReviewController;
 use App\Http\Controllers\Student\CertificateController;
 use App\Http\Controllers\Student\StudentReviewController;
+use App\Http\Controllers\Student\StudentPointController;
+use App\Http\Controllers\Student\PointPurchaseController;
 
 
 
@@ -401,6 +403,12 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
 
         // Aksi untuk memperbarui ulasan instruktur yang sudah ada
         Route::put('/reviews/instructor/{review}', [StudentReviewController::class, 'updateInstructorReview'])->name('student.reviews.instructor.update');
+
+        // RUTE BARU UNTUK HALAMAN KELOLA POIN
+        Route::get('/my-points', [StudentPointController::class, 'index'])->name('student.points.index');
+
+        // RUTE BARU UNTUK MEMBELI KURSUS DENGAN POIN
+        Route::post('/courses/{course}/purchase-with-points', [PointPurchaseController::class, 'purchase'])->name('student.courses.purchase_with_points');
     });
 
 

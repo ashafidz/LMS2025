@@ -162,7 +162,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success) {
                     lessonTitleEl.innerText = data.title;
                     let completeButtonHtml = '';
-                    if (!isPreview && !completedLessons.includes(parseInt(lessonId))) {
+                    const sidebarItem = document.getElementById(`sidebar-lesson-${lessonId}`);
+                    const lessonTypeIcon = sidebarItem.querySelector('i.fa');
+                    const isQuizOrAssignment = lessonTypeIcon.classList.contains('fa-question-circle') || lessonTypeIcon.classList.contains('fa-pencil-square-o');
+                    if (!isQuizOrAssignment && !isPreview && !completedLessons.includes(parseInt(lessonId))) {
                         completeButtonHtml = `<hr><div class="text-center mt-4"><button class="btn btn-success mark-as-complete-btn" data-lesson-id="${lessonId}"><i class="fa fa-check"></i> Tandai Selesai</button></div>`;
                     }
                     lessonContentEl.innerHTML = data.html + completeButtonHtml;

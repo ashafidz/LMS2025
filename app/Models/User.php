@@ -81,8 +81,13 @@ class User extends Authenticatable implements MustVerifyEmail
         'gender',
         'birth_date',
         'profile_picture_url',
+        'points_balance',
     ];
 
+    public function pointHistories()
+    {
+        return $this->hasMany(PointHistory::class);
+    }
 
 
     public function instructorProfile(): HasOne

@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\PointService;
 
 class CourseController extends Controller
 {
@@ -132,7 +133,23 @@ class CourseController extends Controller
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
         }
 
+        // Cek apakah pelajaran ini sudah pernah diselesaikan untuk mencegah poin ganda
+        $alreadyCompleted = $user->completedLessons()->where('lesson_id', $lesson->id)->exists();
+
         $user->completedLessons()->syncWithoutDetaching($lesson->id);
+        // Berikan poin HANYA jika pelajaran ini BARU saja diselesaikan
+        if (!$alreadyCompleted) {
+            $lessonType = strtolower(class_basename($lesson->lessonable_type));
+            $activity = null;
+
+            if ($lessonType === 'lessonarticle') $activity = 'complete_article';
+            if ($lessonType === 'lessonvideo') $activity = 'complete_video';
+            if ($lessonType === 'lessondocument') $activity = 'complete_document';
+
+            if ($activity) {
+                PointService::addPoints($user, $activity, $lesson->title);
+            }
+        }
         return response()->json(['success' => true, 'message' => 'Pelajaran ditandai selesai.']);
     }
 }

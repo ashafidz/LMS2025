@@ -24,10 +24,17 @@ class StudentAssignmentController extends Controller
         // Cek apakah siswa sudah pernah mengumpulkan untuk tugas ini
         $existingSubmission = $assignment->submissions()->where('user_id', $user->id)->first();
         if ($existingSubmission) {
-            // Jika sudah ada, kita bisa memilih untuk menimpanya atau menolak.
-            // Untuk sekarang, kita akan menimpanya.
-            // Anda bisa menambahkan logika untuk menghapus file lama di sini jika perlu.
+            // Jika sudah ada, hapus file lama dari storage sebelum menyimpan yang baru
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($existingSubmission->file_path);
         }
+
+        // Cek apakah siswa sudah pernah mengumpulkan untuk tugas ini
+        // $existingSubmission = $assignment->submissions()->where('user_id', $user->id)->first();
+        // if ($existingSubmission) {
+        //     // Jika sudah ada, kita bisa memilih untuk menimpanya atau menolak.
+        //     // Untuk sekarang, kita akan menimpanya.
+        //     // Anda bisa menambahkan logika untuk menghapus file lama di sini jika perlu.
+        // }
 
         // Simpan file ke storage lokal
         // Format path: assignment_submissions/{assignment_id}/{user_id}/nama_file.pdf
@@ -42,6 +49,9 @@ class StudentAssignmentController extends Controller
             [
                 'file_path' => $path,
                 'submitted_at' => now(),
+                'grade' => null,
+                'feedback' => null,
+                'status' => 'submitted',
             ]
         );
 

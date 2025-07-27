@@ -9,6 +9,7 @@ use App\Models\QuizAttempt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Services\PointService;
 
 class StudentQuizController extends Controller
 {
@@ -29,13 +30,19 @@ class StudentQuizController extends Controller
             $attempt->setRelation('quiz', $quiz);
             return view('student.quizzes.take', compact('attempt', 'is_preview'));
         }
-        $attempt = QuizAttempt::create(['quiz_id' => $quiz->id, 'student_id' => Auth::id(), 'status' => 'in_progress', 'start_time' => now()]);
+        $attempt = QuizAttempt::create([
+            'quiz_id' => $quiz->id,
+            'student_id' => Auth::id(),
+            'status' => 'in_progress',
+            'start_time' => now()
+        ]);
         return redirect()->route('student.quiz.take', $attempt);
     }
 
     public function take($attemptId)
     {
-        $attempt = QuizAttempt::findOrFail($attemptId);
+        $attempt = QuizAttempt::with('quiz.questions.options')->findOrFail($attemptId);
+        // $attempt = QuizAttempt::findOrFail($attemptId);
         if ($attempt->status !== 'in_progress') {
             return redirect()->route('student.quiz.result', $attempt)->with('info', 'Anda sudah menyelesaikan kuis ini.');
         }
@@ -81,9 +88,30 @@ class StudentQuizController extends Controller
                 $maxPossibleScore = $attempt->quiz->questions->sum('score');
                 $percentageScore = ($maxPossibleScore > 0) ? ($totalScore / $maxPossibleScore) * 100 : 0;
                 $attempt->score = $totalScore;
+                $newStatus = $percentageScore >= $attempt->quiz->pass_mark ? 'passed' : 'failed';
+
+                // Cek apakah siswa sudah pernah lulus kuis ini sebelumnya
+                $hasPassedBefore = $attempt->quiz->attempts()
+                    ->where('student_id', Auth::id())
+                    ->where('status', 'passed')
+                    ->exists();
+
+
                 $attempt->status = $percentageScore >= $attempt->quiz->pass_mark ? 'passed' : 'failed';
                 $attempt->end_time = now();
                 $attempt->save();
+
+                // Berikan poin HANYA jika statusnya 'passed' DAN belum pernah lulus sebelumnya
+                if ($newStatus === 'passed' && !$hasPassedBefore) {
+                    PointService::addPoints(Auth::user(), 'pass_quiz', $attempt->quiz->title);
+                }
+
+                if ($newStatus === 'passed') {
+                    $student = Auth::user();
+                    $lesson = $attempt->quiz->lesson;
+                    // Tandai pelajaran sebagai selesai untuk siswa ini
+                    $student->completedLessons()->syncWithoutDetaching($lesson->id);
+                }
             }
         });
         if ($is_preview) {

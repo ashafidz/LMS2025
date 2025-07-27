@@ -2,7 +2,6 @@
 
 @section('content')
 <div class="pcoded-content">
-    <!-- Page-header start -->
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
@@ -22,8 +21,6 @@
             </div>
         </div>
     </div>
-    <!-- Page-header end -->
-
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
@@ -46,7 +43,7 @@
                                                     <th>#</th>
                                                     <th>Nama Siswa</th>
                                                     <th>Waktu Pengumpulan</th>
-                                                    <th>Nilai</th>
+                                                    <th>Status</th>
                                                     <th class="text-center">Aksi</th>
                                                 </tr>
                                             </thead>
@@ -57,10 +54,24 @@
                                                         <td>{{ $submission->user->name }}</td>
                                                         <td>{{ $submission->submitted_at->format('d F Y, H:i') }}</td>
                                                         <td>
+                                                            {{-- LOGIKA BARU UNTUK LABEL STATUS --}}
+                                                            @php
+                                                                $statusClasses = [
+                                                                    'submitted' => 'label-info',
+                                                                    'revision_required' => 'label-danger',
+                                                                    'passed' => 'label-success',
+                                                                ];
+                                                                $statusText = [
+                                                                    'submitted' => 'Menunggu Penilaian',
+                                                                    'revision_required' => 'Perlu Revisi',
+                                                                    'passed' => 'Lulus',
+                                                                ];
+                                                            @endphp
+                                                            <label class="label {{ $statusClasses[$submission->status] ?? 'label-default' }}">
+                                                                {{ $statusText[$submission->status] ?? 'Tidak Diketahui' }}
+                                                            </label>
                                                             @if(!is_null($submission->grade))
-                                                                <label class="label label-success">{{ $submission->grade }} / 100</label>
-                                                            @else
-                                                                <label class="label label-warning">Belum Dinilai</label>
+                                                                <span class="badge badge-inverse">{{ $submission->grade }} / 100</span>
                                                             @endif
                                                         </td>
                                                         <td class="text-center">

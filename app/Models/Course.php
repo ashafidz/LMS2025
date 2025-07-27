@@ -24,6 +24,8 @@ class Course extends Model
         'availability_type',
         'start_date',
         'end_date',
+        'payment_type', // Tambahkan ini
+        'points_price', // Tambahkan ini
     ];
 
     /**

@@ -10,7 +10,7 @@ class Quiz extends Model
     //
     use HasFactory;
 
-    protected $fillable = ['title', 'description', 'pass_mark', 'time_limit'];
+    protected $fillable = ['title', 'description', 'pass_mark', 'time_limit', 'allow_exceed_time_limit',];
 
     public function lesson()
     {

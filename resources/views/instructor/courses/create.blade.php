@@ -87,6 +87,28 @@
                                                     <small class="form-text text-muted">Tanggal Selesai</small>
                                                 </div>
                                             </div>
+
+                                                                                        {{-- BAGIAN BARU: Tipe Pembayaran --}}
+                                            <div class="form-group row">
+                                                <label class="col-sm-2 col-form-label">Tipe Pembayaran</label>
+                                                <div class="col-sm-10">
+                                                    <div class="form-radio">
+                                                        <div class="radio radio-inline">
+                                                            <label>
+                                                                <input type="radio" name="payment_type" value="money" {{ old('payment_type', 'money') == 'money' ? 'checked' : '' }}>
+                                                                <i class="helper"></i>Bayar dengan Uang
+                                                            </label>
+                                                        </div>
+                                                        <div class="radio radio-inline">
+                                                            <label>
+                                                                <input type="radio" name="payment_type" value="points" {{ old('payment_type') == 'points' ? 'checked' : '' }}>
+                                                                <i class="helper"></i>Bayar dengan Poin
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <small class="form-text text-muted">Pilih bagaimana siswa akan membayar kursus ini. Harga akan ditentukan oleh Admin saat publikasi.</small>
+                                                </div>
+                                            </div>
                                             <div class="form-group row">
                                                 <div class="col-sm-12 text-right">
                                                     <a href="{{ route('instructor.courses.index') }}" class="btn btn-secondary">Batal</a>

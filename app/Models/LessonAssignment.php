@@ -9,7 +9,7 @@ class LessonAssignment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['instructions', 'due_date'];
+    protected $fillable = ['instructions', 'due_date', 'pass_mark',];
 
     protected $casts = [
         'due_date' => 'datetime',

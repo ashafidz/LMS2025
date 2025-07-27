@@ -22,25 +22,34 @@ class PublicationController extends Controller
     }
 
     /**
-     * Mempublikasikan kursus dan menetapkan harganya.
+     * Mempublikasikan kursus dan menetapkan harganya (baik uang maupun poin).
      */
     public function publish(Request $request, Course $course)
     {
-        $validated = $request->validate([
-            'price' => 'required|numeric|min:0',
-        ]);
-
         // Pastikan kursus yang akan di-publish memang sedang dalam status review
         if ($course->status !== 'pending_review') {
             return back()->with('error', 'Kursus ini tidak bisa dipublikasikan.');
         }
 
-        $course->price = $validated['price'];
+        // Validasi dinamis berdasarkan tipe pembayaran kursus
+        if ($course->payment_type === 'money') {
+            $validated = $request->validate([
+                'price' => 'required|numeric|min:0',
+            ]);
+            $course->price = $validated['price'];
+            $course->points_price = 0; // Reset harga poin
+        } elseif ($course->payment_type === 'points') {
+            $validated = $request->validate([
+                'points_price' => 'required|integer|min:0',
+            ]);
+            $course->points_price = $validated['points_price'];
+            $course->price = 0; // Reset harga uang
+        }
+
         $course->status = 'published';
         $course->save();
 
         // Di sini Anda bisa menambahkan logika untuk mengirim notifikasi ke instruktur
-        // bahwa kursusnya telah disetujui.
 
         return back()->with('success', 'Kursus berhasil dipublikasikan.');
     }

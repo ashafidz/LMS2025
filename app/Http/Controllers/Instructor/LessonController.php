@@ -84,17 +84,19 @@ class LessonController extends Controller
                         'quiz_description' => 'nullable|string',
                         'pass_mark' => 'required|integer|min:0|max:100',
                         'time_limit' => 'nullable|integer|min:1',
+                        'allow_exceed_time_limit' => 'required|boolean',
                     ]);
                     $lessonable = Quiz::create([
                         'title' => $validated['quiz_title'],
                         'description' => $validated['quiz_description'],
                         'pass_mark' => $validated['pass_mark'],
                         'time_limit' => $validated['time_limit'],
+                        'allow_exceed_time_limit' => $validated['allow_exceed_time_limit'],
                     ]);
                     break;
 
                 case 'assignment':
-                    $validated = $request->validate(['instructions' => 'required|string', 'due_date' => 'nullable|date']);
+                    $validated = $request->validate(['instructions' => 'required|string', 'due_date' => 'nullable|date', 'pass_mark' => 'required|integer|min:0|max:100']);
                     $lessonable = LessonAssignment::create($validated);
                     break;
 
@@ -184,17 +186,19 @@ class LessonController extends Controller
                         'quiz_description' => 'nullable|string',
                         'pass_mark' => 'required|integer|min:0|max:100',
                         'time_limit' => 'nullable|integer|min:1',
+                        'allow_exceed_time_limit' => 'required|boolean',
                     ]);
                     $lessonable->update([
                         'title' => $validated['quiz_title'],
                         'description' => $validated['quiz_description'],
                         'pass_mark' => $validated['pass_mark'],
                         'time_limit' => $validated['time_limit'],
+                        'allow_exceed_time_limit' => $validated['allow_exceed_time_limit'],
                     ]);
                     break;
 
                 case 'lessonassignment':
-                    $validated = $request->validate(['instructions' => 'required|string', 'due_date' => 'nullable|date']);
+                    $validated = $request->validate(['instructions' => 'required|string', 'due_date' => 'nullable|date', 'pass_mark' => 'required|integer|min:0|max:100',]);
                     $lessonable->update($validated);
                     break;
 

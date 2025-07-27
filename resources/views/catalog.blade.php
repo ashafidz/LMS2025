@@ -87,11 +87,27 @@
                                         </div>
                                         <div class="card-footer bg-white border-0 pt-0">
                                             <span class="fw-bold text-dark fs-5">
-                                                @if($course->price > 0)
+
+                                            {{-- DIPERBARUI: Logika untuk menampilkan harga uang atau poin --}}
+                                            @if($course->payment_type === 'money')
+                                                <span class="fw-bold text-dark fs-5">
+                                                    @if($course->price > 0)
+                                                        Rp{{ number_format($course->price, 0, ',', '.') }}
+                                                    @else
+                                                        Gratis
+                                                    @endif
+                                                </span>
+                                            @elseif($course->payment_type === 'points')
+                                                <span class="fw-bold text-warning fs-5 d-flex align-items-center">
+                                                    <i class="fa fa-diamond me-2"></i> {{ number_format($course->points_price, 0, ',', '.') }} Poin
+                                                </span>
+                                            @endif
+
+                                                {{-- @if($course->price > 0)
                                                     Rp{{ number_format($course->price, 0, ',', '.') }}
                                                 @else
                                                     Gratis
-                                                @endif
+                                                @endif --}}
                                             </span>
                                         </div>
                                     </div>

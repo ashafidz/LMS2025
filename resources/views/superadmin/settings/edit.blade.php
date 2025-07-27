@@ -128,6 +128,34 @@
                                             </div>
                                         </div>
 
+                                                                                {{-- BAGIAN BARU: PENGATURAN POIN --}}
+                                        <h6 class="font-weight-bold mt-5">Pengaturan Gamifikasi Poin</h6>
+                                        <hr>
+                                        <div class="form-group row">
+                                            <label class="col-sm-3 col-form-label">Poin Saat Membeli Kursus</label>
+                                            <div class="col-sm-9"><input type="number" name="points_for_purchase" class="form-control" value="{{ old('points_for_purchase', $settings->points_for_purchase) }}" required></div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-sm-3 col-form-label">Poin Selesai Pelajaran (Artikel)</label>
+                                            <div class="col-sm-9"><input type="number" name="points_for_article" class="form-control" value="{{ old('points_for_article', $settings->points_for_article) }}" required></div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-sm-3 col-form-label">Poin Selesai Pelajaran (Video)</label>
+                                            <div class="col-sm-9"><input type="number" name="points_for_video" class="form-control" value="{{ old('points_for_video', $settings->points_for_video) }}" required></div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-sm-3 col-form-label">Poin Selesai Pelajaran (Dokumen)</label>
+                                            <div class="col-sm-9"><input type="number" name="points_for_document" class="form-control" value="{{ old('points_for_document', $settings->points_for_document) }}" required></div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-sm-3 col-form-label">Poin Lulus Kuis</label>
+                                            <div class="col-sm-9"><input type="number" name="points_for_quiz" class="form-control" value="{{ old('points_for_quiz', $settings->points_for_quiz) }}" required></div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-sm-3 col-form-label">Poin Lulus Tugas</label>
+                                            <div class="col-sm-9"><input type="number" name="points_for_assignment" class="form-control" value="{{ old('points_for_assignment', $settings->points_for_assignment) }}" required></div>
+                                        </div>
+
                                         <div class="form-group row mt-4">
                                             <div class="col-sm-12 text-right">
                                                 <button type="submit" class="btn btn-primary">Simpan Pengaturan</button>
