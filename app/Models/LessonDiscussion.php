@@ -9,7 +9,7 @@ class LessonDiscussion extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['lesson_id', 'user_id', 'parent_id', 'content'];
+    protected $fillable = ['lesson_id', 'user_id', 'parent_id', 'content', 'is_deleted'];
 
     public function lesson()
     {

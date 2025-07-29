@@ -98,17 +98,10 @@
                                             <p class="text-muted">Kursus ini belum memiliki modul.</p>
                                         @endforelse
 
-                                        {{-- TOMBOL BARU UNTUK FEEDBACK --}}
-                                        {{-- <div class="card mb-2">
-                                            <div class="card-header">
-                                                <h5 class="mb-0">
-                                                    <button class="btn btn-link" id="load-review-form">
-                                                        <strong><i class="fa fa-star mr-2"></i> Beri Ulasan & Rating</strong>
-                                                    </button>
-                                                </h5>
-                                            </div>
-                                        </div> --}}
                                         <div class="mt-4 mb-4">
+                                            <button class="btn btn-outline-primary w-100 mb-2" id="load-leaderboard">
+                                                <i class="fa fa-bar-chart mr-2"></i> Leaderboard
+                                            </button>
                                             <button class="btn btn-outline-primary w-100 mb-2" id="load-review-form">
                                                 <i class="fa fa-star mr-2"></i> Feedback
                                             </button>
@@ -116,14 +109,21 @@
                                             <button class="btn btn-outline-primary w-100 mb-2" id="load-certificate-preview">
                                                 <i class="bi bi-award-fill me-2"></i> Sertifikat
                                             </button>
+                                            <button class="btn btn-outline-primary w-100 mb-2"
+                                            id="convert-points-btn" data-toggle="modal" data-target="#conversionModal">
+                                                <i class="fa fa-exchange mr-2"></i> Konversi Poin
+                                            </button>
                                             @else
                                             <button class="btn btn-outline-primary w-100 mb-2" disabled>
                                                 <i class="bi bi-award-fill me-2"></i> Sertifikat
                                             </button>
+                                            <button class="btn btn-outline-primary w-100 mb-2" disabled>
+                                                <i class="bi bi-award-fill me-2"></i> Konversi Poin
+                                            </button>
                                             @endif
-                                            <a href="" class="btn btn-outline-primary w-100">
+                                            {{-- <a href="" class="btn btn-outline-primary w-100">
                                             <i class="bi bi-chat-fill me-2"></i> Forum
-                                            </a>
+                                            </a> --}}
                                         </div>
                                     </div>
                                 </div>
@@ -135,6 +135,65 @@
         </div>
     </div>
 </div>
+
+
+
+@if($isEligibleForCertificate)
+<div class="modal fade" id="conversionModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Konversi Poin ke Diamond</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @php
+                    $pointsData = Auth::user()->coursePoints()->where('course_id', $course->id)->first();
+                    $pointsToConvert = $pointsData->pivot->points_earned ?? 0;
+                    $conversionRate = \App\Models\SiteSetting::first()->point_to_diamond_rate ?? 1;
+                    $diamondsEarned = floor($pointsToConvert * $conversionRate);
+                @endphp
+
+                @if($pointsData && $pointsData->pivot->is_converted_to_diamond)
+                    <div class="alert alert-success text-center">
+                        <i class="fa fa-check-circle fa-2x mb-2"></i><br>
+                        Anda sudah pernah mengonversi poin dari kursus ini.
+                    </div>
+                @else
+                    <p>Anda akan mengonversi semua poin yang Anda dapatkan dari kursus ini menjadi Diamond.</p>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Total Poin di Kursus Ini
+                            <span class="text-warning">{{ $pointsToConvert }} <i class="ti-medall-alt"></i></span>
+                            
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Rasio Konversi
+                            <span>1 Poin = {{ (float)$conversionRate }} Diamond</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Diamond yang Akan Didapat</strong>
+                            <strong class="text-primary">{{ $diamondsEarned }} <i class="fa fa-diamond"></i></strong>
+                        </li>
+                    </ul>
+                    <p class="text-muted mt-3"><small>Proses ini hanya bisa dilakukan satu kali per kursus dan tidak dapat dibatalkan.</small></p>
+                @endif
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                @if($pointsData && !$pointsData->pivot->is_converted_to_diamond)
+                    <form action="#" method="POST"> {{-- Ganti action ke route konversi nanti --}}
+                        @csrf
+                        <button type="submit" class="btn btn-primary">Konfirmasi & Konversi Poin</button>
+                    </form>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 @endsection
 
 @push('scripts')
@@ -168,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (!isQuizOrAssignment && !isPreview && !completedLessons.includes(parseInt(lessonId))) {
                         completeButtonHtml = `<hr><div class="text-center mt-4"><button class="btn btn-success mark-as-complete-btn" data-lesson-id="${lessonId}"><i class="fa fa-check"></i> Tandai Selesai</button></div>`;
                     }
-                    lessonContentEl.innerHTML = data.html + completeButtonHtml;
+                    lessonContentEl.innerHTML = data.html + completeButtonHtml + data.discussion_html;
                 } else {
                     lessonTitleEl.innerText = 'Gagal Memuat';
                     lessonContentEl.innerHTML = `<p class="text-danger">${data.message || 'Terjadi kesalahan.'}</p>`;
@@ -322,6 +381,34 @@ document.addEventListener('DOMContentLoaded', function () {
                     lessonContentEl.innerHTML = '<p class="text-danger">Terjadi kesalahan jaringan.</p>';
                 });
         });
+
+
+
+            // --- LOGIKA BARU UNTUK TOMBOL LEADERBOARD ---
+    const leaderboardButton = document.getElementById('load-leaderboard');
+    if (leaderboardButton) {
+        leaderboardButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            lessonTitleEl.innerText = 'Papan Peringkat Kursus';
+            lessonContentEl.innerHTML = '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
+
+            const url = "{{ route('student.course.leaderboard', $course->id) }}";
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        lessonContentEl.innerHTML = data.html;
+                    } else {
+                        lessonContentEl.innerHTML = `<p class="text-danger">${data.message || 'Gagal memuat papan peringkat.'}</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching leaderboard:', error);
+                    lessonContentEl.innerHTML = '<p class="text-danger">Terjadi kesalahan jaringan.</p>';
+                });
+        });
+    }
     }
 
 

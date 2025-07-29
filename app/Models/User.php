@@ -81,8 +81,36 @@ class User extends Authenticatable implements MustVerifyEmail
         'gender',
         'birth_date',
         'profile_picture_url',
-        'points_balance',
+        'diamond_balance',
+        'equipped_badge_id'
     ];
+
+    // Tambahkan relasi baru ini
+    public function diamondHistories()
+    {
+        return $this->hasMany(DiamondHistory::class);
+    }
+
+    public function coursePoints()
+    {
+        return $this->belongsToMany(Course::class, 'course_user')->withPivot('points_earned', 'is_converted_to_diamond');
+    }
+
+    /**
+     * Mendapatkan semua badge yang dimiliki oleh pengguna ini.
+     */
+    public function badges()
+    {
+        return $this->belongsToMany(Badge::class);
+    }
+
+    /**
+     * Mendapatkan badge yang sedang dipasang oleh pengguna ini.
+     */
+    public function equippedBadge()
+    {
+        return $this->belongsTo(Badge::class, 'equipped_badge_id');
+    }
 
     public function pointHistories()
     {

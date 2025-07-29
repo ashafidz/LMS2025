@@ -78,6 +78,10 @@
                                                             <a href="{{ route('instructor.assignment.submissions', $lesson->lessonable_id) }}" class="btn btn-success btn-sm">Lihat Pengumpulan</a>
                                                         @endif
 
+                                                        @if ($lessonType === 'lessonpoint')
+                                                            <a href="{{ route('instructor.lesson_points.manage', $lesson->id) }}" class="btn btn-success btn-sm">Kelola LessonPoin</a>
+                                                        @endif
+
                                                         <form action="{{ route('instructor.lessons.destroy', $lesson->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pelajaran ini?');">
                                                             @csrf
                                                             @method('DELETE')
@@ -117,6 +121,7 @@
                         <a href="{{ route('instructor.modules.lessons.create', ['module' => $module, 'type' => 'link']) }}" class="list-group-item list-group-item-action"><i class="fa fa-link"></i> <strong>Pelajaran Kumpulan Link</strong><br><small>Bagikan beberapa tautan/referensi eksternal.</small></a>
                         <a href="{{ route('instructor.modules.lessons.create', ['module' => $module, 'type' => 'quiz']) }}" class="list-group-item list-group-item-action"><i class="fa fa-question-circle-o"></i> <strong>Kuis</strong><br><small>Buat kuis untuk menguji pemahaman siswa.</small></a>
                         <a href="{{ route('instructor.modules.lessons.create', ['module' => $module, 'type' => 'assignment']) }}" class="list-group-item list-group-item-action"><i class="fa fa-paperclip"></i> <strong>Tugas (Assignment)</strong><br><small>Berikan tugas yang memerlukan pengumpulan file.</small></a>
+                        <a href="{{ route('instructor.modules.lessons.create', ['module' => $module, 'type' => 'lessonpoin']) }}" class="list-group-item list-group-item-action"><i class="ti-medall-alt"></i> <strong>LessonPoint</strong><br><small>Buat sesi LessonPoin baru.</small></a>
                     </div>
                 </div>
             </div>

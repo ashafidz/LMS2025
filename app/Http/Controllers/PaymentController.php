@@ -87,11 +87,10 @@ class PaymentController extends Controller
     {
         $order->load('items.course', 'user');
         foreach ($order->items as $item) {
-            // Daftarkan siswa ke kursus
             $order->user->enrollments()->syncWithoutDetaching($item->course_id);
 
-            // Berikan poin untuk pembelian kursus
-            PointService::addPoints($order->user, 'purchase', $item->course->title);
+            // Perbarui pemanggilan PointService untuk menyertakan objek course
+            PointService::addPoints($order->user, $item->course, 'purchase');
         }
     }
 }

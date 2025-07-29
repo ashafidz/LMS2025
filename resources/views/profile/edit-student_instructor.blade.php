@@ -93,6 +93,27 @@
                                     @enderror
                                 </div>
 
+                                @if (session('active_role') == 'student')
+                                <div class="form-group row">
+                                    <label class="col-sm-2 col-form-label">Pasang Badge</label>
+                                    <div class="col-sm-10">
+                                        @if($unlockedBadges->isNotEmpty())
+                                            <select name="equipped_badge_id" class="form-control">
+                                                <option value="">-- Tidak Memasang Badge --</option>
+                                                @foreach($unlockedBadges as $badge)
+                                                    <option value="{{ $badge->id }}" {{ $user->equipped_badge_id == $badge->id ? 'selected' : '' }}>
+                                                        {{ $badge->title }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <small class="form-text text-muted">Pilih badge yang akan ditampilkan di samping nama Anda.</small>
+                                        @else
+                                            <p class="form-control-static text-muted">Anda belum memiliki badge.</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                @endif
+
                                 <div class="form-group">
                                     <label for="bio">Bio</label>
                                     <textarea class="form-control" id="bio" name="bio" rows="3">{{ old('bio', $profile->bio ?? '') }}</textarea>

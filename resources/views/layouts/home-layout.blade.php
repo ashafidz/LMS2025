@@ -69,10 +69,10 @@
             @endauth
             @if (session('active_role') == 'student')
                 <div class="d-flex align-items-center gap-2 ms-3 py-2">
-                  <i class="fa fa-diamond text-warning d-block f-40"></i>
-                  <p class="mb-0 align-self-center text-warning">{{ number_format(Auth::user()->points_balance, 0, ',', '.') }}</p>
+                  <i class="fa fa-diamond text-primary d-block f-40"></i>
+                  <p class="mb-0 align-self-center text-primary">{{ number_format(Auth::user()->diamond_balance, 0, ',', '.') }}</p>
                 </div>
-              @endif
+            @endif
             @guest
               <a class="" href="{{ url('/register') }}">Register</a>
             @endguest
@@ -84,8 +84,8 @@
       <div class="d-flex align-items-center gap-2 d-none d-xl-flex">
         @auth
           @if (session('active_role') == 'student')
-            <i class="fa fa-diamond text-warning d-block f-40"></i>
-            <p class="mb-0 align-self-center text-warning">{{ number_format(Auth::user()->points_balance, 0, ',', '.') }}</p>
+            <i class="fa fa-diamond text-primary d-block f-40"></i>
+            <p class="mb-0 align-self-center text-primary">{{ number_format(Auth::user()->diamond_balance, 0, ',', '.') }}</p>
           @endif
           <a href="{{ url('/cart') }}" class="btn-cart"
             onmouseover="this.firstElementChild.style.color='#0d6efd'"

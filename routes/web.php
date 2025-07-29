@@ -28,6 +28,11 @@ use App\Http\Controllers\Student\CertificateController;
 use App\Http\Controllers\Student\StudentReviewController;
 use App\Http\Controllers\Student\StudentPointController;
 use App\Http\Controllers\Student\PointPurchaseController;
+use App\Http\Controllers\Superadmin\BadgeController;
+use App\Http\Controllers\Student\StudentBadgeController;
+use App\Http\Controllers\Student\LessonDiscussionController;
+use App\Http\Controllers\Instructor\LessonPointController;
+use App\Http\Controllers\Student\GamificationController;
 
 
 
@@ -129,6 +134,16 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     Route::get('/superadmin/likert-questions/{likertQuestion}/edit', [LikertQuestionController::class, 'edit'])->name('superadmin.likert-questions.edit');
     Route::put('/superadmin/likert-questions/{likertQuestion}', [LikertQuestionController::class, 'update'])->name('superadmin.likert-questions.update');
     Route::delete('/superadmin/likert-questions/{likertQuestion}', [LikertQuestionController::class, 'destroy'])->name('superadmin.likert-questions.destroy');
+
+
+
+    // --- RUTE BARU UNTUK MANAJEMEN BADGE ---
+    Route::get('/superadmin/badges', [BadgeController::class, 'index'])->name('superadmin.badges.index');
+    Route::get('/superadmin/badges/create', [BadgeController::class, 'create'])->name('superadmin.badges.create');
+    Route::post('/superadmin/badges', [BadgeController::class, 'store'])->name('superadmin.badges.store');
+    Route::get('/superadmin/badges/{badge}/edit', [BadgeController::class, 'edit'])->name('superadmin.badges.edit');
+    Route::put('/superadmin/badges/{badge}', [BadgeController::class, 'update'])->name('superadmin.badges.update');
+    Route::delete('/superadmin/badges/{badge}', [BadgeController::class, 'destroy'])->name('superadmin.badges.destroy');
 });
 
 // * group route for admin
@@ -250,41 +265,45 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
 
         // Aksi untuk menyimpan nilai dan feedback
         Route::post('/submissions/{submission}/grade', [InstructorAssignmentController::class, 'grade'])->name('instructor.submission.grade');
+
+
+        // --- Routes untuk Mengelola Pelajaran (Lessons) dalam sebuah Modul ---
+
+        // Menampilkan daftar pelajaran & menangani pengurutan
+        Route::get('/instructor/modules/{module}/lessons', [LessonController::class, 'index'])->name('instructor.modules.lessons.index');
+        Route::post('/instructor/modules/{module}/lessons/reorder', [LessonController::class, 'reorder'])->name('instructor.modules.lessons.reorder');
+
+        // Membuat (Create) dan Menyimpan (Store) pelajaran baru
+        Route::get('/instructor/modules/{module}/lessons/create', [LessonController::class, 'create'])->name('instructor.modules.lessons.create');
+        Route::post('/instructor/modules/{module}/lessons', [LessonController::class, 'store'])->name('instructor.modules.lessons.store');
+
+        // Mengedit (Edit), Memperbarui (Update), dan Menghapus (Destroy) pelajaran (rute dangkal/shallow)
+        Route::get('/instructor/lessons/{lesson}/edit', [LessonController::class, 'edit'])->name('instructor.lessons.edit');
+        Route::put('/instructor/lessons/{lesson}', [LessonController::class, 'update'])->name('instructor.lessons.update');
+        Route::delete('/instructor/lessons/{lesson}', [LessonController::class, 'destroy'])->name('instructor.lessons.destroy');
+
+
+        // --- Routes untuk Mengelola Soal di dalam sebuah Kuis ---
+
+        // Halaman utama yang menampilkan daftar soal dalam kuis
+        Route::get('/instructor/quizzes/{quiz}/manage-questions', [QuizQuestionController::class, 'index'])->name('instructor.quizzes.manage_questions');
+
+        // Halaman untuk memilih soal dari Bank Soal
+        Route::get('/instructor/quizzes/{quiz}/browse-bank', [QuizQuestionController::class, 'browseBank'])->name('instructor.quizzes.browse_bank');
+
+        // Menyimpan soal yang dipilih dari Bank Soal ke dalam kuis
+        Route::post('/instructor/quizzes/{quiz}/attach-questions', [QuizQuestionController::class, 'attachQuestions'])->name('instructor.quizzes.attach_questions');
+
+        // Menghapus satu soal dari kuis
+        Route::delete('/instructor/quizzes/{quiz}/detach-question/{question}', [QuizQuestionController::class, 'detachQuestion'])->name('instructor.quizzes.detach_question');
+
+        Route::patch('/instructor/courses/{course}/submit-review', [CourseController::class, 'submitForReview'])->name('instructor.courses.submit_review');
+        Route::patch('/instructor/courses/{course}/make-private', [CourseController::class, 'makePrivate'])->name('instructor.courses.make_private');
+
+
+        Route::get('/instructor/lesson-points/{lesson}/manage', [LessonPointController::class, 'index'])->name('instructor.lesson_points.manage');
+        Route::post('/instructor/lesson-points/{lesson}/award', [LessonPointController::class, 'award'])->name('instructor.lesson_points.award');
     });
-
-
-    // --- Routes untuk Mengelola Pelajaran (Lessons) dalam sebuah Modul ---
-
-    // Menampilkan daftar pelajaran & menangani pengurutan
-    Route::get('/instructor/modules/{module}/lessons', [LessonController::class, 'index'])->name('instructor.modules.lessons.index');
-    Route::post('/instructor/modules/{module}/lessons/reorder', [LessonController::class, 'reorder'])->name('instructor.modules.lessons.reorder');
-
-    // Membuat (Create) dan Menyimpan (Store) pelajaran baru
-    Route::get('/instructor/modules/{module}/lessons/create', [LessonController::class, 'create'])->name('instructor.modules.lessons.create');
-    Route::post('/instructor/modules/{module}/lessons', [LessonController::class, 'store'])->name('instructor.modules.lessons.store');
-
-    // Mengedit (Edit), Memperbarui (Update), dan Menghapus (Destroy) pelajaran (rute dangkal/shallow)
-    Route::get('/instructor/lessons/{lesson}/edit', [LessonController::class, 'edit'])->name('instructor.lessons.edit');
-    Route::put('/instructor/lessons/{lesson}', [LessonController::class, 'update'])->name('instructor.lessons.update');
-    Route::delete('/instructor/lessons/{lesson}', [LessonController::class, 'destroy'])->name('instructor.lessons.destroy');
-
-
-    // --- Routes untuk Mengelola Soal di dalam sebuah Kuis ---
-
-    // Halaman utama yang menampilkan daftar soal dalam kuis
-    Route::get('/instructor/quizzes/{quiz}/manage-questions', [QuizQuestionController::class, 'index'])->name('instructor.quizzes.manage_questions');
-
-    // Halaman untuk memilih soal dari Bank Soal
-    Route::get('/instructor/quizzes/{quiz}/browse-bank', [QuizQuestionController::class, 'browseBank'])->name('instructor.quizzes.browse_bank');
-
-    // Menyimpan soal yang dipilih dari Bank Soal ke dalam kuis
-    Route::post('/instructor/quizzes/{quiz}/attach-questions', [QuizQuestionController::class, 'attachQuestions'])->name('instructor.quizzes.attach_questions');
-
-    // Menghapus satu soal dari kuis
-    Route::delete('/instructor/quizzes/{quiz}/detach-question/{question}', [QuizQuestionController::class, 'detachQuestion'])->name('instructor.quizzes.detach_question');
-
-    Route::patch('/instructor/courses/{course}/submit-review', [CourseController::class, 'submitForReview'])->name('instructor.courses.submit_review');
-    Route::patch('/instructor/courses/{course}/make-private', [CourseController::class, 'makePrivate'])->name('instructor.courses.make_private');
 });
 
 // // * group route for instructor
@@ -405,36 +424,29 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
         Route::put('/reviews/instructor/{review}', [StudentReviewController::class, 'updateInstructorReview'])->name('student.reviews.instructor.update');
 
         // RUTE BARU UNTUK HALAMAN KELOLA POIN
-        Route::get('/my-points', [StudentPointController::class, 'index'])->name('student.points.index');
+        // Route::get('/my-points', [StudentPointController::class, 'index'])->name('student.points.index');
 
         // RUTE BARU UNTUK MEMBELI KURSUS DENGAN POIN
         Route::post('/courses/{course}/purchase-with-points', [PointPurchaseController::class, 'purchase'])->name('student.courses.purchase_with_points');
+
+
+        // RUTE BARU UNTUK HALAMAN "BADGE SAYA"
+        Route::get('/my-badges', [StudentBadgeController::class, 'index'])->name('student.badges.index');
+
+
+        // RUTE BARU UNTUK FITUR DISKUSI
+        Route::post('/lessons/{lesson}/discussions', [LessonDiscussionController::class, 'store'])->name('student.lessons.discussions.store');
+
+        // RUTE BARU UNTUK MENGHAPUS KOMENTAR
+        Route::delete('/discussions/{discussion}', [LessonDiscussionController::class, 'destroy'])->name('student.lessons.discussions.destroy');
+
+
+        // --- RUTE BARU UNTUK HALAMAN POIN & DIAMOND ---
+        Route::get('/my-points', [GamificationController::class, 'points'])->name('student.points.index');
+        Route::get('/my-diamonds', [GamificationController::class, 'diamonds'])->name('student.diamonds.index');
+
+
+        // RUTE BARU UNTUK LEADERBOARD
+        Route::get('/courses/{course}/leaderboard', [StudentCourseController::class, 'getLeaderboard'])->name('student.course.leaderboard');
     });
-
-
-
-
-
-
-
-
-
-
-    // --- RUTE UNTUK STATUS PEMBAYARAN & NOTIFIKASI MIDTRANS ---
-
-    // Halaman status yang dilihat oleh pengguna
-    // Route::get('/payment/success', function () {
-    //     return view('student.checkout.success');
-    // })->name('payment.success');
-    // Route::get('/payment/pending', function () {
-    //     return view('student.checkout.pending');
-    // })->name('payment.pending');
-    // Route::get('/payment/failed', function () {
-    //     return view('student.checkout.failed');
-    // })->name('payment.failed');
-
-    // // Rute untuk menerima notifikasi dari server Midtrans (Webhook)
-    // Route::post('/midtrans/notification', [MidtransCallbackController::class, 'handle'])->name('midtrans.notification');
-
-
 });

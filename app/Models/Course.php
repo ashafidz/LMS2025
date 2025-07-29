@@ -25,8 +25,17 @@ class Course extends Model
         'start_date',
         'end_date',
         'payment_type', // Tambahkan ini
-        'points_price', // Tambahkan ini
+        'diamond_price', // Tambahkan ini
     ];
+
+    /**
+     * Mendapatkan catatan poin (dari tabel pivot) yang terkait dengan kursus ini.
+     */
+    public function points()
+    {
+        // Menghubungkan Course ke model pivot CourseUser
+        return $this->hasMany(CourseUser::class);
+    }
 
     /**
      * Boot method to auto-generate slug from title if not provided.

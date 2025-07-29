@@ -52,11 +52,15 @@ class UserProfileController extends Controller
             $profile = $user->instructorProfile;
         }
 
+        // Ambil semua badge yang sudah dimiliki pengguna
+        $unlockedBadges = $user->badges()->get();
+
+
         // For admins/superadmins, $profile will correctly remain null.
 
         // return for student and instructor\
         if ($activeRole === "student" || $activeRole === "instructor") {
-            return view("profile.edit-student_instructor", compact("user", "profile"));
+            return view("profile.edit-student_instructor", compact("user", "profile", 'unlockedBadges'));
         } elseif (Auth::user()->hasRole('admin') || Auth::user()->hasRole('superadmin')) {
             return view("profile.edit-admin_superadmin", compact("user", "profile"));
         }
@@ -76,6 +80,7 @@ class UserProfileController extends Controller
             'birth_date' => ['nullable', 'date'],
             'address' => ['nullable', 'string'],
             'profile_picture' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // 2MB Max
+            'equipped_badge_id' => 'nullable|exists:badges,id',
         ];
 
         // Add profile-specific validation if the user is a student or instructor
@@ -94,6 +99,13 @@ class UserProfileController extends Controller
 
         $validated = $request->validate($validationRules);
 
+        // Pastikan pengguna hanya bisa memasang badge yang mereka miliki
+        if ($request->filled('equipped_badge_id')) {
+            if (!$user->badges()->where('badge_id', $request->equipped_badge_id)->exists()) {
+                return back()->withErrors(['equipped_badge_id' => 'Anda tidak bisa memasang badge yang tidak Anda miliki.']);
+            }
+        }
+
         // --- UPDATE USER ---
         $userData = [
             'name' => $validated['name'],
@@ -101,6 +113,7 @@ class UserProfileController extends Controller
             'gender' => $validated['gender'],
             'birth_date' => $validated['birth_date'],
             'address' => $validated['address'],
+            'equipped_badge_id' => $validated['equipped_badge_id'] ?? null,
         ];
 
         // Handle profile picture upload
@@ -133,7 +146,6 @@ class UserProfileController extends Controller
                 ]);
             }
         }
-
         return redirect()->route('user.profile.index')->with('status', 'Profile updated successfully!');
     }
 }

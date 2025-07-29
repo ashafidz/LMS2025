@@ -25,6 +25,7 @@ class SiteSetting extends Model
         'points_for_document',
         'points_for_quiz',
         'points_for_assignment',
+        'point_to_diamond_rate',
     ];
 
     protected $casts = [

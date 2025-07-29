@@ -28,6 +28,7 @@ class SiteSettingSeeder extends Seeder
                 'points_for_document' => 3,
                 'points_for_quiz' => 15,
                 'points_for_assignment' => 20,
+                'point_to_diamond_rate' => 1.00,
             ]
         );
     }

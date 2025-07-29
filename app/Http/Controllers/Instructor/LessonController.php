@@ -15,6 +15,7 @@ use App\Models\Quiz;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Models\LessonPoint;
 
 class LessonController extends Controller
 {
@@ -35,7 +36,7 @@ class LessonController extends Controller
     {
         $type = $request->query('type');
         // Diperbarui: Mengganti 'powerpoint' menjadi 'document'
-        $validTypes = ['article', 'video', 'quiz', 'assignment', 'document', 'link'];
+        $validTypes = ['article', 'video', 'quiz', 'assignment', 'document', 'link', 'lessonpoin'];
 
         if (!in_array($type, $validTypes)) {
             abort(404, 'Tipe pelajaran tidak valid.');
@@ -53,7 +54,7 @@ class LessonController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             // Diperbarui: Mengganti 'powerpoint' menjadi 'document'
-            'lesson_type' => 'required|in:article,video,quiz,assignment,document,link',
+            'lesson_type' => 'required|in:article,video,quiz,assignment,document,link,lessonpoin',
         ]);
 
         $lessonable = null;
@@ -113,6 +114,16 @@ class LessonController extends Controller
                         'links.*.url' => 'required|url',
                     ]);
                     $lessonable = LessonLinkCollection::create(['links' => $validated['links']]);
+                    break;
+                case 'lessonpoin':
+                    $validated = $request->validate([
+                        'lessonpoin_title' => 'required|string|max:255',
+                        'lessonpoin_description' => 'nullable|string',
+                    ]);
+                    $lessonable = \App\Models\LessonPoint::create([
+                        'title' => $validated['lessonpoin_title'],
+                        'description' => $validated['lessonpoin_description'],
+                    ]);
                     break;
             }
 
@@ -218,6 +229,16 @@ class LessonController extends Controller
                         'links.*.url' => 'required|url',
                     ]);
                     $lessonable->update(['links' => $validated['links']]);
+                    break;
+                case 'lessonpoint': // Nama kelas setelah strtolower()
+                    $validated = $request->validate([
+                        'lessonpoin_title' => 'required|string|max:255',
+                        'lessonpoin_description' => 'nullable|string',
+                    ]);
+                    $lessonable->update([
+                        'title' => $validated['lessonpoin_title'],
+                        'description' => $validated['lessonpoin_description'],
+                    ]);
                     break;
             }
         });

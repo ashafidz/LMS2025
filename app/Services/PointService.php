@@ -2,24 +2,27 @@
 
 namespace App\Services;
 
+use App\Models\Course;
 use App\Models\User;
 use App\Models\SiteSetting;
+use App\Models\CourseUser;
 use Illuminate\Support\Facades\DB;
 
 class PointService
 {
     /**
-     * Menambahkan poin ke pengguna dan mencatat riwayatnya.
+     * Menambahkan poin ke pengguna untuk kursus tertentu dan mencatat riwayatnya.
      *
      * @param User $user Pengguna yang akan menerima poin.
-     * @param string $activity Tipe aktivitas (misal: 'purchase', 'complete_video').
-     * @param string|null $description_meta Informasi tambahan untuk deskripsi (misal: nama pelajaran).
+     * @param Course $course Kursus di mana poin didapatkan.
+     * @param string $activity Tipe aktivitas (misal: 'complete_video').
+     * @param string|null $description_meta Informasi tambahan (misal: nama pelajaran).
      * @return void
      */
-    public static function addPoints(User $user, string $activity, $description_meta = null)
+    public static function addPoints(User $user, Course $course, string $activity, $description_meta = null)
     {
         // Ambil pengaturan poin dari database (menggunakan cache untuk efisiensi)
-        $settings = cache()->remember('site_settings', 60, function () {
+        $settings = cache()->remember('site_settings', now()->addMinutes(60), function () {
             return SiteSetting::firstOrFail();
         });
 
@@ -29,19 +32,19 @@ class PointService
         switch ($activity) {
             case 'purchase':
                 $pointsToAdd = $settings->points_for_purchase;
-                $description = 'Membeli kursus: ' . $description_meta;
+                $description = 'Membeli kursus: ' . $course->title;
                 break;
             case 'complete_article':
                 $pointsToAdd = $settings->points_for_article;
-                $description = 'Menyelesaikan pelajaran artikel: ' . $description_meta;
+                $description = 'Menyelesaikan artikel: ' . $description_meta;
                 break;
             case 'complete_video':
                 $pointsToAdd = $settings->points_for_video;
-                $description = 'Menyelesaikan pelajaran video: ' . $description_meta;
+                $description = 'Menyelesaikan video: ' . $description_meta;
                 break;
             case 'complete_document':
                 $pointsToAdd = $settings->points_for_document;
-                $description = 'Menyelesaikan pelajaran dokumen: ' . $description_meta;
+                $description = 'Menyelesaikan dokumen: ' . $description_meta;
                 break;
             case 'pass_quiz':
                 $pointsToAdd = $settings->points_for_quiz;
@@ -54,13 +57,27 @@ class PointService
         }
 
         if ($pointsToAdd > 0) {
-            // Gunakan DB transaction untuk memastikan konsistensi data
-            \Illuminate\Support\Facades\DB::transaction(function () use ($user, $pointsToAdd, $description) {
-                // 1. Tambahkan poin ke saldo pengguna
-                $user->increment('points_balance', $pointsToAdd);
+            DB::transaction(function () use ($user, $course, $pointsToAdd, $description) {
+                // 1. Buat atau update total poin di tabel pivot course_user
+                // $courseUser = $user->coursePoints()->where('course_id', $course->id)->first();
+                // if ($courseUser) {
+                //     $courseUser->increment('points_earned', $pointsToAdd);
+                // } else {
+                //     $user->coursePoints()->attach($course->id, ['points_earned' => $pointsToAdd]);
+                // }
+                CourseUser::updateOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'course_id' => $course->id
+                    ],
+                    [
+                        'points_earned' => DB::raw('points_earned + ' . $pointsToAdd)
+                    ]
+                );
 
                 // 2. Buat catatan di riwayat poin
                 $user->pointHistories()->create([
+                    'course_id' => $course->id,
                     'points' => $pointsToAdd,
                     'description' => $description,
                 ]);
@@ -69,30 +86,35 @@ class PointService
     }
 
     /**
-     * METODE BARU: Menggunakan (mengurangi) poin pengguna dan mencatat riwayatnya.
-     *
-     * @param User $user Pengguna yang akan menggunakan poin.
-     * @param int $pointsToUse Jumlah poin yang akan dikurangi.
-     * @param string $description Deskripsi untuk riwayat (misal: nama kursus).
-     * @return void
+     * Menambahkan poin secara manual oleh instruktur untuk pelajaran tipe 'lessonpoin'.
      */
-    public static function usePoints(User $user, int $pointsToUse, string $description)
+    public static function addManualPoints(User $user, Course $course, int $pointsToAdd, string $description)
     {
-        // Pastikan poin yang akan digunakan tidak negatif
-        if ($pointsToUse <= 0) {
-            return;
+        if ($pointsToAdd > 0) {
+            DB::transaction(function () use ($user, $course, $pointsToAdd, $description) {
+                // $courseUser = $user->coursePoints()->where('course_id', $course->id)->first();
+                // if ($courseUser) {
+                //     $courseUser->increment('points_earned', $pointsToAdd);
+                // } else {
+                //     $user->coursePoints()->attach($course->id, ['points_earned' => $pointsToAdd]);
+                // }
+                // **CORRECTED LOGIC**: Also apply the fix here for consistency
+                CourseUser::updateOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'course_id' => $course->id
+                    ],
+                    [
+                        'points_earned' => DB::raw('points_earned + ' . $pointsToAdd)
+                    ]
+                );
+
+                $user->pointHistories()->create([
+                    'course_id' => $course->id,
+                    'points' => $pointsToAdd,
+                    'description' => $description,
+                ]);
+            });
         }
-
-        // Gunakan DB transaction untuk memastikan konsistensi data
-        DB::transaction(function () use ($user, $pointsToUse, $description) {
-            // 1. Kurangi poin dari saldo pengguna
-            $user->decrement('points_balance', $pointsToUse);
-
-            // 2. Buat catatan di riwayat poin (dengan nilai negatif)
-            $user->pointHistories()->create([
-                'points' => -$pointsToUse,
-                'description' => $description,
-            ]);
-        });
     }
 }

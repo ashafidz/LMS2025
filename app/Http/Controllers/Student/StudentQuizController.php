@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Services\PointService;
+use App\Services\BadgeService;
 
 class StudentQuizController extends Controller
 {
@@ -103,7 +104,7 @@ class StudentQuizController extends Controller
 
                 // Berikan poin HANYA jika statusnya 'passed' DAN belum pernah lulus sebelumnya
                 if ($newStatus === 'passed' && !$hasPassedBefore) {
-                    PointService::addPoints(Auth::user(), 'pass_quiz', $attempt->quiz->title);
+                    PointService::addPoints(Auth::user(), $attempt->quiz->lesson->module->course, 'pass_quiz', $attempt->quiz->title);
                 }
 
                 if ($newStatus === 'passed') {
@@ -111,6 +112,9 @@ class StudentQuizController extends Controller
                     $lesson = $attempt->quiz->lesson;
                     // Tandai pelajaran sebagai selesai untuk siswa ini
                     $student->completedLessons()->syncWithoutDetaching($lesson->id);
+
+                    // call badge service untuk badge quiz
+                    BadgeService::checkQuizCompletionBadges($student);
                 }
             }
         });

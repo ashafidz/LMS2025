@@ -24,7 +24,7 @@
                                                     Profile</a>
                                                 <a href="{{ route('student.cart.index') }}"><i class="ti-user"></i>
                                                     Keranjang</a>
-                                                <a href="#!"><i class="ti-settings"></i>Settings</a>
+                                                <a href="{{ route('student.badges.index') }}"><i class="ti-medall"></i>Badgeku</a>
                                                 <a href="{{ route('logout') }}"
                                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i
                                                         class="ti-layout-sidebar-left"></i>Logout</a>
@@ -59,6 +59,13 @@
                                         <a href="{{ route('student.points.index') }}" class="waves-effect waves-dark">
                                             <span class="pcoded-micon"><i class="ti-home"></i><b>D</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.dash.main">Pointku</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="{{ Request::routeIs('student.diamonds.index') ? 'active' : '' }}">
+                                        <a href="{{ route('student.diamonds.index') }}" class="waves-effect waves-dark">
+                                            <span class="pcoded-micon"><i class="ti-home"></i><b>D</b></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Diamondku</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>

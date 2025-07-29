@@ -97,9 +97,9 @@
                                                         Gratis
                                                     @endif
                                                 </span>
-                                            @elseif($course->payment_type === 'points')
-                                                <span class="fw-bold text-warning fs-5 d-flex align-items-center">
-                                                    <i class="fa fa-diamond me-2"></i> {{ number_format($course->points_price, 0, ',', '.') }} Poin
+                                            @elseif($course->payment_type === 'diamonds')
+                                                <span class="fw-bold text-primary fs-5 d-flex align-items-center">
+                                                    <i class="fa fa-diamond me-2"></i> {{ number_format($course->diamond_price, 0, ',', '.') }} Diamonds
                                                 </span>
                                             @endif
 

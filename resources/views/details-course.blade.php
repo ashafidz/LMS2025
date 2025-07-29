@@ -40,10 +40,10 @@
                     Gratis
                 @endif
             </h3>
-        @elseif($course->payment_type === 'points')
+        @elseif($course->payment_type === 'diamonds')
             <h5 class="mb-1">Harga Poin:</h5>
-            <h3 class="fw-bold text-warning d-flex align-items-center">
-                <i class="fa fa-diamond me-2"></i> {{ number_format($course->points_price, 0, ',', '.') }} Poin
+            <h3 class="fw-bold text-primary d-flex align-items-center">
+                <i class="fa fa-diamond me-2"></i> {{ number_format($course->diamond_price, 0, ',', '.') }} Diamonds
             </h3>
         @endif
         
@@ -152,7 +152,14 @@
                          class="rounded-circle me-3" 
                          style="width: 50px; height: 50px; object-fit: cover;">
                     <div class="flex-grow-1">
-                        <h6 class="fw-bold mb-0">{{ $review->user->name }}</h6>
+                        <div class="d-flex align-items-center">
+                          <h6 class="fw-bold mb-0">{{ $review->user->name }}</h6>
+                          @if ($review->user->equippedBadge)
+                            <span class="bg-primary rounded-pill px-2 py-1 text-white fw-bold small mx-1">
+                              {{ $review->user->equippedBadge->title }}
+                            </span>
+                          @endif
+                        </div>
                         <div class="d-flex align-items-center mb-2">
                             <div class="star-rating-display me-2">
                                 @for ($i = 1; $i <= 5; $i++)

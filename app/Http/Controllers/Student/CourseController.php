@@ -84,11 +84,25 @@ class CourseController extends Controller
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
         }
 
+        // --- LOGIKA BARU: Ambil data diskusi ---
+        $discussions = $lesson->discussions()
+            ->whereNull('parent_id') // Hanya ambil komentar utama
+            ->with(['user', 'replies.user', 'user.equippedBadge']) // Eager load user dan balasan
+            ->latest()
+            ->get();
+
         $lessonType = strtolower(class_basename($lesson->lessonable_type));
         $is_preview_for_view = $request->query('preview') === 'true';
 
         // Variabel untuk data tambahan
-        $data = ['lesson' => $lesson, 'is_preview' => $is_preview_for_view];
+        $data = [
+            'lesson' => $lesson,
+            'is_preview' => $is_preview_for_view,
+            'discussions' => $discussions
+        ];
+
+        // 2. Render HTML untuk forum diskusi secara terpisah
+        $discussionHtml = view('student.courses.partials._discussion_forum', $data)->render();
 
         if ($lessonType === 'quiz') {
             $viewName = 'student.quizzes.partials._quiz_preview_in_lesson';
@@ -104,6 +118,9 @@ class CourseController extends Controller
                 // HITUNG TOTAL SKOR MAKSIMAL
                 $data['maxScore'] = $quiz->questions->sum('score');
             }
+        } elseif ($lessonType === 'lessonpoint') {
+            // Pastikan nama file Anda adalah '_lessonpoint.blade.php' (tanpa s)
+            $viewName = 'instructor.lessons.previews._lessonpoint';
         } else {
             $viewName = 'instructor.lessons.previews._' . $lessonType;
         }
@@ -118,6 +135,7 @@ class CourseController extends Controller
             'success' => true,
             'title' => $lesson->title,
             'html' => $htmlContent,
+            'discussion_html' => $discussionHtml,
         ]);
     }
 
@@ -141,15 +159,35 @@ class CourseController extends Controller
         if (!$alreadyCompleted) {
             $lessonType = strtolower(class_basename($lesson->lessonable_type));
             $activity = null;
+            $course = $lesson->module->course;
 
             if ($lessonType === 'lessonarticle') $activity = 'complete_article';
             if ($lessonType === 'lessonvideo') $activity = 'complete_video';
             if ($lessonType === 'lessondocument') $activity = 'complete_document';
 
             if ($activity) {
-                PointService::addPoints($user, $activity, $lesson->title);
+                PointService::addPoints($user, $course, $activity, $lesson->title);
             }
         }
         return response()->json(['success' => true, 'message' => 'Pelajaran ditandai selesai.']);
+    }
+
+
+    /**
+     * METODE BARU: Mengambil data leaderboard untuk kursus tertentu via AJAX.
+     */
+    public function getLeaderboard(Course $course)
+    {
+        // Ambil 100 siswa teratas berdasarkan poin di kursus ini
+        $leaderboardRanks = $course->points()
+            ->with('user') // Eager load data user
+            ->orderBy('points_earned', 'desc')
+            ->take(100)
+            ->get();
+
+        // Render partial view dan kirim sebagai respons
+        $html = view('student.courses.partials._leaderboard', compact('leaderboardRanks'))->render();
+
+        return response()->json(['success' => true, 'html' => $html]);
     }
 }

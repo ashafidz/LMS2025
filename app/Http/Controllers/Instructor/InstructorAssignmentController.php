@@ -59,7 +59,7 @@ class InstructorAssignmentController extends Controller
 
             // Berikan poin HANYA jika statusnya 'passed' DAN belum pernah lulus sebelumnya
             if (!$hasPassedBefore) {
-                PointService::addPoints($student, 'pass_assignment', $lesson->title);
+                PointService::addPoints($student, $lesson->module->course, 'pass_assignment', $lesson->title);
             }
         }
 
