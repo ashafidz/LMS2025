@@ -26,30 +26,27 @@ class PublicationController extends Controller
      */
     public function publish(Request $request, Course $course)
     {
-        // Pastikan kursus yang akan di-publish memang sedang dalam status review
         if ($course->status !== 'pending_review') {
             return back()->with('error', 'Kursus ini tidak bisa dipublikasikan.');
         }
 
-        // Validasi dinamis berdasarkan tipe pembayaran kursus
+        // DIUBAH: Validasi dinamis berdasarkan tipe pembayaran kursus
         if ($course->payment_type === 'money') {
             $validated = $request->validate([
                 'price' => 'required|numeric|min:0',
             ]);
             $course->price = $validated['price'];
-            $course->points_price = 0; // Reset harga poin
-        } elseif ($course->payment_type === 'points') {
+            $course->diamond_price = 0; // Reset harga diamond
+        } elseif ($course->payment_type === 'diamonds') {
             $validated = $request->validate([
-                'points_price' => 'required|integer|min:0',
+                'diamond_price' => 'required|integer|min:0', // Validasi untuk diamond_price
             ]);
-            $course->points_price = $validated['points_price'];
+            $course->diamond_price = $validated['diamond_price'];
             $course->price = 0; // Reset harga uang
         }
 
         $course->status = 'published';
         $course->save();
-
-        // Di sini Anda bisa menambahkan logika untuk mengirim notifikasi ke instruktur
 
         return back()->with('success', 'Kursus berhasil dipublikasikan.');
     }

@@ -88,7 +88,6 @@
                                             </div>
 
 
-                                            {{-- BAGIAN BARU: Tipe Pembayaran --}}
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Tipe Pembayaran</label>
                                                 <div class="col-sm-10">
@@ -100,9 +99,10 @@
                                                             </label>
                                                         </div>
                                                         <div class="radio radio-inline">
+                                                            {{-- DIUBAH: value menjadi 'diamonds' dan teks menjadi 'Diamond' --}}
                                                             <label>
-                                                                <input type="radio" name="payment_type" value="points" {{ old('payment_type', $course->payment_type) == 'points' ? 'checked' : '' }}>
-                                                                <i class="helper"></i>Bayar dengan Poin
+                                                                <input type="radio" name="payment_type" value="diamonds" {{ old('payment_type', $course->payment_type) == 'diamonds' ? 'checked' : '' }}>
+                                                                <i class="helper"></i>Bayar dengan Diamond
                                                             </label>
                                                         </div>
                                                     </div>

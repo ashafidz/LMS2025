@@ -8,6 +8,8 @@ use App\Models\Lesson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\PointService;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 class CourseController extends Controller
 {
@@ -176,18 +178,65 @@ class CourseController extends Controller
     /**
      * METODE BARU: Mengambil data leaderboard untuk kursus tertentu via AJAX.
      */
+    // public function getLeaderboard(Course $course)
+    // {
+
+    //     $leaderboardRanks = $course->points()
+    //         ->whereHas('user') 
+    //         ->with('user')
+    //         ->orderBy('points_earned', 'desc')
+    //         ->take(100)
+    //         ->get();
+
+    //     // Render partial view dan kirim sebagai respons
+    //     $html = view('student.courses.partials._leaderboard', compact('leaderboardRanks'))->render();
+
+    //     return response()->json(['success' => true, 'html' => $html]);
+    // }
+
+    /**
+     * METODE BARU: Mengambil data leaderboard untuk kursus tertentu via AJAX.
+     */
     public function getLeaderboard(Course $course)
     {
-        // Ambil 100 siswa teratas berdasarkan poin di kursus ini
-        $leaderboardRanks = $course->points()
-            ->with('user') // Eager load data user
-            ->orderBy('points_earned', 'desc')
-            ->take(100)
-            ->get();
+        // 1. Tambahkan logging untuk menandai awal proses
+        Log::info('Attempting to get leaderboard for course ID: ' . $course->id);
 
-        // Render partial view dan kirim sebagai respons
-        $html = view('student.courses.partials._leaderboard', compact('leaderboardRanks'))->render();
+        try {
+            // 2. Logging sebelum eksekusi query
+            Log::info('Executing leaderboard database query...');
 
-        return response()->json(['success' => true, 'html' => $html]);
+            $leaderboardRanks = $course->points()
+                ->whereHas('user')
+                ->with('user')
+                ->orderBy('points_earned', 'desc')
+                ->take(100)
+                ->get();
+
+            // 3. Logging setelah query berhasil
+            Log::info('Query successful. Found ' . $leaderboardRanks->count() . ' ranks.');
+
+            // 4. Logging sebelum me-render view
+            Log::info('Rendering partial view: student.courses.partials._leaderboard');
+
+            $html = view('student.courses.partials._leaderboard', compact('leaderboardRanks'))->render();
+
+            // 5. Logging setelah view berhasil di-render
+            Log::info('View rendered successfully for course ID: ' . $course->id);
+
+            return response()->json(['success' => true, 'html' => $html]);
+        } catch (Exception $e) {
+            // 6. JIKA TERJADI ERROR, tangkap dan catat semuanya ke log
+            Log::error('!!! CRITICAL ERROR in getLeaderboard for course ID: ' . $course->id . ' !!!');
+            Log::error('Error Message: ' . $e->getMessage());
+            Log::error('File: ' . $e->getFile() . ' on line ' . $e->getLine());
+            Log::error('Stack Trace: ' . $e->getTraceAsString()); // Mencatat detail lengkap error
+
+            // Kirim respons JSON yang valid untuk mencegah error di frontend
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan internal pada server. Silakan cek log untuk detail.'
+            ], 500); // Kirim status 500
+        }
     }
 }

@@ -80,7 +80,7 @@
                         </div>
 
                         <div class="mt-4">
-                            <a href="#" class="btn btn-primary w-100">
+                            <a href="{{ route('student.my_courses') }}" class="btn btn-primary w-100">
                                 <i class="bi bi-book-fill me-2"></i> Lihat Kursus Saya
                             </a>
                         </div>

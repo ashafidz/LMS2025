@@ -33,13 +33,13 @@ class CourseController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:course_categories,id',
-            // DIUBAH: Dari 'required' menjadi 'nullable' agar deskripsi boleh kosong
             'description' => 'nullable|string',
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'availability_type' => ['required', Rule::in(['lifetime', 'period'])],
             'start_date' => 'required_if:availability_type,period|nullable|date',
             'end_date' => 'required_if:availability_type,period|nullable|date|after_or_equal:start_date',
-            'payment_type' => ['required', Rule::in(['money', 'points'])],
+            // DIUBAH: Validasi sekarang untuk 'money' atau 'diamonds'
+            'payment_type' => ['required', Rule::in(['money', 'diamonds'])],
         ]);
 
         $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
@@ -54,14 +54,12 @@ class CourseController extends Controller
             'availability_type' => $validated['availability_type'],
             'start_date' => $validated['availability_type'] === 'period' ? $validated['start_date'] : null,
             'end_date' => $validated['availability_type'] === 'period' ? $validated['end_date'] : null,
-            // Simpan tipe pembayaran
             'payment_type' => $validated['payment_type'],
-            // Reset harga yang tidak relevan
-            'price' => $validated['payment_type'] === 'money' ? 0 : 0, // Harga akan di-set oleh admin
-            'points_price' => $validated['payment_type'] === 'points' ? 0 : 0, // Harga akan di-set oleh admin
+            'price' => 0, // Harga akan di-set oleh admin
+            'diamond_price' => 0, // Harga akan di-set oleh admin
         ]);
 
-        return redirect()->route('instructor.courses.index')->with('success', 'Course created successfully.');
+        return redirect()->route('instructor.courses.index')->with('success', 'Kursus berhasil dibuat.');
     }
 
     public function show(Course $course)
@@ -88,8 +86,8 @@ class CourseController extends Controller
             'availability_type' => ['required', Rule::in(['lifetime', 'period'])],
             'start_date' => 'required_if:availability_type,period|nullable|date',
             'end_date' => 'required_if:availability_type,period|nullable|date|after_or_equal:start_date',
-            // Validasi baru untuk tipe pembayaran
-            'payment_type' => ['required', Rule::in(['money', 'points'])],
+            // DIUBAH: Validasi sekarang untuk 'money' atau 'diamonds'
+            'payment_type' => ['required', Rule::in(['money', 'diamonds'])],
         ]);
 
         $courseData = $validated;
@@ -102,10 +100,9 @@ class CourseController extends Controller
             $courseData['thumbnail_url'] = $request->file('thumbnail')->store('thumbnails', 'public');
         }
 
-        // Jika tipe pembayaran diubah, reset harga yang tidak relevan
         if ($course->payment_type !== $validated['payment_type']) {
             $courseData['price'] = 0;
-            $courseData['points_price'] = 0;
+            $courseData['diamond_price'] = 0;
         }
 
         $course->update($courseData);

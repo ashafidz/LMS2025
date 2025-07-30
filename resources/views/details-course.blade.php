@@ -30,25 +30,26 @@
       <div class="col-lg-4 mt-4 mt-lg-0">
         <div class="bg-white border rounded p-4 shadow-sm">
 
-        {{-- LOGIKA BARU: Tampilkan harga sesuai tipe pembayaran --}}
-        @if($course->payment_type === 'money')
-            <h5 class="mb-1">Harga:</h5>
-            <h3 class="fw-bold text-dark">
-                @if($course->price > 0)
-                    Rp{{ number_format($course->price, 0, ',', '.') }}
-                @else
-                    Gratis
-                @endif
-            </h3>
-        @elseif($course->payment_type === 'diamonds')
-            <h5 class="mb-1">Harga Poin:</h5>
-            <h3 class="fw-bold text-primary d-flex align-items-center">
-                <i class="fa fa-diamond me-2"></i> {{ number_format($course->diamond_price, 0, ',', '.') }} Diamonds
-            </h3>
-        @endif
-        
-        {{-- Logika Tombol Aksi Dinamis --}}
-        @auth
+          
+          {{-- LOGIKA BARU: Tampilkan harga sesuai tipe pembayaran --}}
+          @if($course->payment_type === 'money')
+              <h5 class="mb-1">Harga:</h5>
+              <h3 class="fw-bold text-dark">
+                  @if($course->price > 0)
+                      Rp{{ number_format($course->price, 0, ',', '.') }}
+                  @else
+                      Gratis
+                  @endif
+              </h3>
+          @elseif($course->payment_type === 'diamonds')
+              <h5 class="mb-1">Harga Diamond:</h5>
+              <h3 class="fw-bold text-primary d-flex align-items-center">
+                  <i class="fa fa-diamond me-2"></i> {{ number_format($course->diamond_price, 0, ',', '.') }}
+              </h3>
+          @endif
+          
+          {{-- Logika Tombol Aksi Dinamis --}}
+          @auth
             @if($is_enrolled)
                 <a href="{{ route('student.courses.show', $course->slug) }}" class="btn btn-success w-100 mt-3">Lanjutkan Belajar</a>
             @else
@@ -57,22 +58,21 @@
                         @csrf
                         <button type="submit" class="btn btn-primary w-100 mt-3">Tambah ke Keranjang</button>
                     </form>
-                @elseif($course->payment_type === 'points')
-                    <form action="{{ route('student.courses.purchase_with_points', $course->id) }}" method="POST" onsubmit="return confirm('Beli kursus ini dengan {{ $course->points_price }} poin?');">
+                @elseif($course->payment_type === 'diamonds')
+                    <form action="{{ route('student.courses.purchase_with_diamonds', $course->id) }}" method="POST" onsubmit="return confirm('Beli kursus ini dengan {{ $course->diamond_price }} diamond?');">
                         @csrf
-                        {{-- Tombol dinonaktifkan jika poin tidak cukup --}}
-                        <button type="submit" class="btn btn-warning w-100 mt-3" {{ Auth::user()->points_balance < $course->points_price ? 'disabled' : '' }}>
-                            Beli dengan Poin
+                        <button type="submit" class="btn btn-info w-100 mt-3" {{ Auth::user()->diamond_balance < $course->diamond_price ? 'disabled' : '' }}>
+                            Beli dengan Diamond
                         </button>
-                        @if(Auth::user()->points_balance < $course->points_price)
-                            <small class="form-text text-danger text-center d-block mt-1">Poin Anda tidak cukup.</small>
+                        @if(Auth::user()->diamond_balance < $course->diamond_price)
+                            <small class="form-text text-danger text-center d-block mt-1">Diamond Anda tidak cukup.</small>
                         @endif
                     </form>
                 @endif
             @endif
-        @else
+          @else
             <a href="{{ route('login') }}" class="btn btn-primary w-100 mt-3">Login untuk Mendaftar</a>
-        @endauth
+          @endauth
 
 
           {{-- <h5 class="mb-1">Harga:</h5>

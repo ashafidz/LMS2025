@@ -111,7 +111,7 @@
                     
                     <a href="#!" class="waves-effect waves-light">
                         <img class="rounded-circle mr-4" style="width: 40px; height: 40px; border: 3px;"
-                            src="{{ asset(Auth::user()->profile_picture_url ?? 'https://placehold.co/32x32/EBF4FF/767676?text=SA') }}" alt="{{ Auth::user()->name }}" />
+                            src="{{ asset(Auth::user()->profile_picture_url ? 'storage/' . Auth::user()->profile_picture_url : 'https://placehold.co/32x32/EBF4FF/767676?text=SA') }}" alt="{{ Auth::user()->name }}" />
                         <span>{{ Auth::user()->name }}</span>
                         <i class="ti-angle-down"></i>
                     </a>

@@ -100,9 +100,10 @@
                                                             </label>
                                                         </div>
                                                         <div class="radio radio-inline">
+                                                            {{-- DIUBAH: value menjadi 'diamonds' dan teks menjadi 'Diamond' --}}
                                                             <label>
-                                                                <input type="radio" name="payment_type" value="points" {{ old('payment_type') == 'points' ? 'checked' : '' }}>
-                                                                <i class="helper"></i>Bayar dengan Poin
+                                                                <input type="radio" name="payment_type" value="diamonds" {{ old('payment_type') == 'diamonds' ? 'checked' : '' }}>
+                                                                <i class="helper"></i>Bayar dengan Diamond
                                                             </label>
                                                         </div>
                                                     </div>

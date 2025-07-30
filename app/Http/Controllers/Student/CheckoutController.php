@@ -54,35 +54,57 @@ class CheckoutController extends Controller
             return redirect()->route('payment.success', $order)->with('success_message', 'Anda berhasil mendapatkan kursus secara gratis!');
         }
 
-        $order = $this->processPaidOrder($user, $cartItems, $subtotal, $discount, $vatAmount, $vatPercentage, $transactionFee, $finalTotal, $couponId);
+        // Buat pesanan terlebih dahulu, LALU buat snap token
+        $order = $this->createOrderRecord($user, $cartItems, $subtotal, $discount, $vatAmount, $vatPercentage, $transactionFee, $finalTotal, $couponId);
+        // Setelah order dibuat dan punya ID, generate snap token dan simpan
+        try {
+            $this->generateAndSaveSnapToken($order);
+        } catch (\Exception $e) {
+            // Jika gagal membuat token, hapus order yang baru dibuat agar tidak jadi sampah
+            $order->delete();
+            // Kembalikan ke keranjang dengan pesan error
+            return redirect()->route('student.cart.index')->with('error', 'Gagal memulai sesi pembayaran. Silakan coba lagi.');
+        }
+
+        // Hapus keranjang dan session coupon SETELAH SEMUA BERHASIL
+        DB::transaction(function () use ($user) {
+            $user->carts()->delete();
+            session()->forget('coupon');
+        });
+
         return redirect()->route('checkout.show', $order);
     }
 
     /**
-     * Menampilkan halaman konfirmasi pembayaran dan membuat Snap Token baru.
+     * Menampilkan halaman konfirmasi pembayaran.
      */
     public function show(Order $order)
     {
-        if (!in_array($order->status, ['pending', 'failed', 'cancelled'])) {
-            return redirect()->route('student.transactions.index')->with('info', 'Pesanan ini sudah tidak bisa dibayar.');
+        // Cek apakah order masih bisa dibayar
+        if ($order->status !== 'pending') {
+            return redirect()->route('student.transactions.index')->with('info', 'Status pesanan ini adalah ' . $order->status . '.');
         }
 
-        // Selalu buat Snap Token baru setiap kali halaman ini dikunjungi
-        $this->generateSnapToken($order);
+        // Cek apakah snap_token ada. Jika tidak, redirect dengan error.
+        if (!$order->snap_token) {
+            return redirect()->route('student.transactions.index')->with('error', 'Sesi pembayaran untuk pesanan ini tidak ditemukan atau rusak.');
+        }
 
+        // Ambil client key dari config
         $midtransClientKey = config('midtrans.client_key');
 
-        // KODE YANG BENAR: Mengirim semua variabel yang dibutuhkan ke view
+        // Langsung tampilkan view dengan data yang sudah ada
         return view('student.checkout.show', [
             'order' => $order,
-            'snapToken' => $order->snap_token,
+            'snapToken' => $order->snap_token, // Gunakan token dari DB
             'midtransClientKey' => $midtransClientKey
         ]);
     }
 
     // --- Helper Methods ---
 
-    private function processPaidOrder($user, $cartItems, $subtotal, $discount, $vatAmount, $vatPercentage, $transactionFee, $finalTotal, $couponId)
+    // Helper baru untuk MENCATAT order ke database
+    private function createOrderRecord($user, $cartItems, $subtotal, $discount, $vatAmount, $vatPercentage, $transactionFee, $finalTotal, $couponId)
     {
         return DB::transaction(function () use ($user, $cartItems, $subtotal, $discount, $vatAmount, $vatPercentage, $transactionFee, $finalTotal, $couponId) {
             $order = $user->orders()->create([
@@ -94,14 +116,45 @@ class CheckoutController extends Controller
                 'final_amount' => $finalTotal,
                 'coupon_id' => $couponId,
                 'status' => 'pending',
+                // snap_token akan diisi nanti
             ]);
+
             foreach ($cartItems as $cartItem) {
-                $order->items()->create(['course_id' => $cartItem->course_id, 'price_at_purchase' => $cartItem->course->price]);
+                $order->items()->create([
+                    'course_id' => $cartItem->course_id,
+                    'price_at_purchase' => $cartItem->course->price
+                ]);
             }
-            $user->carts()->delete();
-            session()->forget('coupon');
+
             return $order;
         });
+    }
+
+    // Helper baru untuk MEMBUAT DAN MENYIMPAN snap token
+    private function generateAndSaveSnapToken(Order $order)
+    {
+        Config::$serverKey = config('midtrans.server_key');
+        Config::$isProduction = config('midtrans.is_production');
+        Config::$isSanitized = true;
+        Config::$is3ds = true;
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => $order->order_code,
+                'gross_amount' => $order->final_amount,
+            ],
+            'customer_details' => [
+                'first_name' => $order->user->name,
+                'email' => $order->user->email,
+            ],
+        ];
+
+        // Request Snap Token ke Midtrans
+        $snapToken = Snap::getSnapToken($params);
+
+        // Simpan token ke database
+        $order->snap_token = $snapToken;
+        $order->save();
     }
 
     private function processFreeOrder($user, $cartItems, $subtotal, $discount, $vatAmount, $vatPercentage, $transactionFee, $couponId)
@@ -125,20 +178,5 @@ class CheckoutController extends Controller
             session()->forget('coupon');
             return $order;
         });
-    }
-
-    private function generateSnapToken(Order $order)
-    {
-        Config::$serverKey = config('midtrans.server_key');
-        Config::$isProduction = config('midtrans.is_production');
-        Config::$isSanitized = true;
-        Config::$is3ds = true;
-        $params = [
-            'transaction_details' => ['order_id' => $order->order_code, 'gross_amount' => $order->final_amount],
-            'customer_details' => ['first_name' => $order->user->name, 'email' => $order->user->email],
-        ];
-        $snapToken = Snap::getSnapToken($params);
-        $order->snap_token = $snapToken;
-        $order->save();
     }
 }

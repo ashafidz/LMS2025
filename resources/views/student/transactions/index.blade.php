@@ -67,10 +67,12 @@
                                                         <td class="text-center">
                                                             @if($order->status == 'pending')
                                                                 <a href="{{ route('checkout.show', $order->id) }}" class="btn btn-primary btn-sm">Bayar Sekarang</a>
-                                                            @endif
-                                                            <button type="button" class="btn btn-inverse btn-sm" data-toggle="modal" data-target="#invoiceModal-{{ $order->id }}">
+                                                            @else
+                                                                <button type="button" class="btn btn-inverse btn-sm" data-toggle="modal" data-target="#invoiceModal-{{ $order->id }}">
                                                                 Lihat Invoice
                                                             </button>
+                                                            @endif
+
                                                         </td>
                                                     </tr>
                                                 @empty

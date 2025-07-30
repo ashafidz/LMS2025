@@ -33,6 +33,7 @@ use App\Http\Controllers\Student\StudentBadgeController;
 use App\Http\Controllers\Student\LessonDiscussionController;
 use App\Http\Controllers\Instructor\LessonPointController;
 use App\Http\Controllers\Student\GamificationController;
+use App\Http\Controllers\Student\DiamondPurchaseController;
 
 
 
@@ -426,8 +427,7 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
         // RUTE BARU UNTUK HALAMAN KELOLA POIN
         // Route::get('/my-points', [StudentPointController::class, 'index'])->name('student.points.index');
 
-        // RUTE BARU UNTUK MEMBELI KURSUS DENGAN POIN
-        Route::post('/courses/{course}/purchase-with-points', [PointPurchaseController::class, 'purchase'])->name('student.courses.purchase_with_points');
+        Route::post('/courses/{course}/purchase-with-diamonds', [DiamondPurchaseController::class, 'purchase'])->name('student.courses.purchase_with_diamonds');
 
 
         // RUTE BARU UNTUK HALAMAN "BADGE SAYA"

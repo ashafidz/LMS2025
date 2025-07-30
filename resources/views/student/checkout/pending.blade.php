@@ -15,9 +15,7 @@
                             Kami sedang menunggu konfirmasi pembayaran Anda. Silakan selesaikan pembayaran sesuai instruksi. Anda bisa melihat detail pesanan di riwayat transaksi.
                         </p>
                         <hr>
-                        {{-- Tombol ini sekarang langsung mengarah ke halaman pembayaran lagi --}}
-                        <a href="{{ route('checkout.show', $order->id) }}" class="btn btn-primary w-100 mt-3">Coba Bayar Lagi</a>
-                        <a href="{{ route('student.transactions.index') }}" class="btn btn-secondary w-100 mt-2">Lihat Riwayat Transaksi</a>
+                        <a href="{{ route('student.transactions.index') }}" class="btn btn-primary w-100 mt-2">Lihat Riwayat Transaksi</a>
                     </div>
                 </div>
             </div>
