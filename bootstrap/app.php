@@ -16,7 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'checkInstructorStatus' => App\Http\Middleware\CheckInstructorStatus::class,
-            'checkStudentStatus' => App\Http\Middleware\CheckStudentStatus::class
+            'checkStudentStatus' => App\Http\Middleware\CheckStudentStatus::class,
+            'prevent.caching' => \App\Http\Middleware\PreventCaching::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

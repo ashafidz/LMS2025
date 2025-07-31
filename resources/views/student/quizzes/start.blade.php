@@ -83,3 +83,12 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const isPreview = @json($is_preview);
+            console.log(isPreview);
+        })
+    </script>
+@endpush

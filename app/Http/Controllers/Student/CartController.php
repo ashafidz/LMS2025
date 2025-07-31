@@ -17,6 +17,10 @@ class CartController extends Controller
      */
     public function index()
     {
+
+
+
+
         $cartItems = Auth::user()->carts()->with('course')->get();
         $settings = SiteSetting::first(); // Ambil data pengaturan
 
@@ -95,6 +99,9 @@ class CartController extends Controller
     public function remove(Cart $cart)
     {
         // Pastikan pengguna hanya bisa menghapus item dari keranjangnya sendiri
+        if ($cart->user_id != Auth::id()) {
+            abort(403, 'Anda tidak memiliki izin untuk menghapus item ini.');
+        }
 
         $cart->delete();
 

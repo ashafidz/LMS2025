@@ -204,49 +204,83 @@ document.addEventListener('DOMContentLoaded', function () {
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // --- BAGIAN NAVIGASI SOAL (TIDAK BERUBAH) ---
     const questions = document.querySelectorAll('.question-slide');
     let currentQuestionIndex = 0;
-
     const progressBar = document.getElementById('progress-bar');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
     const finishBtn = document.getElementById('finish-btn');
     const questionNavContainer = document.getElementById('question-navigation');
     const form = document.getElementById('quiz-form');
-    const timerEl = document.getElementById('quiz-timer');
 
-    const timeLimitInMinutes = {{ $attempt->quiz->time_limit ?? 0 }};
-    const allowExceedTime = {{ $attempt->quiz->allow_exceed_time_limit ? 'true' : 'false' }};
-    let timeRemaining = timeLimitInMinutes * 60;
+    const isPreview = @json($is_preview);
+    console.log(isPreview);
+
+    if (!isPreview) {
+            // --- LOGIKA TIMER BARU YANG PERSISTENT ---
+    const timerEl = document.getElementById('quiz-timer');
+    // Ambil endTime dari server yang sudah kita kirim dari controller
+    const endTimeISO = '{{ $endTime }}';
+    const allowExceedTime = {{ $attempt->quiz->allow_exceed_time ? 'true' : 'false' }};
     let timerInterval;
 
-    function startTimer() {
-        if (timeLimitInMinutes <= 0) {
+    function startPersistentTimer() {
+        // Jika tidak ada endTime (kuis tanpa batas waktu), tampilkan pesan dan hentikan fungsi.
+        if (!endTimeISO) {
             timerEl.innerText = "Tanpa Batas Waktu";
             return;
         }
 
-        timerInterval = setInterval(() => {
-            timeRemaining--;
+        const endTime = new Date(endTimeISO);
 
+        // Fungsi yang akan dijalankan setiap detik
+        const updateTimer = () => {
+            const now = new Date();
+            // Hitung sisa waktu dalam detik
+            const timeRemaining = Math.round((endTime - now) / 1000);
+
+            // Jika waktu sudah habis
+            if (timeRemaining <= 0) {
+                if (!allowExceedTime) {
+                    // Jika tidak boleh melewati batas waktu, hentikan timer dan submit form
+                    clearInterval(timerInterval);
+                    timerEl.innerText = "00:00";
+                    timerEl.classList.add('text-danger');
+                    // Beri sedikit jeda agar user tahu waktu habis sebelum form disubmit
+                    setTimeout(() => {
+                        alert('Waktu habis! Jawaban Anda akan dikirim secara otomatis.');
+                        form.submit();
+                    }, 500);
+                    return; // Hentikan eksekusi lebih lanjut
+                }
+            }
+            
+            // Format tampilan waktu (menit dan detik)
             const minutes = Math.floor(Math.abs(timeRemaining) / 60);
             const seconds = Math.abs(timeRemaining) % 60;
             const displayTime = `${timeRemaining < 0 ? '-' : ''}${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
             
             timerEl.innerText = displayTime;
 
+            // Tambahkan warna merah jika waktu sudah minus (melewati batas)
             if (timeRemaining < 0) {
                 timerEl.classList.add('text-danger');
+            } else {
+                timerEl.classList.remove('text-danger');
             }
+        };
 
-            if (timeRemaining === 0 && !allowExceedTime) {
-                clearInterval(timerInterval);
-                alert('Waktu habis! Jawaban Anda akan dikirim secara otomatis.');
-                form.submit();
-            }
-        }, 1000);
+        // Jalankan updateTimer sekali saat halaman dimuat agar tidak ada jeda 1 detik
+        updateTimer(); 
+        // Set interval untuk mengupdate timer setiap detik
+        timerInterval = setInterval(updateTimer, 1000);
     }
 
+    }
+    
+
+    // --- FUNGSI UI LAINNYA (TIDAK BERUBAH BANYAK) ---
     function createNavigation() {
         questions.forEach((question, index) => {
             const navBtn = document.createElement('button');
@@ -270,51 +304,39 @@ document.addEventListener('DOMContentLoaded', function () {
         updateUI();
     }
     
-    // FUNGSI INI DIUBAH
     function updateUI() {
-        // Logika progress bar yang lama dihapus dari sini
         prevBtn.style.display = currentQuestionIndex > 0 ? 'inline-block' : 'none';
         nextBtn.style.display = currentQuestionIndex < questions.length - 1 ? 'inline-block' : 'none';
         finishBtn.style.display = currentQuestionIndex === questions.length - 1 ? 'inline-block' : 'none';
-        
-        // Memanggil fungsi untuk update status navigasi dan progress bar
         updateNavigationStatus();
         updateProgressBar(); 
     }
 
-    // FUNGSI INI DIUBAH (Warna tombol untuk soal terjawab)
     function updateNavigationStatus() {
         const navButtons = questionNavContainer.querySelectorAll('button');
         navButtons.forEach((btn, index) => {
             const questionSlide = document.getElementById(`question-${index}`);
             const inputs = questionSlide.querySelectorAll('input[type="radio"], input[type="checkbox"], select');
             let isAnswered = false;
-
-            // Loop untuk memeriksa apakah ada jawaban
             for (const input of inputs) {
                 if (((input.type === 'radio' || input.type === 'checkbox') && input.checked) || (input.tagName === 'SELECT' && input.value !== '')) {
                     isAnswered = true;
-                    break; // Keluar dari loop jika jawaban sudah ditemukan
+                    break;
                 }
             }
-
-            // Logika pewarnaan tombol navigasi
             if (index === currentQuestionIndex) {
-                btn.className = 'btn btn-primary m-1'; // Soal aktif (biru)
+                btn.className = 'btn btn-primary m-1';
             } else if (isAnswered) {
-                btn.className = 'btn btn-success m-1'; // Soal sudah dijawab (hijau)
+                btn.className = 'btn btn-success m-1';
             } else {
-                btn.className = 'btn btn-outline-secondary m-1'; // Soal belum dijawab (abu-abu)
+                btn.className = 'btn btn-outline-secondary m-1';
             }
         });
     }
 
-    // --- FUNGSI BARU UNTUK PROGRESS BAR ---
     function updateProgressBar() {
         let answeredCount = 0;
         const totalQuestions = questions.length;
-
-        // Iterasi setiap soal untuk mengecek apakah sudah dijawab
         questions.forEach((questionSlide) => {
             const inputs = questionSlide.querySelectorAll('input[type="radio"], input[type="checkbox"], select');
             let isAnswered = false;
@@ -328,11 +350,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 answeredCount++;
             }
         });
-
-        // Hitung persentase berdasarkan jumlah soal yang terjawab
         const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
-        
-        // Update tampilan progress bar
         progressBar.style.width = `${progress}%`;
         progressBar.innerText = `${Math.round(progress)}%`;
         progressBar.setAttribute('aria-valuenow', progress);
@@ -352,17 +370,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
     
-    // EVENT LISTENER INI DIUBAH
     form.addEventListener('change', function() {
-        // Setiap kali ada jawaban yang berubah, update status navigasi dan progress bar
         updateNavigationStatus();
         updateProgressBar();
     });
 
-    // Inisialisasi
+    // --- INISIALISASI ---
     createNavigation();
     showQuestion(0);
-    startTimer(); 
+    // Panggil fungsi timer yang baru
+    if (!isPreview) {
+        startPersistentTimer(); 
+    }
 });
 </script>
 @endpush

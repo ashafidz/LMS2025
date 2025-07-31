@@ -84,7 +84,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/student/quiz/{quiz}/begin', [StudentQuizController::class, 'begin'])->name('student.quiz.begin');
 
     // Halaman utama pengerjaan kuis
-    Route::get('/student/quiz/attempt/{attempt}', [StudentQuizController::class, 'take'])->name('student.quiz.take');
+    Route::get('/student/quiz/attempt/{attempt}', [StudentQuizController::class, 'take'])->middleware('prevent.caching')->name('student.quiz.take');
 
     // Aksi untuk mengirimkan semua jawaban
     Route::post('/student/quiz/attempt/{attempt}/submit', [StudentQuizController::class, 'submit'])->name('student.quiz.submit');

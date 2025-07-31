@@ -69,6 +69,7 @@ class CourseController extends Controller
 
     public function edit(Course $course)
     {
+
         $categories = CourseCategory::orderBy('name')->get();
         return view('instructor.courses.edit', compact('course', 'categories'));
     }
@@ -78,6 +79,9 @@ class CourseController extends Controller
      */
     public function update(Request $request, Course $course)
     {
+
+
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:course_categories,id',

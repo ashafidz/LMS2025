@@ -50,14 +50,22 @@
             @endif
         </ul>
         <div class="text-center mt-4">
-            @if(isset($lastAttempt) && $lastAttempt->status != 'failed')
-                <a href="{{ route('student.quiz.result', $lastAttempt->id) }}" class="btn btn-info btn-lg">Lihat Hasil Terakhir</a>
-            @else
-                <a href="{{ route('student.quiz.start', ['quiz' => $lesson->lessonable->id, 'preview' => $is_preview]) }}" 
-                   class="btn btn-primary btn-lg" 
-                   @if(!$is_preview) target="_blank" @endif>
-                   Mulai Kuis
+            @if($is_preview)
+                {{-- Tombol untuk mode pratinjau --}}
+                <a href="{{ route('student.quiz.start', ['quiz' => $lesson->lessonable->id, 'preview' => 'true']) }}" class="btn btn-primary btn-lg">
+                    Mulai Kuis (Preview)
                 </a>
+            @else
+                {{-- Tombol untuk siswa biasa --}}
+                @if(isset($lastAttempt) && $lastAttempt->status == 'passed')
+                    <a href="{{ route('student.quiz.result', $lastAttempt->id) }}" class="btn btn-info btn-lg">Lihat Hasil</a>
+                    {{-- Opsional: tambahkan tombol coba lagi jika diizinkan --}}
+                    {{-- <a href="{{ route('student.quiz.start', $lesson->lessonable->id) }}" class="btn btn-primary btn-lg">Coba Lagi</a> --}}
+                @else
+                    <a href="{{ route('student.quiz.start', $lesson->lessonable->id) }}" class="btn btn-primary btn-lg">
+                        Mulai Kuis
+                    </a>
+                @endif
             @endif
         </div>
     </div>

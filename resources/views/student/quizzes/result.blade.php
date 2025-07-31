@@ -33,6 +33,9 @@
                             <!-- Kartu Hasil Ringkas -->
                             <div class="card">
                                 <div class="card-body text-center">
+                                    @if ($is_preview)
+                                        <h2 class="text-warning">Hasil Preview Quiz</h2>
+                                    @endif
                                     @if($attempt->status == 'passed')
                                         <h2 class="text-success">Selamat, Anda Lulus!</h2>
                                         <i class="fa fa-check-circle fa-4x text-success mb-3"></i>
@@ -44,7 +47,12 @@
                                     <h4>Skor Anda: <strong>{{ rtrim(rtrim(number_format($attempt->score, 2, ',', '.'), '0'), ',') }}</strong></h4>
                                     <p class="text-muted">Nilai Kelulusan Minimum: {{ $attempt->quiz->pass_mark }}%</p>
                                     <hr>
-                                    <a href="{{ route('student.courses.show', $attempt->quiz->lesson->module->course->slug) }}" class="btn btn-primary">Kembali ke Kursus</a>
+                                    @if ($is_preview)
+                                        <a href="{{ route('student.courses.show', ['course' => $attempt->quiz->lesson->module->course->slug, 'preview' => 'true']) }}" class="btn btn-primary">Kembali ke Preview Kursus</a>
+                                    @else
+                                        <a href="{{ route('student.courses.show', $attempt->quiz->lesson->module->course->slug) }}" class="btn btn-primary">Kembali ke Kursus</a>
+                                    @endif
+
                                 </div>
                             </div>
 

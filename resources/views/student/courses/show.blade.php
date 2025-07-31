@@ -229,6 +229,7 @@
             const lessonTitleEl = document.getElementById('lesson-title');
             const lessonContentEl = document.getElementById('lesson-content');
             const isPreview = @json($is_preview);
+            console.log(isPreview);
             let completedLessons = @json($completedLessonIds);
 
             // --- FUNGSI UNTUK MEMUAT KONTEN PELAJARAN ---

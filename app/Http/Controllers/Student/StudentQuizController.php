@@ -17,6 +17,39 @@ class StudentQuizController extends Controller
     // ... (metode start, begin, take, submit, result, dan helper lainnya tidak ada perubahan) ...
     public function start(Request $request, Quiz $quiz)
     {
+        // Validasi: Pastikan siswa terdaftar di kursus ini
+        $student = Auth::user();
+        $course = $quiz->lesson->module->course;
+        if (session('active_role') === 'student') {
+            if (!$student->enrollments()->where('courses.id', $course->id)->exists()) {
+                abort(403, 'Anda tidak terdaftar di kursus ini.');
+            }
+        };
+
+        // cari percobaan terakhir apakah student ini sudah pernah mengerjakan dan lulus
+        $lastAttempt = QuizAttempt::where('student_id', $student->id)
+            ->where('quiz_id', $quiz->id)
+            ->where('status', 'passed')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if ($lastAttempt) {
+            return redirect()->route('student.quiz.result', $lastAttempt->id);
+        }
+
+        // Cari percobaan (attempt) yang sedang berlangsung untuk kuis ini oleh siswa yang login.
+        $existingAttempt = QuizAttempt::where('quiz_id', $quiz->id)
+            ->where('student_id', Auth::id())
+            ->where('status', 'in_progress')
+            ->first();
+
+        // Jika ditemukan attempt yang masih 'in_progress'...
+        if ($existingAttempt) {
+            // ...langsung alihkan (redirect) pengguna ke halaman pengerjaan kuis yang sudah ada.
+            return redirect()->route('student.quiz.take', $existingAttempt->id);
+        }
+
+
         $quiz->loadCount('questions');
         $is_preview = $request->query('preview') === 'true' && Auth::check();
         return view('student.quizzes.start', compact('quiz', 'is_preview'));
@@ -24,12 +57,40 @@ class StudentQuizController extends Controller
 
     public function begin(Request $request, Quiz $quiz)
     {
-        if ($request->input('is_preview') === 'true') {
+        // Validasi: Pastikan siswa terdaftar di kursus ini
+        $student = Auth::user();
+        $course = $quiz->lesson->module->course;
+        if (session('active_role') === 'student') {
+            if (!$student->enrollments()->where('courses.id', $course->id)->exists()) {
+                abort(403, 'Anda tidak terdaftar di kursus ini.');
+            }
+        };
+
+        // Cari percobaan (attempt) yang sedang berlangsung untuk kuis ini oleh siswa yang login.
+        $existingAttempt = QuizAttempt::where('quiz_id', $quiz->id)
+            ->where('student_id', Auth::id())
+            ->where('status', 'in_progress')
+            ->first();
+
+        // Jika ditemukan attempt yang masih 'in_progress'...
+        if ($existingAttempt) {
+            // ...langsung alihkan (redirect) pengguna ke halaman pengerjaan kuis yang sudah ada.
+            return redirect()->route('student.quiz.take', $existingAttempt->id);
+        }
+
+        // dd($request['is_preview']);
+
+
+        if ($request['is_preview'] === 'true') {
             $quiz->load('questions.options');
             $is_preview = true;
             $attempt = new QuizAttempt(['quiz_id' => $quiz->id, 'id' => 0]);
             $attempt->setRelation('quiz', $quiz);
-            return view('student.quizzes.take', compact('attempt', 'is_preview'));
+            return view('student.quizzes.take', [
+                'attempt' => $attempt,
+                'is_preview' => true,
+                'endTime' => null
+            ]);
         }
         $attempt = QuizAttempt::create([
             'quiz_id' => $quiz->id,
@@ -42,14 +103,42 @@ class StudentQuizController extends Controller
 
     public function take($attemptId)
     {
+
         $attempt = QuizAttempt::with('quiz.questions.options')->findOrFail($attemptId);
+
+        // Validasi: Pastikan siswa terdaftar di kursus ini
+        $student = Auth::user();
+        $course = $attempt->quiz->lesson->module->course;
+        if (session('active_role') === 'student') {
+            if (!$student->enrollments()->where('courses.id', $course->id)->exists()) {
+                abort(403, 'Anda tidak terdaftar di kursus ini.');
+            }
+        };
+
         // $attempt = QuizAttempt::findOrFail($attemptId);
         if ($attempt->status !== 'in_progress') {
             return redirect()->route('student.quiz.result', $attempt)->with('info', 'Anda sudah menyelesaikan kuis ini.');
         }
+
+        // --- TAMBAHKAN LOGIKA INI ---
+        $endTime = null;
+        // Pastikan ada batas waktu dan start_time tidak kosong
+        if ($attempt->quiz->time_limit > 0 && $attempt->start_time) {
+            // Hitung waktu berakhir: start_time + time_limit (dalam menit)
+            // Carbon akan otomatis menangani objek DateTime
+            $endTime = $attempt->start_time->addMinutes($attempt->quiz->time_limit);
+        }
+        // --- AKHIR LOGIKA TAMBAHAN ---
+
+
+
         $attempt->load('quiz.questions.options');
         $is_preview = false;
-        return view('student.quizzes.take', compact('attempt', 'is_preview'));
+        return view('student.quizzes.take', [
+            'attempt' => $attempt,
+            'is_preview' => false,
+            'endTime' => $endTime ? $endTime->toIso8601String() : null // Kirim sebagai string ISO 8601
+        ]);
     }
 
     public function submit(Request $request, $attemptId)
@@ -63,7 +152,15 @@ class StudentQuizController extends Controller
             $attempt->setRelation('quiz', $quiz);
         } else {
             $attempt = QuizAttempt::findOrFail($attemptId);
-            if ($attempt->student_id !== Auth::id() || $attempt->status !== 'in_progress') {
+
+            // Validasi: Pastikan siswa terdaftar di kursus ini
+            $student = Auth::user();
+            $course = $attempt->quiz->lesson->module->course;
+            if (!$student->enrollments()->where('courses.id', $course->id)->exists()) {
+                abort(403, 'Anda tidak terdaftar di kursus ini.');
+            }
+
+            if ($attempt->student_id != Auth::id() || $attempt->status !== 'in_progress') {
                 abort(403);
             }
         }
@@ -131,6 +228,23 @@ class StudentQuizController extends Controller
 
     public function result($attemptId)
     {
+        // check ownership attemp
+        $attempt = QuizAttempt::findOrFail($attemptId);
+
+        // Validasi: Pastikan siswa terdaftar di kursus ini
+        $student = Auth::user();
+        $course = $attempt->quiz->lesson->module->course;
+        if (session('active_role') === 'student') {
+            if (!$student->enrollments()->where('courses.id', $course->id)->exists()) {
+                abort(403, 'Anda tidak terdaftar di kursus ini.');
+            }
+        }
+
+        if ($attempt->student_id != Auth::id()) {
+            abort(403);
+        }
+
+
         $attempt = QuizAttempt::findOrFail($attemptId);
 
         if ($attempt->status === 'in_progress') {

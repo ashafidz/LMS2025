@@ -46,9 +46,9 @@ class LessonDiscussionController extends Controller
     public function destroy(LessonDiscussion $discussion)
     {
         // Otorisasi: Pastikan hanya pemilik komentar yang bisa menghapus
-        // if ($discussion->user_id !== Auth::id()) {
-        //     abort(403, 'Anda tidak memiliki izin untuk menghapus komentar ini.');
-        // }
+        if ($discussion->user_id != Auth::id()) {
+            abort(403, 'Anda tidak memiliki izin untuk menghapus komentar ini.');
+        }
 
         // Jangan hapus record, cukup update konten dan statusnya
         $discussion->update([

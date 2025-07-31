@@ -109,16 +109,16 @@ class CourseController extends Controller
         if ($lessonType === 'quiz') {
             $viewName = 'student.quizzes.partials._quiz_preview_in_lesson';
 
+            $quiz = $lesson->lessonable;
+            $quiz->load('questions'); // Eager load soal
+            // HITUNG TOTAL SKOR MAKSIMAL
+            $data['maxScore'] = $quiz->questions->sum('score');
+
             // LOGIKA BARU: Ambil riwayat kuis siswa & hitung total skor
             if ($user && !$is_preview_for_view) {
-                $quiz = $lesson->lessonable;
-                $quiz->load('questions'); // Eager load soal
-
                 $quizAttempts = $quiz->attempts()->where('student_id', $user->id)->get();
                 $data['attemptCount'] = $quizAttempts->count();
                 $data['lastAttempt'] = $quizAttempts->last();
-                // HITUNG TOTAL SKOR MAKSIMAL
-                $data['maxScore'] = $quiz->questions->sum('score');
             }
         } elseif ($lessonType === 'lessonpoint') {
             // Pastikan nama file Anda adalah '_lessonpoint.blade.php' (tanpa s)
@@ -137,6 +137,7 @@ class CourseController extends Controller
             'success' => true,
             'title' => $lesson->title,
             'html' => $htmlContent,
+            'is_preview' => $is_preview_for_view,
             'discussion_html' => $discussionHtml,
         ]);
     }
