@@ -59,6 +59,8 @@
                                                     </div>
                                                     <div>
                                                         <a href="{{ route('instructor.modules.lessons.index', $module->id) }}" class="btn btn-success btn-sm">View Lessons</a>
+                                                        {{-- TOMBOL BARU UNTUK LEADERBOARD MODUL --}}
+                                                        <button type="button" class="btn btn-warning btn-sm leaderboard-btn" data-url="{{ route('instructor.module.leaderboard', $module->id) }}">Peringkat</button>
                                                         <a href="{{ route('instructor.modules.edit', $module->id) }}" class="btn btn-info btn-sm">Edit</a>
                                                         <form action="{{ route('instructor.modules.destroy', $module->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this module and all its lessons?');">
                                                             @csrf
@@ -80,6 +82,27 @@
                     </div>
                 </div>
                 <!-- Page-body end -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- Modal Universal untuk Leaderboard -->
+<div class="modal fade" id="leaderboardModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Papan Peringkat</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body" id="leaderboardModalContent">
+                {{-- Konten leaderboard akan dimuat di sini --}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
@@ -115,5 +138,30 @@
             }
         });
     });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const leaderboardButtons = document.querySelectorAll('.leaderboard-btn');
+    const modalContent = document.getElementById('leaderboardModalContent');
+    const leaderboardModal = new bootstrap.Modal(document.getElementById('leaderboardModal'));
+
+    leaderboardButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const url = this.dataset.url;
+            modalContent.innerHTML = '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
+            leaderboardModal.show();
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    modalContent.innerHTML = data.html;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    modalContent.innerHTML = '<p class="text-danger">Gagal memuat data papan peringkat.</p>';
+                });
+        });
+    });
+});
 </script>
 @endpush

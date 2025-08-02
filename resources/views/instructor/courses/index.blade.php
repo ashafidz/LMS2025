@@ -82,6 +82,9 @@
                                                             <a href="{{ route('instructor.courses.modules.index', $course->id) }}" class="btn btn-success btn-sm" title="Kelola Modul">
                                                                 <i class="fa fa-list-ul"></i> Modul
                                                             </a>
+                                                            <button type="button" class="btn btn-warning btn-sm leaderboard-btn" data-url="{{ route('instructor.course.leaderboard', $course->id) }}" title="Lihat Papan Peringkat Kursus">
+                                                                <i class="fa fa-bar-chart"></i> Peringkat
+                                                            </button>
                                                             <a href="{{ route('instructor.courses.edit', $course->id) }}" class="btn btn-info btn-sm" title="Edit Kursus">
                                                                 <i class="fa fa-pencil"></i> Edit
                                                             </a>
@@ -134,4 +137,55 @@
             </div>
         </div>
     </div>
+
+
+
+
+
+<!-- Modal Universal untuk Leaderboard -->
+<div class="modal fade" id="leaderboardModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Papan Peringkat</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body" id="leaderboardModalContent">
+                {{-- Konten leaderboard akan dimuat di sini --}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
+
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const leaderboardButtons = document.querySelectorAll('.leaderboard-btn');
+    const modalContent = document.getElementById('leaderboardModalContent');
+    const leaderboardModal = new bootstrap.Modal(document.getElementById('leaderboardModal'));
+
+    leaderboardButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const url = this.dataset.url;
+            modalContent.innerHTML = '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
+            leaderboardModal.show();
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    modalContent.innerHTML = data.html;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    modalContent.innerHTML = '<p class="text-danger">Gagal memuat data papan peringkat.</p>';
+                });
+        });
+    });
+});
+</script>
+@endpush

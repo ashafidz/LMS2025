@@ -25,10 +25,14 @@ class ModuleController extends Controller
     public function store(Request $request, Course $course)
     {
         // Otorisasi dihapus
-        $validated = $request->validate(['title' => 'required|string|max:255']);
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'points_required' => 'required|integer|min:0',
+        ]);
         $lastOrder = $course->modules()->max('order') ?? 0;
         $course->modules()->create([
             'title' => $validated['title'],
+            'points_required' => $validated['points_required'],
             'order' => $lastOrder + 1,
         ]);
         return redirect()->route('instructor.courses.modules.index', $course)->with('success', 'Module created successfully.');
@@ -43,7 +47,10 @@ class ModuleController extends Controller
     public function update(Request $request, Module $module)
     {
         // Otorisasi dihapus
-        $validated = $request->validate(['title' => 'required|string|max:255']);
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'points_required' => 'required|integer|min:0',
+        ]);
         $module->update($validated);
         return redirect()->route('instructor.courses.modules.index', $module->course)->with('success', 'Module updated successfully.');
     }

@@ -11,7 +11,8 @@ class PointHistory extends Model
 
     protected $fillable = [
         'user_id',
-        'course_id', // Tambahkan ini
+        'course_id',
+        'lesson_id',
         'points',
         'description',
     ];
@@ -25,5 +26,13 @@ class PointHistory extends Model
     public function course()
     {
         return $this->belongsTo(Course::class);
+    }
+
+    /**
+     * Mendapatkan pelajaran yang terkait dengan riwayat poin ini (jika ada).
+     */
+    public function lesson()
+    {
+        return $this->belongsTo(Lesson::class);
     }
 }

@@ -66,6 +66,15 @@
                                                 </div>
                                             </div>
 
+                                            {{-- BAGIAN BARU: Input untuk Poin yang Dibutuhkan --}}
+                                            <div class="form-group row">
+                                                <label class="col-sm-2 col-form-label">Poin yang Dibutuhkan</label>
+                                                <div class="col-sm-10">
+                                                    <input type="number" name="points_required" class="form-control" value="{{ old('points_required', 0) }}" required min="0">
+                                                    <small class="form-text text-muted">Masukkan jumlah poin yang harus dimiliki siswa untuk membuka modul ini. Masukkan <strong>0</strong> agar modul tidak terkunci.</small>
+                                                </div>
+                                            </div>
+
                                             <div class="form-group row">
                                                 <label class="col-sm-2"></label>
                                                 <div class="col-sm-10">

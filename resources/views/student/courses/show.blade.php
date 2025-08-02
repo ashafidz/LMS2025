@@ -32,6 +32,13 @@
                             </div>
                         @endif
 
+                        @if (session('success'))
+                            <div class="alert alert-success">{{ session('success') }}</div>
+                        @endif
+                        @if (session('error'))
+                            <div class="alert alert-danger">{{ session('error') }}</div>
+                        @endif
+
                         <div class="row">
                             {{-- Kolom Konten Pelajaran (Utama) --}}
                             <div class="col-lg-8">
@@ -60,6 +67,13 @@
                                     <div class="card-block">
                                         <div id="syllabus-accordion">
                                             @forelse ($course->modules as $module)
+                                                @php
+                                                    // LOGIKA BARU: Cek apakah modul ini terkunci untuk siswa
+                                                    $isLocked =
+                                                        !$is_preview &&
+                                                        $module->points_required > 0 &&
+                                                        $currentCoursePoints < $module->points_required;
+                                                @endphp
                                                 <div class="card mb-2">
                                                     <div class="card-header" id="heading-{{ $module->id }}">
                                                         <h5 class="mb-0">
@@ -67,19 +81,42 @@
                                                                 data-target="#collapse-{{ $module->id }}"
                                                                 aria-expanded="true"
                                                                 aria-controls="collapse-{{ $module->id }}">
+                                                                @if ($isLocked)
+                                                                    <i class="fa fa-lock mr-2"></i>
+                                                                @endif
                                                                 <strong>{{ $module->title }}</strong>
                                                             </button>
+                                                            {{-- TOMBOL LEADERBOARD BARU PER MODUL --}}
+                                                            {{-- <button
+                                                                class="btn btn-sm btn-outline-warning load-leaderboard-btn"
+                                                                data-module-id="{{ $module->id }}"
+                                                                title="Lihat Papan Peringkat Modul">
+                                                                <i class="fa fa-bar-chart"></i>
+                                                            </button> --}}
+                                                            @if ($isLocked)
+                                                                <span
+                                                                    class="badge badge-warning float-right mt-2">{{ $module->points_required }}
+                                                                    Poin Dibutuhkan</span>
+                                                            @endif
                                                         </h5>
                                                     </div>
-                                                    <div id="collapse-{{ $module->id }}" class="collapse show"
+                                                    <div id="collapse-{{ $module->id }}"
+                                                        class="collapse show {{ $isLocked ? '' : 'show' }}"
                                                         aria-labelledby="heading-{{ $module->id }}"
                                                         data-parent="#syllabus-accordion">
                                                         <div class="card-body p-0">
                                                             <ul class="list-group list-group-flush">
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center' }}">
+                                                                        <a href="#" class="load-leaderboard-btn text-dark" data-module-id="{{ $module->id }}" >
+                                                                            <i class="fa fa-bar-chart mr-2"></i>
+                                                                            Leaderboard {{ $module->title }}
+                                                                        </a>
+                                                                    </li>
                                                                 @foreach ($module->lessons as $lesson)
-                                                                    <li class="list-group-item d-flex justify-content-between align-items-center"
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center {{ $isLocked ? 'bg-light' : '' }}"
                                                                         id="sidebar-lesson-{{ $lesson->id }}">
-                                                                        <a href="#" class="load-lesson text-dark"
+                                                                        <a href="#"
+                                                                            class="load-lesson {{ $isLocked ? 'text-muted disabled' : 'text-dark' }}"
                                                                             data-lesson-id="{{ $lesson->id }}">
                                                                             @php
                                                                                 $icon = 'fa-file-text-o';
@@ -190,7 +227,8 @@
                             <ul class="list-group">
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     Total Poin di Kursus Ini
-                                    <span class="text-warning">{{ $pointsToConvert }} <i class="ti-medall-alt"></i></span>
+                                    <span class="text-warning">{{ $pointsToConvert }} <i
+                                            class="ti-medall-alt"></i></span>
 
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -249,17 +287,28 @@
                         if (data.success) {
                             lessonTitleEl.innerText = data.title;
                             let completeButtonHtml = '';
-                            const sidebarItem = document.getElementById(`sidebar-lesson-${lessonId}`);
-                            const lessonTypeIcon = sidebarItem.querySelector('i.fa');
-                            const isQuizOrAssignment = lessonTypeIcon.classList.contains(
-                                'fa-question-circle') || lessonTypeIcon.classList.contains(
-                                'fa-pencil-square-o');
-                            if (!isQuizOrAssignment && !isPreview && !completedLessons.includes(parseInt(
-                                    lessonId))) {
-                                completeButtonHtml =
-                                    `<hr><div class="text-center mt-4"><button class="btn btn-success mark-as-complete-btn" data-lesson-id="${lessonId}"><i class="fa fa-check"></i> Tandai Selesai</button></div>`;
+
+                            if (!data.is_locked) {
+                                const sidebarItem = document.getElementById(`sidebar-lesson-${lessonId}`);
+                                const lessonTypeIcon = sidebarItem.querySelector('i.fa');
+                                const isQuizOrAssignment = lessonTypeIcon.classList.contains(
+                                    'fa-question-circle') || lessonTypeIcon.classList.contains(
+                                    'fa-pencil-square-o');
+
+
+                                if (!isQuizOrAssignment && !isPreview && !completedLessons.includes(parseInt(
+                                        lessonId))) {
+                                    completeButtonHtml =
+                                        `<hr><div class="text-center mt-4"><button class="btn btn-success mark-as-complete-btn" data-lesson-id="${lessonId}"><i class="fa fa-check"></i> Tandai Selesai</button></div>`;
+                                }
                             }
-                            lessonContentEl.innerHTML = data.html + completeButtonHtml + data.discussion_html;
+                            // lessonContentEl.innerHTML = data.html + completeButtonHtml + data.discussion_html;
+                            // Gabungkan konten pelajaran dengan tombol dan forum diskusi (jika ada)
+                            const discussionHtml = data.discussion_html || '';
+                            lessonContentEl.innerHTML = data.html + completeButtonHtml + discussionHtml;
+
+
+
                         } else {
                             lessonTitleEl.innerText = 'Gagal Memuat';
                             lessonContentEl.innerHTML =
@@ -460,6 +509,36 @@
 
 
             }
+
+            // --- LOGIKA BARU UNTUK TOMBOL LEADERBOARD ---
+            const leaderboardButtons = document.querySelectorAll('.load-leaderboard-btn');
+            leaderboardButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const moduleId = this.dataset.moduleId;
+                    lessonTitleEl.innerText = 'Papan Peringkat Modul';
+                    lessonContentEl.innerHTML =
+                        '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
+
+                    const url = `{{ url('/modules') }}/${moduleId}/leaderboard`;
+
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                lessonContentEl.innerHTML = data.html;
+                            } else {
+                                lessonContentEl.innerHTML =
+                                    `<p class="text-danger">${data.message || 'Gagal memuat papan peringkat.'}</p>`;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching leaderboard:', error);
+                            lessonContentEl.innerHTML =
+                                '<p class="text-danger">Terjadi kesalahan jaringan.</p>';
+                        });
+                });
+            });
 
 
 

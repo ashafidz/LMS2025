@@ -34,6 +34,14 @@ use App\Http\Controllers\Student\LessonDiscussionController;
 use App\Http\Controllers\Instructor\LessonPointController;
 use App\Http\Controllers\Student\GamificationController;
 use App\Http\Controllers\Student\DiamondPurchaseController;
+use App\Http\Controllers\Instructor\InstructorLeaderboardController;
+
+Route::get('/neweditprofil', function () {
+    return view('1edit-index');
+});
+Route::get('/newprofil', function () {
+    return view('1student');
+});
 
 
 
@@ -304,6 +312,11 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
 
         Route::get('/instructor/lesson-points/{lesson}/manage', [LessonPointController::class, 'index'])->name('instructor.lesson_points.manage');
         Route::post('/instructor/lesson-points/{lesson}/award', [LessonPointController::class, 'award'])->name('instructor.lesson_points.award');
+
+
+        // --- RUTE BARU UNTUK LEADERBOARD INSTRUKTUR ---
+        Route::get('/instructor/courses/{course}/leaderboard', [InstructorLeaderboardController::class, 'courseLeaderboard'])->name('instructor.course.leaderboard');
+        Route::get('/instructor/modules/{module}/leaderboard', [InstructorLeaderboardController::class, 'moduleLeaderboard'])->name('instructor.module.leaderboard');
     });
 });
 
@@ -448,5 +461,9 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
 
         // RUTE BARU UNTUK LEADERBOARD
         Route::get('/courses/{course}/leaderboard', [StudentCourseController::class, 'getLeaderboard'])->name('student.course.leaderboard');
+
+
+        // di dalam file routes/web.php RUTE LEADERBOARD MODULE
+        Route::get('/modules/{module}/leaderboard', [StudentCourseController::class, 'getModuleLeaderboard'])->name('student.module.leaderboard');
     });
 });

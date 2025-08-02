@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\Student;
 
-use App\Http\Controllers\Controller;
+use Exception;
 use App\Models\Course;
 use App\Models\Lesson;
+use App\Models\Module;
+use App\Models\PointHistory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Services\PointService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Exception;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class CourseController extends Controller
 {
@@ -36,12 +39,20 @@ class CourseController extends Controller
             $is_enrolled = $user->enrollments()->where('course_id', $course->id)->exists();
         }
 
+        $course->load(['modules.lessons']);
+
         $completedLessonIds = [];
+        $currentCoursePoints = 0;
         if ($user) {
             $completedLessonIds = $user->completedLessons()
                 ->whereIn('lesson_id', $course->lessons->pluck('id'))
                 ->pluck('lesson_id')
                 ->toArray();
+
+
+            // Ambil total poin siswa di kursus ini
+            $courseUserPivot = $user->coursePoints()->where('course_id', $course->id)->first();
+            $currentCoursePoints = $courseUserPivot->pivot->points_earned ?? 0;
         }
 
         // LOGIKA BARU: Cek kelayakan untuk sertifikat
@@ -58,10 +69,10 @@ class CourseController extends Controller
 
 
 
-        $course->load(['modules' => fn($q) => $q->orderBy('order'), 'modules.lessons' => fn($q) => $q->orderBy('order')]);
+        // $course->load(['modules' => fn($q) => $q->orderBy('order'), 'modules.lessons' => fn($q) => $q->orderBy('order')]);
 
         if ($is_preview || $is_enrolled) {
-            return view('student.courses.show', compact('course', 'is_preview', 'completedLessonIds', 'isEligibleForCertificate'));
+            return view('student.courses.show', compact('course', 'is_preview', 'completedLessonIds', 'isEligibleForCertificate', 'currentCoursePoints'));
         } else {
             return view('details-course', compact('course', 'is_enrolled'));
         }
@@ -85,6 +96,26 @@ class CourseController extends Controller
         if (!$canAccess) {
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
         }
+
+        // --- LOGIKA KUNCI MODUL ---
+        $module = $lesson->module;
+        if ($module->points_required > 0 && !$request->query('preview')) {
+            $courseUserPivot = $user->coursePoints()->where('course_id', $module->course_id)->first();
+            $userPoints = $courseUserPivot->pivot->points_earned ?? 0;
+
+            if ($userPoints < $module->points_required) {
+                $htmlContent = view('student.courses.partials._locked_content', ['module' => $module])->render();
+                return response()->json([
+                    'success' => true, // Sukses memuat, tapi kontennya adalah pesan terkunci
+                    'title' => 'Modul Terkunci',
+                    'html' => $htmlContent,
+                    'is_locked' => true,
+                ]);
+            }
+        }
+        // --- AKHIR LOGIKA KUNCI MODUL ---
+
+
 
         // --- LOGIKA BARU: Ambil data diskusi ---
         $discussions = $lesson->discussions()
@@ -139,6 +170,7 @@ class CourseController extends Controller
             'html' => $htmlContent,
             'is_preview' => $is_preview_for_view,
             'discussion_html' => $discussionHtml,
+            'is_locked' => false,
         ]);
     }
 
@@ -169,7 +201,7 @@ class CourseController extends Controller
             if ($lessonType === 'lessondocument') $activity = 'complete_document';
 
             if ($activity) {
-                PointService::addPoints($user, $course, $activity, $lesson->title);
+                PointService::addPoints($user, $lesson, $course,  $activity, $lesson->title);
             }
         }
         return response()->json(['success' => true, 'message' => 'Pelajaran ditandai selesai.']);
@@ -239,5 +271,28 @@ class CourseController extends Controller
                 'message' => 'Terjadi kesalahan internal pada server. Silakan cek log untuk detail.'
             ], 500); // Kirim status 500
         }
+    }
+
+
+    /**
+     * Mengambil data leaderboard untuk modul tertentu via AJAX.
+     */
+    public function getModuleLeaderboard(Module $module)
+    {
+        // Ambil ID semua pelajaran di dalam modul ini
+        $lessonIds = $module->lessons()->pluck('id');
+
+        // Hitung total poin per siswa HANYA dari pelajaran-pelajaran tersebut
+        $leaderboardRanks = PointHistory::whereIn('lesson_id', $lessonIds)
+            ->select('user_id', DB::raw('SUM(points) as total_points'))
+            ->groupBy('user_id')
+            ->orderBy('total_points', 'desc')
+            ->with('user') // Eager load data user
+            ->take(100)
+            ->get();
+
+        $html = view('student.courses.partials._module-leaderboard', compact('module', 'leaderboardRanks'))->render();
+
+        return response()->json(['success' => true, 'html' => $html]);
     }
 }

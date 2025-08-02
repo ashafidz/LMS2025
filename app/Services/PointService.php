@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\SiteSetting;
 use App\Models\CourseUser;
 use Illuminate\Support\Facades\DB;
+use App\Models\Lesson;
 
 class PointService
 {
@@ -19,7 +20,7 @@ class PointService
      * @param string|null $description_meta Informasi tambahan (misal: nama pelajaran).
      * @return void
      */
-    public static function addPoints(User $user, Course $course, string $activity, $description_meta = null)
+    public static function addPoints(User $user, Lesson $lesson, Course $course, string $activity, $description_meta = null)
     {
         // Ambil pengaturan poin dari database (menggunakan cache untuk efisiensi)
         $settings = cache()->remember('site_settings', now()->addMinutes(60), function () {
@@ -28,6 +29,7 @@ class PointService
 
         $pointsToAdd = 0;
         $description = '';
+        $course = $lesson->module->course;
 
         switch ($activity) {
             case 'purchase':
@@ -57,7 +59,7 @@ class PointService
         }
 
         if ($pointsToAdd > 0) {
-            DB::transaction(function () use ($user, $course, $pointsToAdd, $description) {
+            DB::transaction(function () use ($user, $course, $lesson, $pointsToAdd, $description) {
                 // 1. Buat atau update total poin di tabel pivot course_user
                 // $courseUser = $user->coursePoints()->where('course_id', $course->id)->first();
                 // if ($courseUser) {
@@ -79,6 +81,7 @@ class PointService
                 $user->pointHistories()->create([
                     'course_id' => $course->id,
                     'points' => $pointsToAdd,
+                    'lesson_id' => $lesson->id ?? null,
                     'description' => $description,
                 ]);
             });
@@ -88,10 +91,11 @@ class PointService
     /**
      * Menambahkan poin secara manual oleh instruktur untuk pelajaran tipe 'lessonpoin'.
      */
-    public static function addManualPoints(User $user, Course $course, int $pointsToAdd, string $description)
+    public static function addManualPoints(User $user, Course $course, Lesson $lesson, int $pointsToAdd, string $description)
     {
         if ($pointsToAdd > 0) {
-            DB::transaction(function () use ($user, $course, $pointsToAdd, $description) {
+            $course = $lesson->module->course;
+            DB::transaction(function () use ($user, $course, $lesson, $pointsToAdd, $description) {
                 // $courseUser = $user->coursePoints()->where('course_id', $course->id)->first();
                 // if ($courseUser) {
                 //     $courseUser->increment('points_earned', $pointsToAdd);
@@ -111,6 +115,7 @@ class PointService
 
                 $user->pointHistories()->create([
                     'course_id' => $course->id,
+                    'lesson_id' => $lesson->id,
                     'points' => $pointsToAdd,
                     'description' => $description,
                 ]);

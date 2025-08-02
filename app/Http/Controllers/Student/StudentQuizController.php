@@ -201,7 +201,7 @@ class StudentQuizController extends Controller
 
                 // Berikan poin HANYA jika statusnya 'passed' DAN belum pernah lulus sebelumnya
                 if ($newStatus === 'passed' && !$hasPassedBefore) {
-                    PointService::addPoints(Auth::user(), $attempt->quiz->lesson->module->course, 'pass_quiz', $attempt->quiz->title);
+                    PointService::addPoints(Auth::user(), $attempt->quiz->lesson, $attempt->quiz->lesson->module->course, 'pass_quiz', $attempt->quiz->title);
                 }
 
                 if ($newStatus === 'passed') {
