@@ -86,6 +86,7 @@ class LessonController extends Controller
                         'pass_mark' => 'required|integer|min:0|max:100',
                         'time_limit' => 'nullable|integer|min:1',
                         'allow_exceed_time_limit' => 'required|boolean',
+                        'reveal_answers' => 'required|boolean',
                     ]);
                     $lessonable = Quiz::create([
                         'title' => $validated['quiz_title'],
@@ -93,6 +94,8 @@ class LessonController extends Controller
                         'pass_mark' => $validated['pass_mark'],
                         'time_limit' => $validated['time_limit'],
                         'allow_exceed_time_limit' => $validated['allow_exceed_time_limit'],
+                        'reveal_answers' => $validated['reveal_answers'],
+
                     ]);
                     break;
 
@@ -198,6 +201,7 @@ class LessonController extends Controller
                         'pass_mark' => 'required|integer|min:0|max:100',
                         'time_limit' => 'nullable|integer|min:1',
                         'allow_exceed_time_limit' => 'required|boolean',
+                        'reveal_answers' => 'required|boolean',
                     ]);
                     $lessonable->update([
                         'title' => $validated['quiz_title'],
@@ -205,6 +209,7 @@ class LessonController extends Controller
                         'pass_mark' => $validated['pass_mark'],
                         'time_limit' => $validated['time_limit'],
                         'allow_exceed_time_limit' => $validated['allow_exceed_time_limit'],
+                        'reveal_answers' => $validated['reveal_answers'],
                     ]);
                     break;
 

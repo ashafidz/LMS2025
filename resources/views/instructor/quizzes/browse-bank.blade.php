@@ -70,8 +70,8 @@
                                                         <thead>
                                                             <tr>
                                                                 <th style="width: 5%;">Pilih</th>
-                                                                <th>Teks Soal</th>
                                                                 <th>Tipe</th>
+                                                                <th>Teks Soal</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -85,8 +85,8 @@
                                                                             </label>
                                                                         </div>
                                                                     </td>
-                                                                    <td>{{ Str::limit(strip_tags($question->question_text), 100) }}</td>
                                                                     <td>{{ ucfirst(str_replace('_', ' ', $question->question_type)) }}</td>
+                                                                    <td>{{ Str::limit(strip_tags($question->question_text), 100) }}</td>
                                                                 </tr>
                                                             @empty
                                                                 <tr>

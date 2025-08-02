@@ -46,6 +46,8 @@
 
                                     <h4>Skor Anda: <strong>{{ rtrim(rtrim(number_format($attempt->score, 2, ',', '.'), '0'), ',') }}</strong></h4>
                                     <p class="text-muted">Nilai Kelulusan Minimum: {{ $attempt->quiz->pass_mark }}%</p>
+                                    <p class="text-muted" >Nilai Maksimum : {{ $maxPossibleScore }}</p>
+                                    <p class="text-muted" >Nilai minimum : {{ $minimumScore }}</p>
                                     <hr>
                                     @if ($is_preview)
                                         <a href="{{ route('student.courses.show', ['course' => $attempt->quiz->lesson->module->course->slug, 'preview' => 'true']) }}" class="btn btn-primary">Kembali ke Preview Kursus</a>
@@ -56,7 +58,8 @@
                                 </div>
                             </div>
 
-                            <!-- Rincian Jawaban -->
+                            @if ($attempt->quiz->reveal_answers)
+                                                            <!-- Rincian Jawaban -->
                             <div class="card">
                                 <div class="card-header">
                                     <h5>Rincian Jawaban</h5>
@@ -117,6 +120,11 @@
                                     @endforeach
                                 </div>
                             </div>
+                            @else
+                                <div class="alert alert-info">
+                                    Jawaban Anda telah disembunyikan oleh penyelenggara kursus ini.
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>

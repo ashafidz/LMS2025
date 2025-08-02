@@ -47,6 +47,7 @@ class CourseController extends Controller
             $completedLessonIds = $user->completedLessons()
                 ->whereIn('lesson_id', $course->lessons->pluck('id'))
                 ->pluck('lesson_id')
+                ->map('intval')
                 ->toArray();
 
 
@@ -144,6 +145,8 @@ class CourseController extends Controller
             $quiz->load('questions'); // Eager load soal
             // HITUNG TOTAL SKOR MAKSIMAL
             $data['maxScore'] = $quiz->questions->sum('score');
+
+            $data['minimumScore'] = $data['maxScore'] * ($quiz->pass_mark / 100);
 
             // LOGIKA BARU: Ambil riwayat kuis siswa & hitung total skor
             if ($user && !$is_preview_for_view) {

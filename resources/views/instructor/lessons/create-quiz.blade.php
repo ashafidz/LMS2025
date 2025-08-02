@@ -86,6 +86,18 @@
                                                 </div>
                                             </div>
 
+                                                                                        {{-- BAGIAN BARU: Toggle untuk tampilkan jawaban --}}
+                                            <div class="form-group row">
+                                                <label class="col-sm-3 col-form-label">Opsi Hasil Kuis</label>
+                                                <div class="col-sm-9">
+                                                    <div class="form-check form-switch">
+                                                        <input type="hidden" name="reveal_answers" value="0">
+                                                        <input class="form-check-input" type="checkbox" name="reveal_answers" value="1" id="revealAnswers" checked>
+                                                        <label class="form-check-label" for="revealAnswers">Tampilkan rincian jawaban (benar/salah) kepada siswa di halaman hasil.</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                             <div class="form-group row mt-4">
                                                 <div class="col-sm-12 text-right">
                                                     <a href="{{ route('instructor.modules.lessons.index', $module) }}" class="btn btn-secondary">Batal</a>

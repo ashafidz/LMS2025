@@ -251,7 +251,14 @@ class StudentQuizController extends Controller
             return redirect()->route('student.quiz.take', $attempt)->with('error', 'Anda harus menyelesaikan kuis terlebih dahulu.');
         }
         $attempt->load(['quiz.questions.options', 'answers']);
-        return view('student.quizzes.result', ['attempt' => $attempt, 'is_preview' => false]);
+
+        // quiz max score
+        $maxPossibleScore = $attempt->quiz->questions->sum('score');
+        // quiz minimum score, not percentage
+        $minimumScore = $maxPossibleScore * ($attempt->quiz->pass_mark / 100);
+
+
+        return view('student.quizzes.result', ['attempt' => $attempt, 'is_preview' => false, 'maxPossibleScore' => $maxPossibleScore, 'minimumScore' => $minimumScore]);
     }
 
     // public function checkAnswerAjax(Request $request)

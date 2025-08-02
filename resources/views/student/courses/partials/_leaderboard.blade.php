@@ -14,32 +14,34 @@
             </tr>
         </thead>
         <tbody>
-            {{-- @forelse ($leaderboardRanks as $index => $rank)
-                <tr class="{{ $rank->user_id === Auth::id() ? 'table-info' : '' }}">
-                    <td class="font-weight-bold">#{{ $index + 1 }}</td>
-                    <td>
-                        {{ $rank->user->name }}
-                        @if($rank->user_id === Auth::id())
-                            <span class="badge badge-primary">Anda</span>
-                        @endif
-                    </td>
-                    <td class="text-right font-weight-bold">{{ number_format($rank->points_earned, 0, ',', '.') }}</td>
-                </tr>
-            @empty --}}
             @forelse ($leaderboardRanks as $index => $rank)
-                @if ($rank->user) {{-- <-- TAMBAHKAN KONDISI IF INI --}}
-                    {{-- Sorot baris untuk pengguna yang sedang login --}}
-                    <tr class="{{ $rank->user_id === Auth::id() ? 'table-info' : '' }}">
+                @if ($rank->user)
+                    {{--
+                        Dynamically set the row's background color based on rank ($index + 1):
+                        - Ranks 1-3: Green (table-success)
+                        - Ranks 4-20: Blue (table-info)
+                        - Ranks >20: Gray (table-light)
+                    --}}
+                    <tr class="
+                        @if($index + 1 <= 3)
+                            table-success
+                        @elseif($index + 1 <= 20)
+                            table-info
+                        @else
+                            table-light
+                        @endif
+                    ">
                         <td class="font-weight-bold">#{{ $index + 1 }}</td>
                         <td>
                             {{ $rank->user->name }}
+                            {{-- Keep the badge to highlight the current user --}}
                             @if($rank->user_id === Auth::id())
                                 <span class="badge badge-primary">Anda</span>
                             @endif
                         </td>
                         <td class="text-right font-weight-bold">{{ number_format($rank->points_earned, 0, ',', '.') }}</td>
                     </tr>
-                @endif {{-- <-- TUTUP KONDISI IF --}}
+                @endif
             @empty
                 <tr>
                     <td colspan="3" class="text-center text-muted">Belum ada peringkat untuk kursus ini.</td>

@@ -41,6 +41,7 @@
                                             <thead>
                                                 <tr>
                                                     <th>#</th>
+                                                    <th>NIM/NIDN/NIP</th>
                                                     <th>Nama Siswa</th>
                                                     <th>Waktu Pengumpulan</th>
                                                     <th>Status</th>
@@ -51,6 +52,7 @@
                                                 @forelse ($submissions as $submission)
                                                     <tr>
                                                         <th scope="row">{{ $loop->iteration + $submissions->firstItem() - 1 }}</th>
+                                                        <th>{{ $submission->user->studentProfile->unique_id_number }}</th>
                                                         <td>{{ $submission->user->name }}</td>
                                                         <td>{{ $submission->submitted_at->format('d F Y, H:i') }}</td>
                                                         <td>

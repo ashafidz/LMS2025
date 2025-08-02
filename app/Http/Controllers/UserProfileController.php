@@ -81,6 +81,7 @@ class UserProfileController extends Controller
             'address' => ['nullable', 'string'],
             'profile_picture' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // 2MB Max
             'equipped_badge_id' => 'nullable|exists:badges,id',
+            'unique_id_number' => 'nullable|string|max:255',
         ];
 
         // Add profile-specific validation if the user is a student or instructor
@@ -94,6 +95,7 @@ class UserProfileController extends Controller
                 'company_or_institution_name' => ['nullable', 'string', 'max:255'],
                 'company_address' => ['nullable', 'string'],
                 'company_tax_id' => ['nullable', 'string', 'max:255'],
+                'unique_id_number' => 'nullable|string|max:255',
             ]);
         }
 
@@ -114,6 +116,7 @@ class UserProfileController extends Controller
             'birth_date' => $validated['birth_date'],
             'address' => $validated['address'],
             'equipped_badge_id' => $validated['equipped_badge_id'] ?? null,
+            'unique_id_number' => $validated['unique_id_number']
         ];
 
         // Handle profile picture upload
@@ -143,6 +146,7 @@ class UserProfileController extends Controller
                     'company_or_institution_name' => $validated['company_or_institution_name'],
                     'company_address' => $validated['company_address'],
                     'company_tax_id' => $validated['company_tax_id'],
+                    'unique_id_number' => $validated['unique_id_number']
                 ]);
             }
         }

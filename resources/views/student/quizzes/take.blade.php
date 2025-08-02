@@ -56,11 +56,25 @@
                                                 <div class="options-list">
                                                     @if($question->question_type === 'multiple_choice_single' || $question->question_type === 'true_false')
                                                         @foreach($question->options as $option)
-                                                        <div class="form-check"><input class="form-check-input" type="radio" name="answers[{{ $question->id }}]" id="opt-{{ $option->id }}" value="{{ $option->id }}"><label class="form-check-label" for="opt-{{ $option->id }}">{{ $option->option_text }}</label></div>
+                                                        <div class="form-check ml-5"><input class="form-check-input" type="radio" name="answers[{{ $question->id }}]" id="opt-{{ $option->id }}" value="{{ $option->id }}"><label class="form-check-label" for="opt-{{ $option->id }}">{{ $option->option_text }}</label></div>
                                                         @endforeach
                                                     @elseif($question->question_type === 'multiple_choice_multiple')
                                                         @foreach($question->options as $option)
-                                                        <div class="form-check"><input class="form-check-input" type="checkbox" name="answers[{{ $question->id }}][]" id="opt-{{ $option->id }}" value="{{ $option->id }}"><label class="form-check-label" for="opt-{{ $option->id }}">{{ $option->option_text }}</label></div>
+                                                        <div class="form-check ml-5">
+                                                            <input class="form-check-input" type="checkbox" name="answers[{{ $question->id }}][]" id="opt-{{ $option->id }}" value="{{ $option->id }}">
+                                                            <label class="form-check-label" for="opt-{{ $option->id }}">{{ $option->option_text }}</label>
+                                                        </div>
+                                                        {{-- <div class="col  mb-2">
+                                                            <div class="checkbox-fade fade-in-primary">
+                                                                <label class="form-check-label" for="opt-{{ $option->id }}">
+                                                                    <input class="form-check-input" type="checkbox" name="answers[{{ $question->id }}][]" id="opt-{{ $option->id }}" value="{{ $option->id }}">
+                                                                    <span class="cr">
+                                                                        <i class="cr-icon icofont icofont-ui-check txt-primary"></i>
+                                                                    </span>
+                                                                    <span class="text-inverse">{{ $option->option_text }}</span>
+                                                                </label>
+                                                            </div>
+                                                        </div> --}}
                                                         @endforeach
                                                     @elseif($question->question_type === 'drag_and_drop')
                                                         <div class="drag-and-drop-container" style="line-height: 2.5;">{!! preg_replace_callback('/\[\[(BLANK_\d+)\]\]/', function($matches) use ($question) { $blankId = $matches[1]; $optionsHtml = '<option value="">-- Pilih Jawaban --</option>'; foreach ($question->options as $option) { $optionsHtml .= '<option value="' . $option->id . '">' . e($option->option_text) . '</option>'; } return '<select name="answers[' . $question->id . '][' . $blankId . ']" class="form-control d-inline-block" style="width: auto;">' . $optionsHtml . '</select>'; }, e($question->question_text)) !!}</div>

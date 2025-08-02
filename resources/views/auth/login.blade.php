@@ -70,8 +70,9 @@
                                     <div class="checkbox-fade fade-in-primary">
                                         <label>
                                             <input type="checkbox" name="remember">
-                                            <span class="cr"><i
-                                                    class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
+                                            <span class="cr">
+                                                <i class="cr-icon icofont icofont-ui-check txt-primary"></i>
+                                            </span>
                                             <span class="text-inverse">Remember me</span>
                                         </label>
                                     </div>

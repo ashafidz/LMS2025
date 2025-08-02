@@ -128,8 +128,32 @@
                 <div id="materi-{{ $module->id }}" class="accordion-collapse collapse" data-bs-parent="#accordionMateri">
                   <div class="accordion-body">
                     <ul class="list-unstyled">
+
+
                         @foreach ($module->lessons as $lesson)
-                            <li class="d-flex align-items-center mb-2 text-muted"><i class="fa {{-- icon --}} me-2"></i><span>{{ $lesson->title }}</span></li>
+                            @php
+                              if ($lesson->lessonable_type === 'App\Models\LessonArticle') {
+                                $icon = 'fa-file-word';
+                              } elseif ($lesson->lessonable_type === 'App\Models\LessonVideo') {
+                                $icon = 'fa-video-camera';
+                              } elseif ($lesson->lessonable_type === 'App\Models\LessonDocument') {
+                                $icon = 'fa-file-pdf-o';
+                              } elseif ($lesson->lessonable_type === 'App\Models\LessonLinkCollection') {
+                                $icon = 'fa-link';
+                              } elseif ($lesson->lessonable_type === 'App\Models\LessonAssignment') {
+                                $icon = 'fa-pencil-square-o';
+                              } 
+                              elseif ($lesson->lessonable_type === 'App\Models\Quiz') {
+                                $icon = 'fa-question-circle';
+                              }
+                              elseif ($lesson->lessonable_type === 'App\Models\LessonPoint') {
+                                $icon = 'fa-question-circle';
+                              }
+                              else {
+                                $icon = 'fa-file-text-o';
+                              }
+                            @endphp
+                            <li class="d-flex align-items-center mb-2 text-muted"><i class="fa {{ $icon }} me-2"></i><span>{{ $lesson->title }}</span></li>
                         @endforeach
                     </ul>
                   </div>

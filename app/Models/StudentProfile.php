@@ -20,6 +20,7 @@ class StudentProfile extends Model
         'company_or_institution_name',
         'company_address',
         'company_tax_id',
+        'unique_id_number',
     ];
 
     public function user(): BelongsTo

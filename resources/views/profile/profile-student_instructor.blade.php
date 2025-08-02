@@ -148,22 +148,8 @@
                                 <div class="col-md-6 d-flex">
                                     <i class="fa fa-file-text text-lg mr-2"></i>
                                     <div>
-                                        <p class="mb-1"><strong>NIM</strong></p>
-                                        <p>{{ $profile->nim ?? '-' }}</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 d-flex">
-                                    <i class="fa fa-file-text text-lg mr-2"></i>
-                                    <div>
-                                        <p class="mb-1"><strong>NIP</strong></p>
-                                        <p>{{ $profile->nip ?? '-' }}</p>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 d-flex">
-                                    <i class="fa fa-file-text text-lg mr-2"></i>
-                                    <div>
-                                        <p class="mb-1"><strong>NIDN</strong></p>
-                                        <p>{{ $profile->nidn ?? '-' }}</p>
+                                        <p class="mb-1"><strong>NIM/NIP/NIDN</strong></p>
+                                        <p>{{ $profile->unique_id_number ?? '-' }}</p>
                                     </div>
                                 </div>
                             </div>

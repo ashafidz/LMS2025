@@ -25,6 +25,10 @@
                 <strong>{{ $lesson->lessonable->pass_mark }}%</strong>
             </li>
             <li class="list-group-item d-flex justify-content-between">
+                <span><i class="fa fa-check-square-o mr-2"></i> Nilai Minimum</span>
+                <strong>{{ $minimumScore }}</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
                 <span><i class="fa fa-clock-o mr-2"></i> Batas Waktu</span>
                 <strong>{{ $lesson->lessonable->time_limit ? $lesson->lessonable->time_limit . ' menit' : 'Tidak ada' }}</strong>
             </li>
