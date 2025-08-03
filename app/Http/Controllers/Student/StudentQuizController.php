@@ -160,7 +160,7 @@ class StudentQuizController extends Controller
                 abort(403, 'Anda tidak terdaftar di kursus ini.');
             }
 
-            if ($attempt->student_id != Auth::id() || $attempt->status !== 'in_progress') {
+            if ($attempt->student_id != Auth::id() || $attempt->status != 'in_progress') {
                 abort(403);
             }
         }

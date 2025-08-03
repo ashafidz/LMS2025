@@ -35,13 +35,14 @@ use App\Http\Controllers\Instructor\LessonPointController;
 use App\Http\Controllers\Student\GamificationController;
 use App\Http\Controllers\Student\DiamondPurchaseController;
 use App\Http\Controllers\Instructor\InstructorLeaderboardController;
+use App\Http\Controllers\Shared\CourseEnrollmentController;
 
-Route::get('/neweditprofil', function () {
-    return view('1edit-index');
-});
-Route::get('/newprofil', function () {
-    return view('1student');
-});
+// Route::get('/neweditprofil', function () {
+//     return view('1edit-index');
+// });
+// Route::get('/newprofil', function () {
+//     return view('1student');
+// });
 
 
 
@@ -153,6 +154,14 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     Route::get('/superadmin/badges/{badge}/edit', [BadgeController::class, 'edit'])->name('superadmin.badges.edit');
     Route::put('/superadmin/badges/{badge}', [BadgeController::class, 'update'])->name('superadmin.badges.update');
     Route::delete('/superadmin/badges/{badge}', [BadgeController::class, 'destroy'])->name('superadmin.badges.destroy');
+
+
+    // --- RUTE BARU UNTUK KELOLA USER KURSUS ---
+    Route::get('/superadmin/course-enrollments', [CourseEnrollmentController::class, 'index'])->name('superadmin.course-enrollments.index');
+    Route::get('/superadmin/course-enrollments/{course}', [CourseEnrollmentController::class, 'show'])->name('superadmin.course-enrollments.show');
+    Route::get('/superadmin/course-enrollments/{course}/add', [CourseEnrollmentController::class, 'create'])->name('superadmin.course-enrollments.create');
+    Route::post('/superadmin/course-enrollments/{course}', [CourseEnrollmentController::class, 'store'])->name('superadmin.course-enrollments.store');
+    Route::delete('/superadmin/course-enrollments/{course}/remove', [CourseEnrollmentController::class, 'destroy'])->name('superadmin.course-enrollments.destroy');
 });
 
 // * group route for admin
@@ -189,6 +198,13 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/admin/likert-questions/{likertQuestion}/edit', [LikertQuestionController::class, 'edit'])->name('admin.likert-questions.edit');
     Route::put('/admin/likert-questions/{likertQuestion}', [LikertQuestionController::class, 'update'])->name('admin.likert-questions.update');
     Route::delete('/admin/likert-questions/{likertQuestion}', [LikertQuestionController::class, 'destroy'])->name('admin.likert-questions.destroy');
+
+    // --- RUTE BARU UNTUK KELOLA USER KURSUS ---
+    Route::get('/admin/course-enrollments', [CourseEnrollmentController::class, 'index'])->name('admin.course-enrollments.index');
+    Route::get('/admin/course-enrollments/{course}', [CourseEnrollmentController::class, 'show'])->name('admin.course-enrollments.show');
+    Route::get('/admin/course-enrollments/{course}/add', [CourseEnrollmentController::class, 'create'])->name('admin.course-enrollments.create');
+    Route::post('/admin/course-enrollments/{course}', [CourseEnrollmentController::class, 'store'])->name('admin.course-enrollments.store');
+    Route::delete('/admin/course-enrollments/{course}/remove', [CourseEnrollmentController::class, 'destroy'])->name('admin.course-enrollments.destroy');
 });
 
 
