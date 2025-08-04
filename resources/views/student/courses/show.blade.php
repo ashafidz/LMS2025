@@ -119,17 +119,17 @@
                                                                             class="load-lesson {{ $isLocked ? 'text-muted disabled' : 'text-dark' }}"
                                                                             data-lesson-id="{{ $lesson->id }}">
                                                                             @php
-                                                                                $icon = 'fa-file-text-o';
+                                                                                $icon = 'bi bi-file-text';
                                                                                 $type = strtolower(
                                                                                     class_basename(
                                                                                         $lesson->lessonable_type,
                                                                                     ),
                                                                                 );
                                                                                 if ($type === 'lessonvideo') {
-                                                                                    $icon = 'fa-play-circle';
+                                                                                    $icon = 'bi bi-collection-play';
                                                                                 }
                                                                                 if ($type === 'quiz') {
-                                                                                    $icon = 'fa-question-circle';
+                                                                                    $icon = 'bi bi-pencil-square';
                                                                                 }
                                                                                 if ($type === 'lessondocument') {
                                                                                     $icon = 'fa-file-pdf-o';
@@ -138,7 +138,10 @@
                                                                                     $icon = 'fa-link';
                                                                                 }
                                                                                 if ($type === 'lessonassignment') {
-                                                                                    $icon = 'fa-pencil-square-o';
+                                                                                    $icon = 'bi bi-clipboard2';
+                                                                                }
+                                                                                if ($type === 'lessonpoint') {
+                                                                                    $icon = 'bi bi-chat-left-quote';
                                                                                 }
                                                                             @endphp
                                                                             <i class="fa {{ $icon }} mr-2"></i>

@@ -48,14 +48,14 @@
                                     </li>
                                     <li class="{{ Request::routeIs('admin.publication.index') ? 'active' : '' }}">
                                         <a href="{{ route('admin.publication.index') }}" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-layers"></i><b>FC</b></span>
+                                            <span class="pcoded-micon"><i class="ti-file"></i><b>FC</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.form-components.main">Publikasi</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>
                                     <li class="{{ Request::routeIs('admin.coupons.index') ? 'active' : '' }}">
                                         <a href="{{ route('admin.coupons.index') }}" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-layers"></i><b>FC</b></span>
+                                            <span class="pcoded-micon"><i class="ti-ticket"></i><b>FC</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.form-components.main">Kupon</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
@@ -75,7 +75,7 @@
                                             {{-- menu level manajemen user instructor --}}
                                             <li class="pcoded-hasmenu">
                                                 <a href="javascript:void(0)" class="waves-effect waves-dark">
-                                                    <span class="pcoded-micon"><i class="ti-direction-alt"></i></span>
+                                                    <span class="pcoded-micon"><i class="ti-id-badge"></i></span>
                                                     <span class="pcoded-mtext"
                                                         data-i18n="nav.menu-levels.menu-level-22.main">User Instructor</span>
                                                     <span class="pcoded-mcaret"></span>
@@ -84,7 +84,7 @@
                                                     <li class="{{ Request::routeIs('admin.instructor-application.index') ? 'active' : '' }}">
                                                         <a href="{{ route('admin.instructor-application.index') }}" class="waves-effect waves-dark">
                                                             <span class="pcoded-micon"><i
-                                                                    class="ti-angle-right"></i></span>
+                                                                    class="ti-flag-alt"></i></span>
                                                             <span class="pcoded-mtext"
                                                                 data-i18n="nav.menu-levels.menu-level-22.menu-level-31">Status Instructor</span>
                                                             <span class="pcoded-mcaret"></span>

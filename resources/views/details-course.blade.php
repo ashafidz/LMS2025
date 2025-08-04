@@ -5,7 +5,7 @@
 @section('content')
 <section style="background: linear-gradient(to right, #ffffff, #e0edff);">
   <div class="container">
-    <div class="row align-items-center pt-5 pb-4">
+    <div class="row align-items-start pt-5 pb-4">
       <div class="col-md-8">
         <a href="{{ route('courses') }}" class="text-muted text-decoration-none d-inline-block mb-2">
           <i class="bi bi-chevron-left"></i> Kembali ke Katalog
@@ -121,7 +121,7 @@
               <div class="accordion-item border-0 mb-2 shadow-sm">
                 <h2 class="accordion-header" id="heading-{{ $module->id }}">
                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#materi-{{ $module->id }}">
-                    <i class="bi bi-collection-play me-2 text-primary"></i>
+                    <i class="bi bi-card-list me-2 text-dark"></i>
                     {{ $module->title }}
                   </button>
                 </h2>
@@ -133,21 +133,21 @@
                         @foreach ($module->lessons as $lesson)
                             @php
                               if ($lesson->lessonable_type === 'App\Models\LessonArticle') {
-                                $icon = 'fa-file-word';
+                                $icon = 'bi-file-text';
                               } elseif ($lesson->lessonable_type === 'App\Models\LessonVideo') {
-                                $icon = 'fa-video-camera';
+                                $icon = 'bi-collection-play';
                               } elseif ($lesson->lessonable_type === 'App\Models\LessonDocument') {
-                                $icon = 'fa-file-pdf-o';
+                                $icon = 'bi-file-earmark-pdf';
                               } elseif ($lesson->lessonable_type === 'App\Models\LessonLinkCollection') {
-                                $icon = 'fa-link';
+                                $icon = 'bi-folder2-open';
                               } elseif ($lesson->lessonable_type === 'App\Models\LessonAssignment') {
-                                $icon = 'fa-pencil-square-o';
+                                $icon = 'bi-pencil-square';
                               } 
                               elseif ($lesson->lessonable_type === 'App\Models\Quiz') {
-                                $icon = 'fa-question-circle';
+                                $icon = 'bi-clipboard2';
                               }
                               elseif ($lesson->lessonable_type === 'App\Models\LessonPoint') {
-                                $icon = 'fa-question-circle';
+                                $icon = 'bi-chat-left-quote';
                               }
                               else {
                                 $icon = 'fa-file-text-o';

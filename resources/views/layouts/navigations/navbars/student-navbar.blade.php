@@ -135,7 +135,7 @@
                         </li>
                         <li class="waves-effect waves-light">
                             <a href="{{ route('student.cart.index') }}">
-                                <i class="ti-user"></i> Keranjang
+                                <i class="ti-shopping-cart"></i> Keranjang
                             </a>
                         </li>
                         <li class="waves-effect waves-light">

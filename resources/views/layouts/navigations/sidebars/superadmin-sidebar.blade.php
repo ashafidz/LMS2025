@@ -48,14 +48,14 @@
                                     </li>
                                     <li class="{{ Request::routeIs('superadmin.publication.index') ? 'active' : '' }}">
                                         <a href="{{ route('superadmin.publication.index') }}" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-home"></i><b>D</b></span>
+                                            <span class="pcoded-micon"><i class="ti-file"></i><b>D</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.dash.main">Publikasi</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>
                                     <li class="{{ Request::routeIs('superadmin.coupons.index') ? 'active' : '' }}">
                                         <a href="{{ route('superadmin.coupons.index') }}" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-home"></i><b>D</b></span>
+                                            <span class="pcoded-micon"><i class="ti-ticket"></i><b>D</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.dash.main">Kupon</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>

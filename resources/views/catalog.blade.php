@@ -9,7 +9,7 @@
     <div class="container mt-5" data-aos="fade-up">
         <h2 class="display-6 fw-bold mb-3">Temukan Kursus Impianmu</h2>
         <div class="mx-auto mb-3" style="width: 50px; height: 4px; background-color: #0d6efd;"></div>
-        <p class="text-muted fs-5">Jelajahi berbagai pilihan kursus untuk meningkatkan keterampilan dan karier Anda.</p>
+        <p class="fs-6">Jelajahi berbagai pilihan kursus untuk meningkatkan keterampilan dan karier Anda.</p>
     </div>
 </section>
 
@@ -67,22 +67,26 @@
                                         <div class="card-body d-flex flex-column">
                                             <span class="badge bg-primary-subtle text-primary-emphasis align-self-start mb-2">{{ $course->category->name }}</span>
                                             <h5 class="card-title fw-bold text-dark flex-grow-1">{{ Str::limit($course->title, 50) }}</h5>
-                                            <p class="card-text text-muted mb-2">Oleh: {{ $course->instructor->name }}</p>
+                                            <p class="card-text text-muted mb-2">{{ $course->instructor->name }}</p>
 
                                             {{-- BAGIAN BARU: Menampilkan Rating --}}
                                             @if($course->reviews_count > 0)
                                             <div class="d-flex align-items-center mb-2">
-                                                <span class="fw-bold text-warning me-1">{{ number_format($course->reviews_avg_rating, 1) }}</span>
+                                                <span class="fw-bold text-warning me-1 fs-5">{{ number_format($course->reviews_avg_rating, 1) }}</span>
                                                 <i class="bi bi-star-fill text-warning me-2"></i>
-                                                <span class="text-muted fs-sm">({{ $course->reviews_count }} ulasan)</span>
+                                                <span class="fw-semibold" style="font-size: 1rem; color: #cc7000;">
+    ({{ $course->reviews_count }} ulasan)
+</span>
+
                                             </div>
                                             @else
                                             <div class="d-flex align-items-center mb-2">
                                                 <i class="bi bi-star text-muted me-2"></i>
-                                                <span class="text-muted fs-sm">Belum ada ulasan</span>
+                                                <span class="text-muted fs-6">Belum ada ulasan</span>
                                             </div>
                                             @endif
-                                            {{-- AKHIR BAGIAN BARU --}}
+                                            {{-- AKHIR BAGIAN BARU --}} 
+
 
                                         </div>
                                         <div class="card-footer bg-white border-0 pt-0">

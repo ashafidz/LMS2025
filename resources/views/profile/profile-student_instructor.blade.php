@@ -50,12 +50,9 @@
                             <h5>Informasi Personal</h5>
                         </div>
                         <div class="card-block">
-
                             <!-- Grid data pribadi -->
                             <div class="row mb-3">
                                 <div class="col-md-6 mb-3 d-flex">
-                                    <img src="{{ asset('assets/icon/profile/cake.svg') }}" class="img-20 mr-2"
-                                        alt="">
                                     <i class="fa fa-calendar text-lg mr-2"></i>
                                     <div>
                                         <p class="mb-1 font-weight-bold">Tanggal Lahir</p>
@@ -65,8 +62,6 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
-                                    <img src="{{ asset('assets/icon/profile/building.svg') }}" class="img-20 mr-2"
-                                        alt="">
                                     <i class="bi bi-building text-lg mr-2"></i>
                                     <div>
                                         <p class="mb-1 font-weight-bold">Pekerjaan / Profesi</p>
@@ -74,8 +69,6 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
-                                    <img src="{{ asset('assets/icon/profile/user.svg') }}" class="img-20 mr-2"
-                                        alt="">
                                     <i class="fa fa-intersex text-lg mr-2"></i>
                                     <div>
                                         <p class="mb-1 font-weight-bold">Gender</p>
@@ -83,8 +76,6 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
-                                    <img src="{{ asset('assets/icon/profile/building.svg') }}" class="img-20 mr-2"
-                                        alt="">
                                     <i class="fa fa-briefcase text-lg mr-2"></i>
                                     <div>
                                         <p class="mb-1 font-weight-bold">Headline</p>
@@ -92,8 +83,6 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
-                                    <img src="{{ asset('assets/icon/profile/home.svg') }}" class="img-20 mr-2"
-                                        alt="">
                                     <i class="fa fa-home text-lg mr-2"></i>
                                     <div>
                                         <p class="mb-1 font-weight-bold">Alamat</p>
@@ -101,8 +90,6 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
-                                    <img src="{{ asset('assets/icon/profile/website.svg') }}" class="img-20 mr-2"
-                                        alt="">
                                     <i class="bi bi-globe text-lg mr-2"></i>
                                     <div>
                                         <p class="mb-1 font-weight-bold">Website</p>
@@ -110,8 +97,6 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
-                                    <img src="{{ asset('assets/icon/profile/user-add.svg') }}" class="img-20 mr-2"
-                                        alt="">
                                     <i class="fa fa-user-plus text-lg mr-2"></i>
                                     <div>
                                         <p class="mb-1 font-weight-bold">Bergabung Pada</p>
@@ -119,44 +104,51 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
-                            <hr>
-                            <h6 class="text-primary font-weight-bold">Data Tambahan</h6>
-                            <p></p>
+                    <!-- Card Data Tambahan -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Data Tambahan</h5>
+                        </div>
+                        <div class="card-block">
+
+                            <!-- Grid data tambahan -->
                             <div class="row">
                                 <div class="col-md-6 d-flex">
                                     <i class="bi bi-building text-lg mr-2"></i>
                                     <div>
-                                        <p class="mb-1"><strong>Nama Perusahaan / Institusi Saat Ini</strong></p>
+                                        <p class="mb-1 font-weight-bold">Nama Perusahaan / Institusi Saat Ini</p>
                                         <p class="mb-3">{{ $profile->company_or_institution_name ?? '-' }}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-6 d-flex">
                                     <i class="bi bi-geo-alt-fill text-lg mr-2"></i>
                                     <div>
-                                        <p class="mb-1"><strong>Alamat Perusahaan</strong></p>
+                                        <p class="mb-1 font-weight-bold">Alamat Perusahaan</p>
                                         <p class="mb-3">{{ $profile->company_address ?? '-' }}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-6 d-flex">
                                     <i class="fa fa-file-text text-lg mr-2"></i>
                                     <div>
-                                        <p class="mb-1"><strong>No. NPWP Perusahaan</strong></p>
+                                        <p class="mb-1 font-weight-bold">No. NPWP Perusahaan</p>
                                         <p>{{ $profile->company_tax_id ?? '-' }}</p>
                                     </div>
                                 </div>
                                 <div class="col-md-6 d-flex">
                                     <i class="fa fa-file-text text-lg mr-2"></i>
                                     <div>
-                                        <p class="mb-1"><strong>NIM/NIP/NIDN</strong></p>
-                                        <p>{{ $profile->unique_id_number ?? '-' }}</p>
+                                        <p class="mb-1 font-weight-bold">NIM / NIP / NIDN</p>
+                                        <p>{{ $profile->nim ?? '-' }}</p>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
+                
 
                 <!-- Kolom Kontak (kanan) -->
                 <div class="col-xl-4 col-md-12 mb-4 ">
@@ -182,7 +174,7 @@
                                 
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span class="text-muted">{{ $user->phone_number ?? '-' }}</span>
-                                    <a href="#" class="text-primary small">✎</a>
+                    
                                 </div>
                             </div>
                             {{-- <div class="text-center mt-4">
@@ -195,15 +187,12 @@
                         </div>
                     </div>
 
-
-
-                    
                     <div class="mt-3 row g-2">
                         <div class="col-6">
-                            <a href="{{ route('user.profile.edit') }}" class="btn btn-outline-primary btn-sm w-100">Edit Profile</a>
+                            <a href="{{ route('user.profile.edit') }}" class="btn btn-primary btn-sm w-100">Edit Profile</a>
                         </div>
                         <div class="col-6">
-                            <a href="{{ route('user.password.edit') }}" class="btn btn-outline-primary btn-sm w-100">Ganti Password</a>
+                            <a href="{{ route('user.password.edit') }}" class="btn btn-primary btn-sm w-100">Ganti Password</a>
                         </div>
                     </div>
                 </div>
