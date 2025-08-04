@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Student;
 
-use App\Http\Controllers\Controller;
-use App\Models\Question;
 use App\Models\Quiz;
+use App\Models\Question;
 use App\Models\QuizAttempt;
+use App\Models\PointHistory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use App\Services\PointService;
 use App\Services\BadgeService;
+use App\Services\PointService;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class StudentQuizController extends Controller
 {
@@ -169,7 +170,7 @@ class StudentQuizController extends Controller
         return view('student.quizzes.take', [
             'attempt' => $attempt,
             'is_preview' => false,
-            'endTime' => $endTime ? $endTime->toIso8601String() : null // Kirim sebagai string ISO 8601
+            'endTime' => $endTime ? $endTime->toIso8601String() : null, // Kirim sebagai string ISO 8601
         ]);
     }
 
@@ -215,34 +216,97 @@ class StudentQuizController extends Controller
                 }
             }
             if (!$is_preview) {
+                // $maxPossibleScore = $attempt->quiz->questions->sum('score');
+                // $percentageScore = ($maxPossibleScore > 0) ? ($totalScore / $maxPossibleScore) * 100 : 0;
+                // $attempt->score = $totalScore;
+                // $newStatus = $percentageScore >= $attempt->quiz->pass_mark ? 'passed' : 'failed';
+
+                // // Cek apakah siswa sudah pernah lulus kuis ini sebelumnya
+                // $hasPassedBefore = $attempt->quiz->attempts()
+                //     ->where('student_id', Auth::id())
+                //     ->where('status', 'passed')
+                //     ->exists();
+
+
+                // $attempt->status = $percentageScore >= $attempt->quiz->pass_mark ? 'passed' : 'failed';
+                // $attempt->end_time = now();
+                // $attempt->save();
+
+
+                // $quizAllowExceedTimeLimit = $attempt->quiz->allow_exceed_time_limit;
+                // // is the user submitted quiz is exceeding time limit ?
+                // $quizExceededTimeLimit = $attempt->end_time > $attempt->start_time->addMinutes($attempt->quiz->time_limit);
+
+                // // if the quiz allowed to exceed time limit and user has exceeded time limit
+                // // user will be passed but will not get any points
+                // if ($quizAllowExceedTimeLimit && $quizExceededTimeLimit) {
+                // }
+
+
+                // // Berikan poin HANYA jika statusnya 'passed' DAN belum pernah lulus sebelumnya
+                // if ($newStatus === 'passed' && !$hasPassedBefore) {
+                //     PointService::addPoints(Auth::user(), $attempt->quiz->lesson, $attempt->quiz->lesson->module->course, 'pass_quiz', $attempt->quiz->title);
+                // }
+
+                // if ($newStatus === 'passed') {
+                //     $student = Auth::user();
+                //     $lesson = $attempt->quiz->lesson;
+                //     // Tandai pelajaran sebagai selesai untuk siswa ini
+                //     $student->completedLessons()->syncWithoutDetaching($lesson->id);
+
+                //     // call badge service untuk badge quiz
+                //     BadgeService::checkQuizCompletionBadges($student);
+                // }
+
+                // 1. Kalkulasi Skor dan Status Kelulusan (Tidak berubah)
                 $maxPossibleScore = $attempt->quiz->questions->sum('score');
                 $percentageScore = ($maxPossibleScore > 0) ? ($totalScore / $maxPossibleScore) * 100 : 0;
-                $attempt->score = $totalScore;
                 $newStatus = $percentageScore >= $attempt->quiz->pass_mark ? 'passed' : 'failed';
 
-                // Cek apakah siswa sudah pernah lulus kuis ini sebelumnya
-                $hasPassedBefore = $attempt->quiz->attempts()
-                    ->where('student_id', Auth::id())
-                    ->where('status', 'passed')
-                    ->exists();
-
-
-                $attempt->status = $percentageScore >= $attempt->quiz->pass_mark ? 'passed' : 'failed';
+                // 2. Set dan Simpan Hasil Attempt (Tidak berubah)
+                $attempt->score = $totalScore;
+                $attempt->status = $newStatus;
                 $attempt->end_time = now();
                 $attempt->save();
 
-                // Berikan poin HANYA jika statusnya 'passed' DAN belum pernah lulus sebelumnya
-                if ($newStatus === 'passed' && !$hasPassedBefore) {
+                // 3. Cek Kondisi Tambahan
+                $quizAllowExceedTimeLimit = (bool) $attempt->quiz->allow_exceed_time_limit;
+                $quizExceededTimeLimit = $attempt->end_time > $attempt->start_time->addMinutes($attempt->quiz->time_limit);
+
+
+                // Cek apakah siswa sudah pernah DAPAT POIN untuk lesson yang berisi kuis ini.
+                // Kita gunakan model PointHistory .
+                $hasEarnedPointsBefore = PointHistory::where('user_id', Auth::id())
+                    ->where('lesson_id', $attempt->quiz->lesson_id)
+                    ->exists();
+
+                // 4. Logika Pemberian Poin (dengan pengecekan yang sudah disesuaikan)
+                // Poin diberikan HANYA JIKA:
+                // a. Statusnya 'passed'
+                // b. Belum pernah dapat poin untuk lesson ini sebelumnya
+                // c. DAN TIDAK dalam kondisi lewat waktu
+                if (
+                    $newStatus === 'passed' &&
+                    !$hasEarnedPointsBefore && // <-- Menggunakan variabel baru dari pengecekan PointHistory
+                    !($quizAllowExceedTimeLimit && $quizExceededTimeLimit)
+                ) {
                     PointService::addPoints(Auth::user(), $attempt->quiz->lesson, $attempt->quiz->lesson->module->course, 'pass_quiz', $attempt->quiz->title);
+
+                    $student = Auth::user();
+                    $lesson = $attempt->quiz->lesson;
+
+                    // apabila lesson belum pernah dicomplete
+                    if (!$student->completedLessons->contains($attempt->quiz->lesson_id)) {
+                        // Tandai pelajaran sebagai selesai
+                        $student->completedLessons()->syncWithoutDetaching($lesson->id);
+                    }
                 }
 
+                // 5. Logika Setelah Lulus (Tidak berubah)
                 if ($newStatus === 'passed') {
                     $student = Auth::user();
                     $lesson = $attempt->quiz->lesson;
-                    // Tandai pelajaran sebagai selesai untuk siswa ini
-                    $student->completedLessons()->syncWithoutDetaching($lesson->id);
-
-                    // call badge service untuk badge quiz
+                    // Cek perolehan badge
                     BadgeService::checkQuizCompletionBadges($student);
                 }
             }

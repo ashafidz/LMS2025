@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const timerEl = document.getElementById('quiz-timer');
     // Ambil endTime dari server yang sudah kita kirim dari controller
     const endTimeISO = '{{ $endTime }}';
-    const allowExceedTime = {{ $attempt->quiz->allow_exceed_time ? 'true' : 'false' }};
+    const allowExceedTime = {{ $attempt->quiz->allow_exceed_time_limit ? 'true' : 'false' }};
     let timerInterval;
 
     function startPersistentTimer() {

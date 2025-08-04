@@ -44,6 +44,8 @@
                             {{ rtrim(rtrim($lastAttempt->score, '0'), '.') }}
                             @if($lastAttempt->status == 'passed')
                                 <span class="badge badge-success ml-2">Lulus</span>
+                            @elseif($lastAttempt->status == 'in_progress')
+                                <span class="badge badge-warning ml-2">Sedang Dikerjakan</span>
                             @else
                                 <span class="badge badge-danger ml-2">Gagal</span>
                             @endif
@@ -51,7 +53,17 @@
                     </li>
                 @endif
             @endif
+
+            <li class="list-group-item d-flex justify-content-between">
+                <span><i class="fa fa-clock-o mr-2"></i> Boleh Melebihi Batas Waktu</span>
+                <strong>{{ $lesson->lessonable->allow_exceed_time_limit == 1 ? 'Ya' : 'Tidak' }}</strong>
+            </li>
         </ul>
+        @if ($lesson->lessonable->allow_exceed_time_limit == 1)
+            <p class="mt-2 text-center text-danger">
+                Quiz ini boleh melebihi batas waktu, tetapi anda perlu menyelesaikan kuis sebelum waktu habis untuk mendapatkan poin dan dinyatakan selesai dalam lesson ini.
+            </p>
+        @endif
 
         {{-- Logika Tombol yang Diperbarui --}}
         <div class="text-center mt-4">
@@ -71,16 +83,22 @@
                 @endphp
 
                 {{-- Tombol "Lihat Hasil" akan selalu muncul jika sudah pernah mencoba --}}
-                @if(isset($lastAttempt) && $lastAttempt)
+                {{-- @if(isset($lastAttempt) && $lastAttempt)
                     <a href="{{ route('student.quiz.result', $lastAttempt->id) }}" class="btn btn-info btn-lg">Lihat Hasil Terakhir</a>
-                @endif
+                @endif --}}
 
                 {{-- Tombol "Mulai Kuis/Coba Lagi" hanya muncul jika masih ada kesempatan --}}
                 @if ($canAttempt)
-                    <a href="{{ route('student.quiz.start', $quiz->id) }}" class="btn btn-primary btn-lg">
-                        {{-- Ganti teks tombol jika sudah pernah mencoba --}}
-                        {{ $currentAttemptCount > 0 ? 'Coba Lagi' : 'Mulai Kuis' }}
-                    </a>
+                    @if (!isset($lastAttempt) || $lastAttempt->status != 'in_progress')
+                        <a href="{{ route('student.quiz.start', $quiz->id) }}" class="btn btn-primary btn-lg">
+                            {{-- Ganti teks tombol jika sudah pernah mencoba --}}
+                            {{ $currentAttemptCount > 0 ? 'Coba Lagi' : 'Mulai Kuis' }}
+                        </a>
+                    @else
+                        <a href="{{ route('student.quiz.start', $quiz->id) }}" class="btn btn-primary btn-lg">
+                            Lanjutkan
+                        </a>
+                    @endif
                 @elseif(!isset($lastAttempt))
                     {{-- Jika belum pernah mencoba tapi kesempatan habis (kasus aneh, tapi untuk jaga-jaga) --}}
                      <a href="{{ route('student.quiz.start', $quiz->id) }}" class="btn btn-primary btn-lg">Mulai Kuis</a>
