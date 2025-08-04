@@ -56,6 +56,20 @@ class CourseController extends Controller
             $currentCoursePoints = $courseUserPivot->pivot->points_earned ?? 0;
         }
 
+
+        // LOGIKA BARU: Cek apakah SEMUA pelajaran sudah selesai
+        $allLessonsCompleted = false;
+        if ($user && !$is_preview) {
+            $totalLessons = $course->lessons->count();
+            $completedLessonsCount = count($completedLessonIds);
+
+            // Tombol feedback aktif jika jumlah lesson yang selesai sama dengan total lesson
+            // dan total lesson lebih dari 0
+            if ($totalLessons > 0 && $completedLessonsCount >= $totalLessons) {
+                $allLessonsCompleted = true;
+            }
+        }
+
         // LOGIKA BARU: Cek kelayakan untuk sertifikat
         $isEligibleForCertificate = false;
         if ($user && !$is_preview) {
@@ -73,7 +87,7 @@ class CourseController extends Controller
         // $course->load(['modules' => fn($q) => $q->orderBy('order'), 'modules.lessons' => fn($q) => $q->orderBy('order')]);
 
         if ($is_preview || $is_enrolled) {
-            return view('student.courses.show', compact('course', 'is_preview', 'completedLessonIds', 'isEligibleForCertificate', 'currentCoursePoints'));
+            return view('student.courses.show', compact('course', 'is_preview', 'completedLessonIds', 'isEligibleForCertificate', 'currentCoursePoints', 'allLessonsCompleted'));
         } else {
             return view('details-course', compact('course', 'is_enrolled'));
         }

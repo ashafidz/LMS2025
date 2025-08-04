@@ -164,9 +164,14 @@
                                                 <button class="btn btn-outline-primary w-100 mb-2" id="load-leaderboard">
                                                     <i class="fa fa-bar-chart mr-2"></i> Leaderboard
                                                 </button>
-                                                <button class="btn btn-outline-primary w-100 mb-2" id="load-review-form">
-                                                    <i class="fa fa-star mr-2"></i> Feedback
-                                                </button>
+                                {{-- MODIFIKASI TOMBOL FEEDBACK DI SINI --}}
+                                <button class="btn btn-outline-primary w-100 mb-2" id="load-review-form" 
+                                        @if(!$allLessonsCompleted && !$is_preview) 
+                                            disabled 
+                                            title="Selesaikan semua pelajaran untuk memberikan feedback" 
+                                        @endif>
+                                    <i class="fa fa-star mr-2"></i> Feedback
+                                </button>
                                                 @if ($isEligibleForCertificate)
                                                     <button class="btn btn-outline-primary w-100 mb-2"
                                                         id="load-certificate-preview">
@@ -273,6 +278,10 @@
             console.log(isPreview);
             let completedLessons = @json($completedLessonIds);
 
+            // --- PERUBAHAN 1: Definisikan variabel yang dibutuhkan di scope atas ---
+            const reviewButton = document.getElementById('load-review-form');
+            const totalLessons = {{ $course->lessons->count() }}; // Ambil total pelajaran
+
             // --- FUNGSI UNTUK MEMUAT KONTEN PELAJARAN ---
             function loadLessonContent(lessonId) {
                 lessonTitleEl.innerText = 'Memuat...';
@@ -295,8 +304,8 @@
                                 const sidebarItem = document.getElementById(`sidebar-lesson-${lessonId}`);
                                 const lessonTypeIcon = sidebarItem.querySelector('i.fa');
                                 const isQuizOrAssignment = lessonTypeIcon.classList.contains(
-                                    'fa-question-circle') || lessonTypeIcon.classList.contains(
-                                    'fa-pencil-square-o');
+                                    'bi-pencil-square') || lessonTypeIcon.classList.contains(
+                                    'bi-clipboard2');
 
 
                                 if (!isQuizOrAssignment && !isPreview && !completedLessons.includes(parseInt(
@@ -333,7 +342,7 @@
             });
 
             // --- LOGIKA BARU UNTUK TOMBOL FEEDBACK ---
-            const reviewButton = document.getElementById('load-review-form');
+            // const reviewButton = document.getElementById('load-review-form');
             if (reviewButton) {
                 reviewButton.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -385,7 +394,21 @@
                                     sidebarItem.insertAdjacentHTML('beforeend',
                                         ' <i class="fa fa-check-circle text-success"></i>');
                                 }
+                                // Tambahkan lesson yg baru selesai ke array JS
                                 completedLessons.push(parseInt(lessonId));
+
+                                // --- PERUBAHAN 2: Logika untuk mengaktifkan tombol feedback secara dinamis ---
+                                // Cek apakah jumlah pelajaran yang selesai sudah sama dengan total pelajaran
+                                if (reviewButton && !isPreview && completedLessons.length >= totalLessons && totalLessons > 0) {
+                                    reviewButton.disabled = false;
+                                    reviewButton.removeAttribute('title');
+                                    // Opsional: berikan feedback visual bahwa tombolnya sudah aktif
+                                    reviewButton.classList.remove('btn-outline-primary');
+                                    reviewButton.classList.add('btn-success');
+                                    reviewButton.innerHTML = '<i class="fa fa-star mr-2"></i> Beri Feedback Sekarang!';
+                                }
+                                // --- AKHIR PERUBAHAN 2 ---
+                                
                             } else {
                                 alert(data.message || 'Gagal menandai pelajaran.');
                                 button.disabled = false;
