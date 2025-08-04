@@ -28,6 +28,15 @@ class Course extends Model
         'diamond_price', // Tambahkan ini
     ];
 
+
+    /**
+     * Mendapatkan semua topik soal yang terhubung dengan kursus ini.
+     */
+    public function questionTopics()
+    {
+        return $this->belongsToMany(QuestionTopic::class, 'course_question_topic');
+    }
+
     /**
      * Mendapatkan catatan poin (dari tabel pivot) yang terkait dengan kursus ini.
      */
