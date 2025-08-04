@@ -290,7 +290,14 @@ class StudentQuizController extends Controller
                     !$hasEarnedPointsBefore && // <-- Menggunakan variabel baru dari pengecekan PointHistory
                     !($quizAllowExceedTimeLimit && $quizExceededTimeLimit)
                 ) {
-                    PointService::addPoints(Auth::user(), $attempt->quiz->lesson, $attempt->quiz->lesson->module->course, 'pass_quiz', $attempt->quiz->title);
+                    // KODE BARU (Menggunakan Named Arguments, urutan tidak masalah)
+                    PointService::addPoints(
+                        user: Auth::user(),
+                        course: $attempt->quiz->lesson->module->course,
+                        activity: 'pass_quiz', // Jelas ini untuk 'activity'
+                        lesson: $attempt->quiz->lesson, // Jelas ini untuk 'lesson'
+                        description_meta: $attempt->quiz->title
+                    );
 
                     $student = Auth::user();
                     $lesson = $attempt->quiz->lesson;

@@ -54,9 +54,11 @@
           <li><a href="{{ url('/contact') }}">Kontak</a></li>
           <div class="d-flex flex-column d-xl-none">
             @auth
+              @if (session('active_role') == 'student')
               <a href="{{ url('/cart') }}" class="btn-cart">
                 Keranjang
               </a>
+              @endif
               @if (session('active_role') == 'superadmin')
                 <a class="" href="{{ route('superadmin.dashboard') }}">Dashboard</a>
               @elseif (session('active_role') == 'admin')
@@ -86,19 +88,21 @@
           @if (session('active_role') == 'student')
             <i class="fa fa-diamond text-primary d-block f-40"></i>
             <p class="mb-0 align-self-center text-primary">{{ number_format(Auth::user()->diamond_balance, 0, ',', '.') }}</p>
-          @endif
+
           <a href="{{ url('/cart') }}" class="btn-cart"
             onmouseover="this.firstElementChild.style.color='#0d6efd'"
             onmouseout="this.firstElementChild.style.color='black'">
             <i class="bi bi-cart" style="font-size: 1.4rem; color: black;"></i>
           </a>
-          @if (Auth::user()->hasRole('superadmin'))
+          @endif
+
+          @if (session('active_role') == 'superadmin')
             <a class="btn-getstarted ms-2" href="{{ route('superadmin.dashboard') }}">Dashboard</a>
-          @elseif (Auth::user()->hasRole('admin'))
+          @elseif (session('active_role') == 'admin')
             <a class="btn-getstarted ms-2" href="{{ route('admin.dashboard') }}">Dashboard</a>
-          @elseif (Auth::user()->hasRole('instructor') && Auth::user()->instructorProfile?->application_status === 'approved')
+          @elseif (session('active_role') == 'instructor' && Auth::user()->instructorProfile?->application_status === 'approved')
             <a class="btn-getstarted ms-2" href="{{ route('instructor.dashboard') }}">Dashboard</a>
-          @elseif (Auth::user()->hasRole('student'))
+          @elseif (session('active_role') == 'student')
             <a class="btn-getstarted ms-2" href="{{ route('student.dashboard') }}">Dashboard</a>
           @endif
         @endauth

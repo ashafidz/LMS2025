@@ -24,7 +24,7 @@ class LessonPointController extends Controller
         $student = \App\Models\User::find($validated['user_id']);
         $course = $lesson->module->course;
         $description = "Poin manual dari pelajaran: " . $lesson->title;
-        PointService::addManualPoints($student, $course, $validated['points'], $description);
+        PointService::addManualPoints($student, $course, $lesson, $validated['points'], $description);
         return back()->with('success', 'Poin berhasil diberikan kepada ' . $student->name);
     }
 }

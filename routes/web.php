@@ -38,6 +38,7 @@ use App\Http\Controllers\Instructor\InstructorLeaderboardController;
 use App\Http\Controllers\Shared\CourseEnrollmentController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Instructor\InstructorQuizController;
+use App\Http\Controllers\Student\DiamondConversionController;
 
 // Route::get('/neweditprofil', function () {
 //     return view('1edit-index');
@@ -505,5 +506,8 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
 
         // di dalam file routes/web.php RUTE LEADERBOARD MODULE
         Route::get('/modules/{module}/leaderboard', [StudentCourseController::class, 'getModuleLeaderboard'])->name('student.module.leaderboard');
+
+        // RUTE BARU UNTUK MENGONVERSI POIN
+        Route::post('/courses/{course}/convert-points', [DiamondConversionController::class, 'convert'])->name('student.course.convert_points');
     });
 });

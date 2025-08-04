@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\SiteSetting;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Cache;
 use App\Models\Question;
 use App\Models\QuestionTopic;
 use Illuminate\Support\Facades\Gate;
@@ -25,8 +28,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
-        // Gate::policy(QuestionTopic::class, QuestionTopicPolicy::class);
-        // Gate::policy(Question::class, QuestionPolicy::class);
+        // Gunakan caching agar tidak query ke database setiap kali halaman dimuat
+        $settings = Cache::rememberForever('site_settings', function () {
+            return SiteSetting::first();
+        });
+
+        // Kirim variabel $siteSettings ke semua view
+        View::share('siteSettings', $settings);
     }
 }

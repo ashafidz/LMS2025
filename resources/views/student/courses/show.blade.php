@@ -256,7 +256,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                         @if ($pointsData && !$pointsData->pivot->is_converted_to_diamond)
-                            <form action="#" method="POST"> {{-- Ganti action ke route konversi nanti --}}
+                            <form action="{{ route('student.course.convert_points', $course->id) }}" method="POST"> {{-- Ganti action ke route konversi nanti --}}
                                 @csrf
                                 <button type="submit" class="btn btn-primary">Konfirmasi & Konversi Poin</button>
                             </form>

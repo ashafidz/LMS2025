@@ -235,7 +235,13 @@ class CourseController extends Controller
             if ($lessonType === 'lessondocument') $activity = 'complete_document';
 
             if ($activity) {
-                PointService::addPoints($user, $lesson, $course,  $activity, $lesson->title);
+                PointService::addPoints(
+                    user: $user,
+                    course: $course,
+                    activity: $activity,
+                    lesson: $lesson,
+                    description_meta: $lesson->title
+                );
             }
         }
         return response()->json(['success' => true, 'message' => 'Pelajaran ditandai selesai.']);

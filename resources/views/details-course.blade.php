@@ -50,26 +50,32 @@
           
           {{-- Logika Tombol Aksi Dinamis --}}
           @auth
-            @if($is_enrolled)
-                <a href="{{ route('student.courses.show', $course->slug) }}" class="btn btn-success w-100 mt-3">Lanjutkan Belajar</a>
-            @else
-                @if($course->payment_type === 'money')
-                    <form action="{{ route('student.cart.add', $course->id) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-primary w-100 mt-3">Tambah ke Keranjang</button>
-                    </form>
-                @elseif($course->payment_type === 'diamonds')
-                    <form action="{{ route('student.courses.purchase_with_diamonds', $course->id) }}" method="POST" onsubmit="return confirm('Beli kursus ini dengan {{ $course->diamond_price }} diamond?');">
-                        @csrf
-                        <button type="submit" class="btn btn-info w-100 mt-3" {{ Auth::user()->diamond_balance < $course->diamond_price ? 'disabled' : '' }}>
-                            Beli dengan Diamond
-                        </button>
-                        @if(Auth::user()->diamond_balance < $course->diamond_price)
-                            <small class="form-text text-danger text-center d-block mt-1">Diamond Anda tidak cukup.</small>
-                        @endif
-                    </form>
+              @if (session('active_role') === 'student')
+                @if($is_enrolled)
+                    <a href="{{ route('student.courses.show', $course->slug) }}" class="btn btn-success w-100 mt-3">Lanjutkan Belajar</a>
+                @else
+                    @if($course->payment_type === 'money')
+                        <form action="{{ route('student.cart.add', $course->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-primary w-100 mt-3">Tambah ke Keranjang</button>
+                        </form>
+                    @elseif($course->payment_type === 'diamonds')
+                        <form action="{{ route('student.courses.purchase_with_diamonds', $course->id) }}" method="POST" onsubmit="return confirm('Beli kursus ini dengan {{ $course->diamond_price }} diamond?');">
+                            @csrf
+                            <button type="submit" class="btn btn-info w-100 mt-3" {{ Auth::user()->diamond_balance < $course->diamond_price ? 'disabled' : '' }}>
+                                Beli dengan Diamond
+                            </button>
+                            @if(Auth::user()->diamond_balance < $course->diamond_price)
+                                <small class="form-text text-danger text-center d-block mt-1">Diamond Anda tidak cukup.</small>
+                            @endif
+                        </form>
+                    @endif
                 @endif
-            @endif
+              @else
+                <button class="btn btn-primary w-100 mt-3 disabled">
+                  Hanya Siswa yang Bisa Mendaftar
+                </button>
+              @endif
           @else
             <a href="{{ route('login') }}" class="btn btn-primary w-100 mt-3">Login untuk Mendaftar</a>
           @endauth

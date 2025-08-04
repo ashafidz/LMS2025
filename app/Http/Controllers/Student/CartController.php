@@ -90,7 +90,7 @@ class CartController extends Controller
             'course_id' => $course->id,
         ]);
 
-        return back()->with('success', 'Kursus berhasil ditambahkan ke keranjang.');
+        return redirect('/cart')->with('success', 'Kursus berhasil ditambahkan ke keranjang.');
     }
 
     /**

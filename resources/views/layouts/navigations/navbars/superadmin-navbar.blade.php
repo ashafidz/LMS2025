@@ -15,8 +15,8 @@
                     </div>
                 </div>
             </div>
-            <a href="index.html">
-                <img class="img-fluid" src="assets/images/logo.png" alt="Theme-Logo" />
+            <a href="{{ route('home') }}">
+                <img class="img-fluid" src="{{ $siteSettings->logo_path ? asset('storage/' . $siteSettings->logo_path) : 'https://placehold.co/100x40/EBF4FF/767676?text=LOGO' }}" alt="Logo {{ $siteSettings->name }}" />
             </a>
             <a class="mobile-options waves-effect waves-light">
                 <i class="ti-more"></i>

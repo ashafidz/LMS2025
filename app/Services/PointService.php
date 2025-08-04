@@ -20,7 +20,76 @@ class PointService
      * @param string|null $description_meta Informasi tambahan (misal: nama pelajaran).
      * @return void
      */
-    public static function addPoints(User $user, Lesson $lesson, Course $course, string $activity, $description_meta = null)
+    // public static function addPoints(User $user, Lesson $lesson, Course $course, string $activity, $description_meta = null)
+    // {
+    //     // Ambil pengaturan poin dari database (menggunakan cache untuk efisiensi)
+    //     $settings = cache()->remember('site_settings', now()->addMinutes(60), function () {
+    //         return SiteSetting::firstOrFail();
+    //     });
+
+    //     $pointsToAdd = 0;
+    //     $description = '';
+    //     $course = $lesson->module->course;
+
+    //     switch ($activity) {
+    //         case 'purchase':
+    //             $pointsToAdd = $settings->points_for_purchase;
+    //             $description = 'Membeli kursus: ' . $course->title;
+    //             break;
+    //         case 'complete_article':
+    //             $pointsToAdd = $settings->points_for_article;
+    //             $description = 'Menyelesaikan artikel: ' . $description_meta;
+    //             break;
+    //         case 'complete_video':
+    //             $pointsToAdd = $settings->points_for_video;
+    //             $description = 'Menyelesaikan video: ' . $description_meta;
+    //             break;
+    //         case 'complete_document':
+    //             $pointsToAdd = $settings->points_for_document;
+    //             $description = 'Menyelesaikan dokumen: ' . $description_meta;
+    //             break;
+    //         case 'pass_quiz':
+    //             $pointsToAdd = $settings->points_for_quiz;
+    //             $description = 'Lulus kuis: ' . $description_meta;
+    //             break;
+    //         case 'pass_assignment':
+    //             $pointsToAdd = $settings->points_for_assignment;
+    //             $description = 'Lulus tugas: ' . $description_meta;
+    //             break;
+    //     }
+
+    //     if ($pointsToAdd > 0) {
+    //         DB::transaction(function () use ($user, $course, $lesson, $pointsToAdd, $description) {
+    //             // 1. Buat atau update total poin di tabel pivot course_user
+    //             // $courseUser = $user->coursePoints()->where('course_id', $course->id)->first();
+    //             // if ($courseUser) {
+    //             //     $courseUser->increment('points_earned', $pointsToAdd);
+    //             // } else {
+    //             //     $user->coursePoints()->attach($course->id, ['points_earned' => $pointsToAdd]);
+    //             // }
+    //             CourseUser::updateOrCreate(
+    //                 [
+    //                     'user_id' => $user->id,
+    //                     'course_id' => $course->id
+    //                 ],
+    //                 [
+    //                     'points_earned' => DB::raw('points_earned + ' . $pointsToAdd)
+    //                 ]
+    //             );
+
+    //             // 2. Buat catatan di riwayat poin
+    //             $user->pointHistories()->create([
+    //                 'course_id' => $course->id,
+    //                 'points' => $pointsToAdd,
+    //                 'lesson_id' => $lesson->id ?? null,
+    //                 'description' => $description,
+    //             ]);
+    //         });
+    //     }
+    // }
+
+
+    public static function addPoints(User $user, Course $course, string $activity, ?Lesson $lesson = null, $description_meta = null)
     {
         // Ambil pengaturan poin dari database (menggunakan cache untuk efisiensi)
         $settings = cache()->remember('site_settings', now()->addMinutes(60), function () {
@@ -29,7 +98,9 @@ class PointService
 
         $pointsToAdd = 0;
         $description = '';
-        $course = $lesson->module->course;
+
+        // !! DIHAPUS: Baris ini tidak lagi diperlukan dan menyebabkan error jika $lesson null.
+        // $course = $lesson->module->course;
 
         switch ($activity) {
             case 'purchase':
@@ -61,12 +132,6 @@ class PointService
         if ($pointsToAdd > 0) {
             DB::transaction(function () use ($user, $course, $lesson, $pointsToAdd, $description) {
                 // 1. Buat atau update total poin di tabel pivot course_user
-                // $courseUser = $user->coursePoints()->where('course_id', $course->id)->first();
-                // if ($courseUser) {
-                //     $courseUser->increment('points_earned', $pointsToAdd);
-                // } else {
-                //     $user->coursePoints()->attach($course->id, ['points_earned' => $pointsToAdd]);
-                // }
                 CourseUser::updateOrCreate(
                     [
                         'user_id' => $user->id,
@@ -81,7 +146,8 @@ class PointService
                 $user->pointHistories()->create([
                     'course_id' => $course->id,
                     'points' => $pointsToAdd,
-                    'lesson_id' => $lesson->id ?? null,
+                    // !! DIPERBAIKI: Menggunakan nullsafe operator `?->` untuk keamanan
+                    'lesson_id' => $lesson?->id,
                     'description' => $description,
                 ]);
             });
