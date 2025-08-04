@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Traits\HasLocalDates;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class InstructorProfile extends Model
 {
+    use HasLocalDates;
     protected $fillable = [
         'user_id',
         'headline',

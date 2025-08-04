@@ -162,12 +162,29 @@ class CourseController extends Controller
 
             $data['minimumScore'] = $data['maxScore'] * ($quiz->pass_mark / 100);
 
-            // LOGIKA BARU: Ambil riwayat kuis siswa & hitung total skor
+            // // LOGIKA BARU: Ambil riwayat kuis siswa & hitung total skor
+            // if ($user && !$is_preview_for_view) {
+            //     $quizAttempts = $quiz->attempts()->where('student_id', $user->id)->get();
+            //     $data['attemptCount'] = $quizAttempts->count();
+            //     $data['lastAttempt'] = $quizAttempts->last();
+            // }
+
+            // LOGIKA YANG DIPERBARUI
             if ($user && !$is_preview_for_view) {
-                $quizAttempts = $quiz->attempts()->where('student_id', $user->id)->get();
-                $data['attemptCount'] = $quizAttempts->count();
-                $data['lastAttempt'] = $quizAttempts->last();
+                // Ambil SEMUA percobaan, urutkan dari yang paling awal (asc)
+                $allAttempts = $quiz->attempts()
+                    ->where('student_id', $user->id)
+                    ->orderBy('created_at', 'asc') // Diubah ke 'asc'
+                    ->get();
+
+                $data['allAttempts'] = $allAttempts; // Kirim semua percobaan
+                $data['attemptCount'] = $allAttempts->count();
+                $data['lastAttempt'] = $allAttempts->last(); // Ambil yang terakhir dari koleksi
             }
+            // AKHIR LOGIKA YANG DIPERBARUI
+
+
+
         } elseif ($lessonType === 'lessonpoint') {
             // Pastikan nama file Anda adalah '_lessonpoint.blade.php' (tanpa s)
             $viewName = 'instructor.lessons.previews._lessonpoint';

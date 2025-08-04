@@ -13,9 +13,13 @@
                     </div>
                     <div class="col-md-4">
                         <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $module->course) }}">Modul</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $module) }}">{{ Str::limit($module->title, 20) }}</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i
+                                        class="fa fa-home"></i></a></li>
+                            <li class="breadcrumb-item"><a
+                                    href="{{ route('instructor.courses.modules.index', $module->course) }}">Modul</a></li>
+                            <li class="breadcrumb-item"><a
+                                    href="{{ route('instructor.modules.lessons.index', $module) }}">{{ Str::limit($module->title, 20) }}</a>
+                            </li>
                             <li class="breadcrumb-item"><a href="#!">Buat Kuis</a></li>
                         </ul>
                     </div>
@@ -31,10 +35,12 @@
                                 <div class="card">
                                     <div class="card-header">
                                         <h5>Detail Pelajaran Kuis</h5>
-                                        <span>Isi detail untuk pelajaran baru Anda. Setelah kuis dibuat, Anda dapat menambahkan soal.</span>
+                                        <span>Isi detail untuk pelajaran baru Anda. Setelah kuis dibuat, Anda dapat
+                                            menambahkan soal.</span>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.modules.lessons.store', $module) }}" method="POST">
+                                        <form action="{{ route('instructor.modules.lessons.store', $module) }}"
+                                            method="POST">
                                             @csrf
                                             <input type="hidden" name="lesson_type" value="quiz">
 
@@ -42,7 +48,9 @@
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Judul Pelajaran</label>
                                                 <div class="col-sm-9">
-                                                    <input type="text" name="title" class="form-control" value="{{ old('title') }}" required placeholder="Contoh: Kuis 1 - Dasar-dasar PHP">
+                                                    <input type="text" name="title" class="form-control"
+                                                        value="{{ old('title') }}" required
+                                                        placeholder="Contoh: Kuis 1 - Dasar-dasar PHP">
                                                 </div>
                                             </div>
 
@@ -52,25 +60,32 @@
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Judul Kuis</label>
                                                 <div class="col-sm-9">
-                                                    <input type="text" name="quiz_title" class="form-control" value="{{ old('quiz_title') }}" required placeholder="Contoh: Ujian Pemahaman Dasar PHP">
+                                                    <input type="text" name="quiz_title" class="form-control"
+                                                        value="{{ old('quiz_title') }}" required
+                                                        placeholder="Contoh: Ujian Pemahaman Dasar PHP">
                                                 </div>
                                             </div>
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Deskripsi Kuis (Opsional)</label>
                                                 <div class="col-sm-9">
-                                                    <textarea rows="3" name="quiz_description" class="form-control" placeholder="Jelaskan instruksi atau topik yang dicakup dalam kuis ini...">{{ old('quiz_description') }}</textarea>
+                                                    <textarea rows="3" name="quiz_description" class="form-control"
+                                                        placeholder="Jelaskan instruksi atau topik yang dicakup dalam kuis ini...">{{ old('quiz_description') }}</textarea>
                                                 </div>
                                             </div>
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Nilai Kelulusan (%)</label>
                                                 <div class="col-sm-9">
-                                                    <input type="number" name="pass_mark" class="form-control" value="{{ old('pass_mark', 75) }}" required min="0" max="100">
+                                                    <input type="number" name="pass_mark" class="form-control"
+                                                        value="{{ old('pass_mark', 75) }}" required min="0"
+                                                        max="100">
                                                 </div>
                                             </div>
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Batas Waktu (Menit)</label>
                                                 <div class="col-sm-9">
-                                                    <input type="number" name="time_limit" class="form-control" value="{{ old('time_limit') }}" min="1" placeholder="Kosongkan jika tidak ada batas waktu">
+                                                    <input type="number" name="time_limit" class="form-control"
+                                                        value="{{ old('time_limit') }}" min="1"
+                                                        placeholder="Kosongkan jika tidak ada batas waktu">
                                                 </div>
                                             </div>
 
@@ -80,28 +95,71 @@
                                                 <div class="col-sm-9">
                                                     <div class="form-check form-switch">
                                                         <input type="hidden" name="allow_exceed_time_limit" value="0">
-                                                        <input class="form-check-input" type="checkbox" name="allow_exceed_time_limit" value="1" id="allowExceedTime" {{ old('allow_exceed_time_limit') ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="allowExceedTime">Izinkan siswa tetap mengirim jawaban setelah waktu habis (tidak akan mendapat poin).</label>
+                                                        <input class="form-check-input" type="checkbox"
+                                                            name="allow_exceed_time_limit" value="1"
+                                                            id="allowExceedTime"
+                                                            {{ old('allow_exceed_time_limit') ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="allowExceedTime">Izinkan siswa
+                                                            tetap mengirim jawaban setelah waktu habis (tidak akan mendapat
+                                                            poin).</label>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                                                                        {{-- BAGIAN BARU: Toggle untuk tampilkan jawaban --}}
+                                            {{-- BAGIAN BARU: Toggle untuk tampilkan jawaban --}}
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Opsi Hasil Kuis</label>
                                                 <div class="col-sm-9">
                                                     <div class="form-check form-switch">
                                                         <input type="hidden" name="reveal_answers" value="0">
-                                                        <input class="form-check-input" type="checkbox" name="reveal_answers" value="1" id="revealAnswers" checked>
-                                                        <label class="form-check-label" for="revealAnswers">Tampilkan rincian jawaban (benar/salah) kepada siswa di halaman hasil.</label>
+                                                        <input class="form-check-input" type="checkbox"
+                                                            name="reveal_answers" value="1" id="revealAnswers"
+                                                            checked>
+                                                        <label class="form-check-label" for="revealAnswers">Tampilkan
+                                                            rincian jawaban (benar/salah) kepada siswa di halaman
+                                                            hasil.</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            {{-- BAGIAN BARU: Batas Pengerjaan --}}
+                                            <div class="form-group row">
+                                                <label class="col-sm-3 col-form-label">Batas Pengerjaan</label>
+                                                <div class="col-sm-9">
+                                                    <div class="form-radio">
+                                                        <div class="radio radio-inline">
+                                                            <label>
+                                                                <input type="radio" name="attempt_limit_type"
+                                                                    value="unlimited" checked
+                                                                    onchange="toggleMaxAttempts(this.value)">
+                                                                <i class="helper"></i>Tanpa Batas
+                                                            </label>
+                                                        </div>
+                                                        <div class="radio radio-inline">
+                                                            <label>
+                                                                <input type="radio" name="attempt_limit_type"
+                                                                    value="limited"
+                                                                    onchange="toggleMaxAttempts(this.value)">
+                                                                <i class="helper"></i>Dibatasi
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div id="max-attempts-container" style="display: none;"
+                                                        class="mt-2">
+                                                        <input type="number" name="max_attempts" class="form-control"
+                                                            placeholder="Masukkan jumlah percobaan, misal: 3"
+                                                            min="1">
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div class="form-group row mt-4">
                                                 <div class="col-sm-12 text-right">
-                                                    <a href="{{ route('instructor.modules.lessons.index', $module) }}" class="btn btn-secondary">Batal</a>
-                                                    <button type="submit" class="btn btn-primary">Simpan & Lanjutkan</button>
+                                                    <a href="{{ route('instructor.modules.lessons.index', $module) }}"
+                                                        class="btn btn-secondary">Batal</a>
+                                                    <button type="submit" class="btn btn-primary">Simpan &
+                                                        Lanjutkan</button>
                                                 </div>
                                             </div>
                                         </form>
@@ -115,3 +173,21 @@
         </div>
     </div>
 @endsection
+
+
+@push('scripts')
+<script>
+    function toggleMaxAttempts(value) {
+        const container = document.getElementById('max-attempts-container');
+        const input = container.querySelector('input');
+        if (value === 'limited') {
+            container.style.display = 'block';
+            input.required = true;
+        } else {
+            container.style.display = 'none';
+            input.required = false;
+            input.value = ''; // Kosongkan nilainya
+        }
+    }
+</script>
+@endpush

@@ -87,6 +87,7 @@ class LessonController extends Controller
                         'time_limit' => 'nullable|integer|min:1',
                         'allow_exceed_time_limit' => 'required|boolean',
                         'reveal_answers' => 'required|boolean',
+                        'max_attempts' => 'nullable|integer|min:1',
                     ]);
                     $lessonable = Quiz::create([
                         'title' => $validated['quiz_title'],
@@ -95,6 +96,7 @@ class LessonController extends Controller
                         'time_limit' => $validated['time_limit'],
                         'allow_exceed_time_limit' => $validated['allow_exceed_time_limit'],
                         'reveal_answers' => $validated['reveal_answers'],
+                        'max_attempts' => $validated['max_attempts'],
 
                     ]);
                     break;
@@ -202,6 +204,7 @@ class LessonController extends Controller
                         'time_limit' => 'nullable|integer|min:1',
                         'allow_exceed_time_limit' => 'required|boolean',
                         'reveal_answers' => 'required|boolean',
+                        'max_attempts' => 'nullable|integer|min:1',
                     ]);
                     $lessonable->update([
                         'title' => $validated['quiz_title'],
@@ -210,6 +213,7 @@ class LessonController extends Controller
                         'time_limit' => $validated['time_limit'],
                         'allow_exceed_time_limit' => $validated['allow_exceed_time_limit'],
                         'reveal_answers' => $validated['reveal_answers'],
+                        'max_attempts' => $validated['max_attempts'],
                     ]);
                     break;
 

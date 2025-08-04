@@ -26,16 +26,38 @@ class StudentQuizController extends Controller
             }
         };
 
-        // cari percobaan terakhir apakah student ini sudah pernah mengerjakan dan lulus
-        $lastAttempt = QuizAttempt::where('student_id', $student->id)
-            ->where('quiz_id', $quiz->id)
-            ->where('status', 'passed')
-            ->orderBy('created_at', 'desc')
-            ->first();
+        $quiz->loadCount('questions');
+        $is_preview = $request->query('preview') === 'true' && Auth::check();
 
-        if ($lastAttempt) {
-            return redirect()->route('student.quiz.result', $lastAttempt->id);
+        // Hitung percobaan yang sudah dilakukan
+        $attemptCount = 0;
+        if (Auth::check() && !$is_preview) {
+            $attemptCount = $student->quizAttempts()->where('quiz_id', $quiz->id)->count();
         }
+
+
+        // Cari percobaan terakhir (baik lulus maupun gagal) untuk ditampilkan di view jika ada
+        $lastAttempt = null; // DIUBAH: Inisialisasi sebagai null
+        if (Auth::check() && !$is_preview) { // DIUBAH: Tambahkan pengecekan ini
+            $lastAttempt = QuizAttempt::where('student_id', $student->id)
+                ->where('quiz_id', $quiz->id)
+                ->orderBy('created_at', 'desc')
+                ->first();
+        }
+
+        // ! logic untuk redirect paksa setelah lulus
+        // // cari percobaan terakhir apakah student ini sudah pernah mengerjakan dan lulus
+        // $lastAttempt = QuizAttempt::where('student_id', $student->id)
+        //     ->where('quiz_id', $quiz->id)
+        //     ->where('status', 'passed')
+        //     ->orderBy('created_at', 'desc')
+        //     ->first();
+
+        // if ($lastAttempt) {
+        //     return redirect()->route('student.quiz.result', $lastAttempt->id);
+        // }
+
+
 
         // Cari percobaan (attempt) yang sedang berlangsung untuk kuis ini oleh siswa yang login.
         $existingAttempt = QuizAttempt::where('quiz_id', $quiz->id)
@@ -50,9 +72,9 @@ class StudentQuizController extends Controller
         }
 
 
-        $quiz->loadCount('questions');
-        $is_preview = $request->query('preview') === 'true' && Auth::check();
-        return view('student.quizzes.start', compact('quiz', 'is_preview'));
+        // $quiz->loadCount('questions');
+        // $is_preview = $request->query('preview') === 'true' && Auth::check();
+        return view('student.quizzes.start', compact('quiz', 'is_preview', 'attemptCount', 'lastAttempt'));
     }
 
     public function begin(Request $request, Quiz $quiz)
@@ -65,6 +87,16 @@ class StudentQuizController extends Controller
                 abort(403, 'Anda tidak terdaftar di kursus ini.');
             }
         };
+
+
+        // LOGIKA BARU: Cek batas pengerjaan sebelum memulai
+        $user = Auth::user();
+        if ($quiz->max_attempts) {
+            $attemptCount = $user->quizAttempts()->where('quiz_id', $quiz->id)->count();
+            if ($attemptCount >= $quiz->max_attempts) {
+                return redirect()->route('student.quiz.start', $quiz)->with('error', 'Anda telah mencapai batas maksimal pengerjaan untuk kuis ini.');
+            }
+        }
 
         // Cari percobaan (attempt) yang sedang berlangsung untuk kuis ini oleh siswa yang login.
         $existingAttempt = QuizAttempt::where('quiz_id', $quiz->id)

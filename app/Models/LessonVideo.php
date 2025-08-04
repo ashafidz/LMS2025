@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\HasLocalDates;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class LessonVideo extends Model
 {
     use HasFactory;
+    use HasLocalDates;
 
     /**
      * Atribut yang dapat diisi secara massal.

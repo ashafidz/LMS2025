@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasLocalDates;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class LessonDiscussion extends Model
 {
     use HasFactory;
+    use HasLocalDates;
 
     protected $fillable = ['lesson_id', 'user_id', 'parent_id', 'content', 'is_deleted'];
 

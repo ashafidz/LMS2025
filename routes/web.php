@@ -36,6 +36,8 @@ use App\Http\Controllers\Student\GamificationController;
 use App\Http\Controllers\Student\DiamondPurchaseController;
 use App\Http\Controllers\Instructor\InstructorLeaderboardController;
 use App\Http\Controllers\Shared\CourseEnrollmentController;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Instructor\InstructorQuizController;
 
 // Route::get('/neweditprofil', function () {
 //     return view('1edit-index');
@@ -44,6 +46,21 @@ use App\Http\Controllers\Shared\CourseEnrollmentController;
 //     return view('1student');
 // });
 
+Route::post('/set-timezone', function (Request $request) {
+    $request->validate(['timezone' => 'required|string']);
+
+    // Simpan ke session (untuk tamu atau fallback)
+    session(['user_timezone' => $request->timezone]);
+
+    // JIKA USER LOGIN, SIMPAN JUGA KE DATABASE
+    if (Auth::check()) {
+        $user = Auth::user();
+        $user->timezone = $request->timezone;
+        $user->save();
+    }
+
+    return response()->json(['status' => 'success']);
+});
 
 
 Route::get('/switch-role/{role}', [RoleSwitchController::class, 'switch'])->name('role.switch');
@@ -333,6 +350,13 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         // --- RUTE BARU UNTUK LEADERBOARD INSTRUKTUR ---
         Route::get('/instructor/courses/{course}/leaderboard', [InstructorLeaderboardController::class, 'courseLeaderboard'])->name('instructor.course.leaderboard');
         Route::get('/instructor/modules/{module}/leaderboard', [InstructorLeaderboardController::class, 'moduleLeaderboard'])->name('instructor.module.leaderboard');
+
+
+        // Halaman untuk menampilkan daftar semua hasil/percobaan untuk sebuah kuis
+        Route::get('/instructor/quizzes/{quiz}/results', [InstructorQuizController::class, 'showResults'])->name('instructor.quiz.results');
+
+        // Halaman untuk mereview jawaban detail dari satu percobaan kuis
+        Route::get('/instructor/quiz-attempts/{attempt}/review', [InstructorQuizController::class, 'reviewAttempt'])->name('instructor.quiz.review_attempt');
     });
 });
 

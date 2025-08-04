@@ -7,22 +7,24 @@
             {!! nl2br(e($lesson->lessonable->description)) !!}
         </p>
         <ul class="list-group list-group-flush">
-            {{-- Informasi Kuis (Jumlah Soal, Skor, Waktu, dll.) --}}
             <li class="list-group-item d-flex justify-content-between">
                 <span><i class="fa fa-question-circle-o mr-2"></i> Jumlah Soal</span>
                 <strong>{{ $lesson->lessonable->questions->count() }} soal</strong>
             </li>
+
+            {{-- BARIS BARU: Menampilkan Total Skor Maksimal --}}
             @if(isset($maxScore))
             <li class="list-group-item d-flex justify-content-between">
                 <span><i class="fa fa-trophy mr-2"></i> Total Skor Maksimal</span>
                 <strong>{{ $maxScore }} poin</strong>
             </li>
             @endif
+
             <li class="list-group-item d-flex justify-content-between">
                 <span><i class="fa fa-check-square-o mr-2"></i> Nilai Kelulusan</span>
                 <strong>{{ $lesson->lessonable->pass_mark }}%</strong>
             </li>
-             <li class="list-group-item d-flex justify-content-between">
+            <li class="list-group-item d-flex justify-content-between">
                 <span><i class="fa fa-check-square-o mr-2"></i> Nilai Minimum</span>
                 <strong>{{ $minimumScore }}</strong>
             </li>
@@ -30,14 +32,13 @@
                 <span><i class="fa fa-clock-o mr-2"></i> Batas Waktu</span>
                 <strong>{{ $lesson->lessonable->time_limit ? $lesson->lessonable->time_limit . ' menit' : 'Tidak ada' }}</strong>
             </li>
-
-            {{-- Informasi Percobaan (Hanya untuk Siswa) --}}
-            @if(!$is_preview && isset($attemptCount))
+            
+            @if(isset($attemptCount))
                 <li class="list-group-item d-flex justify-content-between">
-                    <span><i class="fa fa-repeat mr-2"></i> Kesempatan Anda</span>
-                    <strong>{{ $attemptCount }} / {{ $lesson->lessonable->max_attempts ?? '∞' }}</strong>
+                    <span><i class="fa fa-repeat mr-2"></i> Jumlah Percobaan</span>
+                    <strong>{{ $attemptCount }} kali</strong>
                 </li>
-                @if(isset($lastAttempt) && $lastAttempt)
+                @if($lastAttempt)
                     <li class="list-group-item d-flex justify-content-between">
                         <span><i class="fa fa-star mr-2"></i> Skor Terakhir Anda</span>
                         <strong>
@@ -52,50 +53,24 @@
                 @endif
             @endif
         </ul>
-
-        {{-- Logika Tombol yang Diperbarui --}}
         <div class="text-center mt-4">
             @if($is_preview)
-                {{-- Tombol untuk mode pratinjau (Admin/Instruktur) --}}
+                {{-- Tombol untuk mode pratinjau --}}
                 <a href="{{ route('student.quiz.start', ['quiz' => $lesson->lessonable->id, 'preview' => 'true']) }}" class="btn btn-primary btn-lg">
                     Mulai Kuis (Preview)
                 </a>
             @else
-                {{-- Logika untuk siswa biasa --}}
-                @php
-                    $quiz = $lesson->lessonable;
-                    // Pastikan attemptCount ada, jika tidak, anggap 0
-                    $currentAttemptCount = $attemptCount ?? 0;
-                    // Cek apakah siswa masih punya kesempatan
-                    $canAttempt = is_null($quiz->max_attempts) || $currentAttemptCount < $quiz->max_attempts;
-                @endphp
-
-                {{-- Tombol "Lihat Hasil" akan selalu muncul jika sudah pernah mencoba --}}
-                @if(isset($lastAttempt) && $lastAttempt)
-                    <a href="{{ route('student.quiz.result', $lastAttempt->id) }}" class="btn btn-info btn-lg">Lihat Hasil Terakhir</a>
-                @endif
-
-                {{-- Tombol "Mulai Kuis/Coba Lagi" hanya muncul jika masih ada kesempatan --}}
-                @if ($canAttempt)
-                    <a href="{{ route('student.quiz.start', $quiz->id) }}" class="btn btn-primary btn-lg">
-                        {{-- Ganti teks tombol jika sudah pernah mencoba --}}
-                        {{ $currentAttemptCount > 0 ? 'Coba Lagi' : 'Mulai Kuis' }}
-                    </a>
-                @elseif(!isset($lastAttempt))
-                    {{-- Jika belum pernah mencoba tapi kesempatan habis (kasus aneh, tapi untuk jaga-jaga) --}}
-                     <a href="{{ route('student.quiz.start', $quiz->id) }}" class="btn btn-primary btn-lg">Mulai Kuis</a>
+                {{-- Tombol untuk siswa biasa --}}
+                @if(isset($lastAttempt) && $lastAttempt->status == 'passed')
+                    <a href="{{ route('student.quiz.result', $lastAttempt->id) }}" class="btn btn-info btn-lg">Lihat Hasil</a>
+                    {{-- Opsional: tambahkan tombol coba lagi jika diizinkan --}}
+                    {{-- <a href="{{ route('student.quiz.start', $lesson->lessonable->id) }}" class="btn btn-primary btn-lg">Coba Lagi</a> --}}
                 @else
-                     {{-- Tampilkan pesan jika kesempatan sudah habis dan sudah pernah mencoba --}}
-                     <p class="text-danger mt-2">Anda telah mencapai batas maksimal pengerjaan.</p>
+                    <a href="{{ route('student.quiz.start', $lesson->lessonable->id) }}" class="btn btn-primary btn-lg">
+                        Mulai Kuis
+                    </a>
                 @endif
-
             @endif
         </div>
     </div>
 </div>
-
-
-{{-- TAMBAHKAN KODE DI BAWAH INI --}}
-@if (!$is_preview && isset($allAttempts) && $allAttempts->isNotEmpty())
-    @include('student.quizzes.partials._quiz_attempt_history', ['allAttempts' => $allAttempts])
-@endif

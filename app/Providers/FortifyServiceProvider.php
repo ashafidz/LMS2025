@@ -43,8 +43,17 @@ class FortifyServiceProvider extends ServiceProvider
         $this->app->instance(LoginResponse::class, new class implements LoginResponse {
             public function toResponse($request)
             {
+
+
                 $user = $request->user();
                 $loginPreference = $request->input('login_preference');
+
+                // Cek jika ada input timezone dari form login
+                if ($request->filled('timezone')) {
+                    // Simpan langsung ke database
+                    $user->timezone = $request->timezone;
+                    $user->save();
+                }
 
                 // --- SUPERADMIN ---
                 if ($user->hasRole('superadmin')) {

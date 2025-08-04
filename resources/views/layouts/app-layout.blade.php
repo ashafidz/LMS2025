@@ -239,9 +239,30 @@
     <script src="{{ asset('js/vertical-layout.min.js') }} "></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+
+    <script>
+    // Cek jika timezone belum diatur di session storage browser
+    if (!sessionStorage.getItem('timezone_set')) {
+        const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        // Kirim timezone ke server menggunakan Fetch API
+        fetch('/set-timezone', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}' // Penting untuk keamanan
+            },
+            body: JSON.stringify({ timezone: userTimezone })
+        }).then(() => {
+            // Tandai bahwa timezone sudah diatur agar tidak dikirim berulang kali
+            sessionStorage.setItem('timezone_set', 'true');
+        });
+    }
+</script>
+
     <!-- custom js -->
     @stack('scripts')
-    <script type="text/javascript" src="{{ asset('pages/dashboard/custom-dashboard.js') }}"></script>
+    {{-- <script type="text/javascript" src="{{ asset('pages/dashboard/custom-dashboard.js') }}"></script> --}}
     <script type="text/javascript" src="{{ asset('js/script.js') }}"></script>
 
 

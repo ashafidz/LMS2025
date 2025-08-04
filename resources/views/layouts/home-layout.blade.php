@@ -74,7 +74,7 @@
                 </div>
             @endif
             @guest
-              <a class="" href="{{ url('/register') }}">Register</a>
+              <a class="" href="{{ url('/login') }}">Login</a>
             @endguest
           </div>
         </ul>
@@ -103,7 +103,7 @@
           @endif
         @endauth
         @guest
-          <a class="btn-getstarted ms-2" href="{{ url('/register') }}">Register</a>
+          <a class="btn-getstarted ms-2" href="{{ url('/login') }}">Login</a>
         @endguest
 
       </div>
@@ -207,11 +207,26 @@
   <script src="{{ asset('home-page/assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
   <script src="{{ asset('home-page/assets/vendor/purecounter/purecounter_vanilla.js') }}"></script>
 
-  <!-- Main JS File -->
-  <script src="{{ asset('home-page/assets/js/main.js') }}"></script>
 
-  <!-- Tambah di sini -->
-  @stack('scripts')
+    <script>
+    // Cek jika timezone belum diatur di session storage browser
+    if (!sessionStorage.getItem('timezone_set')) {
+        const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        // Kirim timezone ke server menggunakan Fetch API
+        fetch('/set-timezone', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}' // Penting untuk keamanan
+            },
+            body: JSON.stringify({ timezone: userTimezone })
+        }).then(() => {
+            // Tandai bahwa timezone sudah diatur agar tidak dikirim berulang kali
+            sessionStorage.setItem('timezone_set', 'true');
+        });
+    }
+</script>
 
     <!-- Tombol WhatsApp Ikon Saja -->
     <a href="https://wa.me/6281234567890" target="_blank"
@@ -229,5 +244,15 @@
             style="width: 50px; height: 50px;">
     </a>
 </body>
+
+  <!-- Main JS File -->
+  <script src="{{ asset('home-page/assets/js/main.js') }}"></script>
+
+
+
+  <!-- Tambah di sini -->
+  @stack('scripts')
+
+
 
 </html>

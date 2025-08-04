@@ -70,6 +70,7 @@
                                                         <a href="{{ route('instructor.lessons.edit', $lesson->id) }}" class="btn btn-info btn-sm">Edit</a>
 
                                                         @if ($lessonType === 'quiz')
+                                                            <a href="{{ route('instructor.quiz.results', $lesson->lessonable_id) }}" class="btn btn-info btn-sm">Lihat Nilai</a>
                                                             <a href="{{ route('instructor.quizzes.manage_questions', $lesson->lessonable_id) }}" class="btn btn-success btn-sm">Kelola Soal</a>
                                                         @endif
                                                         

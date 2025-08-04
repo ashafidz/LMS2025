@@ -38,7 +38,7 @@
                                 <input type="hidden" id="selected-role" name="login_preference" value="student">
                             </div>
 
-
+                            <input type="hidden" name="timezone" id="user_timezone">
 
                             <!-- Validation Errors -->
                              @if ($errors->any())
@@ -184,6 +184,10 @@
             transform: translateY(-30px);
         }
     </style>
+
+    <script>
+        document.getElementById('user_timezone').value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    </script>
     <script>
         function selectRole(element, role) {
             // Remove 'active' from all buttons and add 'btn-outline-secondary'

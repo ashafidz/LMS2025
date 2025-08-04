@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasLocalDates;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class QuizAttempt extends Model
 {
     use HasFactory;
+    use HasLocalDates;
 
     protected $fillable = ['quiz_id', 'student_id', 'score', 'status', 'start_time', 'end_time'];
 
