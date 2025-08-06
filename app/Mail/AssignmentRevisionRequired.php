@@ -47,7 +47,7 @@ class AssignmentRevisionRequired extends Mailable
     {
         return new Content(
             // Menggunakan view markdown untuk email yang rapi dan responsif
-            markdown: 'emails.assignments.revision-required',
+            markdown: 'emails.instructors.assignments.revision-required',
         );
     }
 
