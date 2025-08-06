@@ -1,4 +1,4 @@
-@extends('layouts.app-layout')
+@extends('layouts.home-layout')
 
 @section('content')
     <div class="pcoded-content">

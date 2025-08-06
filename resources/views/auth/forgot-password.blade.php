@@ -1,8 +1,8 @@
-@extends('layouts.guest-layout')
+@extends('layouts.home-layout')
 
 @section('content')
 {{-- This wrapper uses flexbox to center the card vertically and horizontally --}}
-<div class="container d-flex justify-content-center align-items-center h-100">
+<div class="container d-flex justify-content-center align-items-center h-100 min-vh-100">
     
     {{-- The card container for your form --}}
     <div class="card shadow-sm border-0" style="max-width: 450px; width: 100%;">

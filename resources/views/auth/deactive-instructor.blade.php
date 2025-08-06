@@ -1,4 +1,4 @@
-@extends('layouts.guest-layout')
+@extends('layouts.home-layout')
 
 @section('content')
 {{-- This wrapper uses flexbox to center the card vertically and horizontally --}}
