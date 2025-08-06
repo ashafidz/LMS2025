@@ -32,7 +32,7 @@
                                             @csrf
                                             @method('PUT')
 
-                                            <h6 class="font-weight-bold">Informasi Pelajaran Umum</h6>
+                                            {{-- <h6 class="font-weight-bold">Informasi Pelajaran Umum</h6>
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Judul Pelajaran</label>
                                                 <div class="col-sm-9">
@@ -41,15 +41,27 @@
                                                 </div>
                                             </div>
 
-                                            <hr>
+                                            <hr> --}}
+                                            <input 
+                                                type="hidden" 
+                                                name="title" 
+                                                id="lesson_title_input"  {{-- Tambahkan id ini --}}
+                                                value="{{ old('title', $lesson->title) ?? old('quiz_title', $lesson->lessonable->title) }}" 
+                                                required
+                                            >
 
                                             <h6 class="font-weight-bold mt-4">Informasi Spesifik Kuis</h6>
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Judul Kuis</label>
                                                 <div class="col-sm-9">
-                                                    <input type="text" name="quiz_title" class="form-control"
-                                                        value="{{ old('quiz_title', $lesson->lessonable->title) }}"
-                                                        required>
+                                                    <input 
+                                                        type="text" 
+                                                        name="quiz_title" 
+                                                        id="quiz_title_input" {{-- Tambahkan id ini --}}
+                                                        class="form-control"
+                                                        value="{{ old('quiz_title', $lesson->lessonable->title) }}" 
+                                                        required
+                                                    >
                                                 </div>
                                             </div>
                                             <div class="form-group row">
@@ -217,4 +229,23 @@
             toggleMaxAttempts(initialValue);
         });
     </script>
+
+    <script>
+    // Ambil kedua elemen input berdasarkan id-nya
+    const quizTitleInput = document.getElementById('quiz_title_input');
+    const lessonTitleInput = document.getElementById('lesson_title_input');
+
+    // Fungsi untuk menyamakan nilainya
+    function syncTitles() {
+        lessonTitleInput.value = quizTitleInput.value;
+    }
+
+    // 1. Langsung samakan nilainya saat halaman pertama kali dimuat
+    //    (untuk menangani data 'old()' atau data dari database saat edit)
+    syncTitles();
+
+    // 2. Tambahkan event listener 'input' pada 'quiz_title'
+    //    agar nilainya selalu update secara real-time setiap kali ada ketikan
+    quizTitleInput.addEventListener('input', syncTitles);
+</script>
 @endpush

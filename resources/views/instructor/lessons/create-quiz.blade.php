@@ -44,25 +44,39 @@
                                             @csrf
                                             <input type="hidden" name="lesson_type" value="quiz">
 
-                                            <h6 class="font-weight-bold">Informasi Pelajaran Umum</h6>
+                                            {{-- <h6 class="font-weight-bold">Informasi Pelajaran Umum</h6>
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Judul Pelajaran</label>
                                                 <div class="col-sm-9">
-                                                    <input type="text" name="title" class="form-control"
+                                                    <input  type="text" name="title" class="form-control"
                                                         value="{{ old('title') }}" required
                                                         placeholder="Contoh: Kuis 1 - Dasar-dasar PHP">
                                                 </div>
                                             </div>
 
-                                            <hr>
+                                            <hr> --}}
+
+                                            <input 
+                                                type="hidden" 
+                                                name="title" 
+                                                id="lesson_title_input"  {{-- ID ditambahkan --}}
+                                                value="{{ old('title') ?? old('quiz_title') }}" 
+                                                required
+                                            >
 
                                             <h6 class="font-weight-bold mt-4">Informasi Spesifik Kuis</h6>
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Judul Kuis</label>
                                                 <div class="col-sm-9">
-                                                    <input type="text" name="quiz_title" class="form-control"
-                                                        value="{{ old('quiz_title') }}" required
-                                                        placeholder="Contoh: Ujian Pemahaman Dasar PHP">
+                                                    <input 
+                                                        type="text" 
+                                                        name="quiz_title" 
+                                                        id="quiz_title_input" {{-- ID ditambahkan --}}
+                                                        class="form-control"
+                                                        value="{{ old('quiz_title') }}" 
+                                                        required
+                                                        placeholder="Contoh: Ujian Pemahaman Dasar PHP"
+                                                    >
                                                 </div>
                                             </div>
                                             <div class="form-group row">
@@ -211,4 +225,25 @@
             }
         }
     </script>
+
+
+
+<script>
+    // Ambil kedua elemen input berdasarkan id-nya
+    const quizTitleInput = document.getElementById('quiz_title_input');
+    const lessonTitleInput = document.getElementById('lesson_title_input');
+
+    // Fungsi untuk menyamakan nilainya
+    function syncTitles() {
+        lessonTitleInput.value = quizTitleInput.value;
+    }
+
+    // 1. Langsung samakan nilainya saat halaman pertama kali dimuat
+    //    (untuk menangani jika ada data 'old()' setelah validasi gagal)
+    syncTitles();
+
+    // 2. Tambahkan event listener 'input' pada 'quiz_title'
+    //    agar nilainya selalu update secara real-time setiap kali ada ketikan
+    quizTitleInput.addEventListener('input', syncTitles);
+</script>
 @endpush
