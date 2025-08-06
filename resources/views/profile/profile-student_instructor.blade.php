@@ -18,27 +18,24 @@
                 </div>
             </div>
         </div>
+
         <!-- Page-header end -->
         <div class="pcoded-inner-content px-3 mt-4">
             <div class="row g-4 px-2">
-
                 <div class="col-sm-12">
                     <div class="card">
                         <div class="card-header">
                             <h5>Biografi</h5>
                         </div>
                         <div class="card-block">
-                            {{-- bio --}}
-                            <div class="row mb-3">
-                                <div class="col-md-12 d-flex">
-                                    <div>
-                                        <p class="mb-0">
-                                            {{ $profile->bio ?? '-' }}
-                                        </p>
-                                    </div>
+                            <!-- Bio -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p class="mb-1">
+                                        {{ $profile->bio ?? '-' }}
+                                    </p>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -53,7 +50,7 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3 d-flex">
                                     <div style="width: 24px;">
-                                        <i class="fa fa-calendar text-lg"></i>
+                                        <i class="ti ti-calendar text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Tanggal Lahir</p>
@@ -62,7 +59,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
                                     <div style="width: 24px;">
-                                        <i class="bi bi-building text-lg"></i>
+                                        <i class="ti ti-briefcase text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Pekerjaan / Profesi</p>
@@ -71,7 +68,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
                                     <div style="width: 24px;">
-                                        <i class="fa fa-intersex text-lg"></i>
+                                        <i class="bi bi-gender-ambiguous text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Gender</p>
@@ -80,7 +77,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
                                     <div style="width: 24px;">
-                                        <i class="fa fa-briefcase text-lg"></i>
+                                        <i class="ti ti-id-badge text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Headline</p>
@@ -89,7 +86,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
                                     <div style="width: 24px;">
-                                        <i class="fa fa-home text-lg"></i>
+                                        <i class="ti ti-location-pin text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Alamat</p>
@@ -98,7 +95,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
                                     <div style="width: 24px;">
-                                        <i class="bi bi-globe text-lg"></i>
+                                        <i class="ti ti-world text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Website</p>
@@ -107,7 +104,7 @@
                                 </div>
                                 <div class="col-md-6 mb-0 d-flex">
                                     <div style="width: 24px;">
-                                        <i class="fa fa-user-plus text-lg"></i>
+                                        <i class="bi bi-person-plus text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Bergabung Pada</p>
@@ -136,7 +133,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
                                     <div style="width: 24px;">
-                                        <i class="bi bi-geo-alt-fill text-lg"></i>
+                                        <i class="ti ti-map-alt text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Alamat Perusahaan</p>
@@ -145,7 +142,7 @@
                                 </div>
                                 <div class="col-md-6 mb-0 d-flex">
                                     <div style="width: 24px;">
-                                        <i class="fa fa-file-text text-lg"></i>
+                                        <i class="bi bi-receipt-cutoff text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">No. NPWP Perusahaan</p>
@@ -154,7 +151,7 @@
                                 </div>
                                 <div class="col-md-6 mb-0 d-flex">
                                     <div style="width: 24px;">
-                                        <i class="fa fa-file-text text-lg"></i>
+                                        <i class="bi bi-person-badge text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">NIM / NIP / NIDN</p>
@@ -178,7 +175,7 @@
                             <div class="mb-3">
                                 <div class="d-flex align-items-start">
                                     <div style="width: 24px;">
-                                        <i class="fa fa-envelope text-lg"></i>
+                                        <i class="ti ti-email text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Email</p>
@@ -191,7 +188,7 @@
                             <div class="mb-0">
                                 <div class="d-flex align-items-start">
                                     <div style="width: 24px;">
-                                        <i class="fa fa-phone text-lg"></i>
+                                        <i class="bi bi-telephone text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Telepon</p>
@@ -199,13 +196,6 @@
                                     </div>
                                 </div>
                             </div>
-                
-                            {{-- 
-                            <div class="text-center mt-4">
-                                <a href="" class="btn btn-outline-primary btn-sm mr-2">Edit Profile</a>
-                                <a href="" class="btn btn-outline-primary btn-sm mr-2">Ganti Password</a>
-                            </div> 
-                            --}}
                         </div>
                     </div>
 

@@ -30,11 +30,15 @@ class GamificationController extends Controller
         // Hitung total poin dari semua kursus
         $totalPoints = $user->coursePoints()->sum('points_earned');
 
+        // Ambil riwayat diamond, urutkan dari yang terbaru
+        $diamondHistories = $user->diamondHistories()->latest()->paginate(10);
+
         return view('student.my-points.index', compact(
             'user',
             'pointsPerCourse',
             'totalPoints',
-            'pointHistories'
+            'pointHistories',
+            'diamondHistories'
         ));
     }
 

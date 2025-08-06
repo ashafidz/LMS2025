@@ -58,17 +58,17 @@
                                     <li class="{{ Request::routeIs('student.points.index') ? 'active' : '' }}">
                                         <a href="{{ route('student.points.index') }}" class="waves-effect waves-dark">
                                             <span class="pcoded-micon"><i class="ti-crown"></i><b>D</b></span>
-                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Poin Saya</span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Poin & Diamond</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>
-                                    <li class="{{ Request::routeIs('student.diamonds.index') ? 'active' : '' }}">
+                                    {{-- <li class="{{ Request::routeIs('student.diamonds.index') ? 'active' : '' }}">
                                         <a href="{{ route('student.diamonds.index') }}" class="waves-effect waves-dark">
                                             <span class="pcoded-micon"><i class="ti-gift"></i><b>D</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.dash.main">Diamond Saya</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
-                                    </li>
+                                    </li> --}}
                                     <li class="{{ Request::routeIs('student.reviews.index') ? 'active' : '' }}">
                                         <a href="{{ route('student.reviews.index') }}" class="waves-effect waves-dark">
                                             <span class="pcoded-micon"><i class="ti-comment"></i><b>D</b></span>

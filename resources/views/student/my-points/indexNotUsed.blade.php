@@ -46,26 +46,26 @@
                                 <div class="card-block">
                                     <ul class="list-group list-group-flush">
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Membeli kursus dengan uang <span class="badge badge-success">{{ $siteSettings->points_for_purchase ? number_format($siteSettings->points_for_purchase, 0, ',', '.') : '0' }} Poin</span>
+                                            Melihat detail kursus <span class="badge badge-success">+1</span>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Menyelesaikan Lesson Tipe Article <span class="badge badge-success">{{ $siteSettings->points_for_article ? number_format($siteSettings->points_for_article, 0, ',', '.') : '0' }} Poin</span>
+                                            Menyelesaikan 1 modul <span class="badge badge-success">+3</span>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Menyelesaikan Lesson Tipe Video <span class="badge badge-success">{{ $siteSettings->points_for_video ? number_format($siteSettings->points_for_video, 0, ',', '.') : '0' }} Poin</span>
+                                            Menyelesaikan semua modul <span class="badge badge-success">+10</span>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Menyelesaikan Lesson Tipe Dokumen <span class="badge badge-success">{{ $siteSettings->points_for_document ? number_format($siteSettings->points_for_document, 0, ',', '.') : '0' }} Poin</span>
+                                            Mendapat nilai akhir ≥ 80 <span class="badge badge-success">+5</span>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Menyelesaikan Lesson Tipe Quiz <span class="badge badge-success">{{ $siteSettings->points_for_quiz ? number_format($siteSettings->points_for_quiz, 0, ',', '.') : '0' }} Poin</span>
+                                            Upload tugas / project akhir <span class="badge badge-success">+5</span>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Menyelesaikan Lesson Tipe Assignment <span class="badge badge-success">{{ $siteSettings->points_for_assignment ? number_format($siteSettings->points_for_assignment, 0, ',', '.') : '0' }} Poin</span>
+                                            Berpartisipasi dalam forum kursus <span class="badge badge-success">+3</span>
                                         </li>
-                                        {{-- <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Menyelesaikan Lesson Tipe Video <span class="badge badge-success">+2</span>
-                                        </li> --}}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Mengisi feedback setelah kursus <span class="badge badge-success">+2</span>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>
@@ -125,9 +125,9 @@
                             <div class="card mb-4">
                                 <div class="card-block text-center">
                                     <i class="fa fa-diamond text-c-blue d-block f-40"></i>
-                                        <h4 class="m-t-20"><span class="text-c-blue">{{ number_format($user->diamond_balance, 0, ',', '.') }}</span> Diamond</h4>
+                                    <h4 class="m-t-20"><span class="text-c-blue">0</span> Diamond</h4>
                                     <p class="m-b-20">Saldo Diamond Anda Saat Ini</p>
-                                    <a href="{{ route('courses') }}" class="btn btn-primary btn-sm btn-round">Gunakan Diamond</a>
+                                    <a href="#" class="btn btn-primary btn-sm btn-round">Gunakan Diamond</a>
                                 </div>
                             </div>
                     
@@ -147,28 +147,20 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @forelse ($diamondHistories as $history)
-                                                    <tr>
-                                                        <td>{{ $history->created_at->format('d M Y, H:i') }}</td>
-                                                        <td>{{ $history->description }}</td>
-                                                        <td class="text-right">
-                                                            @if($history->diamonds > 0)
-                                                                <span class="text-success font-weight-bold">+{{ $history->diamonds }}</span>
-                                                            @else
-                                                                <span class="text-danger font-weight-bold">{{ $history->diamonds }}</span>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                @empty
-                                                    <tr>
-                                                        <td colspan="3" class="text-center">Anda belum memiliki riwayat diamond.</td>
-                                                    </tr>
-                                                @endforelse
+                                                <tr>
+                                                    <td colspan="3" class="text-center">Anda belum memiliki riwayat diamond.</td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
                                     <div class="d-flex justify-content-center mt-3">
-                                        {{ $diamondHistories->links() }}
+                                        <nav>
+                                            <ul class="pagination pagination-sm mb-0">
+                                                <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
+                                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                                <li class="page-item disabled"><a class="page-link" href="#">»</a></li>
+                                            </ul>
+                                        </nav>
                                     </div>
                                 </div>
                             </div>

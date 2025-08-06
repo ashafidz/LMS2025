@@ -3,12 +3,21 @@
 @section('content')
 <section class="login-block">
     <div class="container-fluid px-0">
-        <div class="row no-gutters shift-up" style="min-height: 100vh;">
+        <div class="row no-gutters shift-up" style="height: 100vh; overflow: hidden;">
 
-            <!-- Form Registrasi -->
-            <div class="col-12 d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-                <form class="md-float-material form-material w-100 px-4" method="POST" action="{{ route('register') }}" style="max-width: 600px; width: 100%;">
+            <!-- KIRI: Gambar dalam kotak biru -->
+            <div class="col-md-6 d-none d-md-flex align-items-center justify-content-center bg-primary"
+                style="min-height: 100vh;">
+                <div
+                    style="width: 620px; height: 620px; background-color: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <img src="{{ asset('images/side-images/studio-unsplash.jpg') }}" alt="Registration Illustration"
+                        style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                </div>
+            </div>
 
+            <!-- KANAN: Form Registrasi -->
+            <div class="col-md-6 align-items-center d-flex" style="min-height: 100vh;">
+                <form class="md-float-material form-material w-100 px-4" method="POST" action="{{ route('register') }}">
                     @csrf
                     <div class="auth-box card">
                         <div class="card-block">
