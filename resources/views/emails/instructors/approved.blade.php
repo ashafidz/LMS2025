@@ -1,4 +1,4 @@
-x-mail::message
+<x-mail::message>
 
 Application Approved!
 Hello, {{ $user->name }},
@@ -16,3 +16,5 @@ Welcome to the team!
 Thanks,<br>
 {{ config('app.name') }}
 </https://www.google.com/search?q=x-mail::message>
+
+</x-mail::message>

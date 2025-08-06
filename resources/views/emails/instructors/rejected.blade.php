@@ -1,4 +1,4 @@
-x-mail::message
+<x-mail::message>
 
 Regarding Your Instructor Application
 Hello, {{ $user->name }},
@@ -12,3 +12,4 @@ We encourage you to continue developing your skills and portfolio and wish you t
 Thanks,<br>
 {{ config('app.name') }}
 </https://www.google.com/search?q=x-mail::message>
+</x-mail::message>

@@ -8,6 +8,8 @@ use App\Models\LessonAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\PointService;
+use Illuminate\Support\Facades\Mail; // 1. Import Mail facade
+use App\Mail\AssignmentRevisionRequired; // 2. Import Mailable baru
 
 class InstructorAssignmentController extends Controller
 {
@@ -111,6 +113,16 @@ class InstructorAssignmentController extends Controller
             'feedback' => $validated['feedback'],
             'status' => $newStatus,
         ]);
+
+        // 3. LOGIKA BARU: Kirim email jika perlu revisi
+        if ($newStatus === 'revision_required') {
+            try {
+                Mail::to($student->email)->send(new AssignmentRevisionRequired($submission));
+            } catch (\Exception $e) {
+                // Opsional: Catat error jika email gagal terkirim
+                // \Log::error("Gagal mengirim email revisi: " . $e->getMessage());
+            }
+        }
 
         return back()->with('success', 'Tugas berhasil dinilai.');
     }
