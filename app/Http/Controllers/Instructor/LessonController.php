@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers\Instructor;
 
-use App\Http\Controllers\Controller;
-use App\Models\Lesson;
-use App\Models\LessonArticle;
-use App\Models\LessonAssignment;
-use App\Models\LessonLinkCollection;
-// Diperbarui: Menggunakan LessonDocument
-use App\Models\LessonDocument;
-use App\Models\LessonVideo;
-use App\Models\Module;
 use App\Models\Quiz;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Lesson;
+use App\Models\Module;
 use App\Models\LessonPoint;
+use App\Models\LessonVideo;
+// Diperbarui: Menggunakan LessonDocument
+use Illuminate\Http\Request;
+use App\Models\LessonArticle;
+use App\Models\LessonDocument;
+use Illuminate\Support\Carbon;
+use App\Models\LessonAssignment;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Models\LessonLinkCollection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class LessonController extends Controller
 {
@@ -103,6 +105,17 @@ class LessonController extends Controller
 
                 case 'assignment':
                     $validated = $request->validate(['instructions' => 'required|string', 'due_date' => 'nullable|date', 'pass_mark' => 'required|integer|min:0|max:100']);
+
+                    // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
+                    if (!empty($validated['due_date'])) {
+                        // 1. Ambil timezone instruktur (dari data user yang login)
+                        $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+
+                        // 2. Parse input sebagai waktu lokal, lalu konversi ke UTC untuk disimpan
+                        $validated['due_date'] = Carbon::parse($validated['due_date'], $instructorTimezone)->utc();
+                    }
+                    // --- AKHIR LOGIKA BARU ---
+
                     $lessonable = LessonAssignment::create($validated);
                     break;
 
@@ -219,6 +232,17 @@ class LessonController extends Controller
 
                 case 'lessonassignment':
                     $validated = $request->validate(['instructions' => 'required|string', 'due_date' => 'nullable|date', 'pass_mark' => 'required|integer|min:0|max:100',]);
+
+                    // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
+                    if (!empty($validated['due_date'])) {
+                        // 1. Ambil timezone instruktur
+                        $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+
+                        // 2. Parse input sebagai waktu lokal, lalu konversi ke UTC
+                        $validated['due_date'] = Carbon::parse($validated['due_date'], $instructorTimezone)->utc();
+                    }
+                    // --- AKHIR LOGIKA BARU ---
+
                     $lessonable->update($validated);
                     break;
 

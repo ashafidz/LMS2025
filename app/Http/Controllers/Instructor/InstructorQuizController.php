@@ -16,7 +16,7 @@ class InstructorQuizController extends Controller
     public function showResults(Quiz $quiz)
     {
         // Otorisasi: Pastikan instruktur adalah pemilik kursus
-        if ($quiz->lesson->module->course->instructor_id !== Auth::id()) {
+        if ($quiz->lesson->module->course->instructor_id != Auth::id()) {
             abort(403);
         }
 
@@ -35,7 +35,7 @@ class InstructorQuizController extends Controller
     public function reviewAttempt(QuizAttempt $attempt)
     {
         // Otorisasi: Pastikan instruktur adalah pemilik kursus
-        if ($attempt->quiz->lesson->module->course->instructor_id !== Auth::id()) {
+        if ($attempt->quiz->lesson->module->course->instructor_id != Auth::id()) {
             abort(403);
         }
 

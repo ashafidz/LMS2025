@@ -22,6 +22,7 @@ class Quiz extends Model
         'max_attempts',
     ];
     protected $casts = [
+        'time_limit' => 'integer',
         'allow_exceed_time_limit' => 'boolean',
         'reveal_answers' => 'boolean', // Tambahkan ini
     ];

@@ -141,7 +141,7 @@
                                     <i class="fa fa-file-text text-lg mr-2"></i>
                                     <div>
                                         <p class="mb-1 font-weight-bold">NIM / NIP / NIDN</p>
-                                        <p>{{ $profile->nim ?? '-' }}</p>
+                                        <p>{{ $profile->unique_id_number ?? '-' }}</p>
                                     </div>
                                 </div>
                             </div>

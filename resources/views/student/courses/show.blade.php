@@ -106,12 +106,14 @@
                                                         data-parent="#syllabus-accordion">
                                                         <div class="card-body p-0">
                                                             <ul class="list-group list-group-flush">
-                                                                    <li class="list-group-item d-flex justify-content-between align-items-center' }}">
-                                                                        <a href="#" class="load-leaderboard-btn text-dark" data-module-id="{{ $module->id }}" >
-                                                                            <i class="fa fa-bar-chart mr-2"></i>
-                                                                            Leaderboard {{ $module->title }}
-                                                                        </a>
-                                                                    </li>
+                                                                <li
+                                                                    class="list-group-item d-flex justify-content-between align-items-center' }}">
+                                                                    <a href="#" class="load-leaderboard-btn text-dark"
+                                                                        data-module-id="{{ $module->id }}">
+                                                                        <i class="fa fa-bar-chart mr-2"></i>
+                                                                        Leaderboard {{ $module->title }}
+                                                                    </a>
+                                                                </li>
                                                                 @foreach ($module->lessons as $lesson)
                                                                     <li class="list-group-item d-flex justify-content-between align-items-center {{ $isLocked ? 'bg-light' : '' }}"
                                                                         id="sidebar-lesson-{{ $lesson->id }}">
@@ -132,10 +134,10 @@
                                                                                     $icon = 'bi bi-pencil-square';
                                                                                 }
                                                                                 if ($type === 'lessondocument') {
-                                                                                    $icon = 'fa-file-pdf-o';
+                                                                                    $icon = 'bi bi-file-earmark-pdf';
                                                                                 }
                                                                                 if ($type === 'lessonlinkcollection') {
-                                                                                    $icon = 'fa-link';
+                                                                                    $icon = 'bi bi-folder2-open';
                                                                                 }
                                                                                 if ($type === 'lessonassignment') {
                                                                                     $icon = 'bi bi-clipboard2';
@@ -144,7 +146,7 @@
                                                                                     $icon = 'bi bi-chat-left-quote';
                                                                                 }
                                                                             @endphp
-                                                                            <i class="fa {{ $icon }} mr-2"></i>
+                                                                            <i class="{{ $icon }} mr-2"></i>
                                                                             {{ $lesson->title }}
                                                                         </a>
                                                                         @if (in_array($lesson->id, $completedLessonIds))
@@ -164,14 +166,12 @@
                                                 <button class="btn btn-outline-primary w-100 mb-2" id="load-leaderboard">
                                                     <i class="fa fa-bar-chart mr-2"></i> Leaderboard
                                                 </button>
-                                {{-- MODIFIKASI TOMBOL FEEDBACK DI SINI --}}
-                                <button class="btn btn-outline-primary w-100 mb-2" id="load-review-form" 
-                                        @if(!$allLessonsCompleted && !$is_preview) 
-                                            disabled 
-                                            title="Selesaikan semua pelajaran untuk memberikan feedback" 
-                                        @endif>
-                                    <i class="fa fa-star mr-2"></i> Feedback
-                                </button>
+                                                {{-- MODIFIKASI TOMBOL FEEDBACK DI SINI --}}
+                                                <button class="btn btn-outline-primary w-100 mb-2" id="load-review-form"
+                                                    @if (!$allLessonsCompleted && !$is_preview) disabled 
+                                            title="Selesaikan semua pelajaran untuk memberikan feedback" @endif>
+                                                    <i class="fa fa-star mr-2"></i> Feedback
+                                                </button>
                                                 @if ($isEligibleForCertificate)
                                                     <button class="btn btn-outline-primary w-100 mb-2"
                                                         id="load-certificate-preview">
@@ -256,7 +256,8 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                         @if ($pointsData && !$pointsData->pivot->is_converted_to_diamond)
-                            <form action="{{ route('student.course.convert_points', $course->id) }}" method="POST"> {{-- Ganti action ke route konversi nanti --}}
+                            <form action="{{ route('student.course.convert_points', $course->id) }}" method="POST">
+                                {{-- Ganti action ke route konversi nanti --}}
                                 @csrf
                                 <button type="submit" class="btn btn-primary">Konfirmasi & Konversi Poin</button>
                             </form>
@@ -302,7 +303,8 @@
 
                             if (!data.is_locked) {
                                 const sidebarItem = document.getElementById(`sidebar-lesson-${lessonId}`);
-                                const lessonTypeIcon = sidebarItem.querySelector('i.fa');
+                                const lessonTypeIcon = sidebarItem.querySelector('a.load-lesson > i');
+                                // const lessonTypeIcon = sidebarItem.querySelector('i.bi');
                                 const isQuizOrAssignment = lessonTypeIcon.classList.contains(
                                     'bi-pencil-square') || lessonTypeIcon.classList.contains(
                                     'bi-clipboard2');
@@ -399,16 +401,18 @@
 
                                 // --- PERUBAHAN 2: Logika untuk mengaktifkan tombol feedback secara dinamis ---
                                 // Cek apakah jumlah pelajaran yang selesai sudah sama dengan total pelajaran
-                                if (reviewButton && !isPreview && completedLessons.length >= totalLessons && totalLessons > 0) {
+                                if (reviewButton && !isPreview && completedLessons.length >=
+                                    totalLessons && totalLessons > 0) {
                                     reviewButton.disabled = false;
                                     reviewButton.removeAttribute('title');
                                     // Opsional: berikan feedback visual bahwa tombolnya sudah aktif
                                     reviewButton.classList.remove('btn-outline-primary');
                                     reviewButton.classList.add('btn-success');
-                                    reviewButton.innerHTML = '<i class="fa fa-star mr-2"></i> Beri Feedback Sekarang!';
+                                    reviewButton.innerHTML =
+                                        '<i class="fa fa-star mr-2"></i> Beri Feedback Sekarang!';
                                 }
                                 // --- AKHIR PERUBAHAN 2 ---
-                                
+
                             } else {
                                 alert(data.message || 'Gagal menandai pelajaran.');
                                 button.disabled = false;

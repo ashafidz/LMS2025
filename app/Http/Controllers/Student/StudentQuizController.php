@@ -156,13 +156,15 @@ class StudentQuizController extends Controller
         // --- TAMBAHKAN LOGIKA INI ---
         $endTime = null;
         // Pastikan ada batas waktu dan start_time tidak kosong
-        if ($attempt->quiz->time_limit > 0 && $attempt->start_time) {
+        if ($attempt->quiz->time_limit == 0 || $attempt->quiz->time_limit == null) {
+            $endTime = null;
+        } elseif ($attempt->quiz->time_limit > 0 && $attempt->start_time) {
+
             // Hitung waktu berakhir: start_time + time_limit (dalam menit)
             // Carbon akan otomatis menangani objek DateTime
             $endTime = $attempt->start_time->addMinutes($attempt->quiz->time_limit);
         }
         // --- AKHIR LOGIKA TAMBAHAN ---
-
 
 
         $attempt->load('quiz.questions.options');
@@ -216,48 +218,6 @@ class StudentQuizController extends Controller
                 }
             }
             if (!$is_preview) {
-                // $maxPossibleScore = $attempt->quiz->questions->sum('score');
-                // $percentageScore = ($maxPossibleScore > 0) ? ($totalScore / $maxPossibleScore) * 100 : 0;
-                // $attempt->score = $totalScore;
-                // $newStatus = $percentageScore >= $attempt->quiz->pass_mark ? 'passed' : 'failed';
-
-                // // Cek apakah siswa sudah pernah lulus kuis ini sebelumnya
-                // $hasPassedBefore = $attempt->quiz->attempts()
-                //     ->where('student_id', Auth::id())
-                //     ->where('status', 'passed')
-                //     ->exists();
-
-
-                // $attempt->status = $percentageScore >= $attempt->quiz->pass_mark ? 'passed' : 'failed';
-                // $attempt->end_time = now();
-                // $attempt->save();
-
-
-                // $quizAllowExceedTimeLimit = $attempt->quiz->allow_exceed_time_limit;
-                // // is the user submitted quiz is exceeding time limit ?
-                // $quizExceededTimeLimit = $attempt->end_time > $attempt->start_time->addMinutes($attempt->quiz->time_limit);
-
-                // // if the quiz allowed to exceed time limit and user has exceeded time limit
-                // // user will be passed but will not get any points
-                // if ($quizAllowExceedTimeLimit && $quizExceededTimeLimit) {
-                // }
-
-
-                // // Berikan poin HANYA jika statusnya 'passed' DAN belum pernah lulus sebelumnya
-                // if ($newStatus === 'passed' && !$hasPassedBefore) {
-                //     PointService::addPoints(Auth::user(), $attempt->quiz->lesson, $attempt->quiz->lesson->module->course, 'pass_quiz', $attempt->quiz->title);
-                // }
-
-                // if ($newStatus === 'passed') {
-                //     $student = Auth::user();
-                //     $lesson = $attempt->quiz->lesson;
-                //     // Tandai pelajaran sebagai selesai untuk siswa ini
-                //     $student->completedLessons()->syncWithoutDetaching($lesson->id);
-
-                //     // call badge service untuk badge quiz
-                //     BadgeService::checkQuizCompletionBadges($student);
-                // }
-
                 // 1. Kalkulasi Skor dan Status Kelulusan (Tidak berubah)
                 $maxPossibleScore = $attempt->quiz->questions->sum('score');
                 $percentageScore = ($maxPossibleScore > 0) ? ($totalScore / $maxPossibleScore) * 100 : 0;
@@ -269,15 +229,32 @@ class StudentQuizController extends Controller
                 $attempt->end_time = now();
                 $attempt->save();
 
-                // 3. Cek Kondisi Tambahan
+                // // 3. Cek Kondisi Tambahan
+                // $quizAllowExceedTimeLimit = (bool) $attempt->quiz->allow_exceed_time_limit;
+                // $quizExceededTimeLimit = $attempt->end_time > $attempt->start_time->addMinutes($attempt->quiz->time_limit);
+
+                // ======================================================================
+                // PERBAIKAN DITERAPKAN DI SINI
+                // ======================================================================
+                // 3. Cek Kondisi Tambahan dengan Logika yang Diperbaiki
+                $timeLimitInMinutes = $attempt->quiz->time_limit;
+                $quizExceededTimeLimit = false; // Default: false
+
+                // Lakukan pengecekan HANYA jika ada batas waktu yang valid (> 0)
+                if ($timeLimitInMinutes > 0) {
+                    $quizExceededTimeLimit = $attempt->end_time > $attempt->start_time->addMinutes($timeLimitInMinutes);
+                }
+
                 $quizAllowExceedTimeLimit = (bool) $attempt->quiz->allow_exceed_time_limit;
-                $quizExceededTimeLimit = $attempt->end_time > $attempt->start_time->addMinutes($attempt->quiz->time_limit);
+                // ======================================================================
+                // AKHIR DARI PERBAIKAN
+                // ======================================================================
 
 
                 // Cek apakah siswa sudah pernah DAPAT POIN untuk lesson yang berisi kuis ini.
                 // Kita gunakan model PointHistory .
                 $hasEarnedPointsBefore = PointHistory::where('user_id', Auth::id())
-                    ->where('lesson_id', $attempt->quiz->lesson_id)
+                    ->where('lesson_id', $attempt->quiz->lesson->id)
                     ->exists();
 
                 // 4. Logika Pemberian Poin (dengan pengecekan yang sudah disesuaikan)
@@ -288,7 +265,7 @@ class StudentQuizController extends Controller
                 if (
                     $newStatus === 'passed' &&
                     !$hasEarnedPointsBefore && // <-- Menggunakan variabel baru dari pengecekan PointHistory
-                    !($quizAllowExceedTimeLimit && $quizExceededTimeLimit)
+                    !$quizExceededTimeLimit
                 ) {
                     // KODE BARU (Menggunakan Named Arguments, urutan tidak masalah)
                     PointService::addPoints(
@@ -324,7 +301,12 @@ class StudentQuizController extends Controller
             $attempt->score = $totalScore;
             $attempt->status = $percentageScore >= $attempt->quiz->pass_mark ? 'passed' : 'failed';
             $attempt->setRelation('answers', $studentAnswersCollection->mapInto(\App\Models\StudentAnswer::class));
-            return view('student.quizzes.result', compact('attempt', 'is_preview'));
+            // quiz max score
+            // $maxPossibleScore = $attempt->quiz->questions->sum('score');
+            // quiz minimum score, not percentage
+            $minimumScore = $maxPossibleScore * ($attempt->quiz->pass_mark / 100);
+
+            return view('student.quizzes.result', compact('attempt', 'is_preview', 'maxPossibleScore', 'minimumScore'));
         }
         return redirect()->route('student.quiz.result', $attempt->id);
     }

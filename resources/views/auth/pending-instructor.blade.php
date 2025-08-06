@@ -2,7 +2,7 @@
 
 @section('content')
 {{-- This wrapper uses flexbox to center the card vertically and horizontally --}}
-<div class="container d-flex justify-content-center align-items-center h-100">
+<div class="container d-flex justify-content-center align-items-center h-100 min-vh-100">
 
     {{-- The card container for your message --}}
     <div class="card shadow-sm border-0" style="max-width: 500px; width: 100%;">
@@ -20,7 +20,7 @@
             <hr class="my-4">
 
             <div class="d-grid gap-2">
-                <a href="{{ route('student.dashboard') }}" class="btn bg-default-blue text-white custom-btn-hover">Go to Student Dashboard</a>
+                <a href="{{ route('student.dashboard') }}" class="btn bg-primary text-white custom-btn-hover">Go to Student Dashboard</a>
                 <form method="POST" action="{{ route('logout') }}" class="d-grid">
                     @csrf
                     <button type="submit" class="btn btn-outline-secondary">

@@ -2,7 +2,7 @@
 
 @section('content')
 {{-- This wrapper uses flexbox to center the card vertically and horizontally --}}
-<div class="container d-flex justify-content-center align-items-center h-100">
+<div class="container d-flex justify-content-center align-items-center h-100 min-vh-100">
 
     {{-- The card container for your message --}}
     <div class="card shadow-sm border-0" style="max-width: 500px; width: 100%;">
@@ -29,7 +29,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <form method="POST" action="{{ route('verification.send') }}">
                     @csrf
-                    <button type="submit" class="btn bg-default-blue text-white custom-btn-hover">
+                    <button type="submit" class="btn bg-default-blue text-primary custom-btn-hover">
                         {{ __('Resend Verification Email') }}
                     </button>
                 </form>

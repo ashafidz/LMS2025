@@ -29,11 +29,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Gunakan caching agar tidak query ke database setiap kali halaman dimuat
-        $settings = Cache::rememberForever('site_settings', function () {
-            return SiteSetting::first();
-        });
+        // $settings = Cache::rememberForever('site_settings', function () {
+        //     return SiteSetting::first();
+        // });
 
-        // Kirim variabel $siteSettings ke semua view
-        View::share('siteSettings', $settings);
+        // // Kirim variabel $siteSettings ke semua view
+        // View::share('siteSettings', $settings);
     }
 }
