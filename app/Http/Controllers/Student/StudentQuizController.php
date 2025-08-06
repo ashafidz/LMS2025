@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Student;
 
+use Carbon\Carbon;
 use App\Models\Quiz;
 use App\Models\Question;
 use App\Models\QuizAttempt;
@@ -72,10 +73,24 @@ class StudentQuizController extends Controller
             return redirect()->route('student.quiz.take', $existingAttempt->id);
         }
 
+        // LOGIKA BARU: Cek ketersediaan kuis berdasarkan jadwal
+        $now = Carbon::now();
+        $isAvailable = true;
+        $availabilityMessage = '';
+
+        if ($quiz->available_from && $now->isBefore($quiz->available_from)) {
+            $isAvailable = false;
+            $availabilityMessage = 'Kuis ini akan tersedia pada ' . $quiz->available_from->format('d F Y, H:i');
+        }
+        if ($quiz->available_to && $now->isAfter($quiz->available_to)) {
+            $isAvailable = false;
+            $availabilityMessage = 'Waktu pengerjaan kuis ini telah berakhir pada ' . $quiz->available_to->format('d F Y, H:i');
+        }
+
 
         // $quiz->loadCount('questions');
         // $is_preview = $request->query('preview') === 'true' && Auth::check();
-        return view('student.quizzes.start', compact('quiz', 'is_preview', 'attemptCount', 'lastAttempt'));
+        return view('student.quizzes.start', compact('quiz', 'is_preview', 'attemptCount', 'lastAttempt', 'isAvailable', 'availabilityMessage'));
     }
 
     public function begin(Request $request, Quiz $quiz)

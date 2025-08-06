@@ -20,48 +20,81 @@
             </div>
         </div>
     </div>
+
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
                 <div class="page-body">
+                    {{-- Bagian Atas: Poin Saya & Rincian Poin (2 kolom) --}}
                     <div class="row">
-                        <div class="col-sm-12">
-                            <div class="card widget-visitor-card">
+                        {{-- KIRI: Poin Saya + Cara Mendapatkan Poin --}}
+                        <div class="col-md-4">
+                            {{-- Card: Total Poin --}}
+                            <div class="card widget-visitor-card mb-4">
                                 <div class="card-block-big text-center">
                                     <i class="ti-medall-alt text-warning f-40"></i>
                                     <h4 class="m-t-20"><span class="text-warning">{{ number_format($totalPoints, 0, ',', '.') }}</span> Poin</h4>
                                     <p>Total Akumulasi Poin anda saat ini</p>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="col-sm-12">
+                    
+                            {{-- Card: Cara Mendapatkan Poin --}}
                             <div class="card">
+                                <div class="card-header">
+                                    <h5>Cara Mendapatkan Poin</h5>
+                                </div>
+                                <div class="card-block">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Melihat detail kursus <span class="badge badge-success">+1</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Menyelesaikan 1 modul <span class="badge badge-success">+3</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Menyelesaikan semua modul <span class="badge badge-success">+10</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Mendapat nilai akhir ≥ 80 <span class="badge badge-success">+5</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Upload tugas / project akhir <span class="badge badge-success">+5</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Berpartisipasi dalam forum kursus <span class="badge badge-success">+3</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Mengisi feedback setelah kursus <span class="badge badge-success">+2</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        {{-- KANAN: Rincian Poin + Diamond Saya + Riwayat Diamond --}}
+                        <div class="col-md-8">
+                            {{-- Card: Rincian Poin --}}
+                            <div class="card mb-4">
                                 <div class="card-header">
                                     <h5>Rincian Poin per Kursus</h5>
                                 </div>
                                 <div class="card-block table-border-style">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
+                                    <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
+                                        <table class="table table-hover mb-0">
                                             <thead>
                                                 <tr>
                                                     <th>Nama Kursus</th>
-                                                    <th>Poin Diperoleh</th>
-                                                    <th>Status Konversi</th>
+                                                    <th>Poin</th>
+                                                    <th>Status</th>
                                                     <th class="text-center">Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {{-- CORRECTED: Renamed $pivot to $course for clarity --}}
                                                 @forelse ($pointsPerCourse as $course)
                                                     <tr>
-                                                        {{-- CORRECTED: Access title directly --}}
                                                         <td>{{ $course->title }}</td>
-                                                        
-                                                        {{-- CORRECTED: Access pivot data via the ->pivot attribute --}}
                                                         <td><strong>{{ $course->pivot->points_earned }} Poin</strong></td>
                                                         <td>
-                                                            {{-- CORRECTED: Access pivot data via the ->pivot attribute --}}
                                                             @if($course->pivot->is_converted_to_diamond)
                                                                 <label class="label label-success">Sudah Dikonversi</label>
                                                             @else
@@ -69,7 +102,6 @@
                                                             @endif
                                                         </td>
                                                         <td class="text-center">
-                                                            {{-- CORRECTED: Use the course's own ID --}}
                                                             <button class="btn btn-inverse btn-sm" data-toggle="modal" data-target="#historyModal-{{ $course->id }}">
                                                                 Lihat Riwayat
                                                             </button>
@@ -83,54 +115,95 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="d-flex justify-content-center">
+                                    <div class="d-flex justify-content-center mt-3">
                                         {{ $pointsPerCourse->links() }}
+                                    </div>
+                                </div>
+                            </div>
+                    
+                            {{-- Saldo Diamond --}}
+                            <div class="card mb-4">
+                                <div class="card-block text-center">
+                                    <i class="fa fa-diamond text-c-blue d-block f-40"></i>
+                                    <h4 class="m-t-20"><span class="text-c-blue">0</span> Diamond</h4>
+                                    <p class="m-b-20">Saldo Diamond Anda Saat Ini</p>
+                                    <a href="#" class="btn btn-primary btn-sm btn-round">Gunakan Diamond</a>
+                                </div>
+                            </div>
+                    
+                            {{-- Riwayat Diamond --}}
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Riwayat Diamond</h5>
+                                </div>
+                                <div class="card-block table-border-style">
+                                    <div class="table-responsive" style="max-height: 220px; overflow-y: auto;">
+                                        <table class="table table-hover mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Tanggal</th>
+                                                    <th>Deskripsi</th>
+                                                    <th class="text-right">Jumlah</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td colspan="3" class="text-center">Anda belum memiliki riwayat diamond.</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="d-flex justify-content-center mt-3">
+                                        <nav>
+                                            <ul class="pagination pagination-sm mb-0">
+                                                <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
+                                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                                <li class="page-item disabled"><a class="page-link" href="#">»</a></li>
+                                            </ul>
+                                        </nav>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    {{-- Modal Riwayat --}}
+                    @foreach($pointsPerCourse as $course)
+                    <div class="modal fade" id="historyModal-{{ $course->id }}" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Riwayat Poin: {{ $course->title }}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <ul class="list-group list-group-flush">
+                                        @forelse($pointHistories[$course->id] ?? [] as $history)
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    {{ $history->description }}<br>
+                                                    <small class="text-muted">{{ $history->created_at->format('d M Y, H:i') }}</small>
+                                                </div>
+                                                <span class="badge badge-primary badge-pill">+{{ $history->points }}</span>
+                                            </li>
+                                        @empty
+                                            <li class="list-group-item text-muted">Tidak ada riwayat untuk kursus ini.</li>
+                                        @endforelse
+                                    </ul>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-{{-- CORRECTED: Renamed $pivot to $course for clarity --}}
-@foreach($pointsPerCourse as $course)
-{{-- CORRECTED: Use the course's own ID for the modal ID --}}
-<div class="modal fade" id="historyModal-{{ $course->id }}" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                {{-- CORRECTED: Access title directly --}}
-                <h5 class="modal-title">Riwayat Poin: {{ $course->title }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <ul class="list-group list-group-flush">
-                    {{-- CORRECTED: Use the course's own ID to look up its history --}}
-                    @forelse($pointHistories[$course->id] ?? [] as $history)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                {{ $history->description }}
-                                <br>
-                                <small class="text-muted">{{ $history->created_at->format('d M Y, H:i') }}</small>
-                            </div>
-                            <span class="badge badge-primary badge-pill">+{{ $history->points }}</span>
-                        </li>
-                    @empty
-                        <li class="list-group-item text-muted">Tidak ada riwayat untuk kursus ini.</li>
-                    @endforelse
-                </ul>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-@endforeach
 @endsection

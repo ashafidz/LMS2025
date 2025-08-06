@@ -152,6 +152,30 @@
                                                 </div>
                                             </div>
 
+                                            {{-- ... (di dalam form, setelah bagian Batas Pengerjaan) ... --}}
+                                            <div class="form-group row">
+                                                <label class="col-sm-3 col-form-label">Jadwal Ketersediaan
+                                                    (Opsional)</label>
+                                                <div class="col-sm-9">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <label>Mulai Tersedia Pada</label>
+                                                            <input type="datetime-local" name="available_from"
+                                                                class="form-control"
+                                                                value="{{ old('available_from', $lesson->lessonable->available_from ? $lesson->lessonable->available_from->format('Y-m-d\TH:i') : '') }}">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label>Tersedia Hingga</label>
+                                                            <input type="datetime-local" name="available_to"
+                                                                class="form-control"
+                                                                value="{{ old('available_to', $lesson->lessonable->available_to ? $lesson->lessonable->available_to->format('Y-m-d\TH:i') : '') }}">
+                                                        </div>
+                                                    </div>
+                                                    <small class="form-text text-muted">Kosongkan jika kuis bisa dikerjakan
+                                                        kapan saja.</small>
+                                                </div>
+                                            </div>
+
                                             <div class="form-group row mt-4">
                                                 <div class="col-sm-12 text-right">
                                                     <a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}"
@@ -174,23 +198,23 @@
 
 
 @push('scripts')
-<script>
-    function toggleMaxAttempts(value) {
-        const container = document.getElementById('max-attempts-container');
-        const input = container.querySelector('input');
-        if (value === 'limited') {
-            container.style.display = 'block';
-            input.required = true;
-        } else {
-            container.style.display = 'none';
-            input.required = false;
-            input.value = '';
+    <script>
+        function toggleMaxAttempts(value) {
+            const container = document.getElementById('max-attempts-container');
+            const input = container.querySelector('input');
+            if (value === 'limited') {
+                container.style.display = 'block';
+                input.required = true;
+            } else {
+                container.style.display = 'none';
+                input.required = false;
+                input.value = '';
+            }
         }
-    }
-    // Panggil saat halaman dimuat untuk set keadaan awal
-    document.addEventListener('DOMContentLoaded', function() {
-        const initialValue = document.querySelector('input[name="attempt_limit_type"]:checked').value;
-        toggleMaxAttempts(initialValue);
-    });
-</script>
+        // Panggil saat halaman dimuat untuk set keadaan awal
+        document.addEventListener('DOMContentLoaded', function() {
+            const initialValue = document.querySelector('input[name="attempt_limit_type"]:checked').value;
+            toggleMaxAttempts(initialValue);
+        });
+    </script>
 @endpush

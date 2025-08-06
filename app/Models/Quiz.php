@@ -20,11 +20,15 @@ class Quiz extends Model
         'allow_exceed_time_limit',
         'reveal_answers',
         'max_attempts',
+        'available_from', // Tambahkan ini
+        'available_to',   // Tambahkan ini
     ];
     protected $casts = [
         'time_limit' => 'integer',
         'allow_exceed_time_limit' => 'boolean',
         'reveal_answers' => 'boolean', // Tambahkan ini
+        'available_from' => 'datetime', // Tambahkan ini
+        'available_to' => 'datetime',   // Tambahkan ini
     ];
 
     public function lesson()

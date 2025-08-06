@@ -91,19 +91,23 @@
                                             @endphp
 
                                             <div class="mt-4">
-                                                {{-- Tampilkan tombol "Mulai Kuis" atau "Coba Lagi" jika masih ada kesempatan --}}
-                                                @if ($canAttempt)
-                                                    <form action="{{ route('student.quiz.begin', $quiz->id) }}"
-                                                        method="POST" class="d-inline">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-primary btn-lg">
-                                                            {{-- Ganti teks tombol jika ini bukan percobaan pertama --}}
-                                                            {{ $attemptCount > 0 ? 'Coba Lagi' : 'Mulai Kuis' }}
-                                                        </button>
-                                                    </form>
+                                                @if ($isAvailable)
+                                                    {{-- Tampilkan tombol "Mulai Kuis" atau "Coba Lagi" jika masih ada kesempatan --}}
+                                                    @if ($canAttempt)
+                                                        <form action="{{ route('student.quiz.begin', $quiz->id) }}"
+                                                            method="POST" class="d-inline">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-primary btn-lg">
+                                                                {{-- Ganti teks tombol jika ini bukan percobaan pertama --}}
+                                                                {{ $attemptCount > 0 ? 'Coba Lagi' : 'Mulai Kuis' }}
+                                                            </button>
+                                                        </form>
+                                                    @else
+                                                        {{-- Tampilkan pesan jika kesempatan sudah habis --}}
+                                                        <button class="btn btn-danger btn-lg" disabled>Kesempatan Habis</button>
+                                                    @endif
                                                 @else
-                                                    {{-- Tampilkan pesan jika kesempatan sudah habis --}}
-                                                    <button class="btn btn-danger btn-lg" disabled>Kesempatan Habis</button>
+                                                    <button class="btn btn-danger btn-lg" disabled>Tidak Tersedia</button>
                                                 @endif
                                             </div>
                                         @else

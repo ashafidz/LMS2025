@@ -90,7 +90,31 @@ class LessonController extends Controller
                         'allow_exceed_time_limit' => 'required|boolean',
                         'reveal_answers' => 'required|boolean',
                         'max_attempts' => 'nullable|integer|min:1',
+                        'available_from' => 'nullable|date', // Tambahkan validasi
+                        'available_to' => 'nullable|date|after_or_equal:available_from', // Tambahkan validasi
                     ]);
+
+                    // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
+                    if (!empty($validated['available_from'])) {
+                        // 1. Ambil timezone instruktur (dari data user yang login)
+                        $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+
+                        // 2. Konversi waktu ke timezone instruktur
+                        $availableFrom = Carbon::parse($validated['available_from'], $instructorTimezone)->utc();
+
+                        // 3. Simpan waktu yang telah dikonversi
+                        $validated['available_from'] = $availableFrom;
+                    }
+
+                    if (!empty($validated['available_to'])) {
+                        // 1. Ambil timezone instruktur (dari data user yang login)
+                        $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+
+                        $availableTo = Carbon::parse($validated['available_to'], $instructorTimezone)->utc();
+                        $validated['available_to'] = $availableTo;
+                    }
+                    // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
+
                     $lessonable = Quiz::create([
                         'title' => $validated['quiz_title'],
                         'description' => $validated['quiz_description'],
@@ -99,6 +123,8 @@ class LessonController extends Controller
                         'allow_exceed_time_limit' => $validated['allow_exceed_time_limit'],
                         'reveal_answers' => $validated['reveal_answers'],
                         'max_attempts' => $validated['max_attempts'],
+                        'available_from' => $validated['available_from'], // Tambahkan validasi
+                        'available_to' => $validated['available_to'], // Tambahkan validasi
 
                     ]);
                     break;
@@ -218,7 +244,31 @@ class LessonController extends Controller
                         'allow_exceed_time_limit' => 'required|boolean',
                         'reveal_answers' => 'required|boolean',
                         'max_attempts' => 'nullable|integer|min:1',
+                        'available_from' => 'nullable|date', // Tambahkan validasi
+                        'available_to' => 'nullable|date|after_or_equal:available_from',
                     ]);
+
+                    // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
+                    if (!empty($validated['available_from'])) {
+                        // 1. Ambil timezone instruktur (dari data user yang login)
+                        $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+
+                        // 2. Konversi waktu ke timezone instruktur
+                        $availableFrom = Carbon::parse($validated['available_from'], $instructorTimezone)->utc();
+
+                        // 3. Simpan waktu yang telah dikonversi
+                        $validated['available_from'] = $availableFrom;
+                    }
+
+                    if (!empty($validated['available_to'])) {
+                        // 1. Ambil timezone instruktur (dari data user yang login)
+                        $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+
+                        $availableTo = Carbon::parse($validated['available_to'], $instructorTimezone)->utc();
+                        $validated['available_to'] = $availableTo;
+                    }
+                    // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
+
                     $lessonable->update([
                         'title' => $validated['quiz_title'],
                         'description' => $validated['quiz_description'],
@@ -227,6 +277,9 @@ class LessonController extends Controller
                         'allow_exceed_time_limit' => $validated['allow_exceed_time_limit'],
                         'reveal_answers' => $validated['reveal_answers'],
                         'max_attempts' => $validated['max_attempts'],
+                        'available_from' => $validated['available_from'],
+                        'available_to' => $validated['available_to'],
+
                     ]);
                     break;
 

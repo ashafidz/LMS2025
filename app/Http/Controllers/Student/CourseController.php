@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use Exception;
+use Carbon\Carbon;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Module;
@@ -172,6 +173,20 @@ class CourseController extends Controller
             $data['maxScore'] = $quiz->questions->sum('score');
 
             $data['minimumScore'] = $data['maxScore'] * ($quiz->pass_mark / 100);
+
+            // LOGIKA BARU: Cek ketersediaan kuis berdasarkan jadwal
+            $now = Carbon::now();
+            $isAvailable = true;
+            $availabilityMessage = '';
+
+            if ($quiz->available_from && $now->isBefore($quiz->available_from)) {
+                $isAvailable = false;
+            }
+            if ($quiz->available_to && $now->isAfter($quiz->available_to)) {
+                $isAvailable = false;
+            }
+
+            $data['isAvailable'] = $isAvailable;
 
             // // LOGIKA BARU: Ambil riwayat kuis siswa & hitung total skor
             // if ($user && !$is_preview_for_view) {

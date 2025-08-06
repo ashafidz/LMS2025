@@ -161,4 +161,26 @@ trait HasLocalDates
         }
         return Carbon::parse($value)->tz($this->getLocalTimezone());
     }
+
+    /**
+     * Accessor untuk model Quiz (tersedia mulai).
+     */
+    public function getAvailableFromAttribute($value): ?Carbon
+    {
+        if (is_null($value)) {
+            return null;
+        }
+        return Carbon::parse($value)->tz($this->getLocalTimezone());
+    }
+
+    /**
+     * Accessor untuk model Quiz (tersedia hingga).
+     */
+    public function getAvailableToAttribute($value): ?Carbon
+    {
+        if (is_null($value)) {
+            return null;
+        }
+        return Carbon::parse($value)->tz($this->getLocalTimezone());
+    }
 }
