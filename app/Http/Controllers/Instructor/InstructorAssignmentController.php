@@ -12,28 +12,65 @@ use App\Services\PointService;
 class InstructorAssignmentController extends Controller
 {
     /**
-     * Menampilkan daftar semua pengumpulan tugas untuk pelajaran tertentu.
+     * Menampilkan daftar semua pengumpulan tugas untuk pelajaran tertentu,
+     * dikelompokkan berdasarkan status.
      */
     public function index(LessonAssignment $assignment)
     {
-        // Otorisasi: Pastikan instruktur yang mengakses adalah pemilik kursus
+        // Otorisasi
+        if ($assignment->lesson->module->course->instructor_id != Auth::id()) {
+            abort(403, 'Akses ditolak.');
+        }
 
-        // Ambil semua data pengumpulan, beserta data siswa, urutkan dari yang terbaru
+        $course = $assignment->lesson->module->course;
+
+        // 1. Ambil semua siswa yang terdaftar di kursus
+        $enrolledStudents = $course->students()->get();
+
+        // 2. Ambil semua pengumpulan untuk tugas ini, diindeks berdasarkan user_id
         $submissions = $assignment->submissions()
             ->with('user')
-            ->latest('submitted_at')
-            ->paginate(15);
+            ->get()
+            ->keyBy('user_id');
 
-        return view('instructor.assignments.submissions', compact('assignment', 'submissions'));
+        // 3. Kelompokkan siswa ke dalam kategori
+        $passedSubmissions = collect();
+        $revisionSubmissions = collect();
+        $submittedSubmissions = collect();
+        $notSubmittedStudents = collect();
+
+        foreach ($enrolledStudents as $student) {
+            if (isset($submissions[$student->id])) {
+                $submission = $submissions[$student->id];
+                if ($submission->status === 'passed') {
+                    $passedSubmissions->push($submission);
+                } elseif ($submission->status === 'revision_required') {
+                    $revisionSubmissions->push($submission);
+                } else { // status 'submitted'
+                    $submittedSubmissions->push($submission);
+                }
+            } else {
+                // Siswa yang terdaftar tapi tidak ada di daftar submission
+                $notSubmittedStudents->push($student);
+            }
+        }
+
+        return view('instructor.assignments.submissions', compact(
+            'assignment',
+            'passedSubmissions',
+            'revisionSubmissions',
+            'submittedSubmissions',
+            'notSubmittedStudents'
+        ));
     }
 
 
 
     public function grade(Request $request, AssignmentSubmission $submission)
     {
-        // if ($submission->assignment->lesson->module->course->instructor_id !== Auth::id()) {
-        //     abort(403, 'Akses ditolak.');
-        // }
+        if ($submission->assignment->lesson->module->course->instructor_id != Auth::id()) {
+            abort(403, 'Akses ditolak.');
+        }
 
         $validated = $request->validate([
             'grade' => 'required|numeric|min:0|max:100',

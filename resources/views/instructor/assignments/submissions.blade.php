@@ -2,6 +2,7 @@
 
 @section('content')
 <div class="pcoded-content">
+    <!-- Page-header start -->
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
@@ -21,6 +22,8 @@
             </div>
         </div>
     </div>
+    <!-- Page-header end -->
+
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
@@ -30,68 +33,71 @@
                             <div class="card">
                                 <div class="card-header">
                                     <h5>Daftar Pengumpulan Siswa</h5>
-                                    <span>Berikut adalah daftar semua siswa yang telah mengumpulkan tugas ini.</span>
+                                    <span>Berikut adalah daftar semua siswa baik yang telah mengumpulkan tugas ini atau belum.</span>
                                 </div>
-                                <div class="card-block table-border-style">
+                                <div class="card-block">
                                     @if (session('success'))
                                         <div class="alert alert-success">{{ session('success') }}</div>
                                     @endif
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>NIM/NIDN/NIP</th>
-                                                    <th>Nama Siswa</th>
-                                                    <th>Waktu Pengumpulan</th>
-                                                    <th>Status</th>
-                                                    <th class="text-center">Aksi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @forelse ($submissions as $submission)
-                                                    <tr>
-                                                        <th scope="row">{{ $loop->iteration + $submissions->firstItem() - 1 }}</th>
-                                                        <th>{{ $submission->user->studentProfile->unique_id_number }}</th>
-                                                        <td>{{ $submission->user->name }}</td>
-                                                        <td>{{ $submission->submitted_at->format('d F Y, H:i') }}</td>
-                                                        <td>
-                                                            {{-- LOGIKA BARU UNTUK LABEL STATUS --}}
-                                                            @php
-                                                                $statusClasses = [
-                                                                    'submitted' => 'label-info',
-                                                                    'revision_required' => 'label-danger',
-                                                                    'passed' => 'label-success',
-                                                                ];
-                                                                $statusText = [
-                                                                    'submitted' => 'Menunggu Penilaian',
-                                                                    'revision_required' => 'Perlu Revisi',
-                                                                    'passed' => 'Lulus',
-                                                                ];
-                                                            @endphp
-                                                            <label class="label {{ $statusClasses[$submission->status] ?? 'label-default' }}">
-                                                                {{ $statusText[$submission->status] ?? 'Tidak Diketahui' }}
-                                                            </label>
-                                                            @if(!is_null($submission->grade))
-                                                                <span class="badge badge-inverse">{{ $submission->grade }} / 100</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#submissionModal-{{ $submission->id }}">
-                                                                Lihat & Nilai
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                @empty
-                                                    <tr>
-                                                        <td colspan="5" class="text-center">Belum ada siswa yang mengumpulkan tugas.</td>
-                                                    </tr>
-                                                @endforelse
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div class="d-flex justify-content-center">
-                                        {{ $submissions->links() }}
+                                    
+                                    <!-- Nav tabs -->
+                                    <ul class="nav nav-tabs md-tabs" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" data-toggle="tab" href="#submitted" role="tab">Menunggu Dinilai <span class="badge badge-info">{{ $submittedSubmissions->count() }}</span></a>
+                                            <div class="slide"></div>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" data-toggle="tab" href="#revision" role="tab">Perlu Revisi <span class="badge badge-danger">{{ $revisionSubmissions->count() }}</span></a>
+                                            <div class="slide"></div>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" data-toggle="tab" href="#passed" role="tab">Lulus <span class="badge badge-success">{{ $passedSubmissions->count() }}</span></a>
+                                            <div class="slide"></div>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" data-toggle="tab" href="#not-submitted" role="tab">Belum Mengumpulkan <span class="badge badge-default">{{ $notSubmittedStudents->count() }}</span></a>
+                                            <div class="slide"></div>
+                                        </li>
+                                    </ul>
+                                    <!-- Tab panes -->
+                                    <div class="tab-content card-block">
+                                        {{-- TAB: Menunggu Dinilai --}}
+                                        <div class="tab-pane active" id="submitted" role="tabpanel">
+                                            @include('instructor.assignments.partials._submission_table', ['submissions' => $submittedSubmissions])
+                                        </div>
+                                        {{-- TAB: Perlu Revisi --}}
+                                        <div class="tab-pane" id="revision" role="tabpanel">
+                                            @include('instructor.assignments.partials._submission_table', ['submissions' => $revisionSubmissions])
+                                        </div>
+                                        {{-- TAB: Lulus --}}
+                                        <div class="tab-pane" id="passed" role="tabpanel">
+                                            @include('instructor.assignments.partials._submission_table', ['submissions' => $passedSubmissions])
+                                        </div>
+                                        {{-- TAB: Belum Mengumpulkan --}}
+                                        <div class="tab-pane" id="not-submitted" role="tabpanel">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Nama Siswa</th>
+                                                            <th>Email</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @forelse ($notSubmittedStudents as $student)
+                                                            <tr>
+                                                                <td>{{ $student->name }}</td>
+                                                                <td>{{ $student->email }}</td>
+                                                            </tr>
+                                                        @empty
+                                                            <tr>
+                                                                <td colspan="2" class="text-center">Semua siswa sudah mengumpulkan tugas.</td>
+                                                            </tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -103,7 +109,7 @@
     </div>
 
     <!-- Modal untuk setiap pengumpulan -->
-    @foreach ($submissions as $submission)
+    @foreach ($submittedSubmissions->concat($revisionSubmissions)->concat($passedSubmissions) as $submission)
     <div class="modal fade" id="submissionModal-{{ $submission->id }}" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -119,7 +125,6 @@
                             <h6 class="font-weight-bold">Pratinjau File</h6>
                             @if(Str::endsWith($submission->file_path, '.pdf'))
                                 <div class="embed-responsive embed-responsive-4by3" style="border: 1px solid #ddd;">
-                                    {{-- DIPERBARUI: Tinggi diubah menjadi 650px --}}
                                     <embed src="{{ Storage::url($submission->file_path) }}" type="application/pdf" width="100%" height="650px" />
                                 </div>
                             @else
@@ -153,4 +158,5 @@
         </div>
     </div>
     @endforeach
+</div>
 @endsection
