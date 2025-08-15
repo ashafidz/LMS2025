@@ -91,7 +91,8 @@ class Course extends Model
      */
     public function modules()
     {
-        return $this->hasMany(Module::class);
+        // return $this->hasMany(Module::class);
+        return $this->hasMany(Module::class)->orderBy('order', 'asc');
     }
     public function lessons()
     {

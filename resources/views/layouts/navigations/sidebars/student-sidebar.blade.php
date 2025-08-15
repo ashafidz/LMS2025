@@ -5,11 +5,11 @@
                             <div class="pcoded-inner-navbar main-menu">
                                 <div class="">
                                     <div class="main-menu-header">
-                                        <img class="rounded-circle mr-4" style="width: 80px; height: 80px; border: 3px;"
+                                        {{-- <img class="rounded-circle mr-4" style="width: 80px; height: 80px; border: 3px;"
                                             src="{{ Auth::user()->profile_picture_url 
         ? asset('storage/' . ltrim(Auth::user()->profile_picture_url, '/')) 
         : 'https://placehold.co/80x80/EBF4FF/767676?text=SA' }}"
-                                            alt="{{ Auth::user()->name }}" />
+                                            alt="{{ Auth::user()->name }}" /> --}}
                                         <div class="user-details">
                                             <span id="more-details">{{ Auth::user()->name }}<i
                                                     class="fa fa-caret-down"></i></span>
@@ -41,13 +41,13 @@
                                     Menu Sidebar
                                 </div>
                                 <ul class="pcoded-item pcoded-left-item">
-                                    <li class="{{ Request::routeIs('student.dashboard') ? 'active' : '' }}">
+                                    {{-- <li class="{{ Request::routeIs('student.dashboard') ? 'active' : '' }}">
                                         <a href="{{ route('student.dashboard') }}" class="waves-effect waves-dark">
                                             <span class="pcoded-micon"><i class="ti-home"></i><b>D</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.dash.main">Dashboard</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
-                                    </li>
+                                    </li> --}}
                                     <li class="{{ Request::routeIs('student.my_courses') ? 'active' : '' }}">
                                         <a href="{{ route('student.my_courses') }}" class="waves-effect waves-dark">
                                             <span class="pcoded-micon"><i class="ti-agenda"></i><b>D</b></span>

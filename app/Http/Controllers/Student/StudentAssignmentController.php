@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\LessonAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\PointService;
 
 class StudentAssignmentController extends Controller
 {
@@ -23,6 +24,16 @@ class StudentAssignmentController extends Controller
 
         // Cek apakah siswa sudah pernah mengumpulkan untuk tugas ini
         $existingSubmission = $assignment->submissions()->where('user_id', $user->id)->first();
+
+        if (!$existingSubmission) {
+            PointService::addPoints(
+                user: $user,
+                course: $assignment->lesson->module->course,
+                activity: 'pass_assignment',
+                lesson: $assignment->lesson,
+                description_meta: $assignment->lesson->title
+            );
+        }
         if ($existingSubmission) {
             // Jika sudah ada, hapus file lama dari storage sebelum menyimpan yang baru
             \Illuminate\Support\Facades\Storage::disk('public')->delete($existingSubmission->file_path);

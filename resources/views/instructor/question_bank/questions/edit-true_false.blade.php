@@ -6,18 +6,18 @@
         <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
-                    <div class="col-md-8">
+                    <div class="col-md-12">
                         <div class="page-header-title">
                             <h5 class="m-b-10">Edit Question</h5>
                             <p class="m-b-0">Type: True / False</p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-12 d-flex mt-3">
                         <ul class="breadcrumb-title">
                             <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.topics.index') }}">Question Topics</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.topics.index') }}">Bank Soal</a></li>
                             <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.questions.index', $question->topic) }}">{{ Str::limit($question->topic->name, 20) }}</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Edit</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Edit Pertaanyaan</a></li>
                         </ul>
                     </div>
                 </div>
@@ -33,8 +33,8 @@
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Question Details</h5>
-                                        <span>Modify the details for your question below.</span>
+                                        <h5>Detail Pertanyaan</h5>
+                                        <span>Ubah detail pertanyaan di bawah ini.</span>
                                     </div>
                                     <div class="card-block">
                                         <form action="{{ route('instructor.question-bank.questions.update', $question->id) }}" method="POST" id="true-false-form">
@@ -42,21 +42,21 @@
                                             @method('PUT')
 
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Question Text</label>
+                                                <label class="col-sm-2 col-form-label">Teks Pertanyaan</label>
                                                 <div class="col-sm-10">
                                                     <textarea rows="5" name="question_text" class="form-control" required>{{ old('question_text', $question->question_text) }}</textarea>
                                                 </div>
                                             </div>
 
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Score</label>
+                                                <label class="col-sm-2 col-form-label">Nilai</label>
                                                 <div class="col-sm-10">
                                                     <input type="number" name="score" class="form-control" value="{{ old('score', $question->score) }}" required>
                                                 </div>
                                             </div>
 
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Explanation (Optional)</label>
+                                                <label class="col-sm-2 col-form-label">Keterangan (Opsional)</label>
                                                 <div class="col-sm-10">
                                                     <textarea rows="3" name="explanation" class="form-control">{{ old('explanation', $question->explanation) }}</textarea>
                                                 </div>
@@ -64,8 +64,8 @@
 
                                             <hr>
 
-                                            <h5 class="mt-4">Correct Answer</h5>
-                                            <p class="mb-4">Select whether the statement is true or false.</p>
+                                            <h5 class="mt-4">Jawaban Benar</h5>
+                                            <p class="mb-4">Pilih apakah pernyataan tersebut benar atau salah.</p>
 
                                             @php
                                                 // Find out which option is the correct one to pre-check the radio button.
@@ -108,8 +108,8 @@
 
                                             <div class="form-group row mt-5">
                                                 <div class="col-sm-12 text-right">
-                                                    <a href="{{ route('instructor.question-bank.questions.index', $question->topic) }}" class="btn btn-secondary">Cancel</a>
-                                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                    <a href="{{ route('instructor.question-bank.questions.index', $question->topic) }}" class="btn btn-secondary">Batal</a>
+                                                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                                                 </div>
                                             </div>
                                         </form>

@@ -232,21 +232,35 @@
     }
 </script>
 
-    <!-- Tombol WhatsApp Ikon Saja -->
+    <!-- Tombol WhatsApp Ikon + Teks -->
     <a href="https://wa.me/6281234567890" target="_blank"
         style="
             position: fixed;
             bottom: 50px;
             right: 50px;
             z-index: 9999;
+            background-color: #128C7E;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            text-decoration: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             transition: transform 0.3s ease;
         "
         onmouseover="this.style.transform='scale(1.1)'"
         onmouseout="this.style.transform='scale(1)'">
+    
         <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
             alt="WhatsApp"
-            style="width: 50px; height: 50px;">
+            style="width: 28px; height: 28px;">
+    
+        WhatsApp
     </a>
+
 </body>
 
   <!-- Main JS File -->

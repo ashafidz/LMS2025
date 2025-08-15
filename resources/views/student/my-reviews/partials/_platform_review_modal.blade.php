@@ -12,7 +12,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>Bagikan pengalaman Anda menggunakan platform kami secara keseluruhan.</p>
+                    <p style="font-size: 1rem;">Bagikan pengalaman Anda menggunakan platform kami secara keseluruhan.</p>
                     
                     {{-- Rating Bintang --}}
                     <div class="form-group text-center">
@@ -34,10 +34,12 @@
                     {{-- Pertanyaan Skala Likert --}}
                     @if($platformLikertQuestions->isNotEmpty())
                         <hr>
-                        <label class="d-block mb-3">Penilaian Detail:</label>
+                        <label class="d-block mb-3" style="font-size: 1rem; font-weight: 500;">Penilaian Detail:</label>
+
+
                         @foreach($platformLikertQuestions as $question)
                         <div class="form-group likert-scale">
-                            <p class="mb-1">{{ $question->question_text }}</p>
+                            <p class="likert-question">{{ $question->question_text }}</p>
                             <div class="btn-group d-flex justify-content-between text-center" role="group">
                                 @php $currentAnswer = $userLikertAnswers[$question->id] ?? 0; @endphp
                                 <div class="w-25 d-flex flex-column justify-content-center" >
@@ -65,6 +67,14 @@
                     <button type="submit" class="btn btn-primary">Simpan Ulasan</button>
                 </div>
             </form>
+            <style>
+            .likert-question {
+                font-size: 1rem !important; /* pastikan lebih besar */
+                color: #555 !important;       /* warna hitam pekat */
+                margin-bottom: 0.5rem;        /* beri jarak bawah */
+            }
+            </style>
+
         </div>
     </div>
 </div>

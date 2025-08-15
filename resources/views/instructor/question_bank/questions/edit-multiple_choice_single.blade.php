@@ -6,16 +6,16 @@
         <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
-                    <div class="col-md-8">
+                    <div class="col-md-12">
                         <div class="page-header-title">
-                            <h5 class="m-b-10">Edit Question</h5>
-                            <p class="m-b-0">Type: Multiple Choice (Single Answer)</p>
+                            <h5 class="m-b-10">Edit Pertanyaan</h5>
+                            <p class="m-b-0">Tipe Soal: Pilihan Ganda (Jawban Tunggal)</p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-12 d-flex mt-3">
                         <ul class="breadcrumb-title">
                             <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.topics.index') }}">Question Topics</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.topics.index') }}">Bank Soal</a></li>
                             <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.questions.index', $question->topic) }}">{{ Str::limit($question->topic->name, 20) }}</a></li>
                             <li class="breadcrumb-item"><a href="#!">Edit</a></li>
                         </ul>
@@ -33,8 +33,8 @@
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Question Details</h5>
-                                        <span>Modify the details for your question below.</span>
+                                        <<h5>Detail Pertanyaan</h5>
+                                        <span>Ubah detail pertanyaan di bawah ini.</span>
                                     </div>
                                     <div class="card-block">
                                         {{-- Form points to the UPDATE route --}}
@@ -51,14 +51,14 @@
                                             </div>
 
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Score</label>
+                                                <label class="col-sm-2 col-form-label">Nilai</label>
                                                 <div class="col-sm-10">
                                                     <input type="number" name="score" class="form-control" value="{{ old('score', $question->score) }}" required>
                                                 </div>
                                             </div>
 
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Explanation (Optional)</label>
+                                                <label class="col-sm-2 col-form-label">Keterangan (Opsional)</label>
                                                 <div class="col-sm-10">
                                                     <textarea rows="3" name="explanation" class="form-control">{{ old('explanation', $question->explanation) }}</textarea>
                                                 </div>
@@ -66,8 +66,8 @@
 
                                             <hr>
 
-                                            <h5 class="mt-4">Answer Options</h5>
-                                            <p class="mb-4">Modify the options and select the single correct answer.</p>
+                                            <h5 class="mt-4">Opsi pertanyan</h5>
+                                            <p class="mb-4">Ubah opsi dan pilih satu jawaban yang benar.</p>
 
                                             <div id="options-container">
                                                 {{-- Pre-populate with existing options from the database, or with old input from a failed validation --}}
@@ -89,7 +89,7 @@
                                                         </div>
                                                         <div class="col-sm-2">
                                                             <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.option-row').remove()">
-                                                                <i class="fa fa-trash"></i> Remove
+                                                                <i class="fa fa-trash"></i> Hapus
                                                             </button>
                                                         </div>
                                                     </div>
@@ -99,7 +99,7 @@
                                             <div class="row">
                                                 <div class="col-sm-12">
                                                     <button type="button" class="btn btn-success" id="add-option-btn">
-                                                        <i class="fa fa-plus"></i> Add Another Option
+                                                        <i class="fa fa-plus"></i> Tambahkan Opsi Lain
                                                     </button>
                                                 </div>
                                             </div>
@@ -107,7 +107,7 @@
                                             <div class="form-group row mt-5">
                                                 <div class="col-sm-12 text-right">
                                                     <a href="{{ route('instructor.question-bank.questions.index', $question->topic) }}" class="btn btn-secondary">Cancel</a>
-                                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                                                 </div>
                                             </div>
                                         </form>
@@ -133,7 +133,7 @@
             </div>
             <div class="col-sm-2">
                 <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.option-row').remove()">
-                    <i class="fa fa-trash"></i> Remove
+                    <i class="fa fa-trash"></i> Hapus
                 </button>
             </div>
         </div>

@@ -39,6 +39,7 @@ use App\Http\Controllers\Shared\CourseEnrollmentController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Instructor\InstructorQuizController;
 use App\Http\Controllers\Student\DiamondConversionController;
+use App\Http\Controllers\Shared\CourseCategoryController;
 
 // Route::get('/neweditprofil', function () {
 //     return view('1edit-index');
@@ -180,6 +181,12 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     Route::get('/superadmin/course-enrollments/{course}/add', [CourseEnrollmentController::class, 'create'])->name('superadmin.course-enrollments.create');
     Route::post('/superadmin/course-enrollments/{course}', [CourseEnrollmentController::class, 'store'])->name('superadmin.course-enrollments.store');
     Route::delete('/superadmin/course-enrollments/{course}/remove', [CourseEnrollmentController::class, 'destroy'])->name('superadmin.course-enrollments.destroy');
+
+
+    // --- RUTE BARU UNTUK MANAJEMEN KATEGORI KURSUS ---
+    Route::resource('/superadmin/course-categories', CourseCategoryController::class, [
+        'as' => 'superadmin'
+    ])->except(['show']);
 });
 
 // * group route for admin
@@ -223,6 +230,12 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/admin/course-enrollments/{course}/add', [CourseEnrollmentController::class, 'create'])->name('admin.course-enrollments.create');
     Route::post('/admin/course-enrollments/{course}', [CourseEnrollmentController::class, 'store'])->name('admin.course-enrollments.store');
     Route::delete('/admin/course-enrollments/{course}/remove', [CourseEnrollmentController::class, 'destroy'])->name('admin.course-enrollments.destroy');
+
+
+    // --- RUTE BARU UNTUK MANAJEMEN KATEGORI KURSUS ---
+    Route::resource('/admin/course-categories', CourseCategoryController::class, [
+        'as' => 'admin'
+    ])->except(['show']);
 });
 
 
@@ -358,6 +371,9 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
 
         // Halaman untuk mereview jawaban detail dari satu percobaan kuis
         Route::get('/instructor/quiz-attempts/{attempt}/review', [InstructorQuizController::class, 'reviewAttempt'])->name('instructor.quiz.review_attempt');
+
+        // RUTE BARU UNTUK MENG-CLONE KURSUS
+        Route::post('/instructor/courses/{course}/clone', [CourseController::class, 'clone'])->name('instructor.courses.clone');
     });
 });
 

@@ -5,11 +5,11 @@
                             <div class="pcoded-inner-navbar main-menu">
                                 <div class="">
                                     <div class="main-menu-header">
-                                        <img class="rounded-circle mr-4" style="width: 80px; height: 80px; border: 3px;"
+                                        {{-- <img class="rounded-circle mr-4" style="width: 80px; height: 80px; border: 3px;"
                                             src="{{ Auth::user()->profile_picture_url 
         ? asset('storage/' . ltrim(Auth::user()->profile_picture_url, '/')) 
         : 'https://placehold.co/80x80/EBF4FF/767676?text=SA' }}"
-                                            alt="{{ Auth::user()->name }}" />
+                                            alt="{{ Auth::user()->name }}" /> --}}
                                         <div class="user-details">
                                             <span id="more-details">{{ Auth::user()->name }}<i
                                                     class="fa fa-caret-down"></i></span>

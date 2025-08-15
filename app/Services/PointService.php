@@ -125,7 +125,7 @@ class PointService
                 break;
             case 'pass_assignment':
                 $pointsToAdd = $settings->points_for_assignment;
-                $description = 'Lulus tugas: ' . $description_meta;
+                $description = 'Mengirimkan tugas: ' . $description_meta;
                 break;
         }
 

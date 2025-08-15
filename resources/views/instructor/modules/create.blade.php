@@ -6,17 +6,17 @@
         <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
-                    <div class="col-md-8">
+                    <div class="col-md-12">
                         <div class="page-header-title">
                             <h5 class="m-b-10">
-                                Create Module
+                                Buat Modul Baru
                             </h5>
                             <p class="m-b-0">
-                                Add a new module to your course: {{ $course->title }}
+                                Tambahkan Modul baru didalam Kursus: {{ $course->title }}
                             </p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-12 d-flex mt-3">
                         <ul class="breadcrumb-title">
                             <li class="breadcrumb-item">
                                 <a href="{{ route('instructor.dashboard') }}">
@@ -24,13 +24,13 @@
                                 </a>
                             </li>
                             <li class="breadcrumb-item">
-                                <a href="{{ route('instructor.courses.index') }}">Courses</a>
+                                <a href="{{ route('instructor.courses.index') }}">Kursus Saya</a>
                             </li>
                              <li class="breadcrumb-item">
-                                <a href="{{ route('instructor.courses.modules.index', $course->id) }}">Modules</a>
+                                <a href="{{ route('instructor.courses.modules.index', $course->id) }}">Modul Saya</a>
                             </li>
                             <li class="breadcrumb-item">
-                                <a href="#!">Create</a>
+                                <a href="#!">Buat</a>
                             </li>
                         </ul>
                     </div>
@@ -48,8 +48,8 @@
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>New Module Details</h5>
-                                        <span>Fill out the form below to create a new module.</span>
+                                        <h5>Detail Modul Baru</h5>
+                                        <span>Isi formulir di bawah ini untuk membuat modul baru.</span>
                                     </div>
                                     <div class="card-block">
                                         <form action="{{ route('instructor.courses.modules.store', $course->id) }}" method="POST">
@@ -57,9 +57,9 @@
 
                                             {{-- Title --}}
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Module Title</label>
+                                                <label class="col-sm-2 col-form-label">Judul Modul</label>
                                                 <div class="col-sm-10">
-                                                    <input type="text" name="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" placeholder="Enter module title" required>
+                                                    <input type="text" name="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" placeholder="Masukkan Judul Modul" required>
                                                     @error('title')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -78,8 +78,8 @@
                                             <div class="form-group row">
                                                 <label class="col-sm-2"></label>
                                                 <div class="col-sm-10">
-                                                    <button type="submit" class="btn btn-primary">Create Module</button>
-                                                    <a href="{{ route('instructor.courses.modules.index', $course->id) }}" class="btn btn-secondary">Cancel</a>
+                                                    <a href="{{ route('instructor.courses.modules.index', $course->id) }}" class="btn btn-secondary">Batal</a>
+                                                    <button type="submit" class="btn btn-primary">Buat Modul</button>
                                                 </div>
                                             </div>
                                         </form>

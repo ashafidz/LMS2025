@@ -37,7 +37,15 @@ class CatalogController extends Controller
         // Ambil semua kategori untuk ditampilkan di sidebar filter
         $categories = CourseCategory::orderBy('name')->get();
 
-        return view('catalog', compact('courses', 'categories'));
+
+        // LOGIKA BARU: Ambil 10 kursus terpopuler
+        $popularCourses = Course::where('status', 'published')
+            ->withCount('students')
+            ->orderBy('students_count', 'desc')
+            ->take(10)
+            ->get();
+
+        return view('catalog', compact('courses', 'categories', 'popularCourses'));
     }
 
     /**
@@ -65,6 +73,15 @@ class CatalogController extends Controller
             $is_enrolled = Auth::user()->enrollments()->where('course_id', $course->id)->exists();
         }
 
-        return view('details-course', compact('course', 'is_enrolled', 'reviews', 'averageRating', 'reviewCount'));
+
+        // LOGIKA BARU: Ambil kursus lain dalam kategori yang sama
+        $relatedCourses = Course::where('status', 'published')
+            ->where('category_id', $course->category_id)
+            ->where('id', '!=', $course->id) // Kecualikan kursus saat ini
+            ->inRandomOrder()
+            ->take(10)
+            ->get();
+
+        return view('details-course', compact('course', 'is_enrolled', 'reviews', 'averageRating', 'reviewCount', 'relatedCourses'));
     }
 }

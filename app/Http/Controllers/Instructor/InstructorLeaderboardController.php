@@ -12,21 +12,38 @@ use Illuminate\Support\Facades\DB;
 class InstructorLeaderboardController extends Controller
 {
     /**
-     * Mengambil data leaderboard untuk keseluruhan kursus.
+     * Mengambil data leaderboard DAN daftar siswa untuk keseluruhan kursus.
      */
     public function courseLeaderboard(Course $course)
     {
-        // Ambil peringkat berdasarkan total poin di tabel pivot course_user
+        // 1. Ambil peringkat berdasarkan total poin
         $leaderboardRanks = $course->points()
             ->with('user')
             ->orderBy('points_earned', 'desc')
             ->take(100)
             ->get();
 
-        $title = "Papan Peringkat: " . $course->title;
+        // 2. Ambil semua siswa yang terdaftar di kursus dan urutkan berdasarkan unique_id_number
+        $enrolledStudents = $course->students()
+            ->join('student_profiles', 'users.id', '=', 'student_profiles.user_id')
+            ->orderBy('student_profiles.unique_id_number', 'asc')
+            ->select('users.*') // Penting untuk menghindari konflik kolom dari tabel yang di-join
+            ->get();
 
-        // Render partial view dan kirim sebagai respons
-        $html = view('instructor.leaderboards._modal_content', compact('leaderboardRanks', 'title'))->render();
+        // Gabungkan data poin ke dalam data siswa untuk ditampilkan di tab "Daftar Siswa"
+        foreach ($enrolledStudents as $student) {
+            $rankData = $leaderboardRanks->firstWhere('user_id', $student->id);
+            $student->points_earned = $rankData->points_earned ?? 0;
+        }
+
+        $title = "Data Siswa & Peringkat: " . $course->title;
+
+        // Render partial view baru dan kirim sebagai respons
+        $html = view('instructor.leaderboards._course_data_modal', compact(
+            'leaderboardRanks',
+            'enrolledStudents',
+            'title'
+        ))->render();
 
         return response()->json(['html' => $html]);
     }

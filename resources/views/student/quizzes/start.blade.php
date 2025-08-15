@@ -16,7 +16,7 @@
                         <ul class="breadcrumb-title">
                             <li class="breadcrumb-item"><a href="#"><i class="fa fa-home"></i></a></li>
                             <li class="breadcrumb-item"><a
-                                    href="{{ route('student.courses.show', $quiz->lesson->module->course->slug) }}">Kursus</a>
+                                    href="{{ route('student.courses.show', $quiz->lesson->module->course->slug) }}">Kursus Saya</a>
                             </li>
                             <li class="breadcrumb-item"><a href="#!">Kuis</a></li>
                         </ul>
@@ -32,7 +32,7 @@
                     <div class="page-body">
                         {{-- Notifikasi untuk mode pratinjau --}}
                         @if ($is_preview)
-                            <div class="alert alert-warning text-center">
+                            <div class="alert alert-warning text-center text-dark" style="background-color: #f2e529;">
                                 <strong>Mode Pratinjau</strong><br>
                                 Anda melihat halaman ini sebagai Instruktur/Admin. Hasil kuis tidak akan disimpan.
                             </div>
@@ -42,29 +42,41 @@
                             <div class="col-md-8">
                                 <div class="card">
                                     <div class="card-body text-center">
-                                        <h2 class="card-title">{{ $quiz->title }}</h2>
-                                        <p class="card-text text-muted">
+                                        <h2 class="card-title" style="font-size: 25px;">{{ $quiz->title }}</h2>
+                                        <p class="card-text text-muted" style="font-size: 16px;">
                                             {{ $quiz->description }}
                                         </p>
                                         <hr>
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <h5><i class="fa fa-question-circle-o mr-2"></i> Jumlah Soal</h5>
-                                                <p>{{ $quiz->questions_count }} Soal</p>
+                                        <div class="row text-center">
+                                            <div class="col-6 mb-4">
+                                                <div class="d-flex flex-column align-items-center">
+                                                    <i class="fa fa-question-circle-o fa-3x mb-2"></i>
+                                                    <h5>Jumlah Soal</h5>
+                                                    <p class="card-text text-muted" style="font-size: 16px;">{{ $quiz->questions_count }} Soal</p>
+                                                </div>
                                             </div>
-                                            <div class="col-6">
-                                                <h5><i class="fa fa-clock-o mr-2"></i> Batas Waktu</h5>
-                                                <p>{{ $quiz->time_limit ? $quiz->time_limit . ' Menit' : 'Tidak ada' }}</p>
+                                            <div class="col-6 mb-4">
+                                                <div class="d-flex flex-column align-items-center">
+                                                    <i class="fa fa-clock-o fa-3x mb-2"></i>
+                                                    <h5>Batas Waktu</h5>
+                                                    <p class="card-text text-muted" style="font-size: 16px;">{{ $quiz->time_limit ? $quiz->time_limit . ' Menit' : 'Tidak ada' }}</p>
+                                                </div>
                                             </div>
-                                            <div class="col-6">
-                                                <h5><i class="fa fa-check-square-o mr-2"></i> Nilai Kelulusan</h5>
-                                                <p>{{ $quiz->pass_mark }}%</p>
+                                            <div class="col-6 mb-4">
+                                                <div class="d-flex flex-column align-items-center">
+                                                    <i class="fa fa-check-square-o fa-3x mb-2"></i>
+                                                    <h5>Nilai Kelulusan</h5>
+                                                    <p class="card-text text-muted" style="font-size: 16px;">{{ $quiz->pass_mark }}%</p>
+                                                </div>
                                             </div>
-                                            <div class="col-6">
-                                                <h5><i class="fa fa-repeat mr-2"></i> Kesempatan</h5>
-                                                {{-- Tampilkan informasi batas pengerjaan --}}
-                                                <p>{{ $quiz->max_attempts ? $attemptCount . ' / ' . $quiz->max_attempts . ' Kali' : 'Tanpa Batas' }}
-                                                </p>
+                                            <div class="col-6 mb-4">
+                                                <div class="d-flex flex-column align-items-center">
+                                                    <i class="fa fa-repeat fa-3x mb-2"></i>
+                                                    <h5>Kesempatan</h5>
+                                                    <p class="card-text text-muted" style="font-size: 16px;">
+                                                        {{ $quiz->max_attempts ? $attemptCount . ' / ' . $quiz->max_attempts . ' Kali' : 'Tanpa Batas' }}
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
                                         <hr>

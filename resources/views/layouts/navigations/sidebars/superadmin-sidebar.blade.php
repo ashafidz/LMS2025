@@ -5,11 +5,11 @@
                             <div class="pcoded-inner-navbar main-menu">
                                 <div class="">
                                     <div class="main-menu-header">
-                                        <img class="rounded-circle mr-4" style="width: 80px; height: 80px; border: 3px;"
+                                        {{-- <img class="rounded-circle mr-4" style="width: 80px; height: 80px; border: 3px;"
                                             src="{{ Auth::user()->profile_picture_url 
         ? asset('storage/' . ltrim(Auth::user()->profile_picture_url, '/')) 
         : 'https://placehold.co/80x80/EBF4FF/767676?text=SA' }}"
-                                            alt="{{ Auth::user()->name }}" />
+                                            alt="{{ Auth::user()->name }}" /> --}}
                                         <div class="user-details">
                                             <span id="more-details">{{ Auth::user()->name }}<i
                                                     class="fa fa-caret-down"></i></span>
@@ -229,6 +229,27 @@
                                                                     class="ti-angle-right"></i></span>
                                                             <span class="pcoded-mtext"
                                                                 data-i18n="nav.menu-levels.menu-level-22.menu-level-31">Setting</span>
+                                                            <span class="pcoded-mcaret"></span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            {{-- end menu level manajemen user student --}}
+                                            {{-- menu level manajemen user student --}}
+                                            <li class="pcoded-hasmenu">
+                                                <a href="javascript:void(0)" class="waves-effect waves-dark">
+                                                    <span class="pcoded-micon"><i class="ti-direction-alt"></i></span>
+                                                    <span class="pcoded-mtext"
+                                                        data-i18n="nav.menu-levels.menu-level-22.main">Kursus</span>
+                                                    <span class="pcoded-mcaret"></span>
+                                                </a>
+                                                <ul class="pcoded-submenu">
+                                                    <li class="">
+                                                        <a href="{{ route('superadmin.course-categories.index') }}" class="waves-effect waves-dark">
+                                                            <span class="pcoded-micon"><i
+                                                                    class="ti-angle-right"></i></span>
+                                                            <span class="pcoded-mtext"
+                                                                data-i18n="nav.menu-levels.menu-level-22.menu-level-31">Kategori Kursus</span>
                                                             <span class="pcoded-mcaret"></span>
                                                         </a>
                                                     </li>

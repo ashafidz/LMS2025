@@ -1,52 +1,5 @@
 @extends('layouts.app-layout') {{-- Sesuaikan dengan layout utama Anda --}}
 
-@push('styles')
-<style>
-    /* Custom styles for our new, self-contained accordion */
-    .custom-accordion .module-item {
-        /* Creates the separator lines */
-        border-bottom: 1px solid #f0f0f0;
-    }
-    .custom-accordion .module-item:first-of-type {
-        border-top: 1px solid #f0f0f0;
-    }
-
-    .custom-accordion .module-title {
-        display: flex;
-        align-items: center;
-        padding: 15px 20px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        background-color: #fff;
-        color: #333;
-    }
-
-    .custom-accordion .module-title:hover {
-        background-color: #f5f5f5;
-    }
-
-    /* Style for the active/open module title */
-    .custom-accordion .module-title.active {
-        background-color: #4680ff;
-        color: #fff;
-    }
-    .custom-accordion .module-title.active .badge-warning {
-        background-color: #fff;
-        color: #f8b425;
-    }
-
-
-    /* The content area that slides up and down */
-    .custom-accordion .module-content {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease-out;
-        background-color: #fff;
-        padding: 0 20px; /* Add padding for a cleaner look when open */
-    }
-</style>
-@endpush
-
 @section('content')
     <div class="pcoded-content">
         <div class="page-header">
@@ -61,7 +14,7 @@
                     <div class="col-md-4">
                         <ul class="breadcrumb-title">
                             <li class="breadcrumb-item"><a href="#"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="#">Kursus Saya</a></li>
+                            <li class="breadcrumb-item"><a href="#">Kursus</a></li>
                             <li class="breadcrumb-item"><a href="#!">{{ $course->title }}</a></li>
                         </ul>
                     </div>
@@ -73,7 +26,7 @@
                 <div class="page-wrapper">
                     <div class="page-body">
                         @if ($is_preview)
-                            <div class="alert alert-warning text-center text-dark" style="background-color: #f2e529;">
+                            <div class="alert alert-warning text-center">
                                 <strong>Mode Pratinjau</strong><br>
                                 Anda melihat halaman ini sebagai Admin/Superadmin/Instruktur. Progres tidak akan disimpan.
                             </div>
@@ -109,113 +62,142 @@
                             <div class="col-lg-4">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5 class="card-header-text">Daftar Isi Kursus</h5>
+                                        <h5>Daftar Isi Kursus</h5>
                                     </div>
-                                    <div class="card-block accordion-block">
-                                        <div class="custom-accordion" id="custom-accordion">
-
+                                    <div class="card-block">
+                                        <div id="syllabus-accordion">
                                             @forelse ($course->modules as $module)
                                                 @php
-                                                    // Logic to check if the module is locked for the student
+                                                    // LOGIKA BARU: Cek apakah modul ini terkunci untuk siswa
                                                     $isLocked =
                                                         !$is_preview &&
                                                         $module->points_required > 0 &&
                                                         $currentCoursePoints < $module->points_required;
                                                 @endphp
-
-                                                <div class="module-item">
-                                                    <!-- Accordion Module Title -->
-                                                    <div class="module-title waves-effect waves-light">
-                                                        <span>
+                                                <div class="card mb-2">
+                                                    <div class="card-header" id="heading-{{ $module->id }}">
+                                                        <h5 class="mb-0">
+                                                            <button class="btn btn-link" data-toggle="collapse"
+                                                                data-target="#collapse-{{ $module->id }}"
+                                                                aria-expanded="true"
+                                                                aria-controls="collapse-{{ $module->id }}">
+                                                                @if ($isLocked)
+                                                                    <i class="fa fa-lock mr-2"></i>
+                                                                @endif
+                                                                <strong>{{ $module->title }}</strong>
+                                                            </button>
+                                                            {{-- TOMBOL LEADERBOARD BARU PER MODUL --}}
+                                                            {{-- <button
+                                                                class="btn btn-sm btn-outline-warning load-leaderboard-btn"
+                                                                data-module-id="{{ $module->id }}"
+                                                                title="Lihat Papan Peringkat Modul">
+                                                                <i class="fa fa-bar-chart"></i>
+                                                            </button> --}}
                                                             @if ($isLocked)
-                                                                <i class="fa fa-lock mr-2"></i>
+                                                                <span
+                                                                    class="badge badge-warning float-right mt-2">{{ $module->points_required }}
+                                                                    Poin Dibutuhkan</span>
                                                             @endif
-                                                            <strong>{{ $module->title }}</strong>
-                                                        </span>
-                                                        @if ($isLocked)
-                                                            <span class="badge badge-warning ml-auto">{{ $module->points_required }} Poin Dibutuhkan</span>
-                                                        @endif
+                                                        </h5>
                                                     </div>
-                                                    <!-- End Accordion Module Title -->
-
-                                                    <!-- Accordion Content (List of Lessons) -->
-                                                    <div class="module-content">
-                                                        <ul class="list-group list-group-flush">
-                                                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                <a href="#" class="load-leaderboard-btn text-dark" data-module-id="{{ $module->id }}">
-                                                                    <i class="fa fa-bar-chart mr-2"></i>
-                                                                    Leaderboard {{ $module->title }}
-                                                                </a>
-                                                            </li>
-                                                            @foreach ($module->lessons as $lesson)
-                                                                @php
-                                                                    // Logic to determine the icon based on lesson type
-                                                                    $icon = 'bi bi-file-text'; // Default icon
-                                                                    $type = strtolower(class_basename($lesson->lessonable_type));
-
-                                                                    if ($type === 'lessonvideo') $icon = 'bi bi-collection-play';
-                                                                    if ($type === 'quiz') $icon = 'bi bi-pencil-square';
-                                                                    if ($type === 'lessondocument') $icon = 'bi bi-file-earmark-pdf';
-                                                                    if ($type === 'lessonlinkcollection') $icon = 'bi bi-folder2-open';
-                                                                    if ($type === 'lessonassignment') $icon = 'bi bi-clipboard2';
-                                                                    if ($type === 'lessonpoint') $icon = 'bi bi-chat-left-quote';
-                                                                @endphp
-
-                                                                <li class="list-group-item d-flex justify-content-between align-items-center {{ $isLocked ? 'bg-light' : '' }}" id="sidebar-lesson-{{ $lesson->id }}">
-                                                                    {{-- This link is now clickable even if locked, server will handle response --}}
-                                                                    <a href="#" class="load-lesson {{ $isLocked ? 'text-muted' : 'text-dark' }}" data-lesson-id="{{ $lesson->id }}">
-                                                                        <i class="{{ $icon }} mr-2"></i>
-                                                                        {{ $lesson->title }}
-                                                                    </a>
-                                                                    @if (in_array($lesson->id, $completedLessonIds))
-                                                                        <i class="fa fa-check-circle text-success"></i>
-                                                                    @endif
-                                                                </li>
-                                                            @endforeach
-                                                        </ul>
+                                                    <div id="collapse-{{ $module->id }}"
+                                                        class="collapse show {{ $isLocked ? '' : 'show' }}"
+                                                        aria-labelledby="heading-{{ $module->id }}"
+                                                        data-parent="#syllabus-accordion">
+                                                        <div class="card-body p-0">
+                                                            <ul class="list-group list-group-flush">
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center' }}">
+                                                                        <a href="#" class="load-leaderboard-btn text-dark" data-module-id="{{ $module->id }}" >
+                                                                            <i class="fa fa-bar-chart mr-2"></i>
+                                                                            Leaderboard {{ $module->title }}
+                                                                        </a>
+                                                                    </li>
+                                                                @foreach ($module->lessons as $lesson)
+                                                                    <li class="list-group-item d-flex justify-content-between align-items-center {{ $isLocked ? 'bg-light' : '' }}"
+                                                                        id="sidebar-lesson-{{ $lesson->id }}">
+                                                                        <a href="#"
+                                                                            class="load-lesson {{ $isLocked ? 'text-muted disabled' : 'text-dark' }}"
+                                                                            data-lesson-id="{{ $lesson->id }}">
+                                                                            @php
+                                                                                $icon = 'bi bi-file-text';
+                                                                                $type = strtolower(
+                                                                                    class_basename(
+                                                                                        $lesson->lessonable_type,
+                                                                                    ),
+                                                                                );
+                                                                                if ($type === 'lessonvideo') {
+                                                                                    $icon = 'bi bi-collection-play';
+                                                                                }
+                                                                                if ($type === 'quiz') {
+                                                                                    $icon = 'bi bi-pencil-square';
+                                                                                }
+                                                                                if ($type === 'lessondocument') {
+                                                                                    $icon = 'bi bi-file-earmark-pdf';
+                                                                                }
+                                                                                if ($type === 'lessonlinkcollection') {
+                                                                                    $icon = 'bi bi-folder2-open';
+                                                                                }
+                                                                                if ($type === 'lessonassignment') {
+                                                                                    $icon = 'bi bi-clipboard2';
+                                                                                }
+                                                                                if ($type === 'lessonpoint') {
+                                                                                    $icon = 'bi bi-chat-left-quote';
+                                                                                }
+                                                                            @endphp
+                                                                            <i class="{{ $icon }} mr-2"></i>
+                                                                            {{ $lesson->title }}
+                                                                        </a>
+                                                                        @if (in_array($lesson->id, $completedLessonIds))
+                                                                            <i class="fa fa-check-circle text-success"></i>
+                                                                        @endif
+                                                                    </li>
+                                                                @endforeach
+                                                            </ul>
+                                                        </div>
                                                     </div>
-                                                    <!-- End Accordion Content -->
                                                 </div>
-
                                             @empty
-                                                <p class="text-muted p-3">Kursus ini belum memiliki modul.</p>
+                                                <p class="text-muted">Kursus ini belum memiliki modul.</p>
                                             @endforelse
 
+                                            <div class="mt-4 mb-4">
+                                                <button class="btn btn-outline-primary w-100 mb-2" id="load-leaderboard">
+                                                    <i class="fa fa-bar-chart mr-2"></i> Leaderboard
+                                                </button>
+                                {{-- MODIFIKASI TOMBOL FEEDBACK DI SINI --}}
+                                <button class="btn btn-outline-primary w-100 mb-2" id="load-review-form" 
+                                        @if(!$allLessonsCompleted && !$is_preview) 
+                                            disabled 
+                                            title="Selesaikan semua pelajaran untuk memberikan feedback" 
+                                        @endif>
+                                    <i class="fa fa-star mr-2"></i> Feedback
+                                </button>
+                                                @if ($isEligibleForCertificate)
+                                                    <button class="btn btn-outline-primary w-100 mb-2"
+                                                        id="load-certificate-preview">
+                                                        <i class="bi bi-award-fill me-2"></i> Sertifikat
+                                                    </button>
+                                                    <button class="btn btn-outline-primary w-100 mb-2"
+                                                        id="convert-points-btn" data-toggle="modal"
+                                                        data-target="#conversionModal">
+                                                        <i class="fa fa-exchange mr-2"></i> Konversi Poin
+                                                    </button>
+                                                @else
+                                                    <button class="btn btn-outline-primary w-100 mb-2" disabled>
+                                                        <i class="bi bi-award-fill me-2"></i> Sertifikat
+                                                    </button>
+                                                    <button class="btn btn-outline-primary w-100 mb-2" disabled>
+                                                        <i class="bi bi-award-fill me-2"></i> Konversi Poin
+                                                    </button>
+                                                @endif
+                                                {{-- <a href="" class="btn btn-outline-primary w-100">
+                                            <i class="bi bi-chat-fill me-2"></i> Forum
+                                            </a> --}}
+                                            </div>
                                         </div>
-
-                                        {{-- Buttons below the accordion --}}
-                                        <div class="mt-4">
-                                            <button class="btn btn-outline-primary w-100 mb-2" id="load-leaderboard">
-                                                <i class="fa fa-bar-chart mr-2"></i> Leaderboard
-                                            </button>
-                                            <button class="btn btn-outline-primary w-100 mb-2" id="load-review-form"
-                                                @if(!$allLessonsCompleted && !$is_preview)
-                                                    disabled
-                                                    title="Selesaikan semua pelajaran untuk memberikan feedback"
-                                                @endif>
-                                                <i class="fa fa-star mr-2"></i> Feedback
-                                            </button>
-                                            @if ($isEligibleForCertificate)
-                                                <button class="btn btn-outline-primary w-100 mb-2" id="load-certificate-preview">
-                                                    <i class="bi bi-award-fill me-2"></i> Sertifikat
-                                                </button>
-                                                <button class="btn btn-outline-primary w-100 mb-2" id="convert-points-btn" data-toggle="modal" data-target="#conversionModal">
-                                                    <i class="fa fa-exchange mr-2"></i> Konversi Poin
-                                                </button>
-                                            @else
-                                                <button class="btn btn-outline-primary w-100 mb-2" disabled>
-                                                    <i class="bi bi-award-fill me-2"></i> Sertifikat
-                                                </button>
-                                                <button class="btn btn-outline-primary w-100 mb-2" disabled>
-                                                    <i class="fa fa-exchange mr-2"></i> Konversi Poin
-                                                </button>
-                                            @endif
-                                        </div>
-
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -223,7 +205,8 @@
         </div>
     </div>
 
-    {{-- Point Conversion Modal --}}
+
+
     @if ($isEligibleForCertificate)
         <div class="modal fade" id="conversionModal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
@@ -252,7 +235,9 @@
                             <ul class="list-group">
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     Total Poin di Kursus Ini
-                                    <span class="text-warning">{{ $pointsToConvert }} <i class="ti-medall-alt"></i></span>
+                                    <span class="text-warning">{{ $pointsToConvert }} <i
+                                            class="ti-medall-alt"></i></span>
+
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     Rasio Konversi
@@ -260,16 +245,18 @@
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <strong>Diamond yang Akan Didapat</strong>
-                                    <strong class="text-primary">{{ $diamondsEarned }} <i class="fa fa-diamond"></i></strong>
+                                    <strong class="text-primary">{{ $diamondsEarned }} <i
+                                            class="fa fa-diamond"></i></strong>
                                 </li>
                             </ul>
-                            <p class="text-muted mt-3"><small>Proses ini hanya bisa dilakukan satu kali per kursus dan tidak dapat dibatalkan.</small></p>
+                            <p class="text-muted mt-3"><small>Proses ini hanya bisa dilakukan satu kali per kursus dan
+                                    tidak dapat dibatalkan.</small></p>
                         @endif
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                         @if ($pointsData && !$pointsData->pivot->is_converted_to_diamond)
-                            <form action="{{ route('student.course.convert_points', $course->id) }}" method="POST">
+                            <form action="{{ route('student.course.convert_points', $course->id) }}" method="POST"> {{-- Ganti action ke route konversi nanti --}}
                                 @csrf
                                 <button type="submit" class="btn btn-primary">Konfirmasi & Konversi Poin</button>
                             </form>
@@ -284,53 +271,22 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-
-            // --- START: Custom Accordion Script ---
-            const accordion = document.getElementById('custom-accordion');
-            if (accordion) {
-                const moduleTitles = accordion.querySelectorAll('.module-title');
-
-                moduleTitles.forEach(title => {
-                    title.addEventListener('click', function() {
-                        const content = this.nextElementSibling;
-                        const isAlreadyActive = this.classList.contains('active');
-
-                        moduleTitles.forEach(otherTitle => {
-                            if (otherTitle !== this) {
-                                otherTitle.classList.remove('active');
-                                otherTitle.nextElementSibling.style.maxHeight = null;
-                                otherTitle.nextElementSibling.style.padding = "0 20px";
-                            }
-                        });
-
-                        if (isAlreadyActive) {
-                            this.classList.remove('active');
-                            content.style.maxHeight = null;
-                            content.style.padding = "0 20px";
-                        } else {
-                            this.classList.add('active');
-                            content.style.maxHeight = content.scrollHeight + "px";
-                            content.style.padding = "10px 20px";
-                        }
-                    });
-                });
-            }
-            // --- END: Custom Accordion Script ---
-
-
             const lessonLinks = document.querySelectorAll('.load-lesson');
             const lessonTitleEl = document.getElementById('lesson-title');
             const lessonContentEl = document.getElementById('lesson-content');
             const isPreview = @json($is_preview);
+            console.log(isPreview);
             let completedLessons = @json($completedLessonIds);
 
+            // --- PERUBAHAN 1: Definisikan variabel yang dibutuhkan di scope atas ---
             const reviewButton = document.getElementById('load-review-form');
-            const totalLessons = {{ $course->lessons->count() }};
+            const totalLessons = {{ $course->lessons->count() }}; // Ambil total pelajaran
 
             // --- FUNGSI UNTUK MEMUAT KONTEN PELAJARAN ---
             function loadLessonContent(lessonId) {
                 lessonTitleEl.innerText = 'Memuat...';
-                lessonContentEl.innerHTML = '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
+                lessonContentEl.innerHTML =
+                    '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
 
                 let url = `/student/lessons/${lessonId}/content`;
                 if (isPreview) {
@@ -344,24 +300,32 @@
                             lessonTitleEl.innerText = data.title;
                             let completeButtonHtml = '';
 
-                            const sidebarItem = document.getElementById(`sidebar-lesson-${lessonId}`);
-                            if (sidebarItem) {
+                            if (!data.is_locked) {
+                                const sidebarItem = document.getElementById(`sidebar-lesson-${lessonId}`);
                                 const lessonTypeIcon = sidebarItem.querySelector('a.load-lesson > i');
-                                const isQuizOrAssignment = lessonTypeIcon.classList.contains('bi-pencil-square') || lessonTypeIcon.classList.contains('bi-clipboard2');
-                                const isAlreadyCompleted = sidebarItem.querySelector('.fa-check-circle') !== null;
+                                // const lessonTypeIcon = sidebarItem.querySelector('i.bi');
+                                const isQuizOrAssignment = lessonTypeIcon.classList.contains(
+                                    'bi-pencil-square') || lessonTypeIcon.classList.contains(
+                                    'bi-clipboard2');
 
-                                // **FIX**: Added !data.is_locked to ensure the button never shows for locked lessons.
-                                if (!data.is_locked && !isQuizOrAssignment && !isPreview && !isAlreadyCompleted) {
-                                    completeButtonHtml = `<hr><div class="text-center mt-4"><button class="btn btn-success mark-as-complete-btn" data-lesson-id="${lessonId}"><i class="fa fa-check"></i> Tandai Selesai</button></div>`;
+
+                                if (!isQuizOrAssignment && !isPreview && !completedLessons.includes(parseInt(
+                                        lessonId))) {
+                                    completeButtonHtml =
+                                        `<hr><div class="text-center mt-4"><button class="btn btn-success mark-as-complete-btn" data-lesson-id="${lessonId}"><i class="fa fa-check"></i> Tandai Selesai</button></div>`;
                                 }
                             }
-                            
+                            // lessonContentEl.innerHTML = data.html + completeButtonHtml + data.discussion_html;
+                            // Gabungkan konten pelajaran dengan tombol dan forum diskusi (jika ada)
                             const discussionHtml = data.discussion_html || '';
                             lessonContentEl.innerHTML = data.html + completeButtonHtml + discussionHtml;
 
+
+
                         } else {
                             lessonTitleEl.innerText = 'Gagal Memuat';
-                            lessonContentEl.innerHTML = `<p class="text-danger">${data.message || 'Terjadi kesalahan.'}</p>`;
+                            lessonContentEl.innerHTML =
+                                `<p class="text-danger">${data.message || 'Terjadi kesalahan.'}</p>`;
                         }
                     })
                     .catch(error => {
@@ -378,25 +342,31 @@
                 });
             });
 
-            // --- LOGIKA UNTUK TOMBOL FEEDBACK ---
+            // --- LOGIKA BARU UNTUK TOMBOL FEEDBACK ---
+            // const reviewButton = document.getElementById('load-review-form');
             if (reviewButton) {
                 reviewButton.addEventListener('click', function(e) {
                     e.preventDefault();
                     lessonTitleEl.innerText = 'Ulasan & Rating Kursus';
-                    lessonContentEl.innerHTML = '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
+                    lessonContentEl.innerHTML =
+                        '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
+
                     const url = "{{ route('student.course.review.create', $course->id) }}";
+
                     fetch(url)
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
                                 lessonContentEl.innerHTML = data.html;
                             } else {
-                                lessonContentEl.innerHTML = `<p class="text-danger">${data.message || 'Gagal memuat form ulasan.'}</p>`;
+                                lessonContentEl.innerHTML =
+                                    `<p class="text-danger">${data.message || 'Gagal memuat form ulasan.'}</p>`;
                             }
                         })
                         .catch(error => {
                             console.error('Error fetching review form:', error);
-                            lessonContentEl.innerHTML = '<p class="text-danger">Terjadi kesalahan jaringan.</p>';
+                            lessonContentEl.innerHTML =
+                                '<p class="text-danger">Terjadi kesalahan jaringan.</p>';
                         });
                 });
             }
@@ -419,20 +389,27 @@
                         .then(data => {
                             if (data.success) {
                                 button.style.display = 'none';
-                                const sidebarItem = document.getElementById(`sidebar-lesson-${lessonId}`);
+                                const sidebarItem = document.getElementById(
+                                    `sidebar-lesson-${lessonId}`);
                                 if (sidebarItem && !sidebarItem.querySelector('.fa-check-circle')) {
-                                    sidebarItem.insertAdjacentHTML('beforeend', ' <i class="fa fa-check-circle text-success"></i>');
+                                    sidebarItem.insertAdjacentHTML('beforeend',
+                                        ' <i class="fa fa-check-circle text-success"></i>');
                                 }
+                                // Tambahkan lesson yg baru selesai ke array JS
                                 completedLessons.push(parseInt(lessonId));
 
+                                // --- PERUBAHAN 2: Logika untuk mengaktifkan tombol feedback secara dinamis ---
+                                // Cek apakah jumlah pelajaran yang selesai sudah sama dengan total pelajaran
                                 if (reviewButton && !isPreview && completedLessons.length >= totalLessons && totalLessons > 0) {
                                     reviewButton.disabled = false;
                                     reviewButton.removeAttribute('title');
+                                    // Opsional: berikan feedback visual bahwa tombolnya sudah aktif
                                     reviewButton.classList.remove('btn-outline-primary');
                                     reviewButton.classList.add('btn-success');
                                     reviewButton.innerHTML = '<i class="fa fa-star mr-2"></i> Beri Feedback Sekarang!';
                                 }
-
+                                // --- AKHIR PERUBAHAN 2 ---
+                                
                             } else {
                                 alert(data.message || 'Gagal menandai pelajaran.');
                                 button.disabled = false;
@@ -448,17 +425,20 @@
                 }
             });
 
-            // --- Event listener untuk form submit review ---
+
             lessonContentEl.addEventListener('submit', function(e) {
                 if (e.target && e.target.id === 'course-review-form') {
-                    e.preventDefault();
+                    e.preventDefault(); // Mencegah form submit secara normal
                     const form = e.target;
                     const submitButton = form.querySelector('button[type="submit"]');
                     const errorAlert = document.getElementById('review-error-alert');
+
                     submitButton.disabled = true;
                     submitButton.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Mengirim...';
                     errorAlert.style.display = 'none';
+
                     const formData = new FormData(form);
+
                     fetch(form.action, {
                             method: 'POST',
                             headers: {
@@ -471,15 +451,17 @@
                         .then(data => {
                             if (data.success) {
                                 lessonContentEl.innerHTML = `
-                                <div class="text-center p-5">
-                                    <i class="fa fa-check-circle text-success" style="font-size: 4rem;"></i>
-                                    <h4 class="mt-3">Terima Kasih!</h4>
-                                    <p class="text-muted">Ulasan Anda telah berhasil kami terima.</p>
-                                </div>
-                            `;
+                        <div class="text-center p-5">
+                            <i class="fa fa-check-circle text-success" style="font-size: 4rem;"></i>
+                            <h4 class="mt-3">Terima Kasih!</h4>
+                            <p class="text-muted">Ulasan Anda telah berhasil kami terima.</p>
+                        </div>
+                    `;
+                                // Sembunyikan tombol feedback setelah berhasil submit
                                 if (reviewButton) reviewButton.style.display = 'none';
                             } else {
-                                errorAlert.innerText = data.message || 'Terjadi kesalahan. Pastikan semua kolom terisi.';
+                                errorAlert.innerText = data.message ||
+                                    'Terjadi kesalahan. Pastikan semua kolom terisi.';
                                 errorAlert.style.display = 'block';
                             }
                         })
@@ -495,13 +477,14 @@
                 }
             });
 
-            // --- LOGIKA UNTUK TOMBOL SERTIFIKAT ---
+            // --- LOGIKA BARU UNTUK TOMBOL SERTIFIKAT ---
             const certificateButton = document.getElementById('load-certificate-preview');
             if (certificateButton) {
                 certificateButton.addEventListener('click', function(e) {
                     e.preventDefault();
                     lessonTitleEl.innerText = 'Sertifikat Kelulusan';
-                    lessonContentEl.innerHTML = '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
+                    lessonContentEl.innerHTML =
+                        '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
                     const url = "{{ route('student.certificate.preview', $course->id) }}";
                     fetch(url)
                         .then(response => response.json())
@@ -509,65 +492,82 @@
                             if (data.success) {
                                 lessonContentEl.innerHTML = data.html;
                             } else {
-                                lessonContentEl.innerHTML = `<p class="text-danger">${data.message || 'Gagal memuat pratinjau sertifikat.'}</p>`;
+                                lessonContentEl.innerHTML =
+                                    `<p class="text-danger">${data.message || 'Gagal memuat pratinjau sertifikat.'}</p>`;
                             }
                         })
                         .catch(error => {
                             console.error('Error fetching certificate preview:', error);
-                            lessonContentEl.innerHTML = '<p class="text-danger">Terjadi kesalahan jaringan.</p>';
+                            lessonContentEl.innerHTML =
+                                '<p class="text-danger">Terjadi kesalahan jaringan.</p>';
                         });
                 });
             }
 
-            // --- LOGIKA UNTUK TOMBOL LEADERBOARD KURSUS ---
+
+
+            // --- LOGIKA BARU UNTUK TOMBOL LEADERBOARD ---
             const leaderboardButton = document.getElementById('load-leaderboard');
             if (leaderboardButton) {
                 leaderboardButton.addEventListener('click', function(e) {
                     e.preventDefault();
                     lessonTitleEl.innerText = 'Papan Peringkat Kursus';
-                    lessonContentEl.innerHTML = '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
+                    lessonContentEl.innerHTML =
+                        '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
+
                     const url = "{{ route('student.course.leaderboard', $course->id) }}";
+
                     fetch(url)
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
                                 lessonContentEl.innerHTML = data.html;
                             } else {
-                                lessonContentEl.innerHTML = `<p class="text-danger">${data.message || 'Gagal memuat papan peringkat.'}</p>`;
+                                lessonContentEl.innerHTML =
+                                    `<p class="text-danger">${data.message || 'Gagal memuat papan peringkat.'}</p>`;
                             }
                         })
                         .catch(error => {
                             console.error('Error fetching leaderboard:', error);
-                            lessonContentEl.innerHTML = '<p class="text-danger">Terjadi kesalahan jaringan.</p>';
+                            lessonContentEl.innerHTML =
+                                '<p class="text-danger">Terjadi kesalahan jaringan.</p>';
                         });
                 });
+
+
             }
 
-            // --- LOGIKA UNTUK TOMBOL LEADERBOARD MODUL ---
-            const moduleLeaderboardButtons = document.querySelectorAll('.load-leaderboard-btn');
-            moduleLeaderboardButtons.forEach(button => {
+            // --- LOGIKA BARU UNTUK TOMBOL LEADERBOARD ---
+            const leaderboardButtons = document.querySelectorAll('.load-leaderboard-btn');
+            leaderboardButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
-                    e.stopPropagation(); // Mencegah accordion dari menutup saat link di dalamnya diklik
                     const moduleId = this.dataset.moduleId;
                     lessonTitleEl.innerText = 'Papan Peringkat Modul';
-                    lessonContentEl.innerHTML = '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
+                    lessonContentEl.innerHTML =
+                        '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
+
                     const url = `{{ url('/modules') }}/${moduleId}/leaderboard`;
+
                     fetch(url)
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
                                 lessonContentEl.innerHTML = data.html;
                             } else {
-                                lessonContentEl.innerHTML = `<p class="text-danger">${data.message || 'Gagal memuat papan peringkat.'}</p>`;
+                                lessonContentEl.innerHTML =
+                                    `<p class="text-danger">${data.message || 'Gagal memuat papan peringkat.'}</p>`;
                             }
                         })
                         .catch(error => {
-                            console.error('Error fetching module leaderboard:', error);
-                            lessonContentEl.innerHTML = '<p class="text-danger">Terjadi kesalahan jaringan.</p>';
+                            console.error('Error fetching leaderboard:', error);
+                            lessonContentEl.innerHTML =
+                                '<p class="text-danger">Terjadi kesalahan jaringan.</p>';
                         });
                 });
             });
+
+
 
         });
     </script>

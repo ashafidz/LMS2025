@@ -6,18 +6,18 @@
         <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
-                    <div class="col-md-8">
+                    <div class="col-md-12">
                         <div class="page-header-title">
-                            <h5 class="m-b-10">Create New Question</h5>
-                            <p class="m-b-0">Type: Multiple Choice (Multiple Answers)</p>
+                            <h5 class="m-b-10">Buat Pertanyaan Baru</h5>
+                            <p class="m-b-0">Tipe Soal: Pilihan Ganda (Jawaban Lebih dari Satu)</p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-12 d-flex mt-3">
                         <ul class="breadcrumb-title">
                             <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.topics.index') }}">Question Topics</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.topics.index') }}">Bank Soal</a></li>
                             <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.questions.index', $topic) }}">{{ Str::limit($topic->name, 20) }}</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Create</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Buat Pertanyaan</a></li>
                         </ul>
                     </div>
                 </div>
@@ -33,8 +33,8 @@
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Question Details</h5>
-                                        <span>Fill in the details for your new question.</span>
+                                        <h5>Detail Pertanyaan</h5>
+                                        <span>Lengkapi informasi untuk pertanyaan baru.</span>
                                     </div>
                                     <div class="card-block">
                                         <form action="{{ route('instructor.question-bank.questions.store', $topic) }}" method="POST">
@@ -43,31 +43,31 @@
                                             <input type="hidden" name="question_type" value="multiple_choice_multiple">
 
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Question Text</label>
+                                                <label class="col-sm-2 col-form-label">Teks Pertanyaan</label>
                                                 <div class="col-sm-10">
-                                                    <textarea rows="5" name="question_text" class="form-control" required placeholder="Enter the full question text here...">{{ old('question_text') }}</textarea>
+                                                    <textarea rows="5" name="question_text" class="form-control" required placeholder="Masukkan teks pertanyaan lengkap di sini...">{{ old('question_text') }}</textarea>
                                                 </div>
                                             </div>
 
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Score</label>
+                                                <label class="col-sm-2 col-form-label">Nilai</label>
                                                 <div class="col-sm-10">
                                                     <input type="number" name="score" class="form-control" value="{{ old('score', 10) }}" required>
                                                 </div>
                                             </div>
 
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Explanation (Optional)</label>
+                                                <label class="col-sm-2 col-form-label">Penjelasan (Opsional)</label>
                                                 <div class="col-sm-10">
-                                                    <textarea rows="3" name="explanation" class="form-control" placeholder="Explain why the correct answer(s) are right.">{{ old('explanation') }}</textarea>
-                                                    <small class="form-text text-muted">This will be shown to students after they answer correctly.</small>
+                                                    <textarea rows="3" name="explanation" class="form-control" placeholder="Berikan penjelasan mengapa jawaban ini benar.">{{ old('explanation') }}</textarea>
+                                                    <small class="form-text text-muted">Pesan ini akan muncul jika siswa menjawab dengan benar.</small>
                                                 </div>
                                             </div>
 
                                             <hr>
 
-                                            <h5 class="mt-4">Answer Options</h5>
-                                            <p class="mb-4">Add at least two options and select one or more correct answers using the checkboxes.</p>
+                                            <h5 class="mt-4">Opsi Jawaban</h5>
+                                            <p class="mb-4">Tambahkan minimal dua pilihan dan pilih satu atau lebih jawaban yang benar menggunakan kotak centang (checkbox).</p>
 
                                             {{-- This container will hold all the dynamic answer options --}}
                                             <div id="options-container">
@@ -77,15 +77,15 @@
                                             <div class="row">
                                                 <div class="col-sm-12">
                                                     <button type="button" class="btn btn-success" onclick="addOption()">
-                                                        <i class="fa fa-plus"></i> Add Another Option
+                                                        <i class="fa fa-plus"></i> Tambahkan Opsi Baru
                                                     </button>
                                                 </div>
                                             </div>
 
                                             <div class="form-group row mt-5">
                                                 <div class="col-sm-12 text-right">
-                                                    <a href="{{ route('instructor.question-bank.questions.index', $topic) }}" class="btn btn-secondary">Cancel</a>
-                                                    <button type="submit" class="btn btn-primary">Save Question</button>
+                                                    <a href="{{ route('instructor.question-bank.questions.index', $topic) }}" class="btn btn-secondary">Batal</a>
+                                                    <button type="submit" class="btn btn-primary">Simpan Pertanyaan</button>
                                                 </div>
                                             </div>
                                         </form>
@@ -118,11 +118,11 @@
                 <input type="checkbox" name="options[${optionIndex}][is_correct]" value="1" class="form-check-input">
             </label>
             <div class="col-sm-8">
-                <input type="text" name="options[${optionIndex}][text]" class="form-control" placeholder="Enter option text..." required>
+                <input type="text" name="options[${optionIndex}][text]" class="form-control" placeholder="Masukkan pilihan jawaban..." required>
             </div>
             <div class="col-sm-2">
                 <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)">
-                    <i class="fa fa-trash"></i> Remove
+                    <i class="fa fa-trash"></i> Hapus
                 </button>
             </div>
         `;

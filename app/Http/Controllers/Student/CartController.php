@@ -18,6 +18,13 @@ class CartController extends Controller
     public function index()
     {
 
+        $popularCourses = Course::where('status', 'published')
+            ->withCount('students')
+            ->orderBy('students_count', 'desc')
+            ->take(10)
+            ->get();
+
+
 
 
 
@@ -62,7 +69,8 @@ class CartController extends Controller
             'discount',
             'vatAmount',
             'transactionFee',
-            'finalTotal'
+            'finalTotal',
+            'popularCourses'
         ));
     }
 

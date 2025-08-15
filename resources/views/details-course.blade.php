@@ -1,4 +1,4 @@
-@extends('layouts.home-layout')
+\@extends('layouts.home-layout')
 
 @section('title', $course->title)
 
@@ -15,13 +15,13 @@
         {{-- BAGIAN BARU: Ringkasan Rating --}}
         @if($reviewCount > 0)
         <div class="d-flex align-items-center mt-2">
-            <span class="fw-bold text-warning me-2">{{ number_format($averageRating, 1) }}</span>
-            <div class="star-rating-display me-2">
+            <span class="fw-bold text-warning me-1 fs-5">{{ number_format($averageRating, 1) }}</span>
+            <div class="star-rating-display me-2" style="font-size: 0.89rem;>
                 @for ($i = 1; $i <= 5; $i++)
                     <i class="bi {{ $i <= round($averageRating) ? 'bi-star-fill text-warning' : 'bi-star text-muted' }}"></i>
                 @endfor
             </div>
-            <span class="text-muted">({{ $reviewCount }} ulasan)</span>
+            <span class="fw-semibold" style="font-size: 1rem; color: #cc7000;">({{ $reviewCount }} ulasan)</span>
         </div>
         @endif
 
@@ -57,7 +57,9 @@
                     @if($course->payment_type === 'money')
                         <form action="{{ route('student.cart.add', $course->id) }}" method="POST">
                             @csrf
-                            <button type="submit" class="btn btn-primary w-100 mt-3">Tambah ke Keranjang</button>
+                            <button type="submit" class="btn btn-primary rounded-pill w-100 mt-3">
+    Tambahkan ke keranjang
+</button>
                         </form>
                     @elseif($course->payment_type === 'diamonds')
                         <form action="{{ route('student.courses.purchase_with_diamonds', $course->id) }}" method="POST" onsubmit="return confirm('Beli kursus ini dengan {{ $course->diamond_price }} diamond?');">
@@ -162,7 +164,11 @@
                                 $icon = 'fa-file-text-o';
                               }
                             @endphp
-                            <li class="d-flex align-items-center mb-2 text-muted"><i class="fa {{ $icon }} me-2"></i><span>{{ $lesson->title }}</span></li>      
+                            <li class="d-flex align-items-center text-muted py-2 {{ !$loop->last ? 'border-bottom' : '' }}">
+    <i class="fa {{ $icon }} me-2"></i>
+    <span>{{ $lesson->title }}</span>
+</li>
+
                         @endforeach
 
                     </ul>
@@ -211,6 +217,7 @@
                 </div>
             @endforelse
 
+
             {{-- Navigasi Halaman untuk Ulasan --}}
             <div class="d-flex justify-content-center mt-4">
                 {{ $reviews->links() }}
@@ -238,8 +245,69 @@
           </span>
         </div>
       </div>
+      
+      {{-- ================== Rekomendasi untuk Anda ================== --}}
+{{-- Cek apakah ada kursus terkait sebelum menampilkan apapun --}}
+@if($relatedCourses->isNotEmpty())
+<div class="mb-5 mt-4" data-aos="fade-up">
+    {{-- Judul bisa diubah sesuai konteks, misal: "Kursus Lain di Kategori Ini" --}}
+    <h4 class="fw-bold mb-3 text-primary">Kursus Lain di Kategori Ini</h4>
+    
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+        
+        {{-- Looping untuk setiap kursus terkait --}}
+        @foreach ($relatedCourses as $relatedCourse)
+        <div class="col">
+            {{-- Tambahkan link ke halaman detail kursus --}}
+            <a href="{{ route('courses.show', $relatedCourse->slug) }}" class="text-decoration-none">
+                <div class="card h-100 border-0 shadow-sm rounded-4">
+                    
+                    {{-- Gambar Thumbnail --}}
+                    <img src="{{ $relatedCourse->thumbnail_url ? asset('storage/' . $relatedCourse->thumbnail_url) : 'https://placehold.co/400x250/edf8fd/0d6efd?text=Kursus' }}"
+                         class="card-img-top rounded-top-4"
+                         style="height: 140px; object-fit: cover;"
+                         alt="{{ $relatedCourse->title }}">
+                         
+                    <div class="card-body">
+                        {{-- Kategori (bisa juga 'Online Course' jika statis) --}}
+                        <span class="badge bg-warning text-dark mb-2">
+                            {{ $relatedCourse->category->name ?? 'Online Course' }}
+                        </span>
+
+                        {{-- Judul Kursus --}}
+                        <h6 class="fw-bold">{{ $relatedCourse->title }}</h6>
+
+                        {{-- Nama Instruktur --}}
+                        <p class="mb-1 text-muted small">
+                            {{ $relatedCourse->instructor->name ?? 'Tanpa Instruktur' }}
+                        </p>
+                        
+                        {{-- Harga Kursus --}}
+                        <p class="fw-bold text-primary mb-0">
+                            @if($relatedCourse->price > 0)
+                                Rp{{ number_format($relatedCourse->price, 0, ',', '.') }}
+                            @else
+                                Gratis
+                            @endif
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        @endforeach
+
+    </div>
+</div>
+@endif
+{{-- ================== END Rekomendasi untuk Anda ================== --}}
+
     </div>
   </div>
+
+    {{-- BAGIAN BARU: Tampilkan Rekomendasi --}}
+    {{-- @include('partials._recommended_courses', ['recommendedCourses' => $relatedCourses, 'title' => 'Kursus Lain di Kategori Ini']) --}}
+
+
 </section>
 
 @endsection

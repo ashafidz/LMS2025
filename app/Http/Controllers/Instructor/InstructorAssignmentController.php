@@ -96,16 +96,16 @@ class InstructorAssignmentController extends Controller
             // Tandai pelajaran sebagai selesai
             $student->completedLessons()->syncWithoutDetaching($lesson->id);
 
-            // Berikan poin HANYA jika statusnya 'passed' DAN belum pernah lulus sebelumnya
-            if (!$hasPassedBefore) {
-                PointService::addPoints(
-                    user: $student,
-                    course: $lesson->module->course,
-                    activity: 'pass_assignment',
-                    lesson: $lesson,
-                    description_meta: $lesson->title
-                );
-            }
+            // // Berikan poin HANYA jika statusnya 'passed' DAN belum pernah lulus sebelumnya
+            // if (!$hasPassedBefore) {
+            //     PointService::addPoints(
+            //         user: $student,
+            //         course: $lesson->module->course,
+            //         activity: 'pass_assignment',
+            //         lesson: $lesson,
+            //         description_meta: $lesson->title
+            //     );
+            // }
         }
 
         $submission->update([

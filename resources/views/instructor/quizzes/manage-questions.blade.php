@@ -9,13 +9,14 @@
                     <div class="col-md-8">
                         <div class="page-header-title">
                             <h5 class="m-b-10">Kelola Soal Kuis</h5>
-                            <p class="m-b-0">Kuis: <strong>{{ $quiz->title }}</strong></p>
+                            <p class="m-b-0">Judul Kuis: <strong>{{ $quiz->title }}</strong></p>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            {{-- Navigasi kembali ke daftar pelajaran --}}
+                            <li class="breadcrumb-item"><a href="#!"><i class="fa fa-home"></i> </a></li>
+                            <li class="breadcrumb-item"><a href="#!">Kursus Saya</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Modul Saya</a></li>
                             <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $quiz->lesson->module) }}">Daftar Pelajaran</a></li>
                             <li class="breadcrumb-item"><a href="#!">Kelola Soal</a></li>
                         </ul>
@@ -36,7 +37,7 @@
                                         <h5>Daftar Soal dalam Kuis Ini</h5>
                                         <span>Daftar soal yang telah ditambahkan ke kuis.</span>
                                         <div class="card-header-right">
-                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addQuestionModal">
+                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addQuestionModal"><i class="bi bi-plus-lg text-white"></i> 
                                                 Tambah Soal
                                             </button>
                                         </div>

@@ -1,49 +1,52 @@
 @extends('layouts.home-layout')
 
 @section('content')
-{{-- This wrapper uses flexbox to center the card vertically and horizontally --}}
-<div class="container d-flex justify-content-center align-items-center h-100 min-vh-100">
+<div class="container d-flex justify-content-center align-items-start min-vh-100" style="background: #f0f4ff; padding-top: 195px;">
 
-    {{-- The card container for your message --}}
-    <div class="card shadow-sm border-0" style="max-width: 500px; width: 100%;">
-        <div class="card-body p-5 text-center">
+    <div class="card shadow-sm border-0 rounded-4" style="max-width: 650px; width: 100%;">
+        <div class="card-body px-5 py-4 text-center">
 
-            {{-- Optional: Add an icon for visual flair --}}
-            <div class="mb-4" style="font-size: 3rem;">✉️</div>
+            {{-- Logo Gmail --}}
+            <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_1x_r2.png" alt="Gmail" style="width: 60px;" class="mb-3">
 
-            <h3 class="card-title mb-3">Check Your Inbox</h3>
+            {{-- Judul --}}
+            <h4 class="fw-bold mb-3">Verifikasi Email Anda</h4>
 
-            <p class="text-muted">
-                {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
+            {{-- Pesan --}}
+            <p class="text-muted mb-3">
+                Kami telah mengirimkan tautan verifikasi ke email Anda.<br>
+                Silakan periksa kotak masuk dan klik tautan tersebut untuk mengaktifkan akun Anda.
             </p>
 
+            {{-- Notifikasi jika link baru dikirim --}}
             @if (session('status') == 'verification-link-sent')
-                <div class="alert alert-success mt-4" role="alert">
-                    {{ __('A new verification link has been sent to the email address you provided during registration.') }}
+                <div class="alert alert-success mb-3" role="alert">
+                    Tautan verifikasi baru telah dikirim ke alamat email Anda.
                 </div>
             @endif
 
-            <hr class="my-4">
+            {{-- Tombol kirim ulang --}}
+            <form method="POST" action="{{ route('verification.send') }}">
+                @csrf
+                <button type="submit" class="btn btn-primary w-100 fw-semibold py-2" style="font-size: 1rem;">
+                    Kirim Ulang Email Verifikasi
+                </button>
+            </form>
 
-            {{-- This flex container will space out the two buttons --}}
-            <div class="d-flex justify-content-between align-items-center">
-                <form method="POST" action="{{ route('verification.send') }}">
-                    @csrf
-                    <button type="submit" class="btn bg-default-blue text-primary custom-btn-hover">
-                        {{ __('Resend Verification Email') }}
-                    </button>
-                </form>
+            {{-- Link logout --}}
+            <form method="POST" action="{{ route('logout') }}" class="mt-2">
+                @csrf
+                <button type="submit" class="btn btn-link text-decoration-none text-muted">
+                    Log Out
+                </button>
+            </form>
 
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="btn btn-link text-decoration-none text-muted">
-                        {{ __('Log Out') }}
-                    </button>
-                </form>
-            </div>
+            {{-- Informasi tambahan --}}
+            <p class="text-muted small mt-3 mb-0">
+                Belum menerima email? Periksa folder spam atau klik tombol di atas untuk mengirim ulang.
+            </p>
 
         </div>
     </div>
-
 </div>
 @endsection

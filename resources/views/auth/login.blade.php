@@ -23,16 +23,16 @@
                         <div class="card-block">
 
                             <div class="text-center mb-3">
-                                <h3 class="text-center">Log In</h3>
-                                <p class="font-weight-bold">Login As</p>
+                                <h3 class="text-center">Masuk</h3>
+                                <p class="font-weight-bold">Masuk Sebagai</p>
                                 <div class="d-flex justify-content-center mb-2">
                                     <div class="role-btn btn btn-primary mr-2 active"
                                         onclick="selectRole(this, 'student')">
-                                        👨‍🎓 Student
+                                        👨‍🎓 Siswa
                                     </div>
                                     <div class="role-btn btn btn-outline-secondary"
                                         onclick="selectRole(this, 'instructor')">
-                                        🧑‍🏫 Instructor
+                                        🧑‍🏫 Instruktur
                                     </div>
                                 </div>
                                 <input type="hidden" id="selected-role" name="login_preference" value="student">
@@ -50,7 +50,7 @@
                             <div class="form-group form-primary">
                                 <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" required placeholder="" value="{{ old('email') }}">
                                 <span class="form-bar"></span>
-                                <label class="float-label">Email Address</label>
+                                <label class="float-label">Alamat Email</label>
                                 @error('email')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -73,13 +73,13 @@
                                             <span class="cr">
                                                 <i class="cr-icon icofont icofont-ui-check txt-primary"></i>
                                             </span>
-                                            <span class="text-inverse">Remember me</span>
+                                            <span class="text-inverse">Ingatkan Saya</span>
                                         </label>
                                     </div>
                                 </div>
                                 <div class="col text-right">
                                      @if (Route::has('password.request'))
-                                        <a href="#" data-toggle="modal" data-target="#forgotModal" class="f-w-600">Forgot Password?</a>
+                                        <a href="#" data-toggle="modal" data-target="#forgotModal" class="f-w-600">Lupa Password?</a>
                                     @endif
                                 </div>
                             </div>
@@ -94,16 +94,16 @@
                             </div>
 
                             <div class="text-center mt-3">
-                                <p class="text-muted">Don't have an account? <a href="{{ route('register') }}"
-                                        class="text-primary">Sign up</a></p>
+                                <p class="text-muted">Belum punya akun?<a href="{{ route('register') }}"
+                                        class="text-primary">Daftar</a></p>
                             </div>
 
                             <hr>
 
                             <div class="row">
                                 <div class="col-md-10">
-                                    <p class="text-inverse text-left m-b-0">Thank You</p>
-                                    <p class="text-inverse text-left"><a href="{{ route('home') }}"><b>Back to website</b></a>
+                                    <p class="text-inverse text-left m-b-0">Terima Kasih</p>
+                                    <p class="text-inverse text-left"><a href="{{ route('home') }}"><b>Kembali ke website</b></a>
                                     </p>
                                 </div>
                             </div>
@@ -122,14 +122,14 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content rounded">
       <div class="modal-header">
-        <h5 class="modal-title" id="forgotModalLabel">🔐 Forgot Your Password</h5>
+        <h5 class="modal-title" id="forgotModalLabel">🔐 Lupa Kata Sandi Anda?</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span>&times;</span>
         </button>
       </div>
       <div class="modal-body">
         <div class="mb-4 text-sm text-muted">
-            {{ __('No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+            {{ __('Tidak masalah. Cukup beri tahu kami alamat email Anda dan kami akan mengirimkan tautan untuk mengatur ulang kata sandi Anda.') }}
         </div>
 
         @if (session('status'))
@@ -158,7 +158,7 @@
 
             <div class="d-grid mt-4">
                 <button type="submit" class="btn btn-dark">
-                    {{ __('Email Password Reset Link') }}
+                    {{ __('Kirim Tautan Reset Kata Sandi') }}
                 </button>
             </div>
         </form>

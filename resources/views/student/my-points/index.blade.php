@@ -37,6 +37,45 @@
                                     <p>Total Akumulasi Poin anda saat ini</p>
                                 </div>
                             </div>
+                            
+                            {{-- Card: Line Chart --}}
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-block" style="height:283px;">
+                                    <!-- Judul -->
+                                    <h6 class="fw-bold mb-1">Line Chart</h6>
+                                    <p class="text-muted mb-4">
+                                        lorem ipsum dolor sit amet, consectetur adipisicing elit
+                                    </p> 
+                            
+                                    <!-- Grafik -->
+                                    <canvas id="myLineChart" style="height:300px;"></canvas>
+                                </div>
+                            </div>
+                            
+                            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                            <script>
+                                const ctx = document.getElementById('myLineChart').getContext('2d');
+                            
+                                new Chart(ctx, {
+                                    type: 'line',
+                                    data: {
+                                        labels: ['2006', '2007', '2008', '2009', '2010', '2011', '2012'],
+                                        datasets: [
+                                            {
+                                                data: [100, 75, 50, 75, 50, 75, 100],
+                                                borderColor: '#99ABCB',
+                                                tension: 0.4
+                                            },
+                                            {
+                                                data: [90, 65, 40, 65, 40, 65, 90],
+                                                borderColor: '#FF9F40',
+                                                tension: 0.4
+                                            }
+                                        ]
+                                    }
+                                });
+                            </script>
+
                     
                             {{-- Card: Cara Mendapatkan Poin --}}
                             <div class="card">
@@ -46,7 +85,7 @@
                                 <div class="card-block">
                                     <ul class="list-group list-group-flush">
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Membeli kursus dengan uang <span class="badge badge-success">{{ $siteSettings->points_for_purchase ? number_format($siteSettings->points_for_purchase, 0, ',', '.') : '0' }} Poin</span>
+                                            Membeli Kursus Dengan Uang <span class="badge badge-success">{{ $siteSettings->points_for_purchase ? number_format($siteSettings->points_for_purchase, 0, ',', '.') : '0' }} Poin</span>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                             Menyelesaikan Lesson Tipe Article <span class="badge badge-success">{{ $siteSettings->points_for_article ? number_format($siteSettings->points_for_article, 0, ',', '.') : '0' }} Poin</span>

@@ -9,12 +9,14 @@
                 <div class="col-md-8">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Hasil Kuis</h5>
-                        <p class="m-b-0">Kuis: <strong>{{ $quiz->title }}</strong></p>
+                        <p class="m-b-0">Judul Kuis: <strong>{{ $quiz->title }}</strong></p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
+                        <li class="breadcrumb-item"><a href="#!"><i class="fa fa-home"></i> </a></li>
+                        <li class="breadcrumb-item"><a href="#!">Kursus Saya</a></li>
+                        <li class="breadcrumb-item"><a href="#!">Modul Saya</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $quiz->lesson->module) }}">Daftar Pelajaran</a></li>
                         <li class="breadcrumb-item"><a href="#!">Hasil Kuis</a></li>
                     </ul>
@@ -49,7 +51,7 @@
                                             <tbody>
                                                 @forelse ($enrolledStudents as $student)
                                                     <tr>
-                                                        <td class="text-center">{{ $student->unique_id_number ? $student->unique_id_number : '-' }}</td>
+                                                        <td class="text-center">{{ $student->studentProfile->unique_id_number ? $student->studentProfile->unique_id_number : '-' }}</td>
                                                         <td>{{ $student->name }}</td>
                                                         <td>
                                                             @php

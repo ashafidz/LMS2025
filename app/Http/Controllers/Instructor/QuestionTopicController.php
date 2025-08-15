@@ -10,19 +10,40 @@ use Illuminate\Support\Facades\DB;
 
 class QuestionTopicController extends Controller
 {
-    public function index()
+    /**
+     * Menampilkan daftar topik soal dengan filter berdasarkan kursus.
+     */
+    public function index(Request $request)
     {
-        $topics = QuestionTopic::where('instructor_id', Auth::id())
-            ->withExists([
-                'questions as is_locked' => function ($query) {
-                    $query->whereHas('quizzes');
-                }
-            ])
-            ->withCount('questions')
-            ->latest()
-            ->paginate(10);
+        $user = Auth::user();
+        $filter = $request->query('filter_course');
 
-        return view('instructor.question_bank.topics.index', compact('topics'));
+        // Mulai query dasar untuk topik milik instruktur
+        $query = $user->questionTopics()
+            ->withExists(['questions as is_locked' => fn($q) => $q->whereHas('quizzes')])
+            ->withCount('questions');
+
+        // Terapkan filter berdasarkan pilihan dropdown
+        if ($filter === 'global') {
+            // Hanya tampilkan topik yang tersedia untuk semua kursus
+            $query->where('available_for_all_courses', true);
+        } elseif (is_numeric($filter)) {
+            // Tampilkan topik yang global ATAU yang terhubung ke kursus spesifik ini
+            $query->where(function ($q) use ($filter) {
+                $q->where('available_for_all_courses', true)
+                    ->orWhereHas('courses', function ($subQ) use ($filter) {
+                        $subQ->where('course_id', $filter);
+                    });
+            });
+        }
+        // Jika filter adalah 'all' atau kosong, tidak perlu filter tambahan (tampilkan semua)
+
+        $topics = $query->latest()->paginate(10)->withQueryString();
+
+        // Ambil semua kursus milik instruktur untuk mengisi dropdown
+        $courses = $user->courses()->orderBy('title')->get();
+
+        return view('instructor.question_bank.topics.index', compact('topics', 'courses'));
     }
 
     /**
@@ -30,7 +51,6 @@ class QuestionTopicController extends Controller
      */
     public function create()
     {
-        // Ambil semua kursus milik instruktur untuk ditampilkan di form
         $courses = Auth::user()->courses()->orderBy('title')->get();
         return view('instructor.question_bank.topics.create', compact('courses'));
     }
@@ -55,7 +75,6 @@ class QuestionTopicController extends Controller
                 'available_for_all_courses' => $request->has('available_for_all_courses'),
             ]);
 
-            // Jika tidak tersedia untuk semua, hubungkan ke kursus yang dipilih
             if (!$topic->available_for_all_courses && !empty($validated['course_ids'])) {
                 $topic->courses()->sync($validated['course_ids']);
             }
@@ -75,7 +94,6 @@ class QuestionTopicController extends Controller
      */
     public function edit(QuestionTopic $topic)
     {
-        // Eager load relasi kursus yang sudah terhubung
         $topic->load('courses');
         $courses = Auth::user()->courses()->orderBy('title')->get();
         return view('instructor.question_bank.topics.edit', compact('topic', 'courses'));
@@ -101,11 +119,9 @@ class QuestionTopicController extends Controller
                 'available_for_all_courses' => $request->has('available_for_all_courses'),
             ]);
 
-            // Jika tidak tersedia untuk semua, hubungkan ke kursus yang dipilih
             if (!$topic->available_for_all_courses && !empty($validated['course_ids'])) {
                 $topic->courses()->sync($validated['course_ids']);
             } else {
-                // Jika dicentang "semua kursus", hapus semua relasi spesifik
                 $topic->courses()->detach();
             }
         });

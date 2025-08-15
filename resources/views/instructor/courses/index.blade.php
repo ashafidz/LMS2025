@@ -6,16 +6,16 @@
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Kursus Saya</h5>
                         <p class="m-b-0">Kelola semua kursus yang telah Anda buat.</p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
                         <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Kursus</a></li>
+                        <li class="breadcrumb-item"><a href="#!">Kursus Saya</a></li>
                     </ul>
                 </div>
             </div>
@@ -34,7 +34,9 @@
                                     <h5>Daftar Kursus</h5>
                                     <span>Daftar semua kursus yang telah Anda buat</span>
                                     <div class="card-header-right">
-                                        <a href="{{ route('instructor.courses.create') }}" class="btn btn-primary">Buat Kursus Baru</a>
+                                        <a href="{{ route('instructor.courses.create') }}" class="btn btn-primary">
+                                            <i class="bi bi-plus-lg text-white"></i> Buat Kursus Baru
+                                        </a>
                                     </div>
                                 </div>
                                 <div class="card-block table-border-style">
@@ -77,17 +79,29 @@
                                                         </td>
                                                         <td class="text-center">
                                                             {{-- Tombol Pratinjau (akan kita fungsikan nanti) --}}
-                                                            <a href="{{ route('student.courses.show', ['course' => $course->slug, 'preview' => 'true']) }}" class="btn btn-inverse btn-sm" target="_blank">Pratinjau</a>
+                                                            <a href="{{ route('student.courses.show', ['course' => $course->slug, 'preview' => 'true']) }}"
+                                                               class="btn btn-inverse btn-sm"
+                                                               target="_blank">
+                                                                <i class="bi bi-eye me-1"></i> Pratinjau
+                                                            </a>
                                                             {{-- Tombol-tombol Aksi yang Sudah Dipisah --}}
                                                             <a href="{{ route('instructor.courses.modules.index', $course->id) }}" class="btn btn-success btn-sm" title="Kelola Modul">
                                                                 <i class="fa fa-list-ul"></i> Modul
                                                             </a>
-                                                            <button type="button" class="btn btn-warning btn-sm leaderboard-btn" data-url="{{ route('instructor.course.leaderboard', $course->id) }}" title="Lihat Papan Peringkat Kursus">
-                                                                <i class="fa fa-bar-chart"></i> Peringkat
+                                                            <button type="button" class="btn btn-warning btn-sm leaderboard-btn text-dark" data-url="{{ route('instructor.course.leaderboard', $course->id) }}" title="Lihat Papan Peringkat Kursus">
+                                                                <i class="fa fa-bar-chart text-dark"></i> Peringkat
                                                             </button>
                                                             <a href="{{ route('instructor.courses.edit', $course->id) }}" class="btn btn-info btn-sm" title="Edit Kursus">
                                                                 <i class="fa fa-pencil"></i> Edit
                                                             </a>
+
+                                                            {{-- TOMBOL BARU UNTUK CLONE --}}
+                                                            <form action="{{ route('instructor.courses.clone', $course->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin meng-clone kursus ini?');">
+                                                                @csrf
+                                                                <button type="submit" class="btn btn-warning btn-sm" title="Clone Kursus">
+                                                                    <i class="fa fa-clone"></i> Clone
+                                                                </button>
+                                                            </form>
 
                                                             @if(in_array($course->status, ['draft', 'rejected']))
                                                                 <form action="{{ route('instructor.courses.submit_review', $course->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Ajukan kursus ini untuk direview?');">

@@ -79,6 +79,7 @@
                                                 <table class="table table-hover">
                                                     <thead>
                                                         <tr>
+                                                            <th class="text-center" >NIM/NIDN/NIP</th>
                                                             <th>Nama Siswa</th>
                                                             <th>Email</th>
                                                         </tr>
@@ -86,6 +87,7 @@
                                                     <tbody>
                                                         @forelse ($notSubmittedStudents as $student)
                                                             <tr>
+                                                                <td class="text-center">{{ $student->studentProfile->unique_id_number ? $student->studentProfile->unique_id_number : '-' }}</td>
                                                                 <td>{{ $student->name }}</td>
                                                                 <td>{{ $student->email }}</td>
                                                             </tr>

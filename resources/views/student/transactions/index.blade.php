@@ -34,58 +34,72 @@
                                     <h5>Daftar Transaksi Anda</h5>
                                 </div>
                                 <div class="card-block table-border-style">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th>Kode Pesanan</th>
-                                                    <th>Tanggal</th>
-                                                    <th>Total Pembayaran</th>
-                                                    <th>Status</th>
-                                                    <th class="text-center">Aksi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @forelse ($orders as $order)
+                                    @if ($orders -> isEmpty())
+                                        <div class="col-sm-12">
+                                            <div class="card">
+                                                <div class="card-block text-center p-5">
+                                                    <i class="fa fa-book fa-3x text-muted mb-3"></i>
+                                                    <h4>Anda Belum Memiliki Riwayat Transaksi</h4>
+                                                    <p>Jelajahi katalog kami untuk menemukan kursus yang cocok untuk Anda.</p>
+                                                    <a href="{{ route('courses') }}" class="btn btn-primary mt-2">Lihat Katalog Kursus</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
                                                     <tr>
-                                                        <td><strong>{{ $order->order_code }}</strong></td>
-                                                        <td>{{ $order->created_at->format('d F Y, H:i') }}</td>
-                                                        <td>Rp{{ number_format($order->final_amount, 0, ',', '.') }}</td>
-                                                        <td>
-                                                            @php
-                                                                $statusClasses = [
-                                                                    'pending' => 'label-warning',
-                                                                    'paid' => 'label-success',
-                                                                    'failed' => 'label-danger',
-                                                                    'cancelled' => 'label-default',
-                                                                ];
-                                                            @endphp
-                                                            <label class="label {{ $statusClasses[$order->status] ?? 'label-default' }}">
-                                                                {{ ucfirst($order->status) }}
-                                                            </label>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            @if($order->status == 'pending')
-                                                                <a href="{{ route('checkout.show', $order->id) }}" class="btn btn-primary btn-sm">Bayar Sekarang</a>
-                                                            @else
-                                                                <button type="button" class="btn btn-inverse btn-sm" data-toggle="modal" data-target="#invoiceModal-{{ $order->id }}">
-                                                                Lihat Invoice
-                                                            </button>
-                                                            @endif
+                                                        <th>Kode Pesanan</th>
+                                                        <th>Tanggal</th>
+                                                        <th>Total Pembayaran</th>
+                                                        <th>Status</th>
+                                                        <th class="text-center">Aksi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @forelse ($orders as $order)
+                                                        <tr>
+                                                            <td><strong>{{ $order->order_code }}</strong></td>
+                                                            <td>{{ $order->created_at->format('d F Y, H:i') }}</td>
+                                                            <td>Rp{{ number_format($order->final_amount, 0, ',', '.') }}</td>
+                                                            <td>
+                                                                @php
+                                                                    $statusClasses = [
+                                                                        'pending' => 'label-warning',
+                                                                        'paid' => 'label-success',
+                                                                        'failed' => 'label-danger',
+                                                                        'cancelled' => 'label-default',
+                                                                    ];
+                                                                @endphp
+                                                                <label class="label {{ $statusClasses[$order->status] ?? 'label-default' }}">
+                                                                    {{ ucfirst($order->status) }}
+                                                                </label>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @if($order->status == 'pending')
+                                                                    <a href="{{ route('checkout.show', $order->id) }}" class="btn btn-primary btn-sm">Bayar Sekarang</a>
+                                                                @else
+                                                                    <button type="button" class="btn btn-inverse btn-sm" data-toggle="modal" data-target="#invoiceModal-{{ $order->id }}">
+                                                                    Lihat Invoice
+                                                                </button>
+                                                                @endif
 
-                                                        </td>
-                                                    </tr>
-                                                @empty
-                                                    <tr>
-                                                        <td colspan="5" class="text-center">Anda belum memiliki riwayat transaksi.</td>
-                                                    </tr>
-                                                @endforelse
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div class="d-flex justify-content-center">
+                                                            </td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="5" class="text-center">Anda belum memiliki riwayat transaksi.</td>
+                                                        </tr>
+                                                    @endforelse
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                                                            <div class="d-flex justify-content-center">
                                         {{ $orders->links() }}
                                     </div>
+                                    @endif
+
                                 </div>
                             </div>
                         </div>

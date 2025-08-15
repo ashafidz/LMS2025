@@ -6,29 +6,18 @@
         <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
-                    <div class="col-md-8">
+                    <div class="col-md-12">
                         <div class="page-header-title">
-                            <h5 class="m-b-10">
-                                Questions for: {{ $topic->name }}
-                            </h5>
-                            <p class="m-b-0">
-                                Manage the questions for this topic.
-                            </p>
+                            <h5 class="m-b-10">Pertanyaan Untuk Topik: {{ $topic->name }}</h5>
+                            <p class="m-b-0">Kelola pertanyaan untuk topik ini.</p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-12 d-flex mt-3">
                         <ul class="breadcrumb-title">
                             <li class="breadcrumb-item">
-                                <a href="{{ route('instructor.dashboard') }}">
-                                    <i class="fa fa-home"></i>
-                                </a>
-                            </li>
-                            <li class="breadcrumb-item">
-                                <a href="{{ route('instructor.question-bank.topics.index') }}">Question Topics</a>
-                            </li>
-                            <li class="breadcrumb-item">
-                                <a href="#!">{{ Str::limit($topic->name, 20) }}</a>
-                            </li>
+                                <a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.topics.index') }}">Bank Soal</a></li>
+                            <li class="breadcrumb-item"><a href="#!">{{ Str::limit($topic->name, 20) }}</a></li>
                         </ul>
                     </div>
                 </div>
@@ -45,13 +34,11 @@
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Question List</h5>
-                                        <span>Here is a list of all questions for this topic.</span>
+                                        <h5>List Pertanyaan</h5>
+                                        <span>Berikut adalah daftar semua pertanyaan untuk topik ini.</span>
                                         <div class="card-header-right">
                                             {{-- UPDATE: This button now triggers the modal --}}
-                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#selectQuestionTypeModal">
-                                                Create Question
-                                            </button>
+                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#selectQuestionTypeModal"><i class="bi bi-plus-lg text-white"></i>Buat Pertanyaan</button>
                                         </div>
                                     </div>
                                     <div class="card-block table-border-style">
@@ -92,20 +79,20 @@
                                                             <td class="text-center">
                                                                 {{-- Show Edit button only if not locked --}}
                                                                 @if (!$isLocked)
-                                                                    <a href="{{ route('instructor.question-bank.questions.edit', $question->id) }}" class="btn btn-info btn-sm">Edit</a>
+                                                                    <a href="{{ route('instructor.question-bank.questions.edit', $question->id) }}" class="btn btn-info btn-sm"><i class="fas fa-edit"></i>Edit</a>
                                                                 @endif
 
                                                                 {{-- Always show Clone button --}}
                                                                 <form action="{{ route('instructor.question-bank.questions.clone', $question->id) }}" method="POST" class="d-inline">
                                                                     @csrf
-                                                                    <button type="submit" class="btn btn-primary btn-sm">Clone</button>
+                                                                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-clone"></i>Duplikat</button>
                                                                 </form>
 
                                                                 {{-- Disable Delete button if locked --}}
                                                                 <form action="{{ route('instructor.question-bank.questions.destroy', $question->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this question?');">
                                                                     @csrf
                                                                     @method('DELETE')
-                                                                    <button type="submit" class="btn btn-danger btn-sm" {{ $isLocked ? 'disabled' : '' }} title="{{ $isLocked ? 'This question is locked and cannot be deleted.' : '' }}">Delete</button>
+                                                                    <button type="submit" class="btn btn-danger btn-sm" {{ $isLocked ? 'disabled' : '' }} title="{{ $isLocked ? 'This question is locked and cannot be deleted.' : '' }}"><i class="fas fa-trash"></i>Hapus</button>
                                                                 </form>
                                                             </td>
                                                         </tr>

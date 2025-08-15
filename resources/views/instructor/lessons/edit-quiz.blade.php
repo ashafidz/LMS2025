@@ -7,12 +7,19 @@
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <div class="page-header-title">
+                            
                             <h5 class="m-b-10">Edit Pelajaran</h5>
                             <p class="m-b-0">Tipe: Kuis</p>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        {{-- Breadcrumbs --}}
+                        <ul class="breadcrumb-title">
+                            <li class="breadcrumb-item"><a href="#!"><i class="fa fa-home"></i> </a></li>
+                            <li class="breadcrumb-item"><a href="#!">Kursus Saya</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Modul Saya</a></li>
+                            <li class="breadcrumb-item"><a href="#!">(klik daftar pelajaran)</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Edit</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>

@@ -27,10 +27,10 @@
                 </div>
                 @if($courseLikertQuestions->isNotEmpty())
                     <hr>
-                    <label class="d-block mb-3">Penilaian Detail Kursus:</label>
+                    <label class="d-block mb-3" style="font-size: 1rem; font-weight: 500;">Penilaian Detail Kursus:</label> 
                     @foreach($courseLikertQuestions as $question)
                     <div class="form-group likert-scale">
-                        <p class="mb-1">{{ $question->question_text }}</p>
+                        <p class="likert-question">{{ $question->question_text }}</p>
                         <div class="btn-group d-flex justify-content-between text-center" role="group">
                             <div class="w-25 d-flex flex-column justify-content-center">
                                 <input type="radio" class="btn-check" name="likert_answers[{{ $question->id }}]" id="likert-{{ $question->id }}-1" value="1" autocomplete="off" required>
@@ -85,10 +85,10 @@
                 </div>
                 @if($instructorLikertQuestions->isNotEmpty())
                     <hr>
-                    <label class="d-block mb-3">Penilaian Detail Instruktur:</label>
+                    <label class="d-block mb-3" style="font-size: 1rem; font-weight: 500;">Penilaian Detail Instruktur:</label> 
                     @foreach($instructorLikertQuestions as $question)
                     <div class="form-group likert-scale">
-                        <p class="mb-1">{{ $question->question_text }}</p>
+                        <p class="likert-question">{{ $question->question_text }}</p>
                         <div class="btn-group d-flex justify-content-between text-center" role="group">
                             <div class="w-25 d-flex flex-column justify-content-center">
                                 <input type="radio" class="btn-check" name="likert_answers[{{ $question->id }}]" id="likert-{{ $question->id }}-1" value="1" autocomplete="off" required>
@@ -126,4 +126,10 @@
     .star-rating label { font-size: 2.5rem; color: #ddd; cursor: pointer; }
     .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #f5b301; }
     .likert-scale .btn-check:checked+.btn { background-color: #007bff; color: white; }
+    .likert-question {
+    font-size: 1rem !important; /* pastikan lebih besar */
+    color: #555 !important;       /* warna hitam pekat */
+    margin-bottom: 0.5rem;        /* beri jarak bawah */
+}
+
 </style>

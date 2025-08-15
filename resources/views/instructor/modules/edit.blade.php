@@ -6,32 +6,17 @@
         <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">
-                                Edit Module
-                            </h5>
-                            <p class="m-b-0">
-                                Update the details for your module.
-                            </p>
+                    <div class="col-md-12">
+                        <div class="page-header-title">Edit Modul</h5>
+                            <p class="m-b-0">Perbarui Detail Modul Anda.</p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-12 d-flex mt-3">
                         <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item">
-                                <a href="{{ route('instructor.dashboard') }}">
-                                    <i class="fa fa-home"></i>
-                                </a>
-                            </li>
-                            <li class="breadcrumb-item">
-                                <a href="{{ route('instructor.courses.index') }}">Courses</a>
-                            </li>
-                             <li class="breadcrumb-item">
-                                <a href="{{ route('instructor.courses.modules.index', $module->course->id) }}">Modules</a>
-                            </li>
-                            <li class="breadcrumb-item">
-                                <a href="#!">Edit</a>
-                            </li>
+                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('instructor.courses.index') }}">Kursus Saya</a></li>
+                             <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $module->course->id) }}">Modul Saya</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Edit</a></li>
                         </ul>
                     </div>
                 </div>
@@ -48,8 +33,8 @@
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h5>Edit Module Details</h5>
-                                        <span>Update the title for your module.</span>
+                                        <h5>Edit Detail Modul</h5>
+                                        <span>Perbarui Judul Modul Anda.</span>
                                     </div>
                                     <div class="card-block">
                                         <form action="{{ route('instructor.modules.update', $module->id) }}" method="POST">
@@ -58,7 +43,7 @@
 
                                             {{-- Title --}}
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Module Title</label>
+                                                <label class="col-sm-2 col-form-label">Judul Modul</label>
                                                 <div class="col-sm-10">
                                                     <input type="text" name="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title', $module->title) }}" required>
                                                     @error('title')
@@ -79,8 +64,8 @@
                                             <div class="form-group row">
                                                 <label class="col-sm-2"></label>
                                                 <div class="col-sm-10">
-                                                    <button type="submit" class="btn btn-primary">Update Module</button>
-                                                    <a href="{{ route('instructor.courses.modules.index', $module->course->id) }}" class="btn btn-secondary">Cancel</a>
+                                                    <a href="{{ route('instructor.courses.modules.index', $module->course->id) }}" class="btn btn-secondary">Batal</a>
+                                                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                                                 </div>
                                             </div>
                                         </form>

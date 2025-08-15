@@ -5,16 +5,17 @@
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Kelola Pelajaran: {{ $module->title }}</h5>
                         <p class="m-b-0">Atur semua pelajaran untuk modul ini.</p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $module->course) }}">Modul</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"> <i class="fa fa-home"></i> </a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('instructor.courses.index') }}">Kursus Saya</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $module->course) }}">Modul Saya</a></li>
                         <li class="breadcrumb-item"><a href="#!">{{ Str::limit($module->title, 20) }}</a></li>
                     </ul>
                 </div>
@@ -33,7 +34,7 @@
                                     <span>Seret dan lepas pelajaran untuk mengubah urutan.</span>
                                     <div class="card-header-right">
                                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#selectLessonTypeModal">
-                                            <i class="fa fa-plus"></i> Buat Pelajaran Baru
+                                            <i class="bi bi-plus-lg text-white"></i> Buat Pelajaran Baru
                                         </button>
                                     </div>
                                 </div>
@@ -48,8 +49,8 @@
                                                 <div class="card-body d-flex justify-content-between align-items-center p-3">
                                                     <div>
                                                         <i class="fa fa-bars handle text-muted mr-3" style="cursor: move;"></i>
-                                                        <strong>{{ $lesson->title }}</strong>
                                                         <span class="badge badge-info ml-2">{{ ucfirst(str_replace('lesson', '', strtolower(class_basename($lesson->lessonable_type)))) }}</span>
+                                                        <strong>{{ $lesson->title }}</strong>
                                                     </div>
 
                                                     <div>
@@ -58,35 +59,35 @@
                                                         @endphp
 
                                                         @if ($lessonType === 'quiz')
-                                                            <a href="{{ route('student.quiz.start', ['quiz' => $lesson->lessonable_id, 'preview' => 'true']) }}" target="_blank" class="btn btn-warning btn-sm" title="Pratinjau Kuis di Tab Baru">
-                                                                Pratinjau
+                                                            <a href="{{ route('student.quiz.start', ['quiz' => $lesson->lessonable_id, 'preview' => 'true']) }}" target="_blank" class="btn btn-warning btn-sm text-dark" title="Pratinjau Kuis di Tab Baru">
+                                                                <i class="bi bi-eye me-1"></i>Pratinjau
                                                             </a>
                                                         @else
-                                                            <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#previewModal-{{ $lesson->id }}">
+                                                            <button type="button" class="btn btn-warning btn-sm text-dark" data-toggle="modal" data-target="#previewModal-{{ $lesson->id }}"><i class="bi bi-eye me-1"></i>
                                                                 Pratinjau
                                                             </button>
                                                         @endif
 
-                                                        <a href="{{ route('instructor.lessons.edit', $lesson->id) }}" class="btn btn-info btn-sm">Edit</a>
+                                                        <a href="{{ route('instructor.lessons.edit', $lesson->id) }}" class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i>Edit</a>
 
                                                         @if ($lessonType === 'quiz')
-                                                            <a href="{{ route('instructor.quiz.results', $lesson->lessonable_id) }}" class="btn btn-info btn-sm">Lihat Nilai</a>
-                                                            <a href="{{ route('instructor.quizzes.manage_questions', $lesson->lessonable_id) }}" class="btn btn-success btn-sm">Kelola Soal</a>
+                                                            <a href="{{ route('instructor.quiz.results', $lesson->lessonable_id) }}" class="btn btn-info btn-sm"><i class="fa fa-calculator me-1"></i>Lihat Nilai</a>
+                                                            <a href="{{ route('instructor.quizzes.manage_questions', $lesson->lessonable_id) }}" class="btn btn-success btn-sm"><i class="fa fa-pencil-square me-1"></i>Kelola Soal</a>
                                                         @endif
                                                         
                                                         {{-- TOMBOL BARU UNTUK TUGAS (ASSIGNMENT) --}}
                                                         @if ($lessonType === 'lessonassignment')
-                                                            <a href="{{ route('instructor.assignment.submissions', $lesson->lessonable_id) }}" class="btn btn-success btn-sm">Lihat Pengumpulan</a>
+                                                            <a href="{{ route('instructor.assignment.submissions', $lesson->lessonable_id) }}" class="btn btn-success btn-sm"><i class="fas fa-file-alt"></i>Lihat Pengumpulan</a>
                                                         @endif
 
                                                         @if ($lessonType === 'lessonpoint')
-                                                            <a href="{{ route('instructor.lesson_points.manage', $lesson->id) }}" class="btn btn-success btn-sm">Kelola LessonPoin</a>
+                                                            <a href="{{ route('instructor.lesson_points.manage', $lesson->id) }}" class="btn btn-success btn-sm"><i class="bi bi-gear-fill"></i>Kelola LessonPoin</a>
                                                         @endif
 
                                                         <form action="{{ route('instructor.lessons.destroy', $lesson->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pelajaran ini?');">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>Hapus</button>
                                                         </form>
                                                     </div>
                                                 </div>

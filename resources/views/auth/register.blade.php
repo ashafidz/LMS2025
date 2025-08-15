@@ -14,14 +14,14 @@
                         <div class="card-block">
 
                             <div class="text-center mb-3">
-                                <h3 class="text-center">Sign Up</h3>
-                                <p class="font-weight-bold">Register As</p>
+                                <h3 class="text-center">Daftar</h3>
+                                <p class="font-weight-bold">Daftar Sebagai</p>
                                 <div class="d-flex justify-content-center mb-2">
                                     <div class="role-btn btn btn-primary mr-2 active" onclick="selectRole(this, 'student')">
-                                        👨‍🎓 Student
+                                        👨‍🎓 Siswa
                                     </div>
                                     <div class="role-btn btn btn-outline-secondary" onclick="selectRole(this, 'instructor')">
-                                        🧑‍🏫 Instructor
+                                        🧑‍🏫 Instruktur
                                     </div>
                                 </div>
                                 <input type="hidden" id="selected-role" name="role" value="student">
@@ -42,13 +42,13 @@
                             <div class="form-group form-primary">
                                 <input type="text" name="name" class="form-control" required value="{{ old('name') }}">
                                 <span class="form-bar"></span>
-                                <label class="float-label">Full Name</label>
+                                <label class="float-label">Nama Lengkap</label>
                             </div>
 
                             <div class="form-group form-primary">
                                 <input type="email" name="email" class="form-control" required value="{{ old('email') }}">
                                 <span class="form-bar"></span>
-                                <label class="float-label">Email Address</label>
+                                <label class="float-label">Alamat Email</label>
                             </div>
 
                             {{-- Instructor-only fields --}}
@@ -56,7 +56,7 @@
                                 <div class="form-group form-primary">
                                     <input type="text" name="headline" class="form-control" value="{{ old('headline') }}">
                                     <span class="form-bar"></span>
-                                    <label class="float-label">Headline (e.g., Web Developer)</label>
+                                    <label class="float-label">Psosisi/Jabatan (e.g., Web Developer)</label>
                                 </div>
                                 <div class="form-group form-primary">
                                     <input type="url" name="website_url" class="form-control" value="{{ old('website_url') }}">
@@ -77,7 +77,7 @@
                                     <div class="form-group form-primary">
                                         <input type="password" name="password_confirmation" class="form-control" required>
                                         <span class="form-bar"></span>
-                                        <label class="float-label">Confirm Password</label>
+                                        <label class="float-label">Konfirmasi Password</label>
                                     </div>
                                 </div>
                             </div>
@@ -85,21 +85,21 @@
                             <div class="row m-t-30">
                                 <div class="col-md-12">
                                     <button type="submit" class="btn btn-primary btn-md btn-block waves-effect text-center m-b-20">
-                                        Sign up now
+                                        Daftar Sekarang
                                     </button>
                                 </div>
                             </div>
 
                             <div class="text-center mt-3">
-                                <p class="text-muted">Already have an account? <a href="{{ route('login') }}" class="text-primary">Log in</a></p>
+                                <p class="text-muted">Sudah punya akun?<a href="{{ route('login') }}" class="text-primary">Masuk</a></p>
                             </div>
 
                             <hr/>
 
                             <div class="row">
                                 <div class="col-md-10">
-                                    <p class="text-inverse text-left m-b-0">Thank You</p>
-                                    <p class="text-inverse text-left"><a href="{{ route('home') }}"><b>Back to website</b></a></p>
+                                    <p class="text-inverse text-left m-b-0">Terima Kasih</p>
+                                    <p class="text-inverse text-left"><a href="{{ route('home') }}"><b>Kembali ke website</b></a></p>
                                 </div>
                             </div>
 

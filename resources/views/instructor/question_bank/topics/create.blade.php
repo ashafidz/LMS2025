@@ -6,17 +6,17 @@
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Buat Topik Soal Baru</h5>
                         <p class="m-b-0">Buat folder baru untuk mengelompokkan soal Anda.</p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
                         <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.topics.index') }}">Topik Soal</a></li>
-                        <li class="breadcrumb-item"><a href="#!">Buat</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.topics.index') }}">Bank Soal</a></li>
+                        <li class="breadcrumb-item"><a href="#!">Buat Topik</a></li>
                     </ul>
                 </div>
             </div>

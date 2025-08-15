@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Instructor;
 
-use App\Http\Controllers\Controller;
 use App\Models\Course;
-use App\Models\CourseCategory;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\CourseCategory;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 
 class CourseController extends Controller
 {
@@ -30,6 +31,7 @@ class CourseController extends Controller
      */
     public function store(Request $request)
     {
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:course_categories,id',
@@ -80,6 +82,11 @@ class CourseController extends Controller
     public function update(Request $request, Course $course)
     {
 
+        // Otorisasi: Pastikan instruktur hanya bisa meng-clone kursusnya sendiri
+        if ($course->instructor_id != Auth::id()) {
+            abort(403, 'Akses ditolak.');
+        }
+
 
 
         $validated = $request->validate([
@@ -116,6 +123,12 @@ class CourseController extends Controller
 
     public function destroy(Course $course)
     {
+        // Otorisasi: Pastikan instruktur hanya bisa meng-clone kursusnya sendiri
+        if ($course->instructor_id != Auth::id()) {
+            abort(403, 'Akses ditolak.');
+        }
+
+
         if ($course->thumbnail_url) {
             Storage::disk('public')->delete($course->thumbnail_url);
         }
@@ -149,5 +162,68 @@ class CourseController extends Controller
             return back()->with('success', 'Status kursus berhasil diubah menjadi privat.');
         }
         return back()->with('error', 'Aksi tidak valid.');
+    }
+
+
+    /**
+     * Meng-clone sebuah kursus beserta seluruh modul dan pelajarannya.
+     */
+    public function clone(Course $course)
+    {
+        // Otorisasi: Pastikan instruktur hanya bisa meng-clone kursusnya sendiri
+        if ($course->instructor_id != Auth::id()) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        try {
+            DB::transaction(function () use ($course) {
+                // 1. Replikasi data kursus utama
+                $newCourse = $course->replicate();
+                $newCourse->title = $course->title . ' (Salinan)';
+                $newCourse->slug = Str::slug($newCourse->title);
+                $newCourse->status = 'draft'; // Set status menjadi draft
+                $newCourse->created_at = now();
+                $newCourse->updated_at = now();
+                $newCourse->push(); // Simpan kursus baru untuk mendapatkan ID
+
+                // 2. Replikasi setiap modul
+                foreach ($course->modules as $module) {
+                    $newModule = $module->replicate();
+                    $newModule->course_id = $newCourse->id;
+                    $newModule->push(); // Simpan modul baru untuk mendapatkan ID
+
+                    // 3. Replikasi setiap pelajaran di dalam modul
+                    foreach ($module->lessons as $lesson) {
+                        $lessonable = $lesson->lessonable; // Ambil konten spesifik (video, kuis, dll.)
+
+                        // Replikasi konten spesifik terlebih dahulu
+                        $newLessonable = $lessonable->replicate();
+
+                        // Jika konten adalah kuis, kita juga perlu meng-clone relasi soalnya
+                        if ($lesson->lessonable_type === 'App\Models\Quiz') {
+                            $newLessonable->push(); // Simpan kuis baru untuk mendapatkan ID
+                            $questionIds = $lessonable->questions()->pluck('questions.id');
+                            $newLessonable->questions()->sync($questionIds);
+                        } else {
+                            $newLessonable->save();
+                        }
+
+                        // Replikasi data pelajaran utama
+                        $newLesson = $lesson->replicate();
+                        $newLesson->module_id = $newModule->id;
+
+                        // Hubungkan dengan konten baru yang sudah direplikasi
+                        $newLesson->lessonable_id = $newLessonable->id;
+                        $newLesson->lessonable_type = $lesson->lessonable_type;
+                        $newLesson->push();
+                    }
+                }
+            });
+        } catch (\Exception $e) {
+            // Jika terjadi error, kembalikan dengan pesan error
+            return redirect()->route('instructor.courses.index')->with('error', 'Terjadi kesalahan saat meng-clone kursus: ' . $e->getMessage());
+        }
+
+        return redirect()->route('instructor.courses.index')->with('success', 'Kursus berhasil di-clone.');
     }
 }

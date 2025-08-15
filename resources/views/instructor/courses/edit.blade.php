@@ -6,18 +6,17 @@
         <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
-                    <div class="col-md-8">
+                    <div class="col-md-12">
                         <div class="page-header-title">
                             <h5 class="m-b-10">Edit Kursus</h5>
                             <p class="m-b-0">Perbarui detail untuk kursus: {{ $course->title }}</p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-12 d-flex mt-3">
                         <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i
-                                        class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.courses.index') }}">Kursus</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Edit</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('instructor.courses.index') }}">Kursus Saya</a></li>
+                            <li class="breadcrumb-item"><a href="#!">Edit Kursus</a></li>
                         </ul>
                     </div>
                 </div>

@@ -4,11 +4,20 @@
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Buat Pelajaran Poin Manual</h5>
                         <p class="m-b-0">Buat sesi di mana Anda bisa memberikan poin secara manual.</p>
                     </div>
+                </div>
+                <div class="col-md-12 d-flex mt-3">
+                    <ul class="breadcrumb-title">
+                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('instructor.courses.index') }}">Kursus Saya</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $module->course) }}">Modul Saya</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $module) }}">{{ Str::limit($module->title, 20) }}</a></li>
+                        <li class="breadcrumb-item"><a href="#!">Buat Pelajaran Poin</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
