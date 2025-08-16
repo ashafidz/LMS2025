@@ -44,11 +44,11 @@
             font-size: 18px;
         }
         .certificate-code {
-        position: absolute; 
-        top: 25mm; 
-        right: 20%; 
-        font-size: 1.4vw; 
-        color: #555; 
+            position: absolute;
+            top: 25mm;
+            right: 20mm;
+            font-size: 14px;
+            color: #555;
         }
         .completion-text {
             position: absolute;
@@ -62,10 +62,10 @@
             position: absolute;
             top: 62mm;
             left: 20mm;
-            font-size: 40px;
+            font-size: 36px;
             font-weight: bold;
             color: #000;
-            max-width: 220mm;
+            max-width: 180mm;
             line-height: 1.2;
         }
         .instructor-name {
@@ -93,35 +93,31 @@
     </style>
 </head>
 <body>
+    @php $settings = \App\Models\SiteSetting::first(); @endphp
     <div class="certificate-container">
-        <img src="{{ public_path('assets/images/certificate-background.png') }}" class="background-image" onerror="this.style.display='none'">
-                @php $settings = \App\Models\SiteSetting::first(); @endphp
+        <!-- Gambar Latar Belakang -->
+        <img src="{{ public_path('assets/images/certificate-background.png') }}" class="background-image">
 
-        <!-- All your text content goes here -->
+        <!-- Konten Teks yang Ditumpuk di Atas -->
         <div class="content">
             <div class="platform-name">
-                
-                @if(isset($settings) && $settings->logo_path)
+                @if($settings->logo_path)
                     <img src="{{ public_path('storage/' . $settings->logo_path) }}" alt="Logo" style="height: 24px;">
-                @elseif(isset($settings))
-                    <strong>{{ $settings->site_name }}</strong>
                 @else
-                    <strong>Platform Name</strong>
+                    <strong>{{ $settings->site_name }}</strong>
                 @endif
             </div>
 
-            <div class="certificate-code">{{ $certificate->certificate_code }}</div>
-            
-            <div class="completion-text">CERTIFICATION OF COMPLETION</div>
+            <div class="certificate-code">LMS-1-26-1755230460</div>
 
-            <div class="course-title">
-                {{ $course->title }} Digital Marketing (Jurusan Teknologi Multimedia Kreatif)
-            </div>
+            <div class="completion-text">CERTIFICATE OF COMPLETION</div>
+
+            <div class="course-title">Digital Marketing (Jurusan Teknologi Multimedia Kreatif)</div>
 
             <div class="instructor-name">Instructors <strong>Ashafidz Fauzan Dianta</strong></div>
 
             <div class="student-name">Akhmad Nabil Gibran</div>
-            
+
             <div class="issue-date">Date <strong>16 August 2025</strong></div>
         </div>
     </div>

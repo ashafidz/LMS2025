@@ -247,7 +247,7 @@
             <div class="text-center">
               <h3>Sudah Siap Jadi Bagian dari Mereka?</h3>
               <p>Bergabunglah bersama ribuan peserta lainnya yang telah merasakan manfaat kursus kami. Mulailah langkah barumu hari ini!</p>
-              <a class="cta-btn" href="/home">Registrasi</a>
+              <a class="cta-btn" href="{{ route('register') }}">Registrasi</a>
             </div>
           </div>
         </div>

@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Index - iLanding Bootstrap Template</title>
+  <title>{{ $siteSettings->site_name }}</title>
   <meta name="description" content="">
   <meta name="keywords" content="">
 
@@ -42,7 +42,7 @@
     <div class="header-container container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
 
       <a href="{{ url('/home') }}" class="logo d-flex align-items-center me-auto me-xl-0">
-        <h1 class="sitename">KURSUS IDN</h1>
+        <h1 class="sitename">{{ $siteSettings->site_name }}</h1>
       </a>
 
       <nav id="navmenu" class="navmenu">
@@ -127,12 +127,12 @@
       <div class="row gy-4">
         <div class="col-lg-4 col-md-6 footer-about">
           <a href="{{ url('/') }}" class="logo d-flex align-items-center">
-            <span class="sitename">iLanding</span>
+            <span class="sitename">{{ $siteSettings->site_name }}</span>
           </a>
           <div class="footer-contact pt-3">
-            <p>A108 Adam Street</p>
-            <p>New York, NY 535022</p>
-            <p class="mt-3"><strong>Phone:</strong> <span>+1 5589 55488 55</span></p>
+            <p>{{ $siteSettings->company_name }}</p>
+            <p>{{ $siteSettings->address }}</p>
+            <p class="mt-3"><strong>Phone:</strong> <span>{{ $siteSettings->phone }}</span></p>
             <p><strong>Email:</strong> <span>info@example.com</span></p>
           </div>
           <div class="social-links d-flex mt-4">
@@ -159,18 +159,21 @@
           </ul>
         </div>
 
-        <div class="col-lg-2 col-md-3 footer-links">
-          <h4>Katalog</h4>
-          <ul>
-            <li><a href="#">AI Engineer</a></li>
-            <li><a href="#">Web Development</a></li>
-            <li><a href="#">Design & Creativity</a></li>
-            <li><a href="#">Mobile Development</a></li>
-          </ul>
-        </div>
+<div class="col-lg-2 col-md-3 footer-links">
+    <h4>Katalog</h4>
+    <ul>
+        {{-- Loop untuk menampilkan kategori dari View Composer --}}
+        @if(isset($footerCategories))
+            @foreach ($footerCategories as $category)
+                {{-- Tautan ini akan mengarah ke halaman katalog dengan filter kategori yang sudah diterapkan --}}
+                <li><a href="{{ route('courses', ['categories[]' => $category->id]) }}">{{ $category->name }}</a></li>
+            @endforeach
+        @endif
+    </ul>
+</div>
 
     <div class="container copyright text-center mt-4">
-      <p>© <strong class="px-1 sitename">iLanding</strong> All Rights Reserved</p>
+      <p>© <strong class="px-1 sitename">{{ $siteSettings->site_name }}</strong> All Rights Reserved</p>
       <div class="credits">
         Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
       </div>

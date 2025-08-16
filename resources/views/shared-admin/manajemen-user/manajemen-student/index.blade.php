@@ -72,6 +72,9 @@
                                             <table class="table table-hover">
                                                 <thead>
                                                     <tr>
+                                                        <th class="text-center">
+                                                            NIM/NIP/NIDN
+                                                        </th>
                                                         <th>
                                                             Nama Student
                                                         </th>
@@ -105,9 +108,12 @@
 
                                                         <tr>
                                                             <td>
+                                                                <p class="text-center">{{ $student_status_data->unique_id_number ? $student_status_data->unique_id_number : '-' }}</p>
+                                                            </td>
+                                                            <td>
                                                                 <div class="d-inline-block align-middle">
                                                                     {{-- retrive from users profile_picture_url --}}
-                                                                    <img src="{{ $student_status_data->user->profile_picture_url ?? 'https://placehold.co/32x32/EBF4FF/767676?text=SA' }}"
+                                                                    <img src="{{ $student_status_data->user->profile_picture_url ? asset('storage/' . ltrim($student_status_data->user->profile_picture_url, '/')) : 'https://placehold.co/32x32/EBF4FF/767676?text=SA' }}"
                                                                         alt="user image"
                                                                         class="img-radius img-40 align-top m-r-15" />
                                                                     <div class="d-inline-block">

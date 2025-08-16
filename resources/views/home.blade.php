@@ -134,7 +134,7 @@
 
         <div class="row content justify-content-center align-items-center position-relative">
         <div class="col-lg-8 mx-auto text-center">
-            <h2 class="display-4 mb-4">Kenali Lebih Dekat Kursus Idn</h2>
+            <h2 class="display-4 mb-4">Kenali Lebih Dekat {{ $siteSettings->site_name }}</h2>
             <p class="mb-4">Pelajari bagaimana kami membantu ribuan pelajar dan profesional meningkatkan keterampilan melalui kursus berkualitas dan mentor berpengalaman.</p>
             <a href="/about" class="btn btn-cta">Tentang Kami</a>
         </div>
@@ -254,100 +254,119 @@
   
       </section><!-- /Services Section -->  
 
-    <!-- Pricing Section -->
-    <section id="pricing" class="pricing section bg-white">
-        
-        <!-- Section Title -->
-        <div class="container section-title" data-aos="fade-up">
-            <h2>Kursus yang Sering Dibeli</h2>
-            <p>Kursus-kursus ini populer dan direkomendasikan oleh banyak peserta.</p>
-        </div><!-- End Section Title -->
+<!-- Pricing Section -->
+<section id="pricing" class="pricing section bg-white">
+    
+    <!-- Section Title -->
+    <div class="container section-title" data-aos="fade-up">
+        <h2>Kursus yang Sering Dibeli</h2>
+        <p>Kursus-kursus ini populer dan direkomendasikan oleh banyak peserta.</p>
+    </div><!-- End Section Title -->
 
-        <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
 
-            <div class="row g-4 justify-content-center">
+        <div class="row g-4 justify-content-center">
 
-            <!-- Basic Plan -->
-            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
-                <div class="pricing-card">
-                <h3>HTML Fundamentals</h3>
-                <div class="price">
-                    <span class="currency">Rp.</span>
-                    <span class="amount">156.000</span>
+            {{-- Kartu untuk Kursus Terpopuler ke-2 (di sisi kiri) --}}
+            @if($secondMostPopularCourse)
+                @php $course = $secondMostPopularCourse; @endphp
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="pricing-card">
+                        <h3>{{ $course->title }}</h3>
+                        <div class="price">
+                            @if($course->payment_type === 'money')
+                                @if($course->price > 0)
+                                    <span class="currency">Rp.</span>
+                                    <span class="amount">{{ number_format($course->price, 0, ',', '.') }}</span>
+                                @else
+                                    <span class="amount">Gratis</span>
+                                @endif
+                            @elseif($course->payment_type === 'diamonds')
+                                <span class="amount" style="font-size: 1.5rem;"><i class="fa fa-diamond mr-2"></i> {{ number_format($course->diamond_price, 0, ',', '.') }}</span>
+                            @endif
+                        </div>
+                        <p class="description">{{ Str::limit($course->description, 100) }}</p>
+                        <h4>Dilengkapi:</h4>
+                        <ul class="features-list">
+                            <li><i class="bi bi-person-workspace"></i> {{ $course->lessons_count }} Materi</li>
+                            <li><i class="bi bi-people"></i> {{ $course->students_count }}+ Siswa</li>
+                            <li><i class="bi bi-award"></i> Sertifikat</li>
+                        </ul>
+                        <a href="{{ route('courses.show', $course->slug) }}" class="btn btn-primary">
+                            Detail Kursus <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
-                <p class="description">Pelajari struktur dasar HTML dan bangun fondasi solid untuk menjadi web developer.</p>
+            @endif
 
-                <h4>Dilengkapi fitur:</h4>
-                <ul class="features-list">
-                    <li><i class="bi bi-clock"></i> 10+ Jam Materi</li>
-                    <li><i class="bi bi-play-circle"></i> 50+ Video</li>
-                    <li><i class="bi bi-award"></i> Sertifikat</li>
-                </ul>
-
-                <a href="details-course.html" class="btn btn-primary">
-                    Detail Kursus
-                    <i class="bi bi-arrow-right"></i>
-                </a>
+            {{-- Kartu untuk Kursus PALING Populer (di tengah) --}}
+            @if($mostPopularCourse)
+                @php $course = $mostPopularCourse; @endphp
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="pricing-card popular">
+                        <div class="popular-badge">Paling Populer</div>
+                        <h3>{{ $course->title }}</h3>
+                        <div class="price">
+                            @if($course->payment_type === 'money')
+                                @if($course->price > 0)
+                                    <span class="currency">Rp.</span>
+                                    <span class="amount">{{ number_format($course->price, 0, ',', '.') }}</span>
+                                @else
+                                    <span class="amount">Gratis</span>
+                                @endif
+                            @elseif($course->payment_type === 'diamonds')
+                                <span class="amount" style="font-size: 1.5rem;"><i class="fa fa-diamond mr-2"></i> {{ number_format($course->diamond_price, 0, ',', '.') }}</span>
+                            @endif
+                        </div>
+                        <p class="description">{{ Str::limit($course->description, 100) }}</p>
+                        <h4>Dilengkapi:</h4>
+                        <ul class="features-list">
+                            <li><i class="bi bi-person-workspace"></i> {{ $course->lessons_count }} Materi</li>
+                            <li><i class="bi bi-people"></i> {{ $course->students_count }}+ Siswa</li>
+                            <li><i class="bi bi-award"></i> Sertifikat</li>
+                        </ul>
+                        <a href="{{ route('courses.show', $course->slug) }}" class="btn btn-light">
+                            Detail Kursus <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
-            </div>
+            @endif
 
-            <!-- Standard Plan -->
-            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
-                <div class="pricing-card popular">
-                <div class="popular-badge">Paling Populer</div>
-                <h3>CSS & Responsive Layout</h3>
-                <div class="price">
-                    <span class="currency">Rp.</span>
-                    <span class="amount">189.000</span>
-
+            {{-- Kartu untuk Kursus Terpopuler ke-3 (di sisi kanan) --}}
+            @if($thirdMostPopularCourse)
+                @php $course = $thirdMostPopularCourse; @endphp
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="pricing-card">
+                        <h3>{{ $course->title }}</h3>
+                        <div class="price">
+                            @if($course->payment_type === 'money')
+                                @if($course->price > 0)
+                                    <span class="currency">Rp.</span>
+                                    <span class="amount">{{ number_format($course->price, 0, ',', '.') }}</span>
+                                @else
+                                    <span class="amount">Gratis</span>
+                                @endif
+                            @elseif($course->payment_type === 'diamonds')
+                                <span class="amount" style="font-size: 1.5rem;"><i class="fa fa-diamond mr-2"></i> {{ number_format($course->diamond_price, 0, ',', '.') }}</span>
+                            @endif
+                        </div>
+                        <p class="description">{{ Str::limit($course->description, 100) }}</p>
+                        <h4>Dilengkapi:</h4>
+                        <ul class="features-list">
+                            <li><i class="bi bi-person-workspace"></i> {{ $course->lessons_count }} Materi</li>
+                            <li><i class="bi bi-people"></i> {{ $course->students_count }}+ Siswa</li>
+                            <li><i class="bi bi-award"></i> Sertifikat</li>
+                        </ul>
+                        <a href="{{ route('courses.show', $course->slug) }}" class="btn btn-primary">
+                            Detail Kursus <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
-                <p class="description">Belajar mengatur tampilan website yang responsif dan menarik dengan CSS modern.</p>
-            
-                <h4>Dilengkapi fitur:</h4>
-                <ul class="features-list">
-                    <li><i class="bi bi-clock"></i> 12+ Jam Materi</li>
-                    <li><i class="bi bi-people"></i> 2.300+ Siswa</li>
-                    <li><i class="bi bi-award"></i> Sertifikat</li>
-                </ul>
-            
-                <a href="details-course.html" class="btn btn-light">
-                    Detail Kursus
-                    <i class="bi bi-arrow-right"></i>
-                </a>
-                </div>
-            </div>
-
-            <!-- Premium Plan -->
-            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
-                <div class="pricing-card">
-                <h3>Fullstack Web Developer</h3>
-                <div class="price">
-                    <span class="currency">Rp.</span>
-                    <span class="amount">429.000</span>
-                </div>
-                <p class="description">Kuasai frontend dan backend dalam satu kursus lengkap dari nol sampai mahir.</p>
-            
-                <h4>Dilengkapi fitur:</h4>
-                <ul class="features-list">
-                    <li><i class="bi bi-code-slash"></i> HTML, CSS, JS, Node.js</li>
-                    <li><i class="bi bi-person-workspace"></i> Project Akhir</li>
-                    <li><i class="bi bi-award"></i> Sertifikat</li>
-                </ul>
-            
-                <a href="details-course.html" class="btn btn-primary">
-                    Detail Kursus
-                    <i class="bi bi-arrow-right"></i>
-                </a>
-                </div>
-            </div>
-
-            </div>
+            @endif
 
         </div>
-  
-        </div>
-  
-      </section><!-- /Pricing Section -->
+    </div>
+</section><!-- /Pricing Section -->
 
       <!-- Call To Action Section - Lihat Kursus Lainnya -->
     <section id="call-to-action-2" class="call-to-action-2 section dark-background text-white py-5">
@@ -358,7 +377,7 @@
             <div class="text-center">
             <h3>Cari Kursus Lainnya?</h3>
             <p>Jelajahi berbagai pilihan kursus menarik lainnya yang sesuai dengan minat dan kebutuhan belajarmu. Tingkatkan skill dan kariermu sekarang!</p>
-            <a class="cta-btn btn btn-outline-light mt-3 px-4 py-2" href="/catalog">Lihat Semua Kursus</a>
+            <a class="cta-btn btn btn-outline-light mt-3 px-4 py-2" href="{{ route('courses') }}">Lihat Semua Kursus</a>
             </div>
         </div>
         </div>

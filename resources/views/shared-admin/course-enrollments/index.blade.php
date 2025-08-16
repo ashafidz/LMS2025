@@ -37,6 +37,7 @@
                                                 <tr>
                                                     <th>Judul Kursus</th>
                                                     <th>Instruktur</th>
+                                                    <th>Status Kursus</th>
                                                     <th>Jumlah Siswa</th>
                                                     <th class="text-center">Aksi</th>
                                                 </tr>
@@ -46,6 +47,20 @@
                                                     <tr>
                                                         <td>{{ $course->title }}</td>
                                                         <td>{{ $course->instructor->name }}</td>
+                                                        <td>
+                                                            @php
+                                                                $statusClasses = [
+                                                                    'draft' => 'label-default',
+                                                                    'pending_review' => 'label-warning',
+                                                                    'published' => 'label-success',
+                                                                    'rejected' => 'label-danger',
+                                                                    'private' => 'label-inverse',
+                                                                ];
+                                                            @endphp
+                                                            <label class="label {{ $statusClasses[$course->status] ?? 'label-default' }}">
+                                                                {{ ucfirst(str_replace('_', ' ', $course->status)) }}
+                                                            </label>
+                                                        </td>
                                                         <td>{{ $course->students->count() }} Siswa</td>
                                                         <td class="text-center">
                                                             <a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-enrollments.show', $course->id) }}" class="btn btn-primary btn-sm">

@@ -8,6 +8,7 @@
         <thead>
             <tr>
                 <th style="width: 10%;">Peringkat</th>
+                <th class="text-center" >NIM/NIDN/NIP</th>
                 <th>Nama Siswa</th>
                 <th class="text-right">Total Poin</th>
             </tr>
@@ -31,6 +32,7 @@
                         @endif
                     ">
                         <td class="font-weight-bold">#{{ $index + 1 }}</td>
+                        <td class="text-center" >{{ $rank->user->studentProfile->unique_id_number ? $rank->user->studentProfile->unique_id_number : '-' }}</td>
                         <td>
                             {{ $rank->user->name }}
                             {{-- Keep the badge to highlight the current user --}}
@@ -38,7 +40,7 @@
                                 <span class="badge badge-primary">Anda</span>
                             @endif
                         </td>
-                        <td class="text-right font-weight-bold">{{ number_format($rank->total_points, 0, ',', '.') }}</td>
+                        <td class="text-right font-weight-bold">{{ number_format($rank->points_earned ?? $rank->total_points, 0, ',', '.') }} <span><i class="bi bi-star-fill text-warning"></i></span></td>
                     </tr>
                 @endif
             @empty

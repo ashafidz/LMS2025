@@ -15,6 +15,24 @@ class CertificateController extends Controller
     /**
      * Menampilkan pratinjau sertifikat (via AJAX).
      */
+    // public function preview(Course $course)
+    // {
+    //     $user = Auth::user();
+
+    //     if (!$this->isEligibleForCertificate($user, $course)) {
+    //         return response()->json(['success' => false, 'message' => 'Anda belum memenuhi syarat untuk mendapatkan sertifikat.'], 403);
+    //     }
+
+    //     // Render partial view dan kirim sebagai respons
+    //     $html = view('student.courses.partials._certificate_preview', compact('course', 'user'))->render();
+
+    //     return response()->json(['success' => true, 'html' => $html]);
+    // }
+
+
+    /**
+     * Menampilkan pratinjau sertifikat (via AJAX).
+     */
     public function preview(Course $course)
     {
         $user = Auth::user();
@@ -23,24 +41,7 @@ class CertificateController extends Controller
             return response()->json(['success' => false, 'message' => 'Anda belum memenuhi syarat untuk mendapatkan sertifikat.'], 403);
         }
 
-        // Render partial view dan kirim sebagai respons
-        $html = view('student.courses.partials._certificate_preview', compact('course', 'user'))->render();
-
-        return response()->json(['success' => true, 'html' => $html]);
-    }
-
-    /**
-     * Membuat dan mengunduh sertifikat dalam format PDF.
-     */
-    public function download(Course $course)
-    {
-        $user = Auth::user();
-
-        if (!$this->isEligibleForCertificate($user, $course)) {
-            return redirect()->back()->with('error', 'Anda belum memenuhi syarat untuk mengunduh sertifikat.');
-        }
-
-        // Buat record sertifikat jika belum ada
+        // DIPERBARUI: Ambil atau buat data sertifikat untuk ditampilkan di pratinjau
         $certificate = $user->certificates()->firstOrCreate(
             ['course_id' => $course->id],
             [
@@ -49,19 +50,75 @@ class CertificateController extends Controller
             ]
         );
 
-        // Muat data yang diperlukan untuk PDF
+        // Render partial view dan kirim sebagai respons
+        $html = view('student.courses.partials._certificate_preview', compact('course', 'user', 'certificate'))->render();
+
+        return response()->json(['success' => true, 'html' => $html]);
+    }
+
+    /**
+     * Membuat dan mengunduh sertifikat dalam format PDF.
+     */
+    // public function download(Course $course)
+    // {
+    //     $user = Auth::user();
+
+    //     if (!$this->isEligibleForCertificate($user, $course)) {
+    //         return redirect()->back()->with('error', 'Anda belum memenuhi syarat untuk mengunduh sertifikat.');
+    //     }
+
+    //     // Buat record sertifikat jika belum ada
+    //     $certificate = $user->certificates()->firstOrCreate(
+    //         ['course_id' => $course->id],
+    //         [
+    //             'certificate_code' => 'LMS-' . $course->id . '-' . $user->id . '-' . time(),
+    //             'issued_at' => now(),
+    //         ]
+    //     );
+
+    //     // Muat data yang diperlukan untuk PDF
+    //     $data = [
+    //         'user' => $user,
+    //         'course' => $course,
+    //         'certificate' => $certificate,
+    //     ];
+
+    //     // Render view PDF dan buat file PDF
+    //     $pdf = Pdf::loadView('student.certificates.pdf_template', $data)->setPaper('a4', 'landscape');
+
+    //     $fileName = 'sertifikat-' . Str::slug($course->title) . '.pdf';
+
+    //     // Kembalikan PDF sebagai respons unduhan di browser
+    //     return $pdf->download($fileName);
+    // }
+
+    public function download(Course $course)
+    {
+        $user = Auth::user();
+
+        if (!$this->isEligibleForCertificate($user, $course)) {
+            return redirect()->back()->with('error', 'Anda belum memenuhi syarat untuk mengunduh sertifikat.');
+        }
+
+        $certificate = $user->certificates()->firstOrCreate(
+            ['course_id' => $course->id],
+            [
+                'certificate_code' => 'LMS-' . $course->id . '-' . $user->id . '-' . time(),
+                'issued_at' => now(),
+            ]
+        );
+
         $data = [
             'user' => $user,
             'course' => $course,
             'certificate' => $certificate,
         ];
 
-        // Render view PDF dan buat file PDF
+        // DIPERBARUI: Menggunakan view baru dan mengatur orientasi menjadi landscape
         $pdf = Pdf::loadView('student.certificates.pdf_template', $data)->setPaper('a4', 'landscape');
 
         $fileName = 'sertifikat-' . Str::slug($course->title) . '.pdf';
 
-        // Kembalikan PDF sebagai respons unduhan di browser
         return $pdf->download($fileName);
     }
 

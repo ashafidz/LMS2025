@@ -17,8 +17,18 @@ class InstructorLeaderboardController extends Controller
     public function courseLeaderboard(Course $course)
     {
         // 1. Ambil peringkat berdasarkan total poin
+        // $leaderboardRanks = $course->points()
+        //     ->with('user')
+        //     ->orderBy('points_earned', 'desc')
+        //     ->take(100)
+        //     ->get();
+        // 1. Ambil peringkat berdasarkan total poin
         $leaderboardRanks = $course->points()
             ->with('user')
+            // DIPERBARUI: Tambahkan filter untuk memastikan siswa masih terdaftar
+            ->whereHas('user.enrollments', function ($query) use ($course) {
+                $query->where('course_id', $course->id);
+            })
             ->orderBy('points_earned', 'desc')
             ->take(100)
             ->get();
@@ -36,6 +46,7 @@ class InstructorLeaderboardController extends Controller
             $student->points_earned = $rankData->points_earned ?? 0;
         }
 
+        $enrolledStudents = $enrolledStudents->sortByDesc('points_earned');
         $title = "Data Siswa & Peringkat: " . $course->title;
 
         // Render partial view baru dan kirim sebagai respons
@@ -53,11 +64,24 @@ class InstructorLeaderboardController extends Controller
      */
     public function moduleLeaderboard(Module $module)
     {
+        $course = $module->course;
         $lessonIds = $module->lessons()->pluck('id');
+
+        // $leaderboardRanks = PointHistory::whereIn('lesson_id', $lessonIds)
+        //     ->select('user_id', DB::raw('SUM(points) as total_points'))
+        //     ->groupBy('user_id')
+        //     ->orderBy('total_points', 'desc')
+        //     ->with('user')
+        //     ->take(100)
+        //     ->get();
 
         $leaderboardRanks = PointHistory::whereIn('lesson_id', $lessonIds)
             ->select('user_id', DB::raw('SUM(points) as total_points'))
             ->groupBy('user_id')
+            // DIPERBARUI: Tambahkan filter untuk memastikan siswa masih terdaftar
+            ->whereHas('user.enrollments', function ($query) use ($course) {
+                $query->where('course_id', $course->id);
+            })
             ->orderBy('total_points', 'desc')
             ->with('user')
             ->take(100)

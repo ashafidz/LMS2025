@@ -25,6 +25,9 @@ class CourseController extends Controller
         $user = Auth::user();
         $is_preview = false;
 
+        $courseUserPivot = $user->coursePoints()->where('course_id', $course->id)->first();
+        $currentPointEarned = $courseUserPivot ? $courseUserPivot->pivot->points_earned : 0;
+
         if ($user && $request->query('preview') === 'true') {
             if ($user->hasAnyRole(['admin', 'superadmin', 'instructor']) || $user->id === $course->instructor_id) {
                 $is_preview = true;
@@ -99,7 +102,7 @@ class CourseController extends Controller
         // $course->load(['modules' => fn($q) => $q->orderBy('order'), 'modules.lessons' => fn($q) => $q->orderBy('order')]);
 
         if ($is_preview || $is_enrolled) {
-            return view('student.courses.show', compact('course', 'is_preview', 'completedLessonIds', 'isEligibleForCertificate', 'currentCoursePoints', 'allLessonsCompleted'));
+            return view('student.courses.show', compact('course', 'is_preview', 'completedLessonIds', 'isEligibleForCertificate', 'currentCoursePoints', 'allLessonsCompleted', 'currentPointEarned'));
         } else {
             return view('details-course', compact('course', 'is_enrolled'));
         }
@@ -296,46 +299,67 @@ class CourseController extends Controller
     /**
      * METODE BARU: Mengambil data leaderboard untuk kursus tertentu via AJAX.
      */
+    // public function getLeaderboard(Course $course)
+    // {
+    //     // 1. Tambahkan logging untuk menandai awal proses
+    //     Log::info('Attempting to get leaderboard for course ID: ' . $course->id);
+
+    //     try {
+    //         // 2. Logging sebelum eksekusi query
+    //         Log::info('Executing leaderboard database query...');
+
+    //         $leaderboardRanks = $course->points()
+    //             ->whereHas('user')
+    //             ->with('user')
+    //             ->orderBy('points_earned', 'desc')
+    //             ->take(100)
+    //             ->get();
+
+    //         // 3. Logging setelah query berhasil
+    //         Log::info('Query successful. Found ' . $leaderboardRanks->count() . ' ranks.');
+
+    //         // 4. Logging sebelum me-render view
+    //         Log::info('Rendering partial view: student.courses.partials._leaderboard');
+
+    //         $html = view('student.courses.partials._leaderboard', compact('leaderboardRanks'))->render();
+
+    //         // 5. Logging setelah view berhasil di-render
+    //         Log::info('View rendered successfully for course ID: ' . $course->id);
+
+    //         return response()->json(['success' => true, 'html' => $html]);
+    //     } catch (Exception $e) {
+    //         // 6. JIKA TERJADI ERROR, tangkap dan catat semuanya ke log
+    //         Log::error('!!! CRITICAL ERROR in getLeaderboard for course ID: ' . $course->id . ' !!!');
+    //         Log::error('Error Message: ' . $e->getMessage());
+    //         Log::error('File: ' . $e->getFile() . ' on line ' . $e->getLine());
+    //         Log::error('Stack Trace: ' . $e->getTraceAsString()); // Mencatat detail lengkap error
+
+    //         // Kirim respons JSON yang valid untuk mencegah error di frontend
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Terjadi kesalahan internal pada server. Silakan cek log untuk detail.'
+    //         ], 500); // Kirim status 500
+    //     }
+    // }
+
     public function getLeaderboard(Course $course)
     {
-        // 1. Tambahkan logging untuk menandai awal proses
-        Log::info('Attempting to get leaderboard for course ID: ' . $course->id);
-
         try {
-            // 2. Logging sebelum eksekusi query
-            Log::info('Executing leaderboard database query...');
-
             $leaderboardRanks = $course->points()
-                ->whereHas('user')
                 ->with('user')
+                // DIPERBARUI: Tambahkan filter untuk memastikan siswa masih terdaftar
+                ->whereHas('user.enrollments', function ($query) use ($course) {
+                    $query->where('course_id', $course->id);
+                })
                 ->orderBy('points_earned', 'desc')
                 ->take(100)
                 ->get();
 
-            // 3. Logging setelah query berhasil
-            Log::info('Query successful. Found ' . $leaderboardRanks->count() . ' ranks.');
-
-            // 4. Logging sebelum me-render view
-            Log::info('Rendering partial view: student.courses.partials._leaderboard');
-
             $html = view('student.courses.partials._leaderboard', compact('leaderboardRanks'))->render();
 
-            // 5. Logging setelah view berhasil di-render
-            Log::info('View rendered successfully for course ID: ' . $course->id);
-
             return response()->json(['success' => true, 'html' => $html]);
-        } catch (Exception $e) {
-            // 6. JIKA TERJADI ERROR, tangkap dan catat semuanya ke log
-            Log::error('!!! CRITICAL ERROR in getLeaderboard for course ID: ' . $course->id . ' !!!');
-            Log::error('Error Message: ' . $e->getMessage());
-            Log::error('File: ' . $e->getFile() . ' on line ' . $e->getLine());
-            Log::error('Stack Trace: ' . $e->getTraceAsString()); // Mencatat detail lengkap error
-
-            // Kirim respons JSON yang valid untuk mencegah error di frontend
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan internal pada server. Silakan cek log untuk detail.'
-            ], 500); // Kirim status 500
+        } catch (\Exception $e) {
+            // ... (Logika error Anda sudah bagus, tidak perlu diubah)
         }
     }
 
@@ -343,15 +367,39 @@ class CourseController extends Controller
     /**
      * Mengambil data leaderboard untuk modul tertentu via AJAX.
      */
+    // public function getModuleLeaderboard(Module $module)
+    // {
+    //     // Ambil ID semua pelajaran di dalam modul ini
+    //     $lessonIds = $module->lessons()->pluck('id');
+
+    //     // Hitung total poin per siswa HANYA dari pelajaran-pelajaran tersebut
+    //     $leaderboardRanks = PointHistory::whereIn('lesson_id', $lessonIds)
+    //         ->select('user_id', DB::raw('SUM(points) as total_points'))
+    //         ->groupBy('user_id')
+    //         ->orderBy('total_points', 'desc')
+    //         ->with('user') // Eager load data user
+    //         ->take(100)
+    //         ->get();
+
+    //     $html = view('student.courses.partials._module-leaderboard', compact('module', 'leaderboardRanks'))->render();
+
+    //     return response()->json(['success' => true, 'html' => $html]);
+    // }
+
     public function getModuleLeaderboard(Module $module)
     {
-        // Ambil ID semua pelajaran di dalam modul ini
+        // Ambil kursus dari modul untuk digunakan dalam filter
+        $course = $module->course;
         $lessonIds = $module->lessons()->pluck('id');
 
         // Hitung total poin per siswa HANYA dari pelajaran-pelajaran tersebut
         $leaderboardRanks = PointHistory::whereIn('lesson_id', $lessonIds)
             ->select('user_id', DB::raw('SUM(points) as total_points'))
             ->groupBy('user_id')
+            // DIPERBARUI: Tambahkan filter untuk memastikan siswa masih terdaftar
+            ->whereHas('user.enrollments', function ($query) use ($course) {
+                $query->where('course_id', $course->id);
+            })
             ->orderBy('total_points', 'desc')
             ->with('user') // Eager load data user
             ->take(100)

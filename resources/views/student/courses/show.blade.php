@@ -58,7 +58,10 @@
                             <p class="m-b-0">Oleh: {{ $course->instructor->name }}</p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4 ">
+                        <h5 class="text-right" >Pointmu : {{ $currentPointEarned ? $currentPointEarned : 0 }} <span><i class="bi bi-star-fill text-warning"></i></span></h5>
+                    </div>
+                    <div class="col-md-12 d-flex mt-3">
                         <ul class="breadcrumb-title">
                             <li class="breadcrumb-item"><a href="#"><i class="fa fa-home"></i></a></li>
                             <li class="breadcrumb-item"><a href="#">Kursus Saya</a></li>

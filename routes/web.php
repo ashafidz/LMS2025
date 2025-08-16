@@ -1,45 +1,46 @@
 <?php
 
 use App\Http\Controllers;
+use App\Models\SiteSetting;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RoleSwitchController;
 use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\Student\CartController;
+use App\Http\Controllers\Shared\CouponController;
+use App\Http\Controllers\MidtransCallbackController;
+use App\Http\Controllers\Student\CheckoutController;
+use App\Http\Controllers\Superadmin\BadgeController;
 use App\Http\Controllers\Instructor\CourseController;
 use App\Http\Controllers\Instructor\LessonController;
 use App\Http\Controllers\Instructor\ModuleController;
 use App\Http\Controllers\Shared\PublicationController;
 use App\Http\Controllers\Instructor\QuestionController;
-use App\Http\Controllers\Student\StudentQuizController;
-use App\Http\Controllers\Shared\CouponController;
-use App\Http\Controllers\Student\CartController;
-use App\Http\Controllers\CatalogController;
-use App\Http\Controllers\Student\CheckoutController;
-use App\Http\Controllers\MidtransCallbackController;
-use App\Http\Controllers\Student\TransactionHistoryController;
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\Superadmin\SiteSettingController;
-use App\Http\Controllers\Student\StudentDashboardController;
-use App\Http\Controllers\Student\StudentAssignmentController;
-use App\Http\Controllers\Instructor\InstructorAssignmentController;
-use App\Http\Controllers\Shared\LikertQuestionController;
-use App\Http\Controllers\Student\CourseReviewController;
 use App\Http\Controllers\Student\CertificateController;
-use App\Http\Controllers\Student\StudentReviewController;
-use App\Http\Controllers\Student\StudentPointController;
-use App\Http\Controllers\Student\PointPurchaseController;
-use App\Http\Controllers\Superadmin\BadgeController;
-use App\Http\Controllers\Student\StudentBadgeController;
-use App\Http\Controllers\Student\LessonDiscussionController;
-use App\Http\Controllers\Instructor\LessonPointController;
+use App\Http\Controllers\Student\StudentQuizController;
+use App\Http\Controllers\Shared\StudentStatusController;
+use App\Http\Controllers\Student\CourseReviewController;
 use App\Http\Controllers\Student\GamificationController;
-use App\Http\Controllers\Student\DiamondPurchaseController;
-use App\Http\Controllers\Instructor\InstructorLeaderboardController;
+use App\Http\Controllers\Student\StudentBadgeController;
+use App\Http\Controllers\Student\StudentPointController;
+use App\Http\Controllers\Shared\CourseCategoryController;
+use App\Http\Controllers\Shared\LikertQuestionController;
+use App\Http\Controllers\Student\PointPurchaseController;
+use App\Http\Controllers\Student\StudentReviewController;
+use App\Http\Controllers\Instructor\LessonPointController;
+use App\Http\Controllers\Superadmin\SiteSettingController;
+use App\Http\Controllers\Instructor\QuizQuestionController;
 use App\Http\Controllers\Shared\CourseEnrollmentController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Student\DiamondPurchaseController;
+use App\Http\Controllers\Instructor\QuestionTopicController;
+use App\Http\Controllers\Student\LessonDiscussionController;
+use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\Instructor\InstructorQuizController;
 use App\Http\Controllers\Student\DiamondConversionController;
-use App\Http\Controllers\Shared\CourseCategoryController;
+use App\Http\Controllers\HomeController;
 
 // Route::get('/neweditprofil', function () {
 //     return view('1edit-index');
@@ -47,6 +48,24 @@ use App\Http\Controllers\Shared\CourseCategoryController;
 // Route::get('/newprofil', function () {
 //     return view('1student');
 // });
+
+Route::get('/template-pdf', function () {
+    // --- FIX 1: PASS DATA TO THE VIEW ---
+    // You must provide the data that your view expects.
+    // Here, we create a simple object for demonstration.
+    // In your real application, you would fetch this from the database.
+    $course = (object)[
+        'title' => 'Digital Marketing Course'
+    ];
+
+    // It's better practice to get data in the route/controller
+    // and pass it to the view, rather than querying in the view itself.
+    $settings = SiteSetting::first();
+
+    // --- FIX 2: ADD THE 'return' KEYWORD ---
+    // You must return the view for it to be sent to the browser.
+    return view('template_certificate', compact('course', 'settings'));
+});
 
 Route::post('/set-timezone', function (Request $request) {
     $request->validate(['timezone' => 'required|string']);
@@ -67,9 +86,10 @@ Route::post('/set-timezone', function (Request $request) {
 
 Route::get('/switch-role/{role}', [RoleSwitchController::class, 'switch'])->name('role.switch');
 
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+// Route::get('/', function () {
+//     return view('home');
+// })->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 // Route::get('/courses', function () {
 //     return view('catalog');
 // })->name('courses');
@@ -86,10 +106,11 @@ Route::get('/faqs', function () {
 })->name('faqs');
 
 
-use App\Http\Controllers\Shared\StudentStatusController;
-use App\Http\Controllers\Instructor\QuizQuestionController;
-use App\Http\Controllers\Instructor\QuestionTopicController;
+use App\Http\Controllers\Student\StudentAssignmentController;
+use App\Http\Controllers\Student\TransactionHistoryController;
 use App\Http\Controllers\Shared\InstructorApplicationController;
+use App\Http\Controllers\Instructor\InstructorAssignmentController;
+use App\Http\Controllers\Instructor\InstructorLeaderboardController;
 use App\Http\Controllers\Student\CourseController as StudentCourseController;
 
 Route::middleware(['auth'])->group(function () {

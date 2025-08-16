@@ -16,7 +16,7 @@ class StudentStatusController extends Controller
     public function index(): View
     {
         // Fetch all student profiles and load their associated user data
-        $students_status_data = StudentProfile::with('user')->latest()->paginate(10);
+        $students_status_data = StudentProfile::with('user')->latest()->simplePaginate(10);
 
         return view('shared-admin.manajemen-user.manajemen-student.index', compact('students_status_data'));
     }
