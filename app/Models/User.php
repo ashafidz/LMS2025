@@ -85,6 +85,15 @@ class User extends Authenticatable implements MustVerifyEmail
         'equipped_badge_id'
     ];
 
+
+    /**
+     * Mendapatkan semua kupon yang pernah digunakan oleh pengguna ini.
+     */
+    public function coupons()
+    {
+        return $this->belongsToMany(Coupon::class)->withPivot('uses_count')->withTimestamps();
+    }
+
     // Tambahkan relasi baru ini
     public function diamondHistories()
     {

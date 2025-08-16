@@ -1,39 +1,45 @@
 @extends('layouts.home-layout')
 
 @section('content')
-{{-- This wrapper uses flexbox to center the card vertically and horizontally --}}
-<div class="container d-flex justify-content-center align-items-center h-100 min-vh-100">
+<section id="hero" class="d-flex align-items-center" style="background: #f8f9fa; min-height: 100vh;">
+  <div class="container d-flex justify-content-center">
 
-    {{-- The card container for your message --}}
-    <div class="card shadow-sm border-0" style="max-width: 500px; width: 100%;">
-        <div class="card-body p-5 text-center">
+    <!-- Card Container -->
+    <div class="card shadow-lg border-0" style="max-width: 750px; width: 100%; border-radius: 20px;">
+      <div class="card-body text-center p-5">
 
-            {{-- Optional: Add an icon for visual flair --}}
-            <div class="mb-4" style="font-size: 3rem;">⏳</div>
-
-            <h3 class="card-title mb-3">Instructor Deactivated</h3>
-            
-            <p class="text-muted">
-                {{-- message for deactivated instructor (can be banned or inactive too long) --}}
-                Wahai Instructor terhormat, kami ingin menginformasikan bahwa akun anda telah di non-aktifkan oleh tim kami.
-                <br>
-                <br>
-                Terima kasih telah menggunakan layanan kami.
-            </p>
-            
-            <hr class="my-4">
-
-            <div class="d-grid gap-2">
-                <form method="POST" action="{{ route('logout') }}" class="d-grid">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-secondary">
-                        {{ __('Log Out') }}
-                    </button>
-                </form>
-            </div>
-
+        <!-- Icon / Illustration -->
+        <div class="mb-4">
+          <span style="font-size: 4rem; display: inline-block;">⏳</span>
         </div>
-    </div>
 
-</div>
+        <!-- Title -->
+        <h1 class="fw-bold mb-3" style="font-size: 2rem; color: #012970;">
+          Instructor Deactivated
+        </h1>
+
+        <!-- Subtitle - Versi 2 -->
+        <p class="mb-4" style="color: #5e5e5e;">
+          Yth. Instructor, akun Anda telah dinonaktifkan oleh tim kami.
+          Keputusan ini diambil demi menjaga kenyamanan dan keamanan seluruh pengguna.
+          Terima kasih atas waktu dan dedikasi Anda bersama kami.
+        </p>
+
+        <!-- Divider -->
+        <hr class="my-4" style="max-width: 200px; margin: 20px auto; border-color: #ddd;">
+
+        <!-- Logout Button -->
+        <form method="POST" action="{{ route('logout') }}">
+          @csrf
+          <button type="submit" class="btn btn-primary btn-lg px-4" style="border-radius: 50px;">
+            {{ __('Log Out') }}
+          </button>
+        </form>
+
+      </div>
+    </div>
+    <!-- End Card -->
+
+  </div>
+</section>
 @endsection

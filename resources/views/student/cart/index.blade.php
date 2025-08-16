@@ -103,7 +103,7 @@
                                 <button type="submit" class="btn btn-sm btn-outline-danger w-100">Hapus Kupon</button>
                             </form>
                         @else
-                            <form action="{{ route('student.cart.apply_coupon') }}" method="POST">
+                            {{-- <form action="{{ route('student.cart.apply_coupon') }}" method="POST">
                                 @csrf
                                 <label for="coupon_code" class="form-label">Punya Kupon?</label>
                                 <div class="input-group">
@@ -113,7 +113,22 @@
                             </form>
                              <button type="button" class="btn btn-primary rounded-pill w-100 d-flex align-items-center justify-content-center gap-2 mt-2" data-bs-toggle="modal" data-bs-target="#modalKupon">
                                 <i class="bi bi-percent"></i> Lihat Promo
-                            </button>
+                            </button> --}}
+
+                                                        {{-- BAGIAN BARU: Form Kupon dengan Tombol Modal --}}
+                            <form action="{{ route('student.cart.apply_coupon') }}" method="POST" id="coupon-form">
+                                @csrf
+                                <label for="coupon_code" class="form-label">Punya Kupon?</label>
+                                <div class="input-group">
+                                    <input type="text" name="code" id="coupon_code" class="form-control" placeholder="Masukkan kode kupon">
+                                    <button class="btn btn-outline-secondary" type="submit">Terapkan</button>
+                                </div>
+                            </form>
+                            @if($publicCoupons->isNotEmpty())
+                            <div class="text-center mt-2">
+                                <a href="#" class="btn btn-outline-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2" data-bs-toggle="modal" data-bs-target="#publicCouponsModal">Lihat Kupon Tersedia</a>
+                            </div>
+                            @endif
                         @endif
                         
                         <hr>
@@ -154,8 +169,75 @@
         </div>
     </div>
 
-    {{-- BAGIAN BARU: Tampilkan Rekomendasi --}}
-    {{-- @include('partials._recommended_courses', ['recommendedCourses' => $popularCourses, 'title' => 'Mungkin Anda Juga Suka']) --}}
+{{-- MODAL BARU: Untuk Kupon Publik --}}
+{{-- @if($cartItems->isNotEmpty() && $publicCoupons->isNotEmpty())
+<div class="modal fade" id="publicCouponsModal" tabindex="-1" aria-labelledby="publicCouponsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="publicCouponsModalLabel">Kupon yang Tersedia Untuk Anda</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        @foreach($publicCoupons as $pCoupon)
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title font-weight-bold">{{ $pCoupon->code }}</h5>
+                    <p class="card-text">{{ $pCoupon->description }}</p>
+                    <button class="btn btn-primary btn-sm use-coupon-btn" data-code="{{ $pCoupon->code }}">Gunakan</button>
+                </div>
+            </div>
+        @endforeach
+      </div>
+    </div>
+  </div>
+</div>
+@endif --}}
+
+
+{{-- MODAL BARU: Untuk Kupon Publik (Tampilan Baru) --}}
+@if($cartItems->isNotEmpty() && $publicCoupons->isNotEmpty())
+<div class="modal fade" id="publicCouponsModal" tabindex="-1" aria-labelledby="publicCouponsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="publicCouponsModalLabel">Promo Tersedia</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+      </div>
+      <div class="modal-body">
+        
+        @foreach($publicCoupons as $pCoupon)
+          {{-- Kartu Promo --}}
+          <div class="border rounded p-3 mb-3 shadow-sm">
+            
+            {{-- Badge Diskon --}}
+            <span class="badge bg-info mb-2">Diskon {{ (int)$pCoupon->value }}%</span>
+            
+            {{-- Judul Promo --}}
+            <h6 class="fw-bold mb-1">Promo {{ $pCoupon->code }}</h6>
+            
+            {{-- Deskripsi (hanya tampil jika ada) --}}
+            @if($pCoupon->description)
+            <ul class="mb-2 small text-muted ps-3">
+              <li>{{ $pCoupon->description }}</li>
+            </ul>
+            @endif
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              {{-- Kode Kupon --}}
+              <span class="text-muted small">Kode: <code>{{ $pCoupon->code }}</code></span>
+              
+              {{-- Tombol Gunakan --}}
+              <button class="btn btn-sm btn-primary use-coupon-btn" data-code="{{ $pCoupon->code }}">Gunakan</button>
+            </div>
+          </div>
+        @endforeach
+
+      </div>
+    </div>
+  </div>
+</div>
+@endif
 
 </section>
 
@@ -293,4 +375,24 @@
         }
     });
 </script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const useCouponButtons = document.querySelectorAll('.use-coupon-btn');
+    const couponInput = document.getElementById('coupon_code');
+    const couponForm = document.getElementById('coupon-form');
+
+    useCouponButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const couponCode = this.dataset.code;
+            if (couponInput && couponForm) {
+                couponInput.value = couponCode;
+                couponForm.submit();
+            }
+        });
+    });
+});
+</script>
+
 @endpush

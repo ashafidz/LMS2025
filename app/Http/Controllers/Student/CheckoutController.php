@@ -48,6 +48,25 @@ class CheckoutController extends Controller
         $finalTotal = max(0, $subtotalBeforeFee + $transactionFee);
         $vatPercentage = $settings->vat_percentage;
 
+
+
+        // --- LOGIKA BARU: Tambahkan pencatatan penggunaan kupon ---
+        if ($coupon) {
+            DB::transaction(function () use ($coupon, $user) {
+                // Tambah jumlah penggunaan total
+                $coupon->increment('uses_count');
+
+                // Tambah jumlah penggunaan per user di tabel pivot
+                $userCoupon = $user->coupons()->where('coupon_id', $coupon->id)->first();
+                if ($userCoupon) {
+                    $userCoupon->pivot->increment('uses_count');
+                } else {
+                    $user->coupons()->attach($coupon->id, ['uses_count' => 1]);
+                }
+            });
+        }
+        // --- AKHIR LOGIKA BARU ---
+
         if ($finalTotal == 0) {
             $order = $this->processFreeOrder($user, $cartItems, $subtotal, $discount, $vatAmount, $vatPercentage, $transactionFee, $couponId);
             // Untuk pesanan gratis, kita perlu meneruskan objek order ke view sukses

@@ -1,6 +1,6 @@
 @extends('layouts.home-layout')
 
-@section('title', 'FAQ - iLanding')
+@section('title', 'Wahana Edukasi')
 
 @section('content')
         <!-- Hero Section -->
@@ -13,25 +13,25 @@
             <div class="hero-content" data-aos="fade-up" data-aos-delay="200">
               <div class="company-badge mb-4">
                 <i class="bi bi-gear-fill me-2"></i>
-                Working for your success
+                Bekerja untuk kesuksesan kamu
               </div>
 
               <h1 class="mb-4">
-                Maecenas Vitae <br>
-                Consectetur Led <br>
-                <span class="accent-text">Vestibulum Ante</span>
+                Raih Impian <br>
+                Kembangkan Potensi <br>
+                <span class="accent-text">Bersama Kami</span>
               </h1>
 
               <p class="mb-4 mb-md-5">
-                Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt.
-                Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna.
+                Kami hadir untuk membantu kamu belajar dengan cara yang mudah dan menyenangkan.
+                Materi lengkap, pembimbing berpengalaman, dan dukungan penuh untuk membuat kamu semakin percaya diri.
               </p>
 
               <div class="hero-buttons">
-                <a href="#about" class="btn btn-primary me-0 me-sm-2 mx-1">Get Started</a>
+                <a href="#about" class="btn btn-primary me-0 me-sm-2 mx-1">Mulai</a>
                 <a href="https://www.youtube.com/watch?v=Y7f98aduVJ8" class="btn btn-link mt-2 mt-sm-0 glightbox">
                   <i class="bi bi-play-circle me-1"></i>
-                  Play Video
+                  Lihat Video
                 </a>
               </div>
             </div>
@@ -188,8 +188,8 @@
 
         <!-- Section Title -->
         <div class="container section-title" data-aos="fade-up">
-          <h2>Services</h2>
-          <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+          <h2>Layanan Kami</h2>
+          <p>Kami siap membantu kamu dengan berbagai layanan terbaik yang bikin proses belajar dan berkembang jadi lebih mudah dan menyenangkan.</p>
         </div><!-- End Section Title -->
   
         <div class="container" data-aos="fade-up" data-aos-delay="100">
@@ -202,9 +202,9 @@
                   <i class="bi bi-activity"></i>
                 </div>
                 <div>
-                  <h3>Nesciunt Mete</h3>
-                  <p>Provident nihil minus qui consequatur non omnis maiores. Eos accusantium minus dolores iure perferendis tempore et consequatur.</p>
-                  <a href="service-details.html" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
+                  <h3>Pelatihan Interaktif</h3>
+                  <p>Belajar jadi lebih seru dengan materi interaktif yang gampang dipahami dan bisa langsung dipraktikkan.</p>
+                  <a href="service-details.html" class="read-more">Selengkapnya<i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div><!-- End Service Card -->
@@ -215,9 +215,9 @@
                   <i class="bi bi-diagram-3"></i>
                 </div>
                 <div>
-                  <h3>Eosle Commodi</h3>
-                  <p>Ut autem aut autem non a. Sint sint sit facilis nam iusto sint. Libero corrupti neque eum hic non ut nesciunt dolorem.</p>
-                  <a href="service-details.html" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
+                  <h3>Kelas Beragam</h3>
+                  <p>Tersedia berbagai topik mulai dari coding, desain, sampai pengembangan diri. Pilih yang sesuai minatmu.</p>
+                  <a href="service-details.html" class="read-more">Selengkapnya<i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div><!-- End Service Card -->
@@ -228,9 +228,9 @@
                   <i class="bi bi-easel"></i>
                 </div>
                 <div>
-                  <h3>Ledo Markt</h3>
-                  <p>Ut excepturi voluptatem nisi sed. Quidem fuga consequatur. Minus ea aut. Vel qui id voluptas adipisci eos earum corrupti.</p>
-                  <a href="service-details.html" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
+                  <h3>Materi Up-to-Date</h3>
+                  <p>Kami selalu update materi supaya kamu belajar hal-hal terbaru dan relevan dengan industri.</p>
+                  <a href="service-details.html" class="read-more">Selengkapnya<i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div><!-- End Service Card -->
@@ -241,8 +241,8 @@
                   <i class="bi bi-clipboard-data"></i>
                 </div>
                 <div>
-                  <h3>Asperiores Commodit</h3>
-                  <p>Non et temporibus minus omnis sed dolor esse consequatur. Cupiditate sed error ea fuga sit provident adipisci neque.</p>
+                  <h3>Evaluasi & Sertifikat</h3>
+                  <p>Dapatkan evaluasi pembelajaran dan sertifikat sebagai bukti kemampuanmu setelah menyelesaikan kelas.</p>
                   <a href="service-details.html" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
@@ -372,8 +372,8 @@
 
       <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
-        <h2>Testimonials</h2>
-        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+        <h2>Testimoni Peserta</h2>
+        <p>Berbagai pengalaman nyata dari peserta yang telah menggunakan kursus kami.</p>
       </div><!-- End Section Title -->
 
       <div class="container">
@@ -390,7 +390,7 @@
               </div>
               <p>
                 <i class="bi bi-quote quote-icon-left"></i>
-                <span>Proin iaculis purus consequat sem cure digni ssim donec porttitora entum suscipit rhoncus. Accusantium quam, ultricies eget id, aliquam eget nibh et. Maecen aliquam, risus at semper.</span>
+                <span>Jangan tunggu nanti, mulai wujudkan ide dan rencanamu sekarang juga. Tim kami siap bantu kamu dari awal sampai akhir!</span>
                 <i class="bi bi-quote quote-icon-right"></i>
               </p>
             </div>
@@ -406,7 +406,7 @@
               </div>
               <p>
                 <i class="bi bi-quote quote-icon-left"></i>
-                <span>Export tempor illum tamen malis malis eram quae irure esse labore quem cillum quid cillum eram malis quorum velit fore eram velit sunt aliqua noster fugiat irure amet legam anim culpa.</span>
+                <span>Layanannya bener-bener membantu banget. Prosesnya rapi, cepat, dan hasilnya sesuai yang diharapkan. Pokoknya puas banget!</span>
                 <i class="bi bi-quote quote-icon-right"></i>
               </p>
             </div>
@@ -422,7 +422,7 @@
               </div>
               <p>
                 <i class="bi bi-quote quote-icon-left"></i>
-                <span>Enim nisi quem export duis labore cillum quae magna enim sint quorum nulla quem veniam duis minim tempor labore quem eram duis noster aute amet eram fore quis sint minim.</span>
+                <span>Timnya profesional banget! Dari awal sampai akhir, semuanya komunikatif dan mudah diajak kerja sama. Hasil desainnya juga keren.</span>
                 <i class="bi bi-quote quote-icon-right"></i>
               </p>
             </div>
@@ -438,7 +438,7 @@
               </div>
               <p>
                 <i class="bi bi-quote quote-icon-left"></i>
-                <span>Fugiat enim eram quae cillum dolore dolor amet nulla culpa multos export minim fugiat minim velit minim dolor enim duis veniam ipsum anim magna sunt elit fore quem dolore labore illum veniam.</span>
+                <span>Sangat membantu untuk pekerjaan freelance saya. Prosesnya gampang, hasilnya top, dan responnya selalu cepat.</span>
                 <i class="bi bi-quote quote-icon-right"></i>
               </p>
             </div>
@@ -460,19 +460,21 @@
     <!-- /Faq Section -->
 
     <!-- Call To Action 2 Section -->
-    <section id="call-to-action-2" class="call-to-action-2 section dark-background">
+     <section id="call-to-action-2" class="call-to-action-2 section dark-background text-white py-5">
 
-      <div class="container">
+    <div class="container">
         <div class="row justify-content-center" data-aos="zoom-in" data-aos-delay="100">
-          <div class="col-xl-10">
+        <div class="col-xl-10">
             <div class="text-center">
-              <h3>Call To Action</h3>
-              <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-              <a class="cta-btn" href="#">Call To Action</a>
+            <h3>Periksa Semua Testimoni</h3>
+            <p>Kami menerima banyak feedback positif dari pelanggan kami. Yuk, lihat pengalaman mereka menggunakan layanan kami!</p>
+            <a class="cta-btn btn btn-outline-light mt-3 px-4 py-2" href="/tes">Lihat Semua Testimoni</a> <!-- Call To Action Belum ada tujuan? -->
             </div>
-          </div>
         </div>
-      </div>
+        </div>
+    </div>
+    
+    
 
     </section><!-- /Call To Action 2 Section -->
 @endsection

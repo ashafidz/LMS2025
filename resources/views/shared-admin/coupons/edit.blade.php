@@ -86,6 +86,32 @@
                                                 </select>
                                             </div>
                                         </div>
+
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label">Tipe Kupon</label>
+    <div class="col-sm-10">
+        <div class="form-check form-switch">
+            <input type="hidden" name="is_public" value="0">
+            <input class="form-check-input" type="checkbox" name="is_public" value="1" id="is_public" {{ old('is_public', $coupon->is_public) ? 'checked' : '' }}>
+            <label class="form-check-label" for="is_public">Jadikan Kupon Publik (terlihat oleh semua pengguna di keranjang).</label>
+        </div>
+    </div>
+</div>
+<hr>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label">Batas Penggunaan Total</label>
+    <div class="col-sm-10">
+        <input type="number" name="max_uses" class="form-control" value="{{ old('max_uses', $coupon->max_uses) }}" placeholder="Kosongkan jika tidak terbatas">
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label">Batas per Pengguna</label>
+    <div class="col-sm-10">
+        <input type="number" name="max_uses_per_user" class="form-control" value="{{ old('max_uses_per_user', $coupon->max_uses_per_user) }}" placeholder="Kosongkan jika tidak terbatas">
+    </div>
+</div>
+
+
                                         <hr>
                                         <div class="form-group row">
                                             <label class="col-sm-2 col-form-label">Batas Penggunaan</label>
