@@ -355,7 +355,7 @@
 
                                 // **FIX**: Added !data.is_locked to ensure the button never shows for locked lessons.
                                 if (!data.is_locked && !isQuizOrAssignment && !isPreview && !isAlreadyCompleted) {
-                                    completeButtonHtml = `<hr><div class="text-center mt-4"><button class="btn btn-success mark-as-complete-btn" data-lesson-id="${lessonId}"><i class="fa fa-check"></i> Tandai Selesai</button></div>`;
+                                    completeButtonHtml = `<hr><div class="text-center mt-4"><button class="btn btn-primary mark-as-complete-btn" data-lesson-id="${lessonId}"><i class="fa fa-check"></i> Tandai Selesai</button></div>`;
                                 }
                             }
                             

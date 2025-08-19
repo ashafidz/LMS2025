@@ -45,8 +45,12 @@ class ViewComposerServiceProvider extends ServiceProvider
             // Ambil 4 atau 5 kategori untuk ditampilkan di footer
             $footerCategories = CourseCategory::latest()->get();
 
-            // Kirim data ke view dengan nama variabel 'footerCategories'
-            $view->with('footerCategories', $footerCategories);
+            // 2. Ambil semua data pengaturan situs
+            $siteSettings = SiteSetting::first();
+
+            // Kirim kedua set data ke view
+            $view->with('footerCategories', $footerCategories)
+                ->with('siteSettings', $siteSettings);
         });
     }
 }

@@ -48,6 +48,12 @@ class SiteSettingController extends Controller
 
             // Validasi konversi poin ke diamond
             'point_to_diamond_rate' => 'required|numeric|min:0',
+
+            'email' => 'nullable|email|max:255',
+            'facebook_url' => 'nullable|url|max:255',
+            'twitter_url' => 'nullable|url|max:255',
+            'instagram_url' => 'nullable|url|max:255',
+            'youtube_url' => 'nullable|url|max:255',
         ]);
 
         // Logika untuk menangani unggahan logo

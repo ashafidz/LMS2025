@@ -38,43 +38,18 @@
                                 </div>
                             </div>
                             
-                            {{-- Card: Line Chart --}}
+                        {{-- Card: Line Chart --}}
+                        <div class="col-sm-12">
                             <div class="card shadow-sm mb-4">
-                                <div class="card-block" style="height:283px;">
-                                    <!-- Judul -->
-                                    <h6 class="fw-bold mb-1">Line Chart</h6>
+                                <div class="card-block">
+                                    <h6 class="font-weight-bold mb-1">Aktivitas Poin Anda</h6>
                                     <p class="text-muted mb-4">
-                                        lorem ipsum dolor sit amet, consectetur adipisicing elit
-                                    </p> 
-                            
-                                    <!-- Grafik -->
-                                    <canvas id="myLineChart" style="height:300px;"></canvas>
+                                        Grafik perolehan dan penggunaan poin Anda selama 12 bulan terakhir.
+                                    </p>
+                                    <canvas id="myLineChart" style="max-height:250px;"></canvas>
                                 </div>
                             </div>
-                            
-                            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                            <script>
-                                const ctx = document.getElementById('myLineChart').getContext('2d');
-                            
-                                new Chart(ctx, {
-                                    type: 'line',
-                                    data: {
-                                        labels: ['2006', '2007', '2008', '2009', '2010', '2011', '2012'],
-                                        datasets: [
-                                            {
-                                                data: [100, 75, 50, 75, 50, 75, 100],
-                                                borderColor: '#99ABCB',
-                                                tension: 0.4
-                                            },
-                                            {
-                                                data: [90, 65, 40, 65, 40, 65, 90],
-                                                borderColor: '#FF9F40',
-                                                tension: 0.4
-                                            }
-                                        ]
-                                    }
-                                });
-                            </script>
+                        </div>
 
                     
                             {{-- Card: Cara Mendapatkan Poin --}}
@@ -254,3 +229,60 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+{{-- Library Chart.js --}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('myLineChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @json($chartLabels),
+                datasets: [
+                    {
+                        label: 'Poin Diperoleh',
+                        data: @json($chartDataEarned),
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Poin Digunakan',
+                        data: @json($chartDataSpent),
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        // --- BAGIAN BARU UNTUK MERINGKAS SKALA ---
+                        ticks: {
+                            // Batasi jumlah "garis" di sumbu Y agar tidak terlalu padat.
+                            // Chart.js akan secara otomatis menghitung kelipatan yang bagus (misal: 0, 50, 100).
+                            maxTicksLimit: 6 
+                        }
+                        // --- AKHIR BAGIAN BARU ---
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                }
+            }
+        });
+    }
+});
+</script>
+@endpush

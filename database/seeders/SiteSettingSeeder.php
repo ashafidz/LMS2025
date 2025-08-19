@@ -17,6 +17,10 @@ class SiteSettingSeeder extends Seeder
                 'address' => 'Alamat Lengkap Perusahaan Anda',
                 'phone' => '08123456789',
                 'npwp' => '00.000.000.0-000.000',
+                'facebook_url' => '#', // Tambahkan ini
+                'twitter_url' => '#', // Tambahkan ini
+                'instagram_url' => '#', // Tambahkan ini
+                'youtube_url' => '#', // Tambahkan ini
                 'logo_path' => null,
                 'vat_percentage' => 11.00,
                 'transaction_fee_fixed' => 0,

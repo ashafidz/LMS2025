@@ -16,6 +16,11 @@ class SiteSetting extends Model
         'company_name',
         'address',
         'phone',
+        'email', // Tambahkan ini
+        'facebook_url', // Tambahkan ini
+        'twitter_url', // Tambahkan ini
+        'instagram_url', // Tambahkan ini
+        'youtube_url', // Tambahkan ini
         'npwp',
         'logo_path',
         'vat_percentage',

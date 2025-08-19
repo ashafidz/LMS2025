@@ -6,13 +6,13 @@
         <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
-                    <div class="col-md-8">
+                    <div class="col-md-12">
                         <div class="page-header-title">
                             <h5 class="m-b-10">Pengaturan Situs</h5>
                             <p class="m-b-0">Kelola informasi umum, logo, pajak, dan biaya transaksi untuk situs Anda.</p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-12 d-flex mt-3">
                         <ul class="breadcrumb-title">
                             {{-- DIUBAH: Route sekarang langsung ke superadmin.dashboard --}}
                             <li class="breadcrumb-item"><a href="{{ route('superadmin.dashboard') }}"><i
@@ -112,6 +112,43 @@
                                                         value="{{ old('npwp', $settings->npwp) }}">
                                                 </div>
                                             </div>
+                                            <h6 class="font-weight-bold mt-5">Kontak & Media Sosial</h6>
+                                            <hr>
+                                            <div class="form-group row">
+                                                <label class="col-sm-3 col-form-label">Email Publik</label>
+                                                <div class="col-sm-9">
+                                                    <input type="email" name="email" class="form-control"
+                                                        value="{{ old('email', $settings->email) }}">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="col-sm-3 col-form-label">Link Facebook</label>
+                                                <div class="col-sm-9">
+                                                    <input type="url" name="facebook_url" class="form-control"
+                                                        value="{{ old('facebook_url', $settings->facebook_url) }}">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="col-sm-3 col-form-label">Link Twitter</label>
+                                                <div class="col-sm-9">
+                                                    <input type="url" name="twitter_url" class="form-control"
+                                                        value="{{ old('twitter_url', $settings->twitter_url) }}">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="col-sm-3 col-form-label">Link Instagram</label>
+                                                <div class="col-sm-9">
+                                                    <input type="url" name="instagram_url" class="form-control"
+                                                        value="{{ old('instagram_url', $settings->instagram_url) }}">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="col-sm-3 col-form-label">Link YouTube</label>
+                                                <div class="col-sm-9">
+                                                    <input type="url" name="youtube_url" class="form-control"
+                                                        value="{{ old('youtube_url', $settings->youtube_url) }}">
+                                                </div>
+                                            </div>
 
                                             <h6 class="font-weight-bold mt-5">Pengaturan Keuangan</h6>
                                             <hr>
@@ -128,7 +165,8 @@
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Biaya Transaksi Tetap (Rp)</label>
                                                 <div class="col-sm-9">
-                                                    <input type="number" name="transaction_fee_fixed" class="form-control"
+                                                    <input type="number" name="transaction_fee_fixed"
+                                                        class="form-control"
                                                         value="{{ old('transaction_fee_fixed', $settings->transaction_fee_fixed) }}"
                                                         required>
                                                     <small class="form-text text-muted">Biaya tetap yang ditambahkan ke
