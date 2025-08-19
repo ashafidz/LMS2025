@@ -16,13 +16,13 @@ class GamificationController extends Controller
         $user = Auth::user();
 
         // // Ambil data poin per kursus dari tabel pivot
-        // $pointsPerCourse = $user->coursePoints()->with('course')->paginate(10);
+        // $pointsPerCourse = $user->coursePoints()->with('course')->simplePaginate(10);
 
         // // Ambil semua riwayat poin untuk modal
         // $pointHistories = $user->pointHistories()->with('course')->latest()->get()->groupBy('course_id');
 
         // CORRECT: The relationship already returns Course models.
-        $pointsPerCourse = $user->coursePoints()->paginate(10);
+        $pointsPerCourse = $user->coursePoints()->simplePaginate(10);
 
         // This line is correct because PointHistory has a 'course' relationship.
         $pointHistories = $user->pointHistories()->with('course')->latest()->get()->groupBy('course_id');
@@ -31,7 +31,7 @@ class GamificationController extends Controller
         $totalPoints = $user->coursePoints()->sum('points_earned');
 
         // Ambil riwayat diamond, urutkan dari yang terbaru
-        $diamondHistories = $user->diamondHistories()->latest()->paginate(10);
+        $diamondHistories = $user->diamondHistories()->latest()->simplePaginate(10);
 
         return view('student.my-points.index', compact(
             'user',
@@ -50,7 +50,7 @@ class GamificationController extends Controller
         $user = Auth::user();
 
         // Ambil riwayat diamond, urutkan dari yang terbaru
-        $diamondHistories = $user->diamondHistories()->latest()->paginate(10);
+        $diamondHistories = $user->diamondHistories()->latest()->simplePaginate(10);
 
         return view('student.my-diamonds.index', compact('user', 'diamondHistories'));
     }

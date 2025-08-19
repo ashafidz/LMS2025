@@ -28,7 +28,7 @@ class StudentDashboardController extends Controller
                 });
             }])
             ->latest('course_enrollments.created_at')
-            ->paginate(9);
+            ->simplePaginate(9);
 
         return view('student.courses.index', compact('enrolledCourses'));
     }

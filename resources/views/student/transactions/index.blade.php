@@ -12,7 +12,7 @@
                         <p class="m-b-0">Lihat semua riwayat pembelian kursus Anda.</p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
                         <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}"><i class="fa fa-home"></i></a></li>
                         <li class="breadcrumb-item"><a href="#!">Riwayat Transaksi</a></li>
@@ -78,10 +78,10 @@
                                                             </td>
                                                             <td class="text-center">
                                                                 @if($order->status == 'pending')
-                                                                    <a href="{{ route('checkout.show', $order->id) }}" class="btn btn-primary btn-sm">Bayar Sekarang</a>
+                                                                    <a href="{{ route('checkout.show', $order->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-money-bill-wave"></i>Bayar Sekarang</a>
                                                                 @else
-                                                                    <button type="button" class="btn btn-inverse btn-sm" data-toggle="modal" data-target="#invoiceModal-{{ $order->id }}">
-                                                                    Lihat Invoice
+                                                                    <button type="button" class="btn btn-success  btn-sm" data-toggle="modal" data-target="#invoiceModal-{{ $order->id }}">
+                                                                    <i class="fa fa-refresh"></i>Lihat Invoice
                                                                 </button>
                                                                 @endif
 

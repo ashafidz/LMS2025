@@ -14,7 +14,7 @@ class CourseCategoryController extends Controller
 {
     public function index()
     {
-        $categories = CourseCategory::withCount('courses')->latest()->paginate(15);
+        $categories = CourseCategory::withCount('courses')->latest()->simplePaginate(15);
         return view('shared-admin.course-categories.index', compact('categories'));
     }
 

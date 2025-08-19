@@ -54,6 +54,7 @@
                                                     <th>Judul</th>
                                                     <th>Kategori</th>
                                                     <th>Status</th>
+                                                    <th class="text-center">Kelola</th>
                                                     <th class="text-center">Aksi</th>
                                                 </tr>
                                             </thead>
@@ -91,17 +92,6 @@
                                                             <button type="button" class="btn btn-warning btn-sm leaderboard-btn text-dark" data-url="{{ route('instructor.course.leaderboard', $course->id) }}" title="Lihat Papan Peringkat Kursus">
                                                                 <i class="fa fa-bar-chart text-dark"></i> Peringkat
                                                             </button>
-                                                            <a href="{{ route('instructor.courses.edit', $course->id) }}" class="btn btn-info btn-sm" title="Edit Kursus">
-                                                                <i class="fa fa-pencil"></i> Edit
-                                                            </a>
-
-                                                            {{-- TOMBOL BARU UNTUK CLONE --}}
-                                                            <form action="{{ route('instructor.courses.clone', $course->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin meng-clone kursus ini?');">
-                                                                @csrf
-                                                                <button type="submit" class="btn btn-warning btn-sm" title="Clone Kursus">
-                                                                    <i class="fa fa-clone"></i> Clone
-                                                                </button>
-                                                            </form>
 
                                                             @if(in_array($course->status, ['draft', 'rejected']))
                                                                 <form action="{{ route('instructor.courses.submit_review', $course->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Ajukan kursus ini untuk direview?');">
@@ -123,6 +113,20 @@
                                                                 </form>
                                                             @endif
 
+                                                        </td>
+                                                        <td class="text-center">
+                                                                                                                        <a href="{{ route('instructor.courses.edit', $course->id) }}" class="btn btn-info btn-sm" title="Edit Kursus">
+                                                                <i class="fa fa-pencil"></i> Edit
+                                                            </a>
+                                                            
+                                                                                                                        {{-- TOMBOL BARU UNTUK CLONE --}}
+                                                            <form action="{{ route('instructor.courses.clone', $course->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin meng-clone kursus ini?');">
+                                                                @csrf
+                                                                <button type="submit" class="btn btn-warning btn-sm" title="Clone Kursus">
+                                                                    <i class="fa fa-clone"></i> Clone
+                                                                </button>
+                                                            </form>
+                                                            
                                                             <form action="{{ route('instructor.courses.destroy', $course->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kursus ini?');">
                                                                 @csrf
                                                                 @method('DELETE')
@@ -130,7 +134,9 @@
                                                                     <i class="fa fa-trash"></i> Hapus
                                                                 </button>
                                                             </form>
+
                                                         </td>
+                                                        
                                                     </tr>
                                                 @empty
                                                     <tr>

@@ -2,24 +2,65 @@
 
 namespace App\Http\Controllers\Shared;
 
-use Illuminate\Http\Request;
-use App\Models\InstructorProfile;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
 use App\Mail\InstructorApproved;
 use App\Mail\InstructorRejected;
+use App\Models\InstructorProfile;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\RedirectResponse;
 
 class InstructorApplicationController extends Controller
 {
+    /**
+     * Menampilkan form pendaftaran instruktur.
+     */
+    public function create()
+    {
+        return view('student.apply-instructor');
+    }
+
+    /**
+     * Menyimpan data pendaftaran instruktur.
+     */
+    public function store(Request $request)
+    {
+        $user = Auth::user();
+
+        // Validasi data yang masuk
+        $validated = $request->validate([
+            'headline' => 'required|string|max:255',
+            'bio' => 'required|string',
+            'website_url' => 'nullable|url',
+            'unique_id_number' => 'nullable|string|max:255',
+        ]);
+
+        // Buat atau perbarui profil instruktur dengan status 'pending'
+        $user->instructorProfile()->updateOrCreate(
+            ['user_id' => $user->id], // Kunci untuk mencari
+            [ // Data untuk diisi atau diperbarui
+                'headline' => $validated['headline'],
+                'bio' => $validated['bio'],
+                'website_url' => $validated['website_url'],
+                'unique_id_number' => $validated['unique_id_number'],
+                'application_status' => 'pending',
+            ]
+        );
+
+        $user->assignRole('instructor');
+
+        // Arahkan ke halaman "pending"
+        return redirect()->route('instructor.pending')->with('success', 'Pendaftaran Anda berhasil dikirim dan sedang ditinjau.');
+    }
     /**
      * Display a listing of the instructor applications.
      */
     public function index(): View
     {
         // Fetch all instructor profiles and load their associated user data
-        $applications = InstructorProfile::with('user')->latest()->paginate(10);
+        $applications = InstructorProfile::with('user')->latest()->simplePaginate(10);
 
         return view('shared-admin.manajemen-user.instructor-application.index', compact('applications'));
     }

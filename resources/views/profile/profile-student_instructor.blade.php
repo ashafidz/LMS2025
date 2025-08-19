@@ -8,7 +8,7 @@
                 <div class="bg-transparent d-inline-flex align-items-center px-4 py-3 rounded"
                     style="background: rgba(0,0,0,0.1); backdrop-filter: blur(2px);">
                     <!-- Avatar -->
-                    <img src="{{ asset($user->profile_picture_url ? 'storage/' . $user->profile_picture_url : 'https://placehold.co/32x32/EBF4FF/767676?text=SA') }}"
+                    <img src="{{ Auth::user()->profile_picture_url ? asset(Auth::user()->profile_picture_url ) :  'https://placehold.co/32x32/EBF4FF/767676?text=SA' }}"
                         alt="Avatar" class="rounded-circle mr-4" style="width: 80px; height: 80px; border: 3px solid white;">
 
                     <!-- Nama & Sambutan -->
@@ -206,6 +206,11 @@
                         <div class="col-6">
                             <a href="{{ route('user.password.edit') }}" class="btn btn-primary btn-sm w-100">Ganti Password</a>
                         </div>
+                        @if (!Auth::user()->hasRole('instructor'))
+                            <div class="col-12 mt-2">
+                                <a href="{{ route('student.apply_instructor.create') }}" class="btn btn-primary btn-sm w-100">Daftar Instructor</a>
+                            </div>
+                        @endif
                     </div>
                 </div>
 

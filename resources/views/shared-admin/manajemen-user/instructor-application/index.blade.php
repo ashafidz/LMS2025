@@ -7,7 +7,7 @@
         <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
-                    <div class="col-md-8">
+                    <div class="col-md-12">
                         <div class="page-header-title">
                             <h5 class="m-b-10">
                                 Dashboard
@@ -17,7 +17,7 @@
                             </p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-12 d-flex mt-3">
                         <ul class="breadcrumb-title">
                             <li class="breadcrumb-item">
                                 <a href="{{ route('home') }}">
@@ -118,7 +118,7 @@
                                                             <td>
                                                                 <div class="d-inline-block align-middle">
                                                                     {{-- retrive from users profile_picture_url --}}
-                                                                    <img src="{{ $application->user->profile_picture_url ?? 'https://placehold.co/32x32/EBF4FF/767676?text=SA' }}"
+                                                                    <img src="{{ $application->user->profile_picture_url ? asset($application->user->profile_picture_url) : 'https://placehold.co/32x32/EBF4FF/767676?text=SA' }}"
                                                                         alt="user image"
                                                                         class="img-radius img-40 align-top m-r-15" />
                                                                     <div class="d-inline-block">

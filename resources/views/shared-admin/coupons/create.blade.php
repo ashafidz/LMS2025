@@ -6,13 +6,13 @@
         <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
-                    <div class="col-md-8">
+                    <div class="col-md-12">
                         <div class="page-header-title">
                             <h5 class="m-b-10">Buat Kupon Baru</h5>
                             <p class="m-b-0">Isi detail untuk kupon diskon baru.</p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-12 d-flex mt-3">
                         <ul class="breadcrumb-title">
                             <li class="breadcrumb-item"><a
                                     href="{{ route(Auth::user()->getRoleNames()->first() . '.dashboard') }}"><i
@@ -134,14 +134,14 @@
 
 
                                             <hr>
-                                            <div class="form-group row">
+                                            {{-- <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Batas Penggunaan</label>
                                                 <div class="col-sm-10">
                                                     <input type="number" name="max_uses" class="form-control"
                                                         value="{{ old('max_uses') }}"
                                                         placeholder="Kosongkan jika tidak terbatas">
                                                 </div>
-                                            </div>
+                                            </div> --}}
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Masa Berlaku</label>
                                                 <div class="col-sm-5">

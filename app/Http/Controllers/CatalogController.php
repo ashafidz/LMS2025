@@ -32,7 +32,7 @@ class CatalogController extends Controller
         }
 
         // Ambil hasil dengan urutan terbaru dan paginasi
-        $courses = $query->latest()->paginate(8)->withQueryString();
+        $courses = $query->latest()->simplePaginate(8)->withQueryString();
 
         // Ambil semua kategori untuk ditampilkan di sidebar filter
         $categories = CourseCategory::orderBy('name')->get();
@@ -64,7 +64,7 @@ class CatalogController extends Controller
             'modules.lessons' => fn($q) => $q->orderBy('order')
         ]);
 
-        $reviews = $course->reviews()->with('user')->latest()->paginate(5);
+        $reviews = $course->reviews()->with('user')->latest()->simplePaginate(5);
         $averageRating = $course->reviews()->avg('rating');
         $reviewCount = $course->reviews()->count();
 

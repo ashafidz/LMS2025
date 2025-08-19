@@ -16,7 +16,7 @@ class PublicationController extends Controller
         $pendingCourses = Course::where('status', 'pending_review')
             ->with('instructor', 'category')
             ->latest()
-            ->paginate(15);
+            ->simplePaginate(15);
 
         return view('shared-admin.publication.index', compact('pendingCourses'));
     }

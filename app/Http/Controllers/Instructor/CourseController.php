@@ -16,7 +16,7 @@ class CourseController extends Controller
 {
     public function index()
     {
-        $courses = Auth::user()->courses()->with('category')->latest()->paginate(10);
+        $courses = Auth::user()->courses()->with('category')->latest()->simplePaginate(10);
         return view('instructor.courses.index', compact('courses'));
     }
 

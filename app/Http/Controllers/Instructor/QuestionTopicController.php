@@ -38,7 +38,7 @@ class QuestionTopicController extends Controller
         }
         // Jika filter adalah 'all' atau kosong, tidak perlu filter tambahan (tampilkan semua)
 
-        $topics = $query->latest()->paginate(10)->withQueryString();
+        $topics = $query->latest()->simplePaginate(10)->withQueryString();
 
         // Ambil semua kursus milik instruktur untuk mengisi dropdown
         $courses = $user->courses()->orderBy('title')->get();

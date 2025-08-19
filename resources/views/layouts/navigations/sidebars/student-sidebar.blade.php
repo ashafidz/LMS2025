@@ -22,6 +22,11 @@
                                                 <a href="{{ route('home') }}"><i class="ti-home"></i>Home</a>
                                                 <a href="{{ route('user.profile.index') }}"><i class="ti-user"></i>
                                                     Profile</a>
+                                                @if (Auth::user()->hasRole('instructor') && session('active_role') == 'student')
+                                                    <a href="{{ route('role.switch', 'instructor') }}">
+                                                        🧑‍🏫 Switch Role Instruktur
+                                                    </a>
+                                                @endif
                                                 <a href="{{ route('student.cart.index') }}"><i class="ti-shopping-cart"></i>
                                                     Keranjang</a>
                                                 <a href="{{ route('student.badges.index') }}"><i class="ti-medall"></i>Badgeku</a>

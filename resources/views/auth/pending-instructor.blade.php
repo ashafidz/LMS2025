@@ -20,7 +20,7 @@
             <hr class="my-4">
 
             <div class="d-grid gap-2">
-                <a href="{{ route('student.dashboard') }}" class="btn bg-primary text-white custom-btn-hover">Go to Student Dashboard</a>
+                <a href="{{ route('role.switch', 'student') }}" class="btn bg-primary text-white custom-btn-hover">Go to Student Dashboard</a>
                 <form method="POST" action="{{ route('logout') }}" class="d-grid">
                     @csrf
                     <button type="submit" class="btn btn-outline-secondary">

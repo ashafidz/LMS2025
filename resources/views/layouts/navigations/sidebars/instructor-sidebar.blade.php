@@ -22,7 +22,11 @@
                                                 <a href="{{ route('home') }}"><i class="ti-home"></i>Home</a>
                                                 <a href="{{ route('user.profile.index') }}"><i class="ti-user"></i>
                                                     Profile</a>
-                                                <a href="#!"><i class="ti-settings"></i>Settings</a>
+                                                @if (Auth::user()->hasRole('student') && session('active_role') == 'instructor')
+                                                    <a href="{{ route('role.switch', 'student') }}">
+                                                        👨‍🎓 Switch Role Siswa
+                                                    </a>
+                                                @endif
                                                 <a href="{{ route('logout') }}"
                                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i
                                                         class="ti-layout-sidebar-left"></i>Logout</a>
@@ -42,7 +46,7 @@
                                     {{-- sidebar dashboard --}}
                                     <li class="{{ Request::routeIs('instructor.dashboard') ? 'active' : '' }}">
                                         <a href="{{ route('instructor.dashboard') }}" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-home"></i><b>D</b></span>
+                                            <span class="pcoded-micon"><i class="fa fa-tachometer-alt"></i><b>D</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.dash.main">Dashboard</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>

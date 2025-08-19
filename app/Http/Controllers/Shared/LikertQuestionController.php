@@ -15,7 +15,7 @@ class LikertQuestionController extends Controller
      */
     public function index()
     {
-        $questions = LikertQuestion::latest()->paginate(15);
+        $questions = LikertQuestion::latest()->simplePaginate(15);
         return view('shared-admin.likert-questions.index', compact('questions'));
     }
 

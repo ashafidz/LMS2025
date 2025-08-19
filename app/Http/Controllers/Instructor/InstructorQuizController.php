@@ -24,7 +24,7 @@ class InstructorQuizController extends Controller
         $course = $quiz->lesson->module->course;
 
         // 2. Ambil semua siswa yang terdaftar di kursus tersebut
-        $enrolledStudents = $course->students()->paginate(20);
+        $enrolledStudents = $course->students()->simplePaginate(20);
 
         // 3. Ambil semua percobaan kuis untuk siswa yang ditampilkan di halaman ini saja (efisien)
         $studentIdsOnPage = $enrolledStudents->pluck('id');

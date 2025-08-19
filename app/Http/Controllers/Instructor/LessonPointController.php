@@ -12,7 +12,7 @@ class LessonPointController extends Controller
     public function index(Lesson $lesson)
     {
         $course = $lesson->module->course;
-        $students = $course->students()->with(['coursePoints' => fn($q) => $q->where('course_id', $course->id)])->paginate(20);
+        $students = $course->students()->with(['coursePoints' => fn($q) => $q->where('course_id', $course->id)])->simplePaginate(20);
         return view('instructor.lesson-points.manage', compact('lesson', 'course', 'students'));
     }
     public function award(Request $request, Lesson $lesson)

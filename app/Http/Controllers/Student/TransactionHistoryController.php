@@ -18,7 +18,7 @@ class TransactionHistoryController extends Controller
         $orders = Auth::user()->orders()
             ->with('items.course')
             ->latest()
-            ->paginate(10);
+            ->simplePaginate(10);
 
         return view('student.transactions.index', compact('orders'));
     }

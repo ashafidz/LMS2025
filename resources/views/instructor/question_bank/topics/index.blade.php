@@ -6,13 +6,13 @@
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Bank Soal</h5>
                         <p class="m-b-0">Kelola semua topik untuk bank soal Anda.</p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
                         <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
                         <li class="breadcrumb-item"><a href="#!">Bank Soal</a></li>
@@ -86,7 +86,7 @@
                                                             @endif
                                                         </td>
                                                         <td class="text-center">
-                                                            <a href="{{ route('instructor.question-bank.questions.index', $topic) }}" class="btn btn-success btn-sm"><i class="bi bi-eye me-1"></i>Lihat Soal</a>
+                                                            <a href="{{ route('instructor.question-bank.questions.index', $topic) }}" class="btn btn-dark  btn-sm"><i class="bi bi-eye me-1"></i>Lihat Soal</a>
                                                             <a href="{{ route('instructor.question-bank.topics.edit', $topic->id) }}" class="btn btn-info btn-sm {{ $topic->is_locked ? 'disabled' : '' }}" {{ $topic->is_locked ? 'onclick="return false;"' : '' }}><i class="fa fa-pencil"></i>Edit</a>
                                                             <form action="{{ route('instructor.question-bank.topics.destroy', $topic->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus topik ini?');">
                                                                 @csrf

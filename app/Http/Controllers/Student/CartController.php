@@ -89,7 +89,8 @@ class CartController extends Controller
             return back()->with('info', 'Anda sudah terdaftar di kursus ini.');
         }
         $user->carts()->create(['course_id' => $course->id]);
-        return back()->with('success', 'Kursus berhasil ditambahkan ke keranjang.');
+        // return back()->with('success', 'Kursus berhasil ditambahkan ke keranjang.');
+        return redirect()->route('student.cart.index')->with('success', 'Kursus berhasil ditambahkan ke keranjang.');
     }
 
     /**
@@ -97,7 +98,7 @@ class CartController extends Controller
      */
     public function remove(Cart $cart)
     {
-        if ($cart->user_id !== Auth::id()) {
+        if ($cart->user_id != Auth::id()) {
             abort(403);
         }
         $cart->delete();

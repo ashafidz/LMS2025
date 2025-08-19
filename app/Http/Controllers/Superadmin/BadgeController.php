@@ -14,7 +14,7 @@ class BadgeController extends Controller
      */
     public function index()
     {
-        $badges = Badge::latest()->paginate(10);
+        $badges = Badge::latest()->simplePaginate(10);
         return view('superadmin.badges.index', compact('badges'));
     }
 

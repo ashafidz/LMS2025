@@ -79,9 +79,10 @@ class UserProfileController extends Controller
             'gender' => ['nullable', 'in:male,female'],
             'birth_date' => ['nullable', 'date'],
             'address' => ['nullable', 'string'],
-            'profile_picture' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // 2MB Max
+            // 'profile_picture' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // 2MB Max
             'equipped_badge_id' => 'nullable|exists:badges,id',
             'unique_id_number' => 'nullable|string|max:255',
+            'profile_picture_url' => 'nullable|string|starts_with:assets/profile-images/',
         ];
 
         // Add profile-specific validation if the user is a student or instructor
@@ -115,20 +116,19 @@ class UserProfileController extends Controller
             'gender' => $validated['gender'],
             'birth_date' => $validated['birth_date'],
             'address' => $validated['address'],
-            'equipped_badge_id' => $validated['equipped_badge_id'] ?? null,
-            'unique_id_number' => $validated['unique_id_number']
+            'profile_picture_url' => $validated['profile_picture_url'],
         ];
 
         // Handle profile picture upload
-        if ($request->hasFile('profile_picture')) {
-            // Delete old picture if it exists
-            if ($user->profile_picture_url) {
-                Storage::disk('public')->delete($user->profile_picture_url);
-            }
-            // Store new picture
-            $path = $request->file('profile_picture')->store('profile-pictures', 'public');
-            $userData['profile_picture_url'] = $path;
-        }
+        // if ($request->hasFile('profile_picture')) {
+        //     // Delete old picture if it exists
+        //     if ($user->profile_picture_url) {
+        //         Storage::disk('public')->delete($user->profile_picture_url);
+        //     }
+        //     // Store new picture
+        //     $path = $request->file('profile_picture')->store('profile-pictures', 'public');
+        //     $userData['profile_picture_url'] = $path;
+        // }
 
         $user->update($userData);
 
@@ -146,7 +146,9 @@ class UserProfileController extends Controller
                     'company_or_institution_name' => $validated['company_or_institution_name'],
                     'company_address' => $validated['company_address'],
                     'company_tax_id' => $validated['company_tax_id'],
-                    'unique_id_number' => $validated['unique_id_number']
+                    'unique_id_number' => $validated['unique_id_number'],
+                    'equipped_badge_id' => $validated['equipped_badge_id'] ?? null,
+
                 ]);
             }
         }

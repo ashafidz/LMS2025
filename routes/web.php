@@ -41,6 +41,14 @@ use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\Instructor\InstructorQuizController;
 use App\Http\Controllers\Student\DiamondConversionController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\TestimonialController;
+
+use App\Http\Controllers\Student\StudentAssignmentController;
+use App\Http\Controllers\Student\TransactionHistoryController;
+use App\Http\Controllers\Shared\InstructorApplicationController;
+use App\Http\Controllers\Instructor\InstructorAssignmentController;
+use App\Http\Controllers\Instructor\InstructorLeaderboardController;
+use App\Http\Controllers\Student\CourseController as StudentCourseController;
 
 // Route::get('/neweditprofil', function () {
 //     return view('1edit-index');
@@ -66,6 +74,15 @@ Route::get('/template-pdf', function () {
     // You must return the view for it to be sent to the browser.
     return view('template_certificate', compact('course', 'settings'));
 });
+
+Route::get('/testimonials', [TestimonialController::class, 'index'])->name('testimonials');
+
+// RUTE BARU UNTUK LEADERBOARD
+Route::get('/courses/{course}/leaderboard', [StudentCourseController::class, 'getLeaderboard'])->name('student.course.leaderboard');
+
+
+// di dalam file routes/web.php RUTE LEADERBOARD MODULE
+Route::get('/modules/{module}/leaderboard', [StudentCourseController::class, 'getModuleLeaderboard'])->name('student.module.leaderboard');
 
 Route::post('/set-timezone', function (Request $request) {
     $request->validate(['timezone' => 'required|string']);
@@ -106,12 +123,6 @@ Route::get('/faqs', function () {
 })->name('faqs');
 
 
-use App\Http\Controllers\Student\StudentAssignmentController;
-use App\Http\Controllers\Student\TransactionHistoryController;
-use App\Http\Controllers\Shared\InstructorApplicationController;
-use App\Http\Controllers\Instructor\InstructorAssignmentController;
-use App\Http\Controllers\Instructor\InstructorLeaderboardController;
-use App\Http\Controllers\Student\CourseController as StudentCourseController;
 
 Route::middleware(['auth'])->group(function () {
     // profile index
@@ -537,14 +548,14 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
         Route::get('/my-diamonds', [GamificationController::class, 'diamonds'])->name('student.diamonds.index');
 
 
-        // RUTE BARU UNTUK LEADERBOARD
-        Route::get('/courses/{course}/leaderboard', [StudentCourseController::class, 'getLeaderboard'])->name('student.course.leaderboard');
 
-
-        // di dalam file routes/web.php RUTE LEADERBOARD MODULE
-        Route::get('/modules/{module}/leaderboard', [StudentCourseController::class, 'getModuleLeaderboard'])->name('student.module.leaderboard');
 
         // RUTE BARU UNTUK MENGONVERSI POIN
         Route::post('/courses/{course}/convert-points', [DiamondConversionController::class, 'convert'])->name('student.course.convert_points');
+
+
+        // --- RUTE BARU UNTUK PENDAFTARAN INSTRUKTUR ---
+        Route::get('/apply-instructor', [InstructorApplicationController::class, 'create'])->name('student.apply_instructor.create');
+        Route::post('/apply-instructor', [InstructorApplicationController::class, 'store'])->name('student.apply_instructor.store');
     });
 });

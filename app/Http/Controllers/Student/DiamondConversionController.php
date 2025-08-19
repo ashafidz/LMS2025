@@ -27,7 +27,7 @@ class DiamondConversionController extends Controller
         $conversionSuccess = DiamondService::convertFromPoints($user, $course);
 
         if ($conversionSuccess) {
-            return redirect()->route('student.diamonds.index')->with('success', 'Selamat! Poin Anda berhasil dikonversi menjadi diamond.');
+            return redirect()->route('student.points.index')->with('success', 'Selamat! Poin Anda berhasil dikonversi menjadi diamond.');
         }
 
         return redirect()->back()->with('error', 'Terjadi kesalahan atau poin dari kursus ini sudah pernah dikonversi.');

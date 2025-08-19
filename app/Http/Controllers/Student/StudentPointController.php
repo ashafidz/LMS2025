@@ -18,7 +18,7 @@ class StudentPointController extends Controller
         // Ambil riwayat poin, urutkan dari yang terbaru, dan paginasi
         $pointHistories = $user->pointHistories()
             ->latest()
-            ->paginate(10);
+            ->simplePaginate(10);
 
         return view('student.my-points.index', compact('user', 'pointHistories'));
     }

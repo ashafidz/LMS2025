@@ -15,7 +15,7 @@ class QuestionController extends Controller
     public function index(QuestionTopic $topic)
     {
         // Otorisasi dihapus
-        $questions = $topic->questions()->with('options', 'quizzes')->latest()->paginate(10);
+        $questions = $topic->questions()->with('options', 'quizzes')->latest()->simplePaginate(10);
         return view('instructor.question_bank.questions.index', compact('topic', 'questions'));
     }
 

@@ -99,6 +99,12 @@ class FortifyServiceProvider extends ServiceProvider
                     return redirect()->route('instructor.rejected');
                 }
 
+                // if user chose "Instructor" BUT dont have role instructor
+                if ($loginPreference === 'instructor' && !$user->hasRole('instructor')) {
+                    session(['active_role' => 'student']);
+                    return redirect()->route('student.apply_instructor.create');
+                }
+
                 // --- STUDENT (DEFAULT / FALLBACK) ---
                 // This will now handle:
                 // 1. Users who only have the 'student' role.

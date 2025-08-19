@@ -8,7 +8,7 @@
                 <div class="bg-transparent d-inline-flex align-items-center px-4 py-3 rounded"
                     style="background: rgba(0,0,0,0.1); backdrop-filter: blur(2px);">
                     <!-- Avatar -->
-                    <img src="{{ asset($user->profile_picture_url ? 'storage/' . $user->profile_picture_url : 'https://placehold.co/32x32/EBF4FF/767676?text=SA') }}" alt="Avatar"
+                    <img src="{{ Auth::user()->profile_picture_url ? asset(Auth::user()->profile_picture_url ) :  'https://placehold.co/32x32/EBF4FF/767676?text=SA' }}" alt="Avatar"
                         class="rounded-circle mr-4" style="width: 80px; height: 80px; border: 3px solid white;">
 
                     <!-- Nama & Sambutan -->

@@ -23555,7 +23555,7 @@ namespace  {
         public static function paginate($perPage = null, $columns = [], $pageName = 'page', $page = null, $total = null)
         {
             /** @var \Illuminate\Database\Eloquent\Builder $instance */
-            return $instance->paginate($perPage, $columns, $pageName, $page, $total);
+            return $instance->simplePaginate($perPage, $columns, $pageName, $page, $total);
         }
 
         /**

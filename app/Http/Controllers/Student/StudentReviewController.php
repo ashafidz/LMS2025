@@ -24,8 +24,8 @@ class StudentReviewController extends Controller
         $platformReview = $user->platformReview;
 
         // Ambil semua ulasan kursus dan instruktur dari pengguna
-        $courseReviews = $user->courseReviews()->with('course')->latest()->paginate(5, ['*'], 'course_reviews_page');
-        $instructorReviews = $user->instructorReviews()->with('instructor', 'course')->latest()->paginate(5, ['*'], 'instructor_reviews_page');
+        $courseReviews = $user->courseReviews()->with('course')->latest()->simplePaginate(5, ['*'], 'course_reviews_page');
+        $instructorReviews = $user->instructorReviews()->with('instructor', 'course')->latest()->simplePaginate(5, ['*'], 'instructor_reviews_page');
 
         // Ambil semua pertanyaan Likert yang aktif
         $likertQuestions = LikertQuestion::where('is_active', true)->get();

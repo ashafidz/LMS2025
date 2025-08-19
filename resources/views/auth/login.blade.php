@@ -56,14 +56,47 @@
                                 @enderror
                             </div>
 
-                            <div class="form-group form-primary">
-                                <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required placeholder="">
-                                <span class="form-bar"></span>
-                                <label class="float-label">Password</label>
-                                @error('password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                            <div class="form-group form-primary" style="position: relative;">
+                            <input type="password" id="password" 
+                                   name="password" 
+                                   class="form-control @error('password') is-invalid @enderror" 
+                                   required placeholder="">
+                            <span class="form-bar"></span>
+                            <label class="float-label">Password</label>
+                        
+                            <!-- Ikon Mata -->
+                            <i class="fa-solid fa-eye-slash toggle-password"
+                               data-target="password"
+                               style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;"></i>
+                        
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <script>
+                        function initTogglePassword() {
+                            document.querySelectorAll(".toggle-password").forEach(icon => {
+                                icon.addEventListener("click", function() {
+                                    const input = document.getElementById(this.dataset.target);
+                                    if (!input) return;
+                        
+                                    if (input.type === "password") {
+                                        input.type = "text";
+                                        this.classList.replace("fa-eye-slash", "fa-eye");
+                                    } else {
+                                        input.type = "password";
+                                        this.classList.replace("fa-eye", "fa-eye-slash");
+                                    }
+                                });
+                            });
+                        }
+                        document.addEventListener("DOMContentLoaded", initTogglePassword);
+                        </script>
+                        
+                        <!-- Font Awesome -->
+                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 
                             <div class="row mt-2 mb-3">
                                 <div class="col text-left">

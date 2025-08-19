@@ -17,7 +17,7 @@ class CourseEnrollmentController extends Controller
      */
     public function index()
     {
-        $courses = Course::with('instructor')->latest()->paginate(15);
+        $courses = Course::with('instructor')->latest()->simplePaginate(15);
         return view('shared-admin.course-enrollments.index', compact('courses'));
     }
 
@@ -26,7 +26,7 @@ class CourseEnrollmentController extends Controller
      */
     public function show(Course $course)
     {
-        $enrolledUsers = $course->students()->paginate(20);
+        $enrolledUsers = $course->students()->simplePaginate(20);
         return view('shared-admin.course-enrollments.show', compact('course', 'enrolledUsers'));
     }
 
@@ -47,7 +47,7 @@ class CourseEnrollmentController extends Controller
                 ->orWhere('email', 'like', '%' . $request->search . '%');
         }
 
-        $availableUsers = $query->paginate(15);
+        $availableUsers = $query->simplePaginate(15);
 
         return view('shared-admin.course-enrollments.create', compact('course', 'availableUsers'));
     }

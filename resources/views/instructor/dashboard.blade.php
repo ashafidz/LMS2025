@@ -6,7 +6,7 @@
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">
                             Dashboard
@@ -16,7 +16,7 @@
                         </p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
                         <li class="breadcrumb-item">
                             <a href="{{ route('home') }}">
@@ -101,13 +101,13 @@
             <div class="card-body py-3 px-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h4 class="text-warning mb-1">59</h4>
+                        <h4 class="mb-1" style="color: orange;">59</h4>
                         <p class="text-muted mb-0 small">Siswa Sudah Menyelesaikan Kursus</p>
                     </div>
-                    <i class="fa fa-graduation-cap fa-lg text-warning"></i>
+                    <i class="fa fa-graduation-cap fa-2x" style="color: orange;"></i>
                 </div>
             </div>
-            <div class="card-footer bg-warning text-white d-flex justify-content-between align-items-center py-2 px-3">
+            <div class="card-footer text-white d-flex justify-content-between align-items-center py-2 px-3" style="background-color: orange;">
                 <small class="small">+10 siswa selesai</small>
                 <i class="fa fa-line-chart small"></i>
             </div>
@@ -142,9 +142,9 @@
                             <tr><td>Full Stack</td><td>28</td></tr>
                         </tbody>
                     </table>
-                    <div class="text-center mt-3">
+                    <!-- <div class="text-center mt-3">
                         <a href="#!" class="b-b-primary text-primary">Show More</a>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
@@ -173,9 +173,9 @@
                         <tr><td>JavaScript</td><td>2</td><td>7</td></tr>
                     </tbody>
                 </table>
-                <div class="text-center mt-3">
+                <!-- <div class="text-center mt-3">
                     <a href="#!" class="b-b-primary text-primary">Show More</a>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>

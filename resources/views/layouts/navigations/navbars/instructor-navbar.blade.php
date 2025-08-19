@@ -110,7 +110,7 @@
                 <li class="user-profile header-notification">
                     <a href="#!" class="waves-effect waves-light">
                         <img class="rounded-circle mr-4" style="width: 40px; height: 40px; border: 3px;"
-                            src="{{ asset(Auth::user()->profile_picture_url ? 'storage/' . Auth::user()->profile_picture_url : 'https://placehold.co/32x32/EBF4FF/767676?text=SA') }}" alt="{{ Auth::user()->name }}" />
+                            src="{{ Auth::user()->profile_picture_url ? asset(Auth::user()->profile_picture_url ) :  'https://placehold.co/32x32/EBF4FF/767676?text=SA' }}" alt="{{ Auth::user()->name }}" />
                         <span>{{ Auth::user()->name }}</span>
                         <i class="ti-angle-down"></i>
                     </a>
@@ -121,12 +121,13 @@
                                 Home
                             </a>
                         </li>
-                        <li class="waves-effect waves-light">
-                            <a href="#!">
-                                <i class="ti-settings"></i>
-                                Settings
-                            </a>
-                        </li>
+                        @if (Auth::user()->hasRole('student') && session('active_role') == 'instructor')
+                            <li class="waves-effect waves-light">
+                                <a href="{{ route('role.switch', 'student') }}">
+                                    👨‍🎓 Switch Role Siswa
+                                </a>
+                            </li>
+                        @endif
                         <li class="waves-effect waves-light">
                             <a href="{{ route('user.profile.index') }}">
                                 <i class="ti-user"></i> Profile

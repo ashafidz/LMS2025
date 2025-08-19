@@ -386,114 +386,58 @@
     </section><!-- /Call To Action Section -->
 
 
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="testimonials section light-background">
+<!-- Testimonials Section -->
+<section id="testimonials" class="testimonials section light-background">
 
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
+    <!-- Section Title -->
+    <div class="container section-title" data-aos="fade-up">
         <h2>Testimoni Peserta</h2>
-        <p>Berbagai pengalaman nyata dari peserta yang telah menggunakan kursus kami.</p>
-      </div><!-- End Section Title -->
-
-      <div class="container">
-
-        <div class="row g-5">
-
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
-            <div class="testimonial-item">
-              <img src="home-page/assets/img/testimonials/testimonials-1.jpg" class="testimonial-img" alt="">
-              <h3>Saul Goodman</h3>
-              <h4>Ceo &amp; Founder</h4>
-              <div class="stars">
-                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-              </div>
-              <p>
-                <i class="bi bi-quote quote-icon-left"></i>
-                <span>Jangan tunggu nanti, mulai wujudkan ide dan rencanamu sekarang juga. Tim kami siap bantu kamu dari awal sampai akhir!</span>
-                <i class="bi bi-quote quote-icon-right"></i>
-              </p>
-            </div>
-          </div><!-- End testimonial item -->
-
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
-            <div class="testimonial-item">
-              <img src="home-page/assets/img/testimonials/testimonials-2.jpg" class="testimonial-img" alt="">
-              <h3>Sara Wilsson</h3>
-              <h4>Designer</h4>
-              <div class="stars">
-                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-              </div>
-              <p>
-                <i class="bi bi-quote quote-icon-left"></i>
-                <span>Layanannya bener-bener membantu banget. Prosesnya rapi, cepat, dan hasilnya sesuai yang diharapkan. Pokoknya puas banget!</span>
-                <i class="bi bi-quote quote-icon-right"></i>
-              </p>
-            </div>
-          </div><!-- End testimonial item -->
-
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="300">
-            <div class="testimonial-item">
-              <img src="home-page/assets/img/testimonials/testimonials-3.jpg" class="testimonial-img" alt="">
-              <h3>Jena Karlis</h3>
-              <h4>Store Owner</h4>
-              <div class="stars">
-                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-              </div>
-              <p>
-                <i class="bi bi-quote quote-icon-left"></i>
-                <span>Timnya profesional banget! Dari awal sampai akhir, semuanya komunikatif dan mudah diajak kerja sama. Hasil desainnya juga keren.</span>
-                <i class="bi bi-quote quote-icon-right"></i>
-              </p>
-            </div>
-          </div><!-- End testimonial item -->
-
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="400">
-            <div class="testimonial-item">
-              <img src="home-page/assets/img/testimonials/testimonials-4.jpg" class="testimonial-img" alt="">
-              <h3>Matt Brandon</h3>
-              <h4>Freelancer</h4>
-              <div class="stars">
-                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-              </div>
-              <p>
-                <i class="bi bi-quote quote-icon-left"></i>
-                <span>Sangat membantu untuk pekerjaan freelance saya. Prosesnya gampang, hasilnya top, dan responnya selalu cepat.</span>
-                <i class="bi bi-quote quote-icon-right"></i>
-              </p>
-            </div>
-          </div><!-- End testimonial item -->
-
-        </div>
-
-      </div>
-
-    </section><!-- /Testimonials Section -->
-
-    <!-- Stats Section -->
-    <!-- /Stats Section -->
-
-    <!-- Pricing Section -->
-    <!-- /Pricing Section -->
-
-    <!-- Faq Section -->
-    <!-- /Faq Section -->
-
-    <!-- Call To Action 2 Section -->
-     <section id="call-to-action-2" class="call-to-action-2 section dark-background text-white py-5">
+        <p>Berbagai pengalaman nyata dari peserta yang telah menggunakan platform kami.</p>
+    </div><!-- End Section Title -->
 
     <div class="container">
-        <div class="row justify-content-center" data-aos="zoom-in" data-aos-delay="100">
-        <div class="col-xl-10">
-            <div class="text-center">
-            <h3>Periksa Semua Testimoni</h3>
-            <p>Kami menerima banyak feedback positif dari pelanggan kami. Yuk, lihat pengalaman mereka menggunakan layanan kami!</p>
-            <a class="cta-btn btn btn-outline-light mt-3 px-4 py-2" href="/tes">Lihat Semua Testimoni</a> <!-- Call To Action Belum ada tujuan? -->
-            </div>
-        </div>
+        <div class="row g-5">
+            @if(isset($platformReviews) && $platformReviews->isNotEmpty())
+                @foreach($platformReviews as $review)
+                <div class="col-lg-6" data-aos="fade-up" data-aos-delay="{{ ($loop->index + 1) * 100 }}">
+                    <div class="testimonial-item">
+                        <img src="{{ asset($review->user->profile_picture_url ?? 'assets/profile-images/avatar-1.png') }}" class="testimonial-img" alt="">
+                        <h3>{{ $review->user->name }}</h3>
+                        <h4>{{ $review->user->studentProfile->headline ?? 'Siswa' }}</h4>
+                        <div class="stars">
+                            @for ($i = 1; $i <= 5; $i++)
+                                <i class="bi {{ $i <= $review->rating ? 'bi-star-fill' : 'bi-star' }}"></i>
+                            @endfor
+                        </div>
+                        <p>
+                            <i class="bi bi-quote quote-icon-left"></i>
+                            <span>{{ $review->comment }}</span>
+                            <i class="bi bi-quote quote-icon-right"></i>
+                        </p>
+                    </div>
+                </div><!-- End testimonial item -->
+                @endforeach
+            @else
+                <div class="col-12 text-center">
+                    <p class="text-muted">Jadilah yang pertama memberikan testimoni untuk platform ini!</p>
+                </div>
+            @endif
         </div>
     </div>
-    
-    
+</section><!-- /Testimonials Section -->
 
-    </section><!-- /Call To Action 2 Section -->
+<!-- Call-to-Action Section -->
+<section id="call-to-action-2" class="call-to-action-2 section dark-background text-white py-5">
+    <div class="container">
+        <div class="row justify-content-center" data-aos="zoom-in" data-aos-delay="100">
+            <div class="col-xl-10">
+                <div class="text-center">
+                    <h3>Periksa Semua Testimoni</h3>
+                    <p>Kami menerima banyak feedback positif dari pelanggan kami. Yuk, lihat pengalaman mereka menggunakan layanan kami!</p>
+                    <a class="cta-btn btn btn-outline-light mt-3 px-4 py-2" href="{{ route('testimonials') }}">Lihat Semua Testimoni</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection

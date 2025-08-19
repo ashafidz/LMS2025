@@ -16,7 +16,7 @@ class CouponController extends Controller
      */
     public function index()
     {
-        $coupons = Coupon::with('course')->latest()->paginate(15);
+        $coupons = Coupon::with('course')->latest()->simplePaginate(15);
         return view('shared-admin.coupons.index', compact('coupons'));
     }
 

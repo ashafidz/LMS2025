@@ -6,13 +6,13 @@
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Manajemen Kupon</h5>
                         <p class="m-b-0">Buat, lihat, dan kelola semua kupon diskon.</p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
                         {{-- Menggunakan Auth::user()->role akan lebih sederhana jika role hanya satu string --}}
                         <li class="breadcrumb-item"><a href="{{ route(Auth::user()->getRoleNames()->first() . '.dashboard') }}"><i class="fa fa-home"></i></a></li>

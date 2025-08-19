@@ -7,45 +7,55 @@ use Illuminate\Support\Facades\Auth;
 
 class RoleSwitchController extends Controller
 {
-    //
-    /**
-     * Switch the user's active role in the session.
-     */
-    public function switch(Request $request, $role)
+    public function switch($role)
     {
-        // 1. Get the authenticated user
         $user = Auth::user();
 
-        // 2. Define the roles the user is allowed to switch between
-        $switchableRoles = [];
-        if ($user->hasRole('student')) {
-            $switchableRoles[] = 'student';
-        }
-        if ($user->hasRole('instructor') && $user->instructorProfile?->application_status === 'approved') {
-            $switchableRoles[] = 'instructor';
-        }
-        // Add other roles like 'admin' if they should be switchable
-        // if ($user->hasRole('admin')) {
-        //     $switchableRoles[] = 'admin';
-        // }
-
-
-        // 3. Validate that the requested role is one the user actually has
-        // and is allowed to switch to. This is a crucial security step!
-        if (!in_array($role, $switchableRoles)) {
-            // If they try to switch to a role they don't have, abort.
-            abort(403, 'You do not have permission to switch to this role.');
-        }
-
-        // 4. Update the session with the new active role
+        // Simpan peran yang dipilih ke dalam session
         session(['active_role' => $role]);
 
-        // 5. Redirect the user to their new dashboard
+        // LOGIKA BARU: Penanganan khusus untuk peran instruktur
         if ($role === 'instructor') {
-            return redirect()->route('instructor.dashboard'); // Or wherever instructors should land
+            // Jika pengguna memang memiliki peran instruktur
+            if ($user->hasRole('instructor')) {
+                // Cek status pendaftarannya
+                $status = $user->instructorProfile?->application_status;
+                if ($status === 'approved') {
+                    return redirect()->route('instructor.dashboard');
+                } elseif ($status === 'pending') {
+                    return redirect()->route('instructor.pending');
+                } elseif ($status === 'rejected') {
+                    return redirect()->route('instructor.rejected');
+                } elseif ($status === 'deactive') {
+                    return redirect()->route('instructor.deactive');
+                }
+            } else {
+                // Jika pengguna adalah siswa yang mencoba menjadi instruktur
+                $profile = $user->instructorProfile;
+                if ($profile) {
+                    // Jika sudah pernah mendaftar, arahkan ke halaman status
+                    $status = $profile->application_status;
+                    if ($status === 'pending') return redirect()->route('instructor.pending');
+                    if ($status === 'rejected') return redirect()->route('instructor.rejected');
+                    if ($status === 'deactive') return redirect()->route('instructor.deactive');
+                }
+                // Jika belum pernah mendaftar sama sekali, arahkan ke form pendaftaran
+                return redirect()->route('student.apply_instructor.create');
+            }
         }
 
-        // Default redirect for students
-        return redirect()->route('student.dashboard'); // Or wherever students should land
+        // Logika untuk peran lain (tetap sama)
+        if ($role === 'student') {
+            return redirect()->route('student.dashboard');
+        }
+        if ($role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.dashboard');
+        }
+
+        // Default fallback
+        return redirect('/home');
     }
 }

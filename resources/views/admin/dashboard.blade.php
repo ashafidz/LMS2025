@@ -6,7 +6,7 @@
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">
                             Dashboard
@@ -16,7 +16,7 @@
                         </p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
                         <li class="breadcrumb-item">
                             <a href="{{ route('home') }}">
@@ -102,13 +102,13 @@
             <div class="card-body py-4 px-4">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h3 class="text-warning mb-1">350</h3>
+                        <h3 class="mb-1" style="color: orange;">350</h3>
                         <p class="text-muted mb-0">------</p>
                     </div>
-                    <i class="fa fa-graduation-cap fa-2x text-warning"></i>
+                    <i class="fa fa-graduation-cap fa-2x" style="color: orange;"></i>
                 </div>
             </div>
-            <div class="card-footer bg-warning text-white d-flex justify-content-between align-items-center py-2 px-4">
+            <div class="card-footer text-white d-flex justify-content-between align-items-center py-2 px-3" style="background-color: orange;">
                 <small>+6% dibanding bulan lalu</small>
                 <i class="fa fa-line-chart"></i>
             </div>

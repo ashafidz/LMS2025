@@ -6,13 +6,13 @@
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Kursus Saya</h5>
                         <p class="m-b-0">Lanjutkan progres belajar Anda di kursus yang telah Anda miliki.</p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
                         <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}"><i class="fa fa-home"></i></a></li>
                         <li class="breadcrumb-item"><a href="#!">Kursus Saya</a></li>
@@ -34,7 +34,7 @@
                                     <img class="card-img-top" src="{{ $course->thumbnail_url ? Storage::url($course->thumbnail_url) : 'https://placehold.co/600x400/e0edff/007bff?text=Kursus' }}" alt="{{ $course->title }}" style="height: 180px; object-fit: cover;">
                                     <div class="card-block">
                                         <h5 class="card-title">{{ $course->title }}</h5>
-                                        <p class="card-text text-muted">Oleh: {{ $course->instructor->name }}</p>
+                                        <p class="card-text text-muted">{{ $course->instructor->name }}</p>
                                         
                                         {{-- Progress Bar --}}
                                         @php

@@ -53,42 +53,49 @@
                                                         <strong>{{ $lesson->title }}</strong>
                                                     </div>
 
-                                                    <div>
-                                                        @php
-                                                            $lessonType = strtolower(class_basename($lesson->lessonable_type));
-                                                        @endphp
-
-                                                        @if ($lessonType === 'quiz')
-                                                            <a href="{{ route('student.quiz.start', ['quiz' => $lesson->lessonable_id, 'preview' => 'true']) }}" target="_blank" class="btn btn-warning btn-sm text-dark" title="Pratinjau Kuis di Tab Baru">
-                                                                <i class="bi bi-eye me-1"></i>Pratinjau
-                                                            </a>
-                                                        @else
-                                                            <button type="button" class="btn btn-warning btn-sm text-dark" data-toggle="modal" data-target="#previewModal-{{ $lesson->id }}"><i class="bi bi-eye me-1"></i>
-                                                                Pratinjau
-                                                            </button>
-                                                        @endif
-
-                                                        <a href="{{ route('instructor.lessons.edit', $lesson->id) }}" class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i>Edit</a>
-
-                                                        @if ($lessonType === 'quiz')
-                                                            <a href="{{ route('instructor.quiz.results', $lesson->lessonable_id) }}" class="btn btn-info btn-sm"><i class="fa fa-calculator me-1"></i>Lihat Nilai</a>
-                                                            <a href="{{ route('instructor.quizzes.manage_questions', $lesson->lessonable_id) }}" class="btn btn-success btn-sm"><i class="fa fa-pencil-square me-1"></i>Kelola Soal</a>
-                                                        @endif
-                                                        
-                                                        {{-- TOMBOL BARU UNTUK TUGAS (ASSIGNMENT) --}}
-                                                        @if ($lessonType === 'lessonassignment')
-                                                            <a href="{{ route('instructor.assignment.submissions', $lesson->lessonable_id) }}" class="btn btn-success btn-sm"><i class="fas fa-file-alt"></i>Lihat Pengumpulan</a>
-                                                        @endif
-
-                                                        @if ($lessonType === 'lessonpoint')
-                                                            <a href="{{ route('instructor.lesson_points.manage', $lesson->id) }}" class="btn btn-success btn-sm"><i class="bi bi-gear-fill"></i>Kelola LessonPoin</a>
-                                                        @endif
-
+                                                    <div class="text-right">
+                                                        <div class="mb-2">
+                                                            @php
+                                                                $lessonType = strtolower(class_basename($lesson->lessonable_type));
+                                                            @endphp
+    
+                                                            @if ($lessonType === 'quiz')
+                                                                <a href="{{ route('student.quiz.start', ['quiz' => $lesson->lessonable_id, 'preview' => 'true']) }}" target="_blank" class="btn btn-warning btn-sm text-dark" title="Pratinjau Kuis di Tab Baru">
+                                                                    <i class="bi bi-eye me-1"></i>Pratinjau
+                                                                </a>
+                                                            @else
+                                                                <button type="button" class="btn btn-warning btn-sm text-dark" data-toggle="modal" data-target="#previewModal-{{ $lesson->id }}"><i class="bi bi-eye me-1"></i>
+                                                                    Pratinjau
+                                                                </button>
+                                                            @endif
+    
+                                                            
+    
+                                                            @if ($lessonType === 'quiz')
+                                                                <a href="{{ route('instructor.quiz.results', $lesson->lessonable_id) }}" class="btn btn-info btn-sm"><i class="fa fa-calculator me-1"></i>Lihat Nilai</a>
+                                                                <a href="{{ route('instructor.quizzes.manage_questions', $lesson->lessonable_id) }}" class="btn btn-success btn-sm"><i class="fa fa-pencil-square me-1"></i>Kelola Soal</a>
+                                                            @endif
+                                                            
+                                                            {{-- TOMBOL BARU UNTUK TUGAS (ASSIGNMENT) --}}
+                                                            @if ($lessonType === 'lessonassignment')
+                                                                <a href="{{ route('instructor.assignment.submissions', $lesson->lessonable_id) }}" class="btn btn-success btn-sm"><i class="fas fa-file-alt"></i>Lihat Pengumpulan</a>
+                                                            @endif
+    
+                                                            @if ($lessonType === 'lessonpoint')
+                                                                <a href="{{ route('instructor.lesson_points.manage', $lesson->id) }}" class="btn btn-success btn-sm"><i class="bi bi-gear-fill"></i>Kelola LessonPoin</a>
+                                                            @endif
+                                                        </div>
+                                                        <div>
+                                                            <a href="{{ route('instructor.lessons.edit', $lesson->id) }}" class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i>Edit</a>
                                                         <form action="{{ route('instructor.lessons.destroy', $lesson->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pelajaran ini?');">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>Hapus</button>
                                                         </form>
+                                                        </div>
+
+
+
                                                     </div>
                                                 </div>
                                             </div>

@@ -66,21 +66,48 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="form-group form-primary">
-                                        <input type="password" name="password" class="form-control" required>
-                                        <span class="form-bar"></span>
-                                        <label class="float-label">Password</label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group form-primary">
-                                        <input type="password" name="password_confirmation" class="form-control" required>
-                                        <span class="form-bar"></span>
-                                        <label class="float-label">Konfirmasi Password</label>
-                                    </div>
+                            <div class="col-sm-6">
+                                <div class="form-group form-primary" style="position: relative;">
+                                    <input type="password" id="password" name="password" class="form-control" required>
+                                    <span class="form-bar"></span>
+                                    <label class="float-label">Password</label>
+                                    <i class="fa-solid fa-eye-slash toggle-password"
+                                       data-target="password"
+                                       style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;"></i>
                                 </div>
                             </div>
+                            <div class="col-sm-6">
+                                <div class="form-group form-primary" style="position: relative;">
+                                    <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" required>
+                                    <span class="form-bar"></span>
+                                    <label class="float-label">Konfirmasi Password</label>
+                                    <i class="fa-solid fa-eye-slash toggle-password"
+                                       data-target="password_confirmation"
+                                       style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <script>
+                        function initTogglePassword() {
+                            document.querySelectorAll(".toggle-password").forEach(icon => {
+                                icon.addEventListener("click", function() {
+                                    const input = document.getElementById(this.dataset.target);
+                                    if (!input) return;
+                        
+                                    if (input.type === "password") {
+                                        input.type = "text";
+                                        this.classList.replace("fa-eye-slash", "fa-eye");
+                                    } else {
+                                        input.type = "password";
+                                        this.classList.replace("fa-eye", "fa-eye-slash");
+                                    }
+                                });
+                            });
+                        }
+                        
+                        document.addEventListener("DOMContentLoaded", initTogglePassword);
+                        </script>
 
                             <div class="row m-t-30">
                                 <div class="col-md-12">

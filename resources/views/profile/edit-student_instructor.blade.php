@@ -11,19 +11,53 @@
                     @method('PUT')
 
                     <!-- Avatar & Aksi -->
-                    <div class="col-xl-4 col-md-12 mb-4">
+                    {{-- <div class="col-xl-4 col-md-12 mb-4">
                         <div class="card text-center">
                             <div class="card-body py-4">
                                 <h6 class="mb-3">Foto Profil</h6>
                                 <img class="rounded-circle mr-4" style="width: 100px; height: 100px; border: 3px;"
-                            src="{{ asset(Auth::user()->profile_picture_url ?? 'https://placehold.co/32x32/EBF4FF/767676?text=SA') }}" alt="User-Profile-Image">
+                            src="{{ asset(Auth::user()->profile_picture_url ? 'storage/' . Auth::user()->profile_picture_url : 'https://placehold.co/32x32/EBF4FF/767676?text=SA') }}" alt="User-Profile-Image">
                                 <input type="file" name="profile_picture" class="form-control-file">
                                 @error('profile_picture')
                                     <div class="text-danger mt-2">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
+                @php
+                    $profile = Auth::user()->hasRole('student') ? Auth::user()->studentProfile : Auth::user()->instructorProfile;
+                    $defaultAvatar = 'assets/profile-images/avatar-1.png';
+                    $currentAvatar = Auth::user()->profile_picture_url ?? $defaultAvatar;
+                @endphp
+
+                <!-- Avatar & Aksi -->
+                <div class="col-xl-4 col-md-12 mb-4">
+                    <div class="card text-center">
+                        <div class="card-body py-4">
+                            <h6 class="mb-3">Foto Profil</h6>
+                        
+                            <!-- Gambar Avatar yang Dipilih -->
+                            <img id="selectedAvatar" 
+                                 src="{{ Auth::user()->profile_picture_url ? asset(Auth::user()->profile_picture_url ) :  'https://placehold.co/32x32/EBF4FF/767676?text=SA' }}" 
+                                 class="img-100 img-radius mb-3" 
+                                 alt="User-Profile-Image"
+                                 style="width: 100px; height: 100px; object-fit: cover;">
+                        
+                            <!-- Input Hidden untuk kirim URL avatar ke server -->
+                            <input type="hidden" name="profile_picture_url" id="profilePictureInput" 
+                                   value="{{ old('profile_picture_url', $currentAvatar) }}">
+                        
+                            <!-- Tombol Pilih Avatar -->
+                            <button type="button" class="btn btn-primary btn-sm btn-block" data-toggle="modal" data-target="#avatarModal">
+                                Pilih Avatar
+                            </button>
+                        
+                            @error('profile_picture_url')
+                                <div class="text-danger mt-2">{{ $message }}</div>
+                            @enderror   
+                        </div>
+                    </div>  
+                </div>
 
                     <!-- Form Edit Profil -->
                     <div class="col-xl-8 col-md-12 mb-4">
@@ -200,4 +234,45 @@
             </div>
         </div>
     </div>
+
+
+<!-- Modal Pilih Avatar -->
+<div class="modal fade" id="avatarModal" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="avatarModalLabel">Pilih Avatar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    @for ($i = 1; $i <= 6; $i++)
+                    <div class="col-4 col-md-2 mb-3 text-center">
+                        <img src="{{ asset("assets/profile-images/avatar-$i.png") }}"
+                             class="img-fluid rounded-circle border avatar-option"
+                             style="cursor:pointer; width: 80px; height: 80px; object-fit: cover;"
+                             onclick="selectAvatar('assets/profile-images/avatar-{{$i}}.png')">
+                    </div>
+                    @endfor
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
+@push('scripts')
+<script>
+    function selectAvatar(relativePath) {
+        const fullUrl = "{{ asset('') }}" + relativePath;
+        // Update preview avatar
+        document.getElementById('selectedAvatar').src = fullUrl;
+        // Set path relatif ke input hidden
+        document.getElementById('profilePictureInput').value = relativePath;
+        
+        // Tutup modal
+        $('#avatarModal').modal('hide');
+    }
+</script>
+@endpush

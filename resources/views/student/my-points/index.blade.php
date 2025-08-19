@@ -5,16 +5,16 @@
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Poin Saya</h5>
                         <p class="m-b-0">Lihat total poin dan riwayat perolehan poin Anda di setiap kursus.</p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
                         <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Poinku</a></li>
+                        <li class="breadcrumb-item"><a href="#!">Poin & Riwayat</a></li>
                     </ul>
                 </div>
             </div>
@@ -141,8 +141,8 @@
                                                             @endif
                                                         </td>
                                                         <td class="text-center">
-                                                            <button class="btn btn-inverse btn-sm" data-toggle="modal" data-target="#historyModal-{{ $course->id }}">
-                                                                Lihat Riwayat
+                                                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#historyModal-{{ $course->id }}">
+                                                                <i class="fa fa-eye"></i> Lihat Riwayat
                                                             </button>
                                                         </td>
                                                     </tr>
