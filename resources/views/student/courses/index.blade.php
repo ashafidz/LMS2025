@@ -34,7 +34,10 @@
                                     <img class="card-img-top" src="{{ $course->thumbnail_url ? Storage::url($course->thumbnail_url) : 'https://placehold.co/600x400/e0edff/007bff?text=Kursus' }}" alt="{{ $course->title }}" style="height: 180px; object-fit: cover;">
                                     <div class="card-block">
                                         <h5 class="card-title">{{ $course->title }}</h5>
-                                        <p class="card-text text-muted">{{ $course->instructor->name }}</p>
+                                        <a class="card-text text-muted mb-2" href="{{ route('profile.show', $course->instructor->id) }}">
+                                            <p class="card-text text-muted mb-2">{{ $course->instructor->name }}</p>
+                                        </a>
+
                                         
                                         {{-- Progress Bar --}}
                                         @php

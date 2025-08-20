@@ -31,7 +31,7 @@
                             @forelse ($enrolledStudents as $student)
                                 <tr>
                                     <td class="text-center" >{{ $student->studentProfile->unique_id_number ? $student->studentProfile->unique_id_number : '-' }}</td>
-                                    <td>{{ $student->name }}</td>
+                                    <td><a href="{{ route('profile.show', $student->id) }}">{{ $student->name }}</a></td>
                                     <td>{{ $student->email }}</td>
                                     <!--<td class="text-right font-weight-bold">{{ number_format($student->points_earned, 0, ',', '.') }}</td>-->
                                 </tr>

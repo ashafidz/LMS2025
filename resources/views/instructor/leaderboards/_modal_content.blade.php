@@ -33,7 +33,7 @@
                     ">
                         <td class="font-weight-bold">#{{ $index + 1 }}</td>
                         <td class="text-center" >{{ $rank->user->studentProfile->unique_id_number ? $rank->user->studentProfile->unique_id_number : '-' }}</td>
-                        <td>{{ $rank->user->name }}</td>
+                        <td><a href="{{ route('profile.show', $rank->user->id) }}">{{ $rank->user->name }}</a></td>
                         {{-- Use 'points_earned' for course leaderboards, 'total_points' for modules --}}
                         <td class="text-right font-weight-bold">{{ number_format($rank->points_earned ?? $rank->total_points, 0, ',', '.') }} <span><i class="bi bi-star-fill text-warning"></i></span></td>
                     </tr>

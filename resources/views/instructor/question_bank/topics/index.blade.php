@@ -87,11 +87,16 @@
                                                         </td>
                                                         <td class="text-center">
                                                             <a href="{{ route('instructor.question-bank.questions.index', $topic) }}" class="btn btn-dark  btn-sm"><i class="bi bi-eye me-1"></i>Lihat Soal</a>
-                                                            <a href="{{ route('instructor.question-bank.topics.edit', $topic->id) }}" class="btn btn-info btn-sm {{ $topic->is_locked ? 'disabled' : '' }}" {{ $topic->is_locked ? 'onclick="return false;"' : '' }}><i class="fa fa-pencil"></i>Edit</a>
+                                                            {{-- <a href="{{ route('instructor.question-bank.topics.edit', $topic->id) }}" class="btn btn-info btn-sm {{ $topic->is_locked ? 'disabled' : '' }}" {{ $topic->is_locked ? 'onclick="return false;"' : '' }}><i class="fa fa-pencil"></i>Edit</a> --}}
+                                                            <a href="{{ route('instructor.question-bank.topics.edit', $topic->id) }}" class="btn btn-info btn-sm"><i class="fa fa-pencil"></i>Edit</a>
                                                             <form action="{{ route('instructor.question-bank.topics.destroy', $topic->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus topik ini?');">
                                                                 @csrf
                                                                 @method('DELETE')
-                                                                <button type="submit" class="btn btn-danger btn-sm {{ $topic->is_locked ? 'disabled' : '' }}"><i class="fa fa-trash"></i>Hapus</button>
+                                                                <button type="submit" 
+                                                                        class="btn btn-danger btn-sm {{ $topic->is_locked ? 'disabled' : '' }}" 
+                                                                        {{ $topic->is_locked ? 'disabled' : '' }}>
+                                                                    <i class="fa fa-trash"></i>Hapus
+                                                                </button>
                                                             </form>
                                                         </td>
                                                     </tr>

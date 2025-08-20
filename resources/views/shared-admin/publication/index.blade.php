@@ -58,7 +58,11 @@
                                                     <tr>
                                                         <th scope="row">{{ $loop->iteration + $pendingCourses->firstItem() - 1 }}</th>
                                                         <td>{{ $course->title }}</td>
-                                                        <td>{{ $course->instructor->name }}</td>
+                                                        <td>
+                                                            <a href="{{ route('profile.show', $course->instructor->id) }}">
+                                                                {{ $course->instructor->name }}
+                                                            </a>
+                                                        </td>
                                                         <td>{{ $course->category->name }}</td>
                                                         <td>{{ $course->updated_at->format('d F Y') }}</td>
                                                         <td class="text-center">

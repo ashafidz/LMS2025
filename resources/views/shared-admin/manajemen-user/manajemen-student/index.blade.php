@@ -112,13 +112,15 @@
                                                             </td>
                                                             <td>
                                                                 <div class="d-inline-block align-middle">
-                                                                    {{-- retrive from users profile_picture_url --}}
-                                                                    <img src="{{ $student_status_data->user->profile_picture_url ? asset($student_status_data->user->profile_picture_url) : 'https://placehold.co/32x32/EBF4FF/767676?text=SA' }}"
-                                                                        alt="user image"
-                                                                        class="img-radius img-40 align-top m-r-15" />
+                                                                    <a href="{{ route('users.show', $student_status_data->user->id) }}">
+                                                                        {{-- retrive from users profile_picture_url --}}
+                                                                        <img src="{{ $student_status_data->user->profile_picture_url ? asset($student_status_data->user->profile_picture_url) : 'https://placehold.co/32x32/EBF4FF/767676?text=SA' }}"
+                                                                            alt="user image"
+                                                                            class="img-radius img-40 align-top m-r-15" />
+                                                                    </a>
                                                                     <div class="d-inline-block">
                                                                         <h6>
-                                                                            {{ $student_status_data->user->name }}
+                                                                            <a href="{{ route('users.show', $student_status_data->user->id) }}">{{ $student_status_data->user->name }}</a>
                                                                         </h6>
                                                                         <p class="text-muted m-b-0">
                                                                             {{ $student_status_data->headline }}

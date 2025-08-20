@@ -4,6 +4,7 @@
     <table class="table table-hover">
         <thead>
             <tr>
+                <th class="text-center">NIM/NIDN/NIP</th>
                 <th>Nama Siswa</th>
                 <th>Waktu Pengumpulan</th>
                 <th>Nilai</th>
@@ -13,7 +14,8 @@
         <tbody>
             @forelse ($submissions as $submission)
                 <tr>
-                    <td>{{ $submission->user->name }}</td>
+                    <td class="text-center">{{ $submission->user->studentProfile->unique_id_number ? $submission->user->studentProfile->unique_id_number : '-' }}</td>
+                    <td><a href="{{ route('profile.show', $submission->user->id) }}">{{ $submission->user->name }}</a></td>
                     <td>{{ $submission->submitted_at->format('d F Y, H:i') }}</td>
                     <td>
                         @if(!is_null($submission->grade))

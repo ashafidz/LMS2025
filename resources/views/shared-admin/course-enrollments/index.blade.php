@@ -46,7 +46,9 @@
                                                 @forelse ($courses as $course)
                                                     <tr>
                                                         <td>{{ $course->title }}</td>
-                                                        <td>{{ $course->instructor->name }}</td>
+                                                        <td>
+                                                            <a href="{{ route('profile.show', $course->instructor->id) }}">{{ $course->instructor->name }}</a>
+                                                        </td>
                                                         <td>
                                                             @php
                                                                 $statusClasses = [

@@ -17,8 +17,10 @@
         @forelse ($allPlatformReviews as $review)
             <div class="col-lg-4" data-aos="fade-up" data-aos-delay="{{ ($loop->index % 3 + 1) * 100 }}">
                 <div class="testimonial-item">
-                    <img src="{{ asset($review->user->profile_picture_url ?? 'assets/profile-images/avatar-1.png') }}" class="testimonial-img" alt="">
-                    <h3>{{ $review->user->name }}</h3>
+                    <a href="{{ route('profile.show', $review->user->id) }}">
+                        <img src="{{ asset($review->user->profile_picture_url ?? 'assets/profile-images/avatar-1.png') }}" class="testimonial-img" alt="">
+                        <h3>{{ $review->user->name }}</h3>
+                    </a>
                     <h4>{{ $review->user->studentProfile->headline ?? 'Siswa' }}</h4>
                     <div class="stars">
                         @for ($i = 1; $i <= 5; $i++)

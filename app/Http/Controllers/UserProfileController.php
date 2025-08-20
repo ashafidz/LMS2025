@@ -20,15 +20,15 @@ class UserProfileController extends Controller
 
 
         // Load the profile only if the role requires it
-        if ($activeRole === "student" && $user->studentProfile) {
+        if ($activeRole == "student") {
             $profile = $user->studentProfile;
-        } elseif ($activeRole === "instructor" && $user->instructorProfile) {
+        } elseif ($activeRole == "instructor") {
             $profile = $user->instructorProfile;
         }
 
         // For admins/superadmins, $profile will correctly remain null.
         // return for student and instructor\
-        if ($activeRole === "student" || $activeRole === "instructor") {
+        if ($activeRole == "student" || $activeRole == "instructor") {
             return view("profile.profile-student_instructor", compact("user", "profile"));
         } elseif (Auth::user()->hasRole('admin') || Auth::user()->hasRole('superadmin')) {
             return view("profile.profile-admin_superadmin", compact("user", "profile"));
@@ -39,18 +39,31 @@ class UserProfileController extends Controller
      */
     public function edit(Request $request)
     {
-        $user = $request->user();
+        $user = Auth::user();
         $profile = null; // Default to null
 
         // Get the active role from the session
         $activeRole = $request->session()->get("active_role");
 
         // Load the profile only if the role requires it
-        if ($activeRole === "student" && $user->studentProfile) {
+        if ($activeRole == "student") {
             $profile = $user->studentProfile;
-        } elseif ($activeRole === "instructor" && $user->instructorProfile) {
+        } elseif ($activeRole == "instructor") {
             $profile = $user->instructorProfile;
         }
+
+        // --- ADD THIS BLOCK ---
+        // This overwrites any stale 'old_input' in the session with the correct
+        // data from the profile we just loaded.
+        if ($profile) {
+            $profileData = $profile->toArray();
+            // We also need the user's data for fields like 'name', 'address', etc.
+            $userData = $user->toArray();
+            // Merge them, with profile data taking precedence if keys overlap
+            $request->session()->flash('_old_input', array_merge($userData, $profileData));
+        }
+        // --- END OF NEW BLOCK ---
+
 
         // Ambil semua badge yang sudah dimiliki pengguna
         $unlockedBadges = $user->badges()->get();
@@ -59,7 +72,7 @@ class UserProfileController extends Controller
         // For admins/superadmins, $profile will correctly remain null.
 
         // return for student and instructor\
-        if ($activeRole === "student" || $activeRole === "instructor") {
+        if ($activeRole == "student" || $activeRole == "instructor") {
             return view("profile.edit-student_instructor", compact("user", "profile", 'unlockedBadges'));
         } elseif (Auth::user()->hasRole('admin') || Auth::user()->hasRole('superadmin')) {
             return view("profile.edit-admin_superadmin", compact("user", "profile"));
@@ -81,12 +94,11 @@ class UserProfileController extends Controller
             'address' => ['nullable', 'string'],
             // 'profile_picture' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // 2MB Max
             'equipped_badge_id' => 'nullable|exists:badges,id',
-            'unique_id_number' => 'nullable|string|max:255',
             'profile_picture_url' => 'nullable|string|starts_with:assets/profile-images/',
         ];
 
         // Add profile-specific validation if the user is a student or instructor
-        if ($activeRole === 'student' || $activeRole === 'instructor') {
+        if ($activeRole == 'student' || $activeRole == 'instructor') {
             $validationRules = array_merge($validationRules, [
                 'headline' => ['nullable', 'string', 'max:255'],
                 'bio' => ['nullable', 'string'],
@@ -133,8 +145,8 @@ class UserProfileController extends Controller
         $user->update($userData);
 
         // --- UPDATE PROFILE (for students/instructors) ---
-        if ($activeRole === 'student' || $activeRole === 'instructor') {
-            $profile = $activeRole === 'student' ? $user->studentProfile : $user->instructorProfile;
+        if ($activeRole == 'student' || $activeRole == 'instructor') {
+            $profile = $activeRole == 'student' ? $user->studentProfile : $user->instructorProfile;
 
             if ($profile) {
                 $profile->update([

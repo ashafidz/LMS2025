@@ -89,8 +89,11 @@
                                                             <a href="{{ route('instructor.courses.modules.index', $course->id) }}" class="btn btn-success btn-sm" title="Kelola Modul">
                                                                 <i class="fa fa-list-ul"></i> Modul
                                                             </a>
+                                                            <a href="{{ route('instructor.recap.index', $course->id) }}" class="btn btn-success btn-sm" title="Rekap">
+                                                                <i class="fa fa-list-ul"></i> Rekap
+                                                            </a>
                                                             <button type="button" class="btn btn-warning btn-sm leaderboard-btn text-dark" data-url="{{ route('instructor.course.leaderboard', $course->id) }}" title="Lihat Papan Peringkat Kursus">
-                                                                <i class="fa fa-bar-chart text-dark"></i> Peringkat
+                                                                <i class="fa fa-bar-chart text-dark"></i> Data Student
                                                             </button>
 
                                                             @if(in_array($course->status, ['draft', 'rejected']))
@@ -115,15 +118,15 @@
 
                                                         </td>
                                                         <td class="text-center">
-                                                                                                                        <a href="{{ route('instructor.courses.edit', $course->id) }}" class="btn btn-info btn-sm" title="Edit Kursus">
-                                                                <i class="fa fa-pencil"></i> Edit
+                                                            <a href="{{ route('instructor.courses.edit', $course->id) }}" class="btn btn-info btn-sm" title="Edit Kursus">
+                                                                <i class="fa fa-pencil"></i>
                                                             </a>
                                                             
                                                                                                                         {{-- TOMBOL BARU UNTUK CLONE --}}
                                                             <form action="{{ route('instructor.courses.clone', $course->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin meng-clone kursus ini?');">
                                                                 @csrf
-                                                                <button type="submit" class="btn btn-warning btn-sm" title="Clone Kursus">
-                                                                    <i class="fa fa-clone"></i> Clone
+                                                                <button type="submit" class="btn btn-warning btn-sm text-dark" title="Clone Kursus">
+                                                                    <i class="fa fa-clone"></i>
                                                                 </button>
                                                             </form>
                                                             
@@ -131,7 +134,7 @@
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <button type="submit" class="btn btn-danger btn-sm" title="Hapus Kursus">
-                                                                    <i class="fa fa-trash"></i> Hapus
+                                                                    <i class="fa fa-trash"></i>
                                                                 </button>
                                                             </form>
 

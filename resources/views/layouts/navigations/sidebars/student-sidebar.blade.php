@@ -67,6 +67,13 @@
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>
+                                    <li class="{{ Request::routeIs('student.certificates.index') ? 'active' : '' }}">
+                                        <a href="{{ route('student.certificates.index') }}" class="waves-effect waves-dark">
+                                            <span class="pcoded-micon"><i class="fa fa-graduation-cap"></i><b>D</b></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Sertifikatku</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
                                     {{-- <li class="{{ Request::routeIs('student.diamonds.index') ? 'active' : '' }}">
                                         <a href="{{ route('student.diamonds.index') }}" class="waves-effect waves-dark">
                                             <span class="pcoded-micon"><i class="ti-gift"></i><b>D</b></span>

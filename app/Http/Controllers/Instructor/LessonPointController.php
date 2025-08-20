@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Lesson;
 use App\Services\PointService;
 use Illuminate\Http\Request;
+use App\Models\User; // Pastikan User di-import
+use App\Models\LessonPointAward; // Import model baru
+use Illuminate\Support\Facades\Auth; // Import Auth
 
 class LessonPointController extends Controller
 {
@@ -23,8 +26,21 @@ class LessonPointController extends Controller
         ]);
         $student = \App\Models\User::find($validated['user_id']);
         $course = $lesson->module->course;
-        $description = "Poin manual dari pelajaran: " . $lesson->title;
-        PointService::addManualPoints($student, $course, $lesson, $validated['points'], $description);
+
+        // 1. Simpan catatan pemberian poin di tabel baru yang spesifik
+        LessonPointAward::create([
+            'lesson_id' => $lesson->id,
+            'student_id' => $student->id,
+            'instructor_id' => Auth::id(),
+            'points' => $validated['points'],
+        ]);
+
+        // $description = "Poin manual dari pelajaran: " . $lesson->title;
+        // PointService::addManualPoints($student, $course, $lesson, $validated['points'], $description);
+
+        // 2. Gunakan PointService untuk memperbarui total poin dan riwayat umum
+        $description = "Menerima " . $validated['points'] . " poin dari instruktur di sesi: " . $lesson->title;
+        PointService::addManualPoints($student, $course, $lesson, $validated['points'],); // Kita modifikasi service sedikit
         return back()->with('success', 'Poin berhasil diberikan kepada ' . $student->name);
     }
 }

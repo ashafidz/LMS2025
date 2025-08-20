@@ -187,13 +187,18 @@
             <h5 class="fw-bold mb-4">Ulasan dari Siswa</h5>
             @forelse ($reviews as $review)
                 <div class="d-flex mb-4">
-                    <img src="{{ $review->user->profile_picture_url ? asset('storage/' . ltrim($review->user->profile_picture_url, '/')) :  'https://placehold.co/80x80/EBF4FF/767676?text=' . strtoupper(substr($review->user->name, 0, 1)) }}" 
+                  <a href="{{ route('profile.show', $review->user->id) }}">
+                    <img src="{{ $review->user->profile_picture_url ? asset($review->user->profile_picture_url) :  'https://placehold.co/80x80/EBF4FF/767676?text=' . strtoupper(substr($review->user->name, 0, 1)) }}" 
                          alt="{{ $review->user->name }}" 
                          class="rounded-circle me-3" 
                          style="width: 50px; height: 50px; object-fit: cover;">
+                  </a>
                     <div class="flex-grow-1">
                         <div class="d-flex align-items-center">
+                          <a href="{{ route('profile.show', $review->user->id) }}">
                           <h6 class="fw-bold mb-0">{{ $review->user->name }}</h6>
+                          </a>
+
                           @if ($review->user->equippedBadge)
                             <span class="bg-primary rounded-pill px-2 py-1 text-white fw-bold small mx-1">
                               {{ $review->user->equippedBadge->title }}

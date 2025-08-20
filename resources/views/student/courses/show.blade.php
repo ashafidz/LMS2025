@@ -144,10 +144,10 @@
                                                     <!-- Accordion Content (List of Lessons) -->
                                                     <div class="module-content">
                                                         <ul class="list-group list-group-flush">
-                                                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                                <a href="#" class="load-leaderboard-btn text-dark" data-module-id="{{ $module->id }}">
+                                                             <li class="list-group-item d-flex justify-content-center align-items-center">
+                                                                <a href="#" class="load-leaderboard-btn text-dark text-center font-weight-bold" data-module-id="{{ $module->id }}">
                                                                     <i class="fa fa-bar-chart mr-2"></i>
-                                                                    Leaderboard {{ $module->title }}
+                                                                    Leaderboard 
                                                                 </a>
                                                             </li>
                                                             @foreach ($module->lessons as $lesson)

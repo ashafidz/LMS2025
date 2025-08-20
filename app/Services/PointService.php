@@ -157,10 +157,11 @@ class PointService
     /**
      * Menambahkan poin secara manual oleh instruktur untuk pelajaran tipe 'lessonpoin'.
      */
-    public static function addManualPoints(User $user, Course $course, Lesson $lesson, int $pointsToAdd, string $description)
+    public static function addManualPoints(User $user, Course $course, Lesson $lesson, int $pointsToAdd,)
     {
         if ($pointsToAdd > 0) {
-            $course = $lesson->module->course;
+            // $course = $lesson->module->course;
+            $description = "Menerima poin dari sesi: " . $lesson->title;
             DB::transaction(function () use ($user, $course, $lesson, $pointsToAdd, $description) {
                 // $courseUser = $user->coursePoints()->where('course_id', $course->id)->first();
                 // if ($courseUser) {
@@ -178,6 +179,14 @@ class PointService
                         'points_earned' => DB::raw('points_earned + ' . $pointsToAdd)
                     ]
                 );
+
+                // $user->pointHistories()->create([
+                //     'course_id' => $course->id,
+                //     'lesson_id' => $lesson->id,
+                //     'points' => $pointsToAdd,
+                //     'description' => $description,
+                // ]);
+
 
                 $user->pointHistories()->create([
                     'course_id' => $course->id,

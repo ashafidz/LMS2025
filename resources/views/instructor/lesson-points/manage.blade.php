@@ -49,6 +49,7 @@
                                         <table class="table table-hover">
                                             <thead>
                                                 <tr>
+                                                    <th class="text-center" >NIM/NIDN/NIP</th>
                                                     <th>Nama Siswa</th>
                                                     <th>Total Poin di Kursus Ini</th>
                                                     <th style="width: 150px;">Beri Poin</th>
@@ -58,7 +59,8 @@
                                             <tbody>
                                                 @forelse ($students as $student)
                                                     <tr>
-                                                        <td>{{ $student->name }}</td>
+                                                        <td class="text-center" >{{ $student->unique_id_number ? $student->unique_id_number : '-' }}</td>
+                                                        <td><a href="{{ route('profile.show', $student->id) }}">{{ $student->name }}</a></td>
                                                         <td>
                                                             {{-- Ambil total poin dari relasi pivot --}}
                                                             <strong>{{ $student->coursePoints->first()->pivot->points_earned ?? 0 }}</strong> Poin

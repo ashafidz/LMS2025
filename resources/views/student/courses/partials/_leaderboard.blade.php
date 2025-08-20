@@ -35,11 +35,13 @@
                         <td class="font-weight-bold">#{{ $index + 1 }}</td>
                         <td class="text-center" >{{ $rank->user->studentProfile->unique_id_number ? $rank->user->studentProfile->unique_id_number : '-' }}</td>
                         <td>
-                            {{ $rank->user->name }}
-                            {{-- Keep the badge to highlight the current user --}}
-                            @if($rank->user_id === Auth::id())
-                                <span class="badge badge-primary">Anda</span>
-                            @endif
+                            <a href="{{ route('profile.show', $rank->user->id) }}">
+                                {{ $rank->user->name }}
+                                {{-- Keep the badge to highlight the current user --}}
+                                @if($rank->user_id === Auth::id())
+                                    <span class="badge badge-primary">Anda</span>
+                                @endif
+                            </a>
                         </td>
                         <td class="text-right font-weight-bold">{{ number_format($rank->points_earned ?? $rank->total_points, 0, ',', '.') }} <span><i class="bi bi-star-fill text-warning"></i></span></td>
                     </tr>

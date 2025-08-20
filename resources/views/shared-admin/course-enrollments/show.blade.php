@@ -82,7 +82,9 @@
                                                                 </div> --}}
                                                                 <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox">
                                                             </td>
-                                                            <td>{{ $user->name }}</td>
+                                                            <td>
+                                                                <a href="{{ route('profile.show', $user->id) }}">{{ $user->name }}</a>
+                                                            </td>
                                                             <td>{{ $user->email }}</td>
                                                             <td>{{ $user->pivot->enrolled_at ? \Carbon\Carbon::parse($user->pivot->enrolled_at)->format('d M Y, H:i') : 'N/A' }}</td>
                                                             <td class="text-center">

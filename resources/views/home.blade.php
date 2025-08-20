@@ -28,7 +28,7 @@
               </p>
 
               <div class="hero-buttons">
-                <a href="#about" class="btn btn-primary me-0 me-sm-2 mx-1">Mulai</a>
+                <a href="{{ route('student.dashboard') }}" class="btn btn-primary me-0 me-sm-2 mx-1">Mulai</a>
                 <a href="https://www.youtube.com/watch?v=Y7f98aduVJ8" class="btn btn-link mt-2 mt-sm-0 glightbox">
                   <i class="bi bi-play-circle me-1"></i>
                   Lihat Video
@@ -401,8 +401,11 @@
                 @foreach($platformReviews as $review)
                 <div class="col-lg-6" data-aos="fade-up" data-aos-delay="{{ ($loop->index + 1) * 100 }}">
                     <div class="testimonial-item">
-                        <img src="{{ asset($review->user->profile_picture_url ?? 'assets/profile-images/avatar-1.png') }}" class="testimonial-img" alt="">
-                        <h3>{{ $review->user->name }}</h3>
+                        <a href="{{ route('profile.show', $review->user->id) }}">
+                          <img src="{{ asset($review->user->profile_picture_url ?? 'assets/profile-images/avatar-1.png') }}" class="testimonial-img" alt="">
+                          <h3>{{ $review->user->name }}</h3>
+                        </a>
+
                         <h4>{{ $review->user->studentProfile->headline ?? 'Siswa' }}</h4>
                         <div class="stars">
                             @for ($i = 1; $i <= 5; $i++)

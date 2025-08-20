@@ -5,13 +5,128 @@
 @section('content')
 
 {{-- Hero: Sekarang bg-nya putih --}}
-<section class="hero-section bg-white text-center" style="padding-top: 60px;">
+<section class="hero-section  text-center" style="padding-top: 60px; background-color: #edf8fd;">
     <div class="container mt-5" data-aos="fade-up">
         <h2 class="display-6 fw-bold mb-3">Temukan Kursus Impianmu</h2>
         <div class="mx-auto mb-3" style="width: 50px; height: 4px; background-color: #0d6efd;"></div>
         <p class="fs-6">Jelajahi berbagai pilihan kursus untuk meningkatkan keterampilan dan karier Anda.</p>
     </div>
 </section>
+
+
+<!-- Pricing Section -->
+<section id="pricing" class="pricing section bg-white">
+    
+    <!-- Section Title -->
+    <div class="container section-title" data-aos="fade-up">
+        <h2>Kursus yang Sering Dibeli</h2>
+        <p>Kursus-kursus ini populer dan direkomendasikan oleh banyak peserta.</p>
+    </div><!-- End Section Title -->
+
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="row g-4 justify-content-center">
+
+            {{-- Kartu untuk Kursus Terpopuler ke-2 (di sisi kiri) --}}
+            @if($secondMostPopularCourse)
+                @php $course = $secondMostPopularCourse; @endphp
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="pricing-card">
+                        <h3>{{ $course->title }}</h3>
+                        <div class="price">
+                            @if($course->payment_type === 'money')
+                                @if($course->price > 0)
+                                    <span class="currency">Rp.</span>
+                                    <span class="amount">{{ number_format($course->price, 0, ',', '.') }}</span>
+                                @else
+                                    <span class="amount">Gratis</span>
+                                @endif
+                            @elseif($course->payment_type === 'diamonds')
+                                <span class="amount" style="font-size: 1.5rem;"><i class="fa fa-diamond mr-2"></i> {{ number_format($course->diamond_price, 0, ',', '.') }}</span>
+                            @endif
+                        </div>
+                        <p class="description">{{ Str::limit($course->description, 100) }}</p>
+                        <h4>Dilengkapi:</h4>
+                        <ul class="features-list">
+                            <li><i class="bi bi-person-workspace"></i> {{ $course->lessons_count }} Materi</li>
+                            <li><i class="bi bi-people"></i> {{ $course->students_count }}+ Siswa</li>
+                            <li><i class="bi bi-award"></i> Sertifikat</li>
+                        </ul>
+                        <a href="{{ route('courses.show', $course->slug) }}" class="btn btn-primary">
+                            Detail Kursus <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            @endif
+
+            {{-- Kartu untuk Kursus PALING Populer (di tengah) --}}
+            @if($mostPopularCourse)
+                @php $course = $mostPopularCourse; @endphp
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="pricing-card popular">
+                        <div class="popular-badge">Paling Populer</div>
+                        <h3>{{ $course->title }}</h3>
+                        <div class="price">
+                            @if($course->payment_type === 'money')
+                                @if($course->price > 0)
+                                    <span class="currency">Rp.</span>
+                                    <span class="amount">{{ number_format($course->price, 0, ',', '.') }}</span>
+                                @else
+                                    <span class="amount">Gratis</span>
+                                @endif
+                            @elseif($course->payment_type === 'diamonds')
+                                <span class="amount" style="font-size: 1.5rem;"><i class="fa fa-diamond mr-2"></i> {{ number_format($course->diamond_price, 0, ',', '.') }}</span>
+                            @endif
+                        </div>
+                        <p class="description">{{ Str::limit($course->description, 100) }}</p>
+                        <h4>Dilengkapi:</h4>
+                        <ul class="features-list">
+                            <li><i class="bi bi-person-workspace"></i> {{ $course->lessons_count }} Materi</li>
+                            <li><i class="bi bi-people"></i> {{ $course->students_count }}+ Siswa</li>
+                            <li><i class="bi bi-award"></i> Sertifikat</li>
+                        </ul>
+                        <a href="{{ route('courses.show', $course->slug) }}" class="btn btn-light">
+                            Detail Kursus <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            @endif
+
+            {{-- Kartu untuk Kursus Terpopuler ke-3 (di sisi kanan) --}}
+            @if($thirdMostPopularCourse)
+                @php $course = $thirdMostPopularCourse; @endphp
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="pricing-card">
+                        <h3>{{ $course->title }}</h3>
+                        <div class="price">
+                            @if($course->payment_type === 'money')
+                                @if($course->price > 0)
+                                    <span class="currency">Rp.</span>
+                                    <span class="amount">{{ number_format($course->price, 0, ',', '.') }}</span>
+                                @else
+                                    <span class="amount">Gratis</span>
+                                @endif
+                            @elseif($course->payment_type === 'diamonds')
+                                <span class="amount" style="font-size: 1.5rem;"><i class="fa fa-diamond mr-2"></i> {{ number_format($course->diamond_price, 0, ',', '.') }}</span>
+                            @endif
+                        </div>
+                        <p class="description">{{ Str::limit($course->description, 100) }}</p>
+                        <h4>Dilengkapi:</h4>
+                        <ul class="features-list">
+                            <li><i class="bi bi-person-workspace"></i> {{ $course->lessons_count }} Materi</li>
+                            <li><i class="bi bi-people"></i> {{ $course->students_count }}+ Siswa</li>
+                            <li><i class="bi bi-award"></i> Sertifikat</li>
+                        </ul>
+                        <a href="{{ route('courses.show', $course->slug) }}" class="btn btn-primary">
+                            Detail Kursus <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            @endif
+
+        </div>
+    </div>
+</section><!-- /Pricing Section -->
 
 {{-- Section utama: Sekarang pakai bg #edf8fd --}}
 <section class="py-5" style="background-color: #edf8fd;">

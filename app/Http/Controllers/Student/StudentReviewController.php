@@ -90,7 +90,7 @@ class StudentReviewController extends Controller
     public function updateCourseReview(Request $request, CourseReview $review)
     {
         // Pastikan pengguna hanya bisa mengedit ulasannya sendiri
-        if ($review->user_id !== Auth::id()) {
+        if ($review->user_id != Auth::id()) {
             abort(403);
         }
 
@@ -125,7 +125,7 @@ class StudentReviewController extends Controller
      */
     public function updateInstructorReview(Request $request, InstructorReview $review)
     {
-        if ($review->user_id !== Auth::id()) {
+        if ($review->user_id != Auth::id()) {
             abort(403);
         }
 

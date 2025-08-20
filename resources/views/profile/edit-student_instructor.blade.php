@@ -1,5 +1,6 @@
 @extends('layouts.app-layout')
 
+
 @section('content')
     <div class="pcoded-content">
         <div class="pcoded-inner-content px-3" style="padding-top: 32px;">

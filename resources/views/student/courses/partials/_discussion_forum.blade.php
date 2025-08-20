@@ -23,19 +23,25 @@
     {{-- Daftar Komentar yang Sudah Ada --}}
     @forelse ($discussions as $discussion)
         <div class="media mb-4">
-            <img class="d-flex mr-3 rounded-circle"
-                src="{{ $discussion->user->profile_picture_url ? asset('storage/' . ltrim($discussion->user->profile_picture_url, '/')) : 'https://placehold.co/50x50' }}"
+            <a href="{{ route('profile.show', $discussion->user->id) }}">
+                <img class="d-flex mr-3 rounded-circle"
+                src="{{ $discussion->user->profile_picture_url ? asset($discussion->user->profile_picture_url) : 'https://placehold.co/50x50' }}"
                 alt="User Avatar" style="width: 50px; height: 50px;">
+            </a>
+
             <div class="media-body">
                 <div class="mt-0 d-flex align-items-center gap-2">
-                    <h5 class="d-flex align-items-center mr-1">
-                        {{ $discussion->user->name }}
-                        @if ($discussion->user->equippedBadge)
-                            <span class="badge badge-primary mx-1">
-                                {{ $discussion->user->equippedBadge->title }}
-                            </span>
-                        @endif
-                    </h5>
+                    <a href="{{ route('profile.show', $discussion->user->id) }}">
+                        <h5 class="d-flex align-items-center mr-1">
+                            {{ $discussion->user->name }}
+                            @if ($discussion->user->equippedBadge)
+                                <span class="badge badge-primary mx-1">
+                                    {{ $discussion->user->equippedBadge->title }}
+                                </span>
+                            @endif
+                        </h5>
+                    </a>
+
                     <small class="text-muted mx-1">- {{ $discussion->created_at->diffForHumans() }}</small>
                 </div>
 
@@ -48,7 +54,7 @@
                         data-target="#reply-form-{{ $discussion->id }}">Balas</a>
 
                     {{-- Tampilkan tombol Hapus hanya untuk pemilik komentar --}}
-                    @if (Auth::user()->id === $discussion->user_id)
+                    @if (Auth::user()->id == $discussion->user_id)
                         <span class="text-muted small mx-1">&middot;</span>
                         <form action="{{ route('student.lessons.discussions.destroy', $discussion->id) }}"
                             method="POST" class="d-inline"
@@ -75,20 +81,22 @@
                 {{-- Menampilkan Balasan --}}
                 @foreach ($discussion->replies as $reply)
                     <div class="media mt-4">
-                        <a class="d-flex pr-3" href="#">
-                            <img src="{{ $reply->user->profile_picture_url ? asset('storage/' . ltrim($reply->user->profile_picture_url, '/')) : 'https://placehold.co/40x40' }}"
+                        <a class="d-flex pr-3" href="{{ route('profile.show', $reply->user->id) }}">
+                            <img src="{{ $reply->user->profile_picture_url ? asset($reply->user->profile_picture_url) : 'https://placehold.co/40x40' }}"
                                 alt="User Avatar" class="rounded-circle" style="width: 40px; height: 40px;">
                         </a>
                         <div class="media-body">
                             <div class="mt-0 d-flex align-items-center gap-2">
-                                <h5 class="d-flex align-items-center mr-1">
-                                    {{ $reply->user->name }}
-                                    @if ($reply->user->equippedBadge)
-                                        <span class="badge badge-primary mx-1">
-                                            {{ $reply->user->equippedBadge->title }}
-                                        </span>
-                                    @endif
-                                </h5>
+                                <a href="{{ route('profile.show', $reply->user->id) }}">
+                                    <h5 class="d-flex align-items-center mr-1">
+                                        {{ $reply->user->name }}
+                                        @if ($reply->user->equippedBadge)
+                                            <span class="badge badge-primary mx-1">
+                                                {{ $reply->user->equippedBadge->title }}
+                                            </span>
+                                        @endif
+                                    </h5>
+                                </a>
                                 <small class="text-muted mx-1">- {{ $reply->created_at->diffForHumans() }}</small>
                             </div>
                             {{-- <h5 class="mt-0">{{ $reply->user->name }} <small class="text-muted">- {{ $reply->created_at->diffForHumans() }}</small></h5> --}}
@@ -96,7 +104,7 @@
 
                             {{-- Tampilkan tombol Hapus hanya untuk pemilik komentar --}}
                             @if (!$reply->is_deleted)
-                                @if (Auth::user()->id === $reply->user_id)
+                                @if (Auth::user()->id == $reply->user_id)
                                     <br>
                                     <form action="{{ route('student.lessons.discussions.destroy', $reply->id) }}"
                                         method="POST" class="d-inline"

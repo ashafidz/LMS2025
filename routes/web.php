@@ -5,9 +5,11 @@ use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RoleSwitchController;
+use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\Student\CartController;
 use App\Http\Controllers\Shared\CouponController;
@@ -40,15 +42,17 @@ use App\Http\Controllers\Student\LessonDiscussionController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\Instructor\InstructorQuizController;
 use App\Http\Controllers\Student\DiamondConversionController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\TestimonialController;
 
 use App\Http\Controllers\Student\StudentAssignmentController;
+use App\Http\Controllers\Instructor\InstructorRecapController;
 use App\Http\Controllers\Student\TransactionHistoryController;
 use App\Http\Controllers\Shared\InstructorApplicationController;
+use App\Http\Controllers\PublicProfileController; // Tambahkan ini
 use App\Http\Controllers\Instructor\InstructorAssignmentController;
 use App\Http\Controllers\Instructor\InstructorLeaderboardController;
+
 use App\Http\Controllers\Student\CourseController as StudentCourseController;
+use App\Http\Controllers\Student\StudentCertificateController; // Tambahkan ini
 
 // Route::get('/neweditprofil', function () {
 //     return view('1edit-index');
@@ -79,6 +83,9 @@ Route::get('/testimonials', [TestimonialController::class, 'index'])->name('test
 
 // RUTE BARU UNTUK LEADERBOARD
 Route::get('/courses/{course}/leaderboard', [StudentCourseController::class, 'getLeaderboard'])->name('student.course.leaderboard');
+// RUTE BARU UNTUK HALAMAN PROFIL PUBLIK
+Route::get('/profile/{user}', [PublicProfileController::class, 'show'])->name('profile.show');
+
 
 
 // di dalam file routes/web.php RUTE LEADERBOARD MODULE
@@ -406,6 +413,15 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
 
         // RUTE BARU UNTUK MENG-CLONE KURSUS
         Route::post('/instructor/courses/{course}/clone', [CourseController::class, 'clone'])->name('instructor.courses.clone');
+
+
+        // --- RUTE UNTUK REKAP NILAI ---
+        Route::get('/instructor/courses/{course}/recap', [InstructorRecapController::class, 'index'])->name('instructor.recap.index');
+        Route::get('/instructor/modules/{module}/recap-data', [InstructorRecapController::class, 'getModuleRecapData'])->name('instructor.recap.module_data');
+
+        // RUTE BARU UNTUK UNDUH
+        Route::get('/instructor/modules/{module}/recap/pdf', [InstructorRecapController::class, 'downloadPdf'])->name('instructor.recap.download_pdf');
+        Route::get('/instructor/modules/{module}/recap/excel', [InstructorRecapController::class, 'downloadExcel'])->name('instructor.recap.download_excel');
     });
 });
 
@@ -460,6 +476,9 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
     //! This nested group IS protected by the status-checking middleware.
     Route::middleware(['checkStudentStatus'])->group(function () {
         Route::view('/student/dashboard', 'student.dashboard')->name('student.dashboard');
+
+        // RUTE BARU UNTUK HALAMAN SERTIFIKAT SAYA
+        Route::get('/my-certificates', [StudentCertificateController::class, 'index'])->name('student.certificates.index');
 
 
 
