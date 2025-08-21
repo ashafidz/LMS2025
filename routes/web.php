@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers;
+use App\Http\Controllers\AboutController;
 use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -53,6 +54,7 @@ use App\Http\Controllers\Instructor\InstructorLeaderboardController;
 
 use App\Http\Controllers\Student\CourseController as StudentCourseController;
 use App\Http\Controllers\Student\StudentCertificateController; // Tambahkan ini
+use App\Http\Controllers\Superadmin\AdminManagementController; // Tambahkan ini
 
 // Route::get('/neweditprofil', function () {
 //     return view('1edit-index');
@@ -119,15 +121,16 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // })->name('courses');
 Route::get('/courses', [CatalogController::class, 'index'])->name('courses');
 Route::get('/courses/{course:slug}', [CatalogController::class, 'show'])->name('courses.show');
-Route::get('/about', function () {
-    return view('about');
-})->name('about');
+Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
 Route::get('/faqs', function () {
     return view('faq');
 })->name('faqs');
+Route::get('/detail-service', function () {
+    return view('detail-layanan');
+})->name('services.detail');
 
 
 
@@ -224,6 +227,13 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
 
     // --- RUTE BARU UNTUK MANAJEMEN KATEGORI KURSUS ---
     Route::resource('/superadmin/course-categories', CourseCategoryController::class, [
+        'as' => 'superadmin'
+    ])->except(['show']);
+
+
+
+    // --- RUTE BARU UNTUK MANAJEMEN ADMIN ---
+    Route::resource('/superadmin/admins', AdminManagementController::class, [
         'as' => 'superadmin'
     ])->except(['show']);
 });

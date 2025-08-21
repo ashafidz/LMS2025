@@ -82,11 +82,11 @@
                                                 </a>
                                                 <ul class="pcoded-submenu">
                                                     <li class="">
-                                                        <a href="javascript:void(0)" class="waves-effect waves-dark">
+                                                        <a href="{{ route('superadmin.admins.index') }}" class="waves-effect waves-dark">
                                                             <span class="pcoded-micon"><i
                                                                     class="ti-angle-right"></i></span>
                                                             <span class="pcoded-mtext"
-                                                                data-i18n="nav.menu-levels.menu-level-22.menu-level-31">Manajemen User admin 1</span>
+                                                                data-i18n="nav.menu-levels.menu-level-22.menu-level-31">Kelola</span>
                                                             <span class="pcoded-mcaret"></span>
                                                         </a>
                                                     </li>

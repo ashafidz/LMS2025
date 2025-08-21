@@ -20,16 +20,32 @@ class InstructorQuizController extends Controller
             abort(403);
         }
 
+        // Load questions untuk menghitung total skor maksimal
+        $quiz->load('questions');
+        $totalMaxScore = $quiz->questions->sum('score');
+        $minimumScore = ($quiz->pass_mark / 100) * $totalMaxScore;
+
         // 1. Ambil kursus yang terkait dengan kuis ini
         $course = $quiz->lesson->module->course;
 
-        // 2. Ambil semua siswa yang terdaftar di kursus tersebut
-        $enrolledStudents = $course->students()->simplePaginate(20);
+        // 2. Ambil semua siswa yang terdaftar di kursus tersebut dan urutkan berdasarkan unique_id_number
+        $enrolledStudents = $course->students()
+            ->join('student_profiles', 'users.id', '=', 'student_profiles.user_id')
+            ->orderByRaw('
+                CASE 
+                    WHEN student_profiles.unique_id_number IS NULL THEN 1
+                    WHEN student_profiles.unique_id_number = "" THEN 1
+                    ELSE 0 
+                END ASC,
+                CAST(student_profiles.unique_id_number AS UNSIGNED) ASC
+            ')
+            ->select('users.*')
+            ->get(); // Hapus pagination, ambil semua data
 
-        // 3. Ambil semua percobaan kuis untuk siswa yang ditampilkan di halaman ini saja (efisien)
-        $studentIdsOnPage = $enrolledStudents->pluck('id');
+        // 3. Ambil semua percobaan kuis untuk semua siswa (tidak lagi dibatasi per halaman)
+        $studentIds = $enrolledStudents->pluck('id');
         $attempts = QuizAttempt::where('quiz_id', $quiz->id)
-            ->whereIn('student_id', $studentIdsOnPage)
+            ->whereIn('student_id', $studentIds)
             ->get()
             ->groupBy('student_id'); // Kelompokkan berdasarkan ID siswa
 
@@ -48,7 +64,7 @@ class InstructorQuizController extends Controller
             }
         }
 
-        return view('instructor.quizzes.results.index', compact('quiz', 'enrolledStudents'));
+        return view('instructor.quizzes.results.index', compact('quiz', 'enrolledStudents', 'minimumScore'));
     }
 
     /**

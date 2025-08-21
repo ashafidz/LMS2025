@@ -52,16 +52,21 @@
         <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
-                    <div class="col-md-8">
+                    <!-- Kolom Title - Order 1 di semua device -->
+                    <div class="col-md-8 order-1">
                         <div class="page-header-title">
                             <h5 class="m-b-10">{{ $course->title }}</h5>
                             <p class="m-b-0">Oleh: {{ $course->instructor->name }}</p>
                         </div>
                     </div>
-                    <div class="col-md-4 ">
-                        <h5 class="text-right" >Pointmu : {{ $currentPointEarned ? $currentPointEarned : 0 }} <span><i class="bi bi-star-fill text-warning"></i></span></h5>
+                    
+                    <!-- Kolom Points - Order 3 di small device, Order 2 di medium+ -->
+                    <div class="col-md-4 order-3 order-md-2">
+                        <h5 class="md-text-right mt-2 mt-md-0 text-md-right text-left">Pointmu : {{ $currentPointEarned ? $currentPointEarned : 0 }} <span><i class="bi bi-star-fill text-warning"></i></span></h5>
                     </div>
-                    <div class="col-md-12 d-flex mt-3">
+                    
+                    <!-- Kolom Breadcrumb - Order 2 di small device, Order 3 di medium+ -->
+                    <div class="col-md-12 d-flex mt-md-3 mt-sm-1 order-2 order-md-3">
                         <ul class="breadcrumb-title">
                             <li class="breadcrumb-item"><a href="#"><i class="fa fa-home"></i></a></li>
                             <li class="breadcrumb-item"><a href="#">Kursus Saya</a></li>

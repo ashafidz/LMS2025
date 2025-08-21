@@ -112,12 +112,25 @@
         $submission = $lesson->lessonable->submissions()->where('user_id', Auth::id())->first();
     }
     $assignment = $lesson->lessonable;
+
+        // Variabel untuk mengecek apakah sudah melewati batas waktu
+    $isLate = $assignment->due_date && now()->isAfter($assignment->due_date);
 @endphp
+
 
 <h4 class="font-weight-bold">{{ $lesson->title }}</h4>
 <hr>
 
 <div class="assignment-container">
+
+
+    <p class="text-danger" ><strong>Batas Waktu:</strong> {{ $assignment->due_date ? $assignment->due_date->format('d F Y, H:i') : 'Tidak ada' }}</p>
+    @if($isLate && !$submission)
+        <div class="alert alert-danger">
+            <h5 class="font-weight-bold"><i class="fa fa-exclamation-triangle"></i> Batas Waktu Sudah Lewat</h5>
+            <p>Batas waktu untuk tugas ini telah lewat, cepat kumpulkan tugas Anda.</p>
+        </div>
+    @endif
 
 
     @if($submission)
@@ -168,10 +181,10 @@
     @endif
 
 
-
+    
     <h5 class="font-weight-bold mt-5">Instruksi Tugas</h5>
     <div class="instructions mb-4" style="white-space: pre-wrap;">{!! nl2br(e($assignment->instructions)) !!}</div>
-    <p><strong>Batas Waktu:</strong> {{ $assignment->due_date ? $assignment->due_date->format('d F Y, H:i') : 'Tidak ada' }}</p>
+    <p class="text-danger" ><strong>Batas Waktu:</strong> {{ $assignment->due_date ? $assignment->due_date->format('d F Y, H:i') : 'Tidak ada' }}</p>
     <p><strong>Nilai Kelulusan Minimum:</strong> {{ $assignment->pass_mark }}</p>
     <hr>
 

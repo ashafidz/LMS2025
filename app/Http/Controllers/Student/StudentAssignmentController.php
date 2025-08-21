@@ -7,6 +7,7 @@ use App\Models\LessonAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\PointService;
+use Carbon\Carbon;
 
 class StudentAssignmentController extends Controller
 {
@@ -15,11 +16,20 @@ class StudentAssignmentController extends Controller
      */
     public function submit(Request $request, LessonAssignment $assignment)
     {
+        // =============================================================
+        // TAMBAHKAN VALIDASI BATAS WAKTU DI SINI (WAJIB)
+        // =============================================================
+        // if ($assignment->due_date && Carbon::now()->isAfter($assignment->due_date)) {
+        //     return back()->with('error', 'Batas waktu pengumpulan tugas telah berakhir.');
+        // }
+        // =============================================================
+
+
         $user = Auth::user();
 
         // Validasi: pastikan file ada dan tipenya adalah pdf atau zip
         $validated = $request->validate([
-            'submission_file' => 'required|file|mimes:pdf,zip|max:104800', // Maksimal 20MB
+            'submission_file' => 'required|file|mimes:pdf,zip|max:20480', // Maksimal 20MB
         ]);
 
         // Cek apakah siswa sudah pernah mengumpulkan untuk tugas ini

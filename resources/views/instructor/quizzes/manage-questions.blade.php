@@ -6,13 +6,13 @@
         <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
-                    <div class="col-md-8">
+                    <div class="col-md-12">
                         <div class="page-header-title">
                             <h5 class="m-b-10">Kelola Soal Kuis</h5>
                             <p class="m-b-0">Judul Kuis: <strong>{{ $quiz->title }}</strong></p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-12 d-flex mt-3">
                         <ul class="breadcrumb-title">
                             <li class="breadcrumb-item"><a href="#!"><i class="fa fa-home"></i> </a></li>
                             <li class="breadcrumb-item"><a href="#!">Kursus Saya</a></li>

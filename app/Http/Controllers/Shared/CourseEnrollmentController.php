@@ -69,8 +69,62 @@ class CourseEnrollmentController extends Controller
             ->with('success', count($validated['user_ids']) . ' pengguna berhasil ditambahkan.');
     }
 
+    // /**
+    //  * Menghapus pendaftaran pengguna beserta semua data progresnya di dalam kursus.
+    //  */
+    // public function destroy(Request $request, Course $course)
+    // {
+    //     $validated = $request->validate([
+    //         'user_ids' => 'required|array',
+    //         'user_ids.*' => 'exists:users,id',
+    //     ]);
+
+    //     $usersToDelete = User::find($validated['user_ids']);
+    //     // $lessonIdsInCourse = $course->lessons()->pluck('id');
+    //     $lessonIdsInCourse = $course->lessons()->pluck('lessons.id');
+
+    //     DB::transaction(function () use ($course, $usersToDelete, $lessonIdsInCourse) {
+    //         foreach ($usersToDelete as $user) {
+    //             // 1. Hapus data kuis (quiz_attempts)
+    //             $user->quizAttempts()
+    //                 ->whereIn('quiz_id', function ($query) use ($lessonIdsInCourse) {
+    //                     // DIPERBARUI: Query sekarang mencari di tabel 'lessons' yang benar
+    //                     $query->select('lessonable_id')
+    //                         ->from('lessons')
+    //                         ->where('lessonable_type', \App\Models\Quiz::class)
+    //                         ->whereIn('id', $lessonIdsInCourse);
+    //                 })->delete();
+
+    //             // 2. Hapus data tugas (assignment_submissions) beserta filenya
+    //             $submissions = $user->assignmentSubmissions()
+    //                 ->whereIn('assignment_id', function ($query) use ($lessonIdsInCourse) {
+    //                     // DIPERBARUI: Query sekarang mencari di tabel 'lessons' yang benar
+    //                     $query->select('lessonable_id')
+    //                         ->from('lessons')
+    //                         ->where('lessonable_type', \App\Models\LessonAssignment::class)
+    //                         ->whereIn('id', $lessonIdsInCourse);
+    //                 })->get();
+
+    //             foreach ($submissions as $submission) {
+    //                 if ($submission->file_path) {
+    //                     Storage::disk('public')->delete($submission->file_path);
+    //                 }
+    //                 $submission->delete();
+    //             }
+
+    //             // 3. Hapus data pelajaran selesai (lesson_user)
+    //             $user->completedLessons()->detach($lessonIdsInCourse);
+
+    //             // 4. Terakhir, hapus pendaftaran dari kursus
+    //             $course->students()->detach($user->id);
+    //         }
+    //     });
+
+    //     return back()->with('success', count($validated['user_ids']) . ' pengguna beserta semua progresnya di kursus ini berhasil dihapus.');
+    // }
+
     /**
-     * Menghapus pendaftaran pengguna beserta semua data progresnya di dalam kursus.
+     * Menghapus pendaftaran pengguna beserta semua data progres dan poinnya di dalam kursus.
      */
     public function destroy(Request $request, Course $course)
     {
@@ -80,7 +134,6 @@ class CourseEnrollmentController extends Controller
         ]);
 
         $usersToDelete = User::find($validated['user_ids']);
-        // $lessonIdsInCourse = $course->lessons()->pluck('id');
         $lessonIdsInCourse = $course->lessons()->pluck('lessons.id');
 
         DB::transaction(function () use ($course, $usersToDelete, $lessonIdsInCourse) {
@@ -88,7 +141,6 @@ class CourseEnrollmentController extends Controller
                 // 1. Hapus data kuis (quiz_attempts)
                 $user->quizAttempts()
                     ->whereIn('quiz_id', function ($query) use ($lessonIdsInCourse) {
-                        // DIPERBARUI: Query sekarang mencari di tabel 'lessons' yang benar
                         $query->select('lessonable_id')
                             ->from('lessons')
                             ->where('lessonable_type', \App\Models\Quiz::class)
@@ -98,13 +150,11 @@ class CourseEnrollmentController extends Controller
                 // 2. Hapus data tugas (assignment_submissions) beserta filenya
                 $submissions = $user->assignmentSubmissions()
                     ->whereIn('assignment_id', function ($query) use ($lessonIdsInCourse) {
-                        // DIPERBARUI: Query sekarang mencari di tabel 'lessons' yang benar
                         $query->select('lessonable_id')
                             ->from('lessons')
                             ->where('lessonable_type', \App\Models\LessonAssignment::class)
                             ->whereIn('id', $lessonIdsInCourse);
                     })->get();
-
                 foreach ($submissions as $submission) {
                     if ($submission->file_path) {
                         Storage::disk('public')->delete($submission->file_path);
@@ -115,11 +165,19 @@ class CourseEnrollmentController extends Controller
                 // 3. Hapus data pelajaran selesai (lesson_user)
                 $user->completedLessons()->detach($lessonIdsInCourse);
 
-                // 4. Terakhir, hapus pendaftaran dari kursus
+                // --- LOGIKA BARU: Hapus data poin ---
+                // 4. Hapus riwayat perolehan poin di kursus ini
+                $user->pointHistories()->where('course_id', $course->id)->delete();
+
+                // 5. Hapus catatan total poin di tabel pivot course_user
+                $user->coursePoints()->detach($course->id);
+                // --- AKHIR LOGIKA BARU ---
+
+                // 6. Terakhir, hapus pendaftaran dari kursus
                 $course->students()->detach($user->id);
             }
         });
 
-        return back()->with('success', count($validated['user_ids']) . ' pengguna beserta semua progresnya di kursus ini berhasil dihapus.');
+        return back()->with('success', count($validated['user_ids']) . ' pengguna beserta semua progres dan poinnya di kursus ini berhasil dihapus.');
     }
 }

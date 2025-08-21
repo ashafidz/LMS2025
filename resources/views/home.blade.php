@@ -204,7 +204,7 @@
                 <div>
                   <h3>Pelatihan Interaktif</h3>
                   <p>Belajar jadi lebih seru dengan materi interaktif yang gampang dipahami dan bisa langsung dipraktikkan.</p>
-                  <a href="service-details.html" class="read-more">Selengkapnya<i class="bi bi-arrow-right"></i></a>
+                  <a href="{{ route('services.detail') }}#pelatihan-interaktif" class="read-more">Selengkapnya<i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div><!-- End Service Card -->
@@ -217,7 +217,7 @@
                 <div>
                   <h3>Kelas Beragam</h3>
                   <p>Tersedia berbagai topik mulai dari coding, desain, sampai pengembangan diri. Pilih yang sesuai minatmu.</p>
-                  <a href="service-details.html" class="read-more">Selengkapnya<i class="bi bi-arrow-right"></i></a>
+                  <a href="{{ route('services.detail') }}#kelas-beragam" class="read-more">Selengkapnya<i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div><!-- End Service Card -->
@@ -230,7 +230,7 @@
                 <div>
                   <h3>Materi Up-to-Date</h3>
                   <p>Kami selalu update materi supaya kamu belajar hal-hal terbaru dan relevan dengan industri.</p>
-                  <a href="service-details.html" class="read-more">Selengkapnya<i class="bi bi-arrow-right"></i></a>
+                  <a href="{{ route('services.detail') }}#materi-up-to-date" class="read-more">Selengkapnya<i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div><!-- End Service Card -->
@@ -243,7 +243,7 @@
                 <div>
                   <h3>Evaluasi & Sertifikat</h3>
                   <p>Dapatkan evaluasi pembelajaran dan sertifikat sebagai bukti kemampuanmu setelah menyelesaikan kelas.</p>
-                  <a href="service-details.html" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
+                  <a href="{{ route('services.detail') }}#evaluasi-sertifikat" class="read-more">Read More <i class="bi bi-arrow-right"></i></a>
                 </div>
               </div>
             </div><!-- End Service Card -->

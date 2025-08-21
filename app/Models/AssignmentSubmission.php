@@ -26,4 +26,21 @@ class AssignmentSubmission extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Accessor untuk mengecek apakah pengumpulan tugas terlambat.
+     *
+     * @return bool
+     */
+    public function getIsLateAttribute()
+    {
+        // Pastikan assignment dan due_date-nya ada untuk menghindari error
+        if ($this->assignment && $this->assignment->due_date) {
+            // Kembalikan true jika waktu submit lebih besar dari due date
+            return $this->submitted_at->isAfter($this->assignment->due_date);
+        }
+
+        // Defaultnya tidak terlambat jika tidak ada due date
+        return false;
+    }
 }

@@ -28,7 +28,7 @@
                         @elseif($index + 1 <= 20)
                             table-info
                         @else
-                            table-light
+                            table-danger
                         @endif
                     ">
                         <td class="font-weight-bold">#{{ $index + 1 }}</td>

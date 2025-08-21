@@ -19,6 +19,10 @@ class QuestionOption extends Model
         'is_correct',
         'correct_gap_identifier', // Added this field
     ];
+    protected $casts = [
+        'is_correct' => 'boolean', // <--- TAMBAHKAN BARIS INI
+    ];
+
 
     /**
      * The question this option belongs to.

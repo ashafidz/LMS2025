@@ -44,7 +44,7 @@
         <div
             class="header-container container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
 
-            <a href="{{ url('/home') }}" class="logo d-flex align-items-center me-auto me-xl-0">
+            <a href="{{ route('home') }}" class="logo d-flex align-items-center me-auto me-xl-0">
                 <h1 class="sitename">{{ $siteSettings->site_name }}</h1>
             </a>
 

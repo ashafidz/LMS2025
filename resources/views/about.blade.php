@@ -155,90 +155,51 @@
     <!-- /Features 2 Section -->
 
 
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="testimonials section light-background">
+<!-- Testimonials Section -->
+<section id="testimonials" class="testimonials section light-background">
 
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
+    <!-- Section Title -->
+    <div class="container section-title" data-aos="fade-up">
         <h2>Testimoni Peserta</h2>
-        <p>Berbagai pengalaman nyata dari peserta yang telah menyelesaikan kursus kami.</p>
-      </div><!-- End Section Title -->
+        <p>Berbagai pengalaman nyata dari peserta yang telah menggunakan platform kami.</p>
+    </div><!-- End Section Title -->
 
-      <div class="container">
-
+    <div class="container">
         <div class="row g-5">
+            @if(isset($platformReviews) && $platformReviews->isNotEmpty())
+                @foreach($platformReviews as $review)
+                <div class="col-lg-6" data-aos="fade-up" data-aos-delay="{{ ($loop->index + 1) * 100 }}">
+                    <div class="testimonial-item">
+                        <a href="{{ route('profile.show', $review->user->id) }}">
+                          <img src="{{ asset($review->user->profile_picture_url ?? 'assets/profile-images/avatar-1.png') }}" class="testimonial-img" alt="">
+                          <h3>{{ $review->user->name }}</h3>
+                        </a>
 
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
-            <div class="testimonial-item">
-              <img src="home-page/assets/img/testimonials/testimonials-1.jpg" class="testimonial-img" alt="">
-              <h3>Saul Goodman</h3>
-              <h4>Fresh Graduate</h4>
-              <div class="stars">
-                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-              </div>
-              <p>
-                <i class="bi bi-quote quote-icon-left"></i>
-                <span>Kursus ini sangat membantu saya memahami dasar pemrograman. Setelah lulus, saya langsung diterima kerja sebagai junior developer!</span>
-                <i class="bi bi-quote quote-icon-right"></i>
-              </p>
-            </div>
-          </div><!-- End testimonial item -->
-
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
-            <div class="testimonial-item">
-              <img src="home-page/assets/img/testimonials/testimonials-2.jpg" class="testimonial-img" alt="">
-              <h3>Sara Wilsson</h3>
-              <h4>Guru SMK</h4>
-              <div class="stars">
-                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-              </div>
-              <p>
-                <i class="bi bi-quote quote-icon-left"></i>
-                <span>Materi yang diajarkan sangat up-to-date dan mudah dipahami. Sangat cocok untuk saya gunakan juga sebagai referensi mengajar di kelas.</span>
-                <i class="bi bi-quote quote-icon-right"></i>
-              </p>
-            </div>
-          </div><!-- End testimonial item -->
-
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="300">
-            <div class="testimonial-item">
-              <img src="home-page/assets/img/testimonials/testimonials-3.jpg" class="testimonial-img" alt="">
-              <h3>Jena Karlis</h3>
-              <h4>Mahasiswa Informatika</h4>
-              <div class="stars">
-                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-              </div>
-              <p>
-                <i class="bi bi-quote quote-icon-left"></i>
-                <span>Setelah ikut kursus ini, nilai kuliah saya meningkat. Praktik langsung dengan studi kasus nyata sangat membantu pemahaman saya.</span>
-                <i class="bi bi-quote quote-icon-right"></i>
-              </p>
-            </div>
-          </div><!-- End testimonial item -->
-
-          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="400">
-            <div class="testimonial-item">
-              <img src="home-page/assets/img/testimonials/testimonials-4.jpg" class="testimonial-img" alt="">
-              <h3>Matt Brandon</h3>
-              <h4>Freelancer & Content Creator</h4>
-              <div class="stars">
-                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
-              </div>
-              <p>
-                <i class="bi bi-quote quote-icon-left"></i>
-                <span>Saya jadi lebih percaya diri ambil proyek freelance setelah belajar di sini. Tutorialnya lengkap dan support komunitasnya luar biasa!</span>
-                <i class="bi bi-quote quote-icon-right"></i>
-              </p>
-            </div>
-          </div><!-- End testimonial item -->
-
+                        <h4>{{ $review->user->studentProfile->headline ?? 'Siswa' }}</h4>
+                        <div class="stars">
+                            @for ($i = 1; $i <= 5; $i++)
+                                <i class="bi {{ $i <= $review->rating ? 'bi-star-fill' : 'bi-star' }}"></i>
+                            @endfor
+                        </div>
+                        <p>
+                            <i class="bi bi-quote quote-icon-left"></i>
+                            <span>{{ $review->comment }}</span>
+                            <i class="bi bi-quote quote-icon-right"></i>
+                        </p>
+                    </div>
+                </div><!-- End testimonial item -->
+                @endforeach
+            @else
+                <div class="col-12 text-center">
+                    <p class="text-muted">Jadilah yang pertama memberikan testimoni untuk platform ini!</p>
+                </div>
+            @endif
         </div>
+    </div>
+</section><!-- /Testimonials Section -->
 
-      </div>
-
-    </section><!-- /Testimonials Section -->
-
-    <!-- Call To Action 2 Section -->
+@guest
+      <!-- Call To Action 2 Section -->
     <section id="call-to-action-2" class="call-to-action-2 section dark-background">
 
       <div class="container">
@@ -254,5 +215,6 @@
       </div>
 
     </section><!-- /Call To Action 2 Section -->
+@endguest
 
 @endsection

@@ -45,9 +45,9 @@
                                     @endif
 
                                     <h4>Skor Anda: <strong>{{ rtrim(rtrim(number_format($attempt->score, 2, ',', '.'), '0'), ',') }}</strong></h4>
-                                    <p class="text-muted">Nilai Kelulusan Minimum: {{ $attempt->quiz->pass_mark }}%</p>
-                                    <p class="text-muted" >Nilai Maksimum : {{ $maxPossibleScore }}</p>
-                                    <p class="text-muted" >Nilai minimum : {{ $minimumScore }}</p>
+                                    <p class="">Nilai Kelulusan Minimum: {{ $attempt->quiz->pass_mark }}%</p>
+                                    <p class="" >Nilai Kelulusan Maksimum : {{ $maxPossibleScore }}</p>
+                                    <p class="" >Nilai Kelulusan Minimum (dalam score) : {{ $minimumScore }}</p>
                                     <hr>
                                     @if ($is_preview)
                                         <a href="{{ route('student.courses.show', ['course' => $attempt->quiz->lesson->module->course->slug, 'preview' => 'true']) }}" class="btn btn-primary">Kembali ke Preview Kursus</a>

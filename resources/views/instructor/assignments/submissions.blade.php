@@ -141,6 +141,13 @@
                         </div>
                         <div class="col-md-5">
                             <h6 class="font-weight-bold">Form Penilaian</h6>
+                            {{-- Tambahkan peringatan keterlambatan di sini --}}
+                            @if ($submission->is_late)
+                                <div class="alert alert-warning" role="alert">
+                                    <i class="fa fa-exclamation-triangle"></i> 
+                                    <strong>Perhatian:</strong> Siswa ini mengumpulkan tugas melewati batas waktu.
+                                </div>
+                            @endif
                             <form action="{{ route('instructor.submission.grade', $submission->id) }}" method="POST">
                                 @csrf
                                 <div class="form-group">

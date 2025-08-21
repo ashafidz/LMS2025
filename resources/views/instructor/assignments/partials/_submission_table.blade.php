@@ -16,7 +16,15 @@
                 <tr>
                     <td class="text-center">{{ $submission->user->studentProfile->unique_id_number ? $submission->user->studentProfile->unique_id_number : '-' }}</td>
                     <td><a href="{{ route('profile.show', $submission->user->id) }}">{{ $submission->user->name }}</a></td>
-                    <td>{{ $submission->submitted_at->format('d F Y, H:i') }}</td>
+                    {{-- <td>{{ $submission->submitted_at->format('d F Y, H:i') }}</td> --}}
+                    <td>
+                        {{ $submission->submitted_at->format('d F Y, H:i') }}
+                        
+                        {{-- Tambahkan badge jika terlambat --}}
+                        @if ($submission->is_late)
+                            <span class="badge badge-danger">Terlambat</span>
+                        @endif
+                    </td>
                     <td>
                         @if(!is_null($submission->grade))
                             <span class="badge badge-inverse">{{ $submission->grade }} / 100</span>

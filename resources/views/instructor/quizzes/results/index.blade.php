@@ -80,9 +80,9 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="d-flex justify-content-center">
+                                    {{-- <div class="d-flex justify-content-center">
                                         {{ $enrolledStudents->links() }}
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                         </div>
@@ -119,7 +119,11 @@
                                     @foreach($student->attempts->sortByDesc('created_at') as $attempt)
                                     <tr>
                                         <td>{{ $attempt->end_time ? $attempt->end_time->format('d M Y, H:i') : 'Dalam Pengerjaan' }}</td>
-                                        <td><strong>{{ rtrim(rtrim(number_format($attempt->score, 2, ',', '.'), '0'), ',') }}</strong></td>
+                                        <td>
+                                            <strong>{{ rtrim(rtrim(number_format($attempt->score, 2, ',', '.'), '0'), ',') }}</strong>
+                                            <br>
+                                            <small class="text-muted">Min: {{ rtrim(rtrim(number_format($minimumScore, 2, ',', '.'), '0'), ',') }}</small>
+                                        </td>
                                         <td>
                                             @if($attempt->status == 'passed')
                                                 <label class="label label-success">Lulus</label>

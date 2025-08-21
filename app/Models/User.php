@@ -82,7 +82,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'birth_date',
         'profile_picture_url',
         'diamond_balance',
-        'equipped_badge_id'
+        'equipped_badge_id',
+        'email_verified_at',
     ];
 
 
