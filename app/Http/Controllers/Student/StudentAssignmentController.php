@@ -16,8 +16,9 @@ class StudentAssignmentController extends Controller
      */
     public function submit(Request $request, LessonAssignment $assignment)
     {
+        // !! kode komen, tidak terpakai tapi tolong jangan dihapus
         // =============================================================
-        // TAMBAHKAN VALIDASI BATAS WAKTU DI SINI (WAJIB)
+        // TAMBAHKAN VALIDASI BATAS WAKTU DI SINI (WAJIB) 
         // =============================================================
         // if ($assignment->due_date && Carbon::now()->isAfter($assignment->due_date)) {
         //     return back()->with('error', 'Batas waktu pengumpulan tugas telah berakhir.');

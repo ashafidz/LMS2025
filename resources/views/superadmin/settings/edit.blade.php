@@ -113,6 +113,7 @@
                                                 </div>
                                             </div>
                                             <h6 class="font-weight-bold mt-5">Kontak & Media Sosial</h6>
+                                            <p>Kosongkan untuk menonaktifkan media sosial.</p>
                                             <hr>
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Email Publik</label>
@@ -124,28 +125,28 @@
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Link Facebook</label>
                                                 <div class="col-sm-9">
-                                                    <input type="url" name="facebook_url" class="form-control"
+                                                    <input type="url" name="facebook_url" class="form-control" placeholder="https://www.facebook.com/"
                                                         value="{{ old('facebook_url', $settings->facebook_url) }}">
                                                 </div>
                                             </div>
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Link Twitter</label>
                                                 <div class="col-sm-9">
-                                                    <input type="url" name="twitter_url" class="form-control"
+                                                    <input type="url" name="twitter_url" class="form-control" placeholder="https://twitter.com/"
                                                         value="{{ old('twitter_url', $settings->twitter_url) }}">
                                                 </div>
                                             </div>
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Link Instagram</label>
                                                 <div class="col-sm-9">
-                                                    <input type="url" name="instagram_url" class="form-control"
+                                                    <input type="url" name="instagram_url" class="form-control" placeholder="https://www.instagram.com/"
                                                         value="{{ old('instagram_url', $settings->instagram_url) }}">
                                                 </div>
                                             </div>
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Link YouTube</label>
                                                 <div class="col-sm-9">
-                                                    <input type="url" name="youtube_url" class="form-control"
+                                                    <input type="url" name="youtube_url" class="form-control" placeholder="https://www.youtube.com/"
                                                         value="{{ old('youtube_url', $settings->youtube_url) }}">
                                                 </div>
                                             </div>

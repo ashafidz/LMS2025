@@ -127,10 +127,10 @@
                 <div class="modal-footer">
                     <div class="container-fluid">
                         <div class="row mb-2">
-                            <div class="col-md-6 mb-2 mb-md-0">
+                            {{-- <div class="col-md-6 mb-2 mb-md-0">
                                 <a href="#" class="btn btn-secondary btn-block" target="_blank"><i class="fa fa-eye"></i> Lihat PDF</a>
-                            </div>
-                            <div class="col-md-6">
+                            </div> --}}
+                            <div class="col-md-12">
                                 <a href="{{ route('student.transactions.download', $order->id) }}" class="btn btn-primary btn-block"><i class="fa fa-download"></i> Unduh PDF</a>
                             </div>
                         </div>

@@ -12,7 +12,7 @@
                         <p class="m-b-0">Kursus: {{ $attempt->quiz->lesson->module->course->title }}</p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
                         <li class="breadcrumb-item"><a href="#"><i class="fa fa-home"></i></a></li>
                         <li class="breadcrumb-item"><a href="{{ route('student.courses.show', $attempt->quiz->lesson->module->course->slug) }}">Kursus</a></li>

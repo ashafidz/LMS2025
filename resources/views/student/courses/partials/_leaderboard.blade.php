@@ -38,7 +38,7 @@
                             <a href="{{ route('profile.show', $rank->user->id) }}">
                                 {{ $rank->user->name }}
                                 {{-- Keep the badge to highlight the current user --}}
-                                @if($rank->user_id === Auth::id())
+                                @if($rank->user_id == Auth::id())
                                     <span class="badge badge-primary">Anda</span>
                                 @endif
                             </a>

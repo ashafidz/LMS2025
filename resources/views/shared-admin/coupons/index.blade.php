@@ -85,13 +85,13 @@
                                                         <td>{{ $coupon->expires_at ? $coupon->expires_at->format('d M Y') : 'Tidak ada' }}</td>
                                                         <td class="text-center">
                                                             <a href="{{ route(Auth::user()->getRoleNames()->first() . '.coupons.edit', $coupon->id) }}" class="btn btn-info btn-sm">
-                                                                <i class="fa fa-pencil"></i> Edit
+                                                                <i class="fa fa-pencil"></i>
                                                             </a>
                                                             <form action="{{ route(Auth::user()->getRoleNames()->first() . '.coupons.destroy', $coupon->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kupon ini?');">
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <button type="submit" class="btn btn-danger btn-sm">
-                                                                    <i class="fa fa-trash"></i> Hapus
+                                                                    <i class="fa fa-trash"></i> 
                                                                 </button>
                                                             </form>
                                                         </td>

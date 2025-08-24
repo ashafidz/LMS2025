@@ -38,12 +38,18 @@ class ViewComposerServiceProvider extends ServiceProvider
                 // Abaikan error agar tidak mengganggu proses `artisan`
             }
         });
-
         // Menggunakan View Composer untuk mengirim data kategori ke layout home
         // Kode ini akan berjalan setiap kali view 'layouts.home-layout' akan dirender
         View::composer('layouts.home-layout', function ($view) {
-            // Ambil 4 atau 5 kategori untuk ditampilkan di footer
-            $footerCategories = CourseCategory::latest()->get();
+            // Ambil 4 kategori dengan jumlah student terbanyak
+            $footerCategories = CourseCategory::withCount([
+                'courses as total_students' => function ($query) {
+                    $query->join('course_enrollments', 'courses.id', '=', 'course_enrollments.course_id');
+                }
+            ])
+                ->orderByDesc('total_students')
+                ->limit(4)
+                ->get();
 
             // 2. Ambil semua data pengaturan situs
             $siteSettings = SiteSetting::first();

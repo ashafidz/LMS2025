@@ -15,31 +15,7 @@ class QuestionController extends Controller
     public function index(QuestionTopic $topic)
     {
         $questions = $topic->questions()->with('options', 'quizzes')->latest()->simplePaginate(10);
-
-        // Get all available topics for the move functionality
-        $user = Auth::user();
-        $availableTopics = QuestionTopic::where('instructor_id', $user->id)
-            ->with('courses:id,title')
-            ->withCount('questions')
-            ->where('id', '!=', $topic->id) // Exclude current topic
-            ->get()
-            ->map(function ($t) {
-                return [
-                    'id' => $t->id,
-                    'name' => $t->name,
-                    'description' => $t->description,
-                    'available_for_all_courses' => $t->available_for_all_courses,
-                    'questions_count' => $t->questions_count,
-                    'courses' => $t->courses->map(function ($course) {
-                        return ['id' => $course->id, 'title' => $course->title];
-                    })
-                ];
-            });
-
-        // Get courses for filter dropdown
-        $courses = $user->courses()->orderBy('title')->get(['id', 'title']);
-
-        return view('instructor.question_bank.questions.index', compact('topic', 'questions', 'availableTopics', 'courses'));
+        return view('instructor.question_bank.questions.index', compact('topic', 'questions'));
     }
 
     public function create(Request $request, QuestionTopic $topic)
@@ -180,85 +156,5 @@ class QuestionController extends Controller
         });
         return redirect()->route('instructor.question-bank.questions.edit', $newQuestion)
             ->with('success', 'Question cloned successfully. You are now editing the copy.');
-    }
-
-    /**
-     * Move question to another topic
-     */
-    public function move(Request $request, Question $question)
-    {
-        $validated = $request->validate([
-            'target_topic_id' => 'required|exists:question_topics,id',
-        ]);
-
-        $user = Auth::user();
-        $targetTopic = QuestionTopic::findOrFail($validated['target_topic_id']);
-
-        // Ensure the target topic belongs to the current user
-        if ($targetTopic->instructor_id != $user->id) {
-            abort(403, 'You do not have permission to move questions to this topic.');
-        }
-
-        // Ensure the question belongs to the current user
-        if ($question->topic->instructor_id != $user->id) {
-            abort(403, 'You do not have permission to move this question.');
-        }
-
-        // Check if question is locked (used in quizzes)
-        if ($question->quizzes()->exists()) {
-            return redirect()->back()
-                ->with('error', 'Cannot move locked question. This question is currently used in one or more quizzes.');
-        }
-
-        $oldTopicName = $question->topic->name;
-        $currentTopic = $question->topic;
-
-        // Move the question using the correct foreign key column name
-        $question->update(['topic_id' => $validated['target_topic_id']]);
-
-        return redirect()->route('instructor.question-bank.questions.index', $currentTopic)
-            ->with('success', "Question successfully moved from '{$oldTopicName}' to '{$targetTopic->name}'.");
-    }
-
-    /**
-     * API endpoint to get filtered topics for the move modal
-     */
-    public function getFilteredTopics(Request $request)
-    {
-        $user = Auth::user();
-        $filter = $request->query('filter');
-        $currentTopicId = $request->query('current_topic_id');
-
-        $query = $user->questionTopics()
-            ->with('courses:id,title')
-            ->withCount('questions')
-            ->where('id', '!=', $currentTopicId);
-
-        // Apply the same filtering logic as in the topics index
-        if ($filter === 'global') {
-            $query->where('available_for_all_courses', true);
-        } elseif (is_numeric($filter)) {
-            $query->where(function ($q) use ($filter) {
-                $q->where('available_for_all_courses', true)
-                    ->orWhereHas('courses', function ($subQ) use ($filter) {
-                        $subQ->where('course_id', $filter);
-                    });
-            });
-        }
-
-        $topics = $query->latest()->get()->map(function ($topic) {
-            return [
-                'id' => $topic->id,
-                'name' => $topic->name,
-                'description' => $topic->description,
-                'available_for_all_courses' => $topic->available_for_all_courses,
-                'questions_count' => $topic->questions_count,
-                'courses' => $topic->courses->map(function ($course) {
-                    return ['id' => $course->id, 'title' => $course->title];
-                })
-            ];
-        });
-
-        return response()->json($topics);
     }
 }

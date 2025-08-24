@@ -197,7 +197,7 @@
                                                 <a href="javascript:void(0)" class="waves-effect waves-dark">
                                                     <span class="pcoded-micon"><i class="ti-direction-alt"></i></span>
                                                     <span class="pcoded-mtext"
-                                                        data-i18n="nav.menu-levels.menu-level-22.main">Skala Likert</span>
+                                                        data-i18n="nav.menu-levels.menu-level-22.main">Pertanyaan Ulasan</span>
                                                     <span class="pcoded-mcaret"></span>
                                                 </a>
                                                 <ul class="pcoded-submenu">
@@ -256,15 +256,7 @@
                                                 </ul>
                                             </li>
                                             {{-- end menu level manajemen user student --}}
-                                            
-                                            <li class="">
-                                                <a href="javascript:void(0)" class="waves-effect waves-dark">
-                                                    <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                                    <span class="pcoded-mtext"
-                                                        data-i18n="nav.menu-levels.menu-level-23">Menu Level 2.3</span>
-                                                    <span class="pcoded-mcaret"></span>
-                                                </a>
-                                            </li>
+                                        
                                         </ul>
                                     </li>
                                 </ul>

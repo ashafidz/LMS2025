@@ -1,12 +1,12 @@
 <?php
 
 use App\Http\Controllers;
-use App\Http\Controllers\AboutController;
 use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RoleSwitchController;
@@ -24,6 +24,7 @@ use App\Http\Controllers\Shared\PublicationController;
 use App\Http\Controllers\Instructor\QuestionController;
 use App\Http\Controllers\Student\CertificateController;
 use App\Http\Controllers\Student\StudentQuizController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Shared\StudentStatusController;
 use App\Http\Controllers\Student\CourseReviewController;
 use App\Http\Controllers\Student\GamificationController;
@@ -42,16 +43,18 @@ use App\Http\Controllers\Instructor\QuestionTopicController;
 use App\Http\Controllers\Student\LessonDiscussionController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\Instructor\InstructorQuizController;
-use App\Http\Controllers\Student\DiamondConversionController;
 
+use App\Http\Controllers\Student\DiamondConversionController;
 use App\Http\Controllers\Student\StudentAssignmentController;
 use App\Http\Controllers\Instructor\InstructorRecapController;
 use App\Http\Controllers\Student\TransactionHistoryController;
 use App\Http\Controllers\Shared\InstructorApplicationController;
+use App\Http\Controllers\Instructor\InstructorDashboardController;
 use App\Http\Controllers\PublicProfileController; // Tambahkan ini
+
+use App\Http\Controllers\Superadmin\SuperAdminDashboardController;
 use App\Http\Controllers\Instructor\InstructorAssignmentController;
 use App\Http\Controllers\Instructor\InstructorLeaderboardController;
-
 use App\Http\Controllers\Student\CourseController as StudentCourseController;
 use App\Http\Controllers\Student\StudentCertificateController; // Tambahkan ini
 use App\Http\Controllers\Superadmin\AdminManagementController; // Tambahkan ini
@@ -168,7 +171,9 @@ Route::middleware(['auth'])->group(function () {
 
 // * group route for superadmin
 Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
-    Route::view('/superadmin/dashboard', 'superadmin.dashboard')->name('superadmin.dashboard');
+    Route::get('/dashboard', [SuperAdminDashboardController::class, 'index'])->name('superadmin.dashboard');
+    Route::get('/dashboard/search/instructors', [SuperAdminDashboardController::class, 'searchInstructors'])->name('superadmin.dashboard.search.instructors');
+    Route::get('/dashboard/search/categories', [SuperAdminDashboardController::class, 'searchCategories'])->name('superadmin.dashboard.search.categories');
 
     Route::get('/superadmin/instructor-application', [InstructorApplicationController::class, 'index'])->name('superadmin.instructor-application.index');
     Route::patch('/superadmin/applications/{application}/approve', [InstructorApplicationController::class, 'approve'])->name('superadmin.instructor-applications.approve');
@@ -240,7 +245,11 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
 
 // * group route for admin
 Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
-    Route::view('/admin/dashboard', 'admin.dashboard')->name('admin.dashboard');
+    // Route::view('/admin/dashboard', 'admin.dashboard')->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/dashboard/search/instructors', [AdminDashboardController::class, 'searchInstructors'])->name('dashboard.search.instructors');
+    Route::get('/admin/dashboard/search/categories', [AdminDashboardController::class, 'searchCategories'])->name('dashboard.search.categories');
+
     Route::get('/admin/instructor-application', [InstructorApplicationController::class, 'index'])->name('admin.instructor-application.index');
     Route::patch('/admin/applications/{application}/approve', [InstructorApplicationController::class, 'approve'])->name('admin.instructor-applications.approve');
     Route::patch('/admin/applications/{application}/reject', [InstructorApplicationController::class, 'reject'])->name('admin.instructor-applications.reject');
@@ -300,7 +309,9 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
     // Routes for APPROVED instructors
     Route::middleware(['checkInstructorStatus'])->group(function () {
 
-        Route::view('/instructor/dashboard', 'instructor.dashboard')->name('instructor.dashboard');
+        // Route::view('/instructor/dashboard', 'instructor.dashboard')->name('instructor.dashboard');
+        // MENJADI rute ini:
+        Route::get('/instructor/dashboard', [InstructorDashboardController::class, 'index'])->name('instructor.dashboard');
 
         // Explicitly defined routes for Question Topics (as per user request)
         Route::get('/instructor/question-topics', [QuestionTopicController::class, 'index'])->name('instructor.question-bank.topics.index');
@@ -432,6 +443,14 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         // RUTE BARU UNTUK UNDUH
         Route::get('/instructor/modules/{module}/recap/pdf', [InstructorRecapController::class, 'downloadPdf'])->name('instructor.recap.download_pdf');
         Route::get('/instructor/modules/{module}/recap/excel', [InstructorRecapController::class, 'downloadExcel'])->name('instructor.recap.download_excel');
+
+
+
+        // NEW: Route for moving questions between topics
+        Route::patch('/questions/{question}/move', [QuestionController::class, 'move'])->name('instructor.question-bank.questions.move');
+
+        // OPTIONAL: API endpoint for dynamic topic filtering (if you want real-time filtering in the modal)
+        Route::get('/instructor/questions/filtered-topics', [QuestionController::class, 'getFilteredTopics'])->name('instructor.question-bank.questions.filtered-topics');
     });
 });
 

@@ -60,11 +60,11 @@
                                                         <button type="button" class="btn btn-warning btn-sm text-dark leaderboard-btn" data-url="{{ route('instructor.module.leaderboard', $module->id) }}">
                                                             <i class="fa fa-bar-chart text-dark me-1"></i> Peringkat
                                                         </button></div>
-                                                        <div><a href="{{ route('instructor.modules.edit', $module->id) }}" class="btn btn-info btn-sm"><i class="fa fa-pencil"></i>Edit</a>
+                                                        <div><a href="{{ route('instructor.modules.edit', $module->id) }}" class="btn btn-info btn-sm"><i class="fa fa-pencil"></i></a>
                                                         <form action="{{ route('instructor.modules.destroy', $module->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this module and all its lessons?');">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>Hapus</button>
+                                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>
                                                         </form></div>
                                                         
                                                         
