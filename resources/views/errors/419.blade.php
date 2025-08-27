@@ -7,7 +7,7 @@
          style="background: #f8f9fa; min-height: 100vh; padding: 20px;">
 
     <div class="mb-4">
-        <img src="{{ asset('images/coba419.svg') }}" 
+        <img src="{{ asset('images/419.svg') }}" 
              alt="419 Page Expired" 
              style="max-width: 400px; width: 100%;">
     </div>

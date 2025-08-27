@@ -8,8 +8,8 @@ use App\Models\LessonAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\PointService;
-use Illuminate\Support\Facades\Mail; // 1. Import Mail facade
-use App\Mail\AssignmentRevisionRequired; // 2. Import Mailable baru
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AssignmentRevisionRequired;
 
 class InstructorAssignmentController extends Controller
 {
@@ -26,12 +26,18 @@ class InstructorAssignmentController extends Controller
 
         $course = $assignment->lesson->module->course;
 
-        // 1. Ambil semua siswa yang terdaftar di kursus
-        $enrolledStudents = $course->students()->get();
+        // 1. Ambil semua siswa yang terdaftar di kursus dengan sorting berdasarkan unique_id_number
+        $enrolledStudents = $course->students()
+            ->with('studentProfile')
+            ->join('student_profiles', 'users.id', '=', 'student_profiles.user_id')
+            ->orderByRaw('CASE WHEN student_profiles.unique_id_number IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('student_profiles.unique_id_number', 'asc')
+            ->select('users.*')
+            ->get();
 
         // 2. Ambil semua pengumpulan untuk tugas ini, diindeks berdasarkan user_id
         $submissions = $assignment->submissions()
-            ->with('user')
+            ->with(['user', 'user.studentProfile'])
             ->get()
             ->keyBy('user_id');
 
@@ -57,6 +63,26 @@ class InstructorAssignmentController extends Controller
             }
         }
 
+        // Optional: Sort each collection by unique_id_number if needed
+        // (This might be redundant since we already sorted enrolledStudents)
+        $sortByUniqueId = function ($item) {
+            $uniqueId = null;
+            if (isset($item->user) && $item->user->studentProfile) {
+                // For submissions
+                $uniqueId = $item->user->studentProfile->unique_id_number;
+            } elseif (isset($item->studentProfile)) {
+                // For students
+                $uniqueId = $item->studentProfile->unique_id_number;
+            }
+            // Return a tuple: [is_null, value] for proper sorting
+            return [$uniqueId === null ? 1 : 0, $uniqueId];
+        };
+
+        $passedSubmissions = $passedSubmissions->sortBy($sortByUniqueId)->values();
+        $revisionSubmissions = $revisionSubmissions->sortBy($sortByUniqueId)->values();
+        $submittedSubmissions = $submittedSubmissions->sortBy($sortByUniqueId)->values();
+        // $notSubmittedStudents already sorted from the query
+
         return view('instructor.assignments.submissions', compact(
             'assignment',
             'passedSubmissions',
@@ -65,8 +91,6 @@ class InstructorAssignmentController extends Controller
             'notSubmittedStudents'
         ));
     }
-
-
 
     public function grade(Request $request, AssignmentSubmission $submission)
     {
@@ -95,17 +119,6 @@ class InstructorAssignmentController extends Controller
 
             // Tandai pelajaran sebagai selesai
             $student->completedLessons()->syncWithoutDetaching($lesson->id);
-
-            // // Berikan poin HANYA jika statusnya 'passed' DAN belum pernah lulus sebelumnya
-            // if (!$hasPassedBefore) {
-            //     PointService::addPoints(
-            //         user: $student,
-            //         course: $lesson->module->course,
-            //         activity: 'pass_assignment',
-            //         lesson: $lesson,
-            //         description_meta: $lesson->title
-            //     );
-            // }
         }
 
         $submission->update([
@@ -126,40 +139,4 @@ class InstructorAssignmentController extends Controller
 
         return back()->with('success', 'Tugas berhasil dinilai.');
     }
-
-
-    /**
-     * Menyimpan nilai dan umpan balik, serta memicu progres otomatis.
-     */
-    // public function grade(Request $request, AssignmentSubmission $submission)
-    // {
-
-
-    //     $validated = $request->validate([
-    //         'grade' => 'required|numeric|min:0|max:100',
-    //         'feedback' => 'nullable|string',
-    //     ]);
-
-    //     $assignment = $submission->assignment;
-    //     $newStatus = 'revision_required'; 
-
-
-    //     if ($validated['grade'] >= $assignment->pass_mark) {
-    //         $newStatus = 'passed';
-
-    //         // --- LOGIKA PROGRES OTOMATIS ---
-    //         $student = $submission->user;
-    //         $lesson = $assignment->lesson;
-    //         $student->completedLessons()->syncWithoutDetaching($lesson->id);
-    //     }
-
-    //     // Perbarui record pengumpulan dengan nilai, feedback, dan status baru
-    //     $submission->update([
-    //         'grade' => $validated['grade'],
-    //         'feedback' => $validated['feedback'],
-    //         'status' => $newStatus, // Simpan status baru
-    //     ]);
-
-    //     return back()->with('success', 'Tugas berhasil dinilai.');
-    // }
 }

@@ -18,7 +18,7 @@ class InstructorRecapController extends Controller
 {
     public function index(Course $course)
     {
-        if ($course->instructor_id !== Auth::id()) {
+        if ($course->instructor_id != Auth::id()) {
             abort(403);
         }
         $course->load('modules');
@@ -27,7 +27,7 @@ class InstructorRecapController extends Controller
 
     public function getModuleRecapData(Module $module)
     {
-        if ($module->course->instructor_id !== Auth::id()) {
+        if ($module->course->instructor_id != Auth::id()) {
             abort(403);
         }
 
@@ -39,7 +39,7 @@ class InstructorRecapController extends Controller
 
     public function downloadPdf(Module $module)
     {
-        if ($module->course->instructor_id !== Auth::id()) {
+        if ($module->course->instructor_id != Auth::id()) {
             abort(403);
         }
         list($students, $gradableLessons, $scores) = $this->prepareRecapData($module);
@@ -49,81 +49,12 @@ class InstructorRecapController extends Controller
 
     public function downloadExcel(Module $module)
     {
-        if ($module->course->instructor_id !== Auth::id()) {
+        if ($module->course->instructor_id != Auth::id()) {
             abort(403);
         }
         list($students, $gradableLessons, $scores) = $this->prepareRecapData($module);
         return Excel::download(new ModuleRecapExport($students, $gradableLessons, $scores, $module), 'rekap-nilai-' . Str::slug($module->title) . '.xlsx');
     }
-    /**
-     * Mengambil data rekap nilai untuk modul tertentu via AJAX.
-     */
-    // public function getModuleRecapData(Module $module)
-    // {
-    //     // Otorisasi
-    //     if ($module->course->instructor_id !== Auth::id()) {
-    //         abort(403);
-    //     }
-
-    //     // 1. Ambil semua siswa yang terdaftar di kursus
-    //     $students = $module->course->students()->with('studentProfile')->get();
-
-    //     // 2. Ambil semua pelajaran yang bisa dinilai dari modul ini
-    //     $gradableLessons = $module->lessons()
-    //         ->whereIn('lessonable_type', [
-    //             \App\Models\Quiz::class,
-    //             \App\Models\LessonAssignment::class,
-    //             \App\Models\LessonPoint::class,
-    //         ])
-    //         ->with('lessonable')
-    //         ->orderBy('order')
-    //         ->get();
-
-    //     // 3. Siapkan data nilai dalam format yang efisien
-    //     $scores = [];
-    //     foreach ($students as $student) {
-    //         $scores[$student->id] = [];
-
-    //         // Ambil total poin siswa di kursus ini
-    //         $coursePoints = $student->coursePoints()->where('course_id', $module->course_id)->first();
-    //         $scores[$student->id]['total_course_points'] = $coursePoints->pivot->points_earned ?? 0;
-
-    //         foreach ($gradableLessons as $lesson) {
-    //             $score = '-'; // Default
-    //             $lessonable = $lesson->lessonable;
-
-    //             if ($lessonable instanceof \App\Models\Quiz) {
-    //                 $bestAttempt = $student->quizAttempts()
-    //                     ->where('quiz_id', $lessonable->id)
-    //                     ->where('status', 'passed')
-    //                     ->orderBy('score', 'desc')
-    //                     ->first();
-    //                 if ($bestAttempt) {
-    //                     $score = rtrim(rtrim(number_format($bestAttempt->score, 2, ',', '.'), '0'), ',');
-    //                 }
-    //             } elseif ($lessonable instanceof \App\Models\LessonAssignment) {
-    //                 $submission = $student->assignmentSubmissions()
-    //                     ->where('assignment_id', $lessonable->id)
-    //                     ->first();
-    //                 if ($submission && !is_null($submission->grade)) {
-    //                     $score = $submission->grade;
-    //                 }
-    //             } elseif ($lessonable instanceof \App\Models\LessonPoint) {
-    //                 $points = DB::table('lesson_point_awards')
-    //                     ->where('lesson_id', $lesson->id)
-    //                     ->where('student_id', $student->id)
-    //                     ->sum('points');
-    //                 $score = $points > 0 ? $points : '-';
-    //             }
-    //             $scores[$student->id][$lesson->id] = $score;
-    //         }
-    //     }
-
-    //     // Render partial view tabel dan kirim sebagai HTML
-    //     $html = view('instructor.recap.partials._recap_table', compact('students', 'gradableLessons', 'scores'))->render();
-
-    //     return response()->json(['html' => $html]);
-    // }
 
     /**
      * Helper method untuk menyiapkan data rekap.

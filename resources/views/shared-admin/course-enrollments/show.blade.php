@@ -5,13 +5,13 @@
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Kelola Pengguna</h5>
                         <p class="m-b-0">Kursus: <strong>{{ $course->title }}</strong></p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
                         <li class="breadcrumb-item"><a href="{{ route(Auth::user()->getRoleNames()->first() . '.dashboard') }}"><i class="fa fa-home"></i></a></li>
                         <li class="breadcrumb-item"><a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-enrollments.index') }}">Kelola Pengguna</a></li>
@@ -64,6 +64,7 @@
                                                             </div> --}}
                                                             <input type="checkbox" id="select-all">
                                                         </th>
+                                                        <th class="text-center">NIM/NIDN/NIP</th>
                                                         <th>Nama Siswa</th>
                                                         <th>Email</th>
                                                         <th>Tanggal Terdaftar</th>
@@ -81,6 +82,9 @@
                                                                     </label>
                                                                 </div> --}}
                                                                 <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox">
+                                                            </td>
+                                                            <td class="text-center">
+                                                                {{ $user->studentProfile->unique_id_number ? $user->studentProfile->unique_id_number : '-' }}
                                                             </td>
                                                             <td>
                                                                 <a href="{{ route('profile.show', $user->id) }}">{{ $user->name }}</a>

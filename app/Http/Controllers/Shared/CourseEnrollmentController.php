@@ -21,12 +21,28 @@ class CourseEnrollmentController extends Controller
         return view('shared-admin.course-enrollments.index', compact('courses'));
     }
 
+    // /**
+    //  * Menampilkan daftar pengguna yang terdaftar di kursus tertentu.
+    //  */
+    // public function show(Course $course)
+    // {
+    //     $enrolledUsers = $course->students()->simplePaginate(20);
+    //     return view('shared-admin.course-enrollments.show', compact('course', 'enrolledUsers'));
+    // }
+
     /**
      * Menampilkan daftar pengguna yang terdaftar di kursus tertentu.
      */
     public function show(Course $course)
     {
-        $enrolledUsers = $course->students()->simplePaginate(20);
+        $enrolledUsers = $course->students()
+            ->with('studentProfile')
+            ->orderByRaw('CASE WHEN student_profiles.unique_id_number IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('student_profiles.unique_id_number', 'asc')
+            ->join('student_profiles', 'users.id', '=', 'student_profiles.user_id')
+            ->select('users.*')
+            ->simplePaginate(20);
+
         return view('shared-admin.course-enrollments.show', compact('course', 'enrolledUsers'));
     }
 

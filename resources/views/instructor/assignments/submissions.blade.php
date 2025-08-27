@@ -6,13 +6,13 @@
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Pengumpulan Tugas</h5>
                         <p class="m-b-0">Tugas: <strong>{{ $assignment->lesson->title }}</strong></p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
                         <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
                         <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $assignment->lesson->module) }}">Daftar Pelajaran</a></li>
@@ -113,7 +113,7 @@
     <!-- Modal untuk setiap pengumpulan -->
     @foreach ($submittedSubmissions->concat($revisionSubmissions)->concat($passedSubmissions) as $submission)
     <div class="modal fade" id="submissionModal-{{ $submission->id }}" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
+<div class="modal-dialog modal-pdf-viewer" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Detail Pengumpulan: {{ $submission->user->name }}</h5>
@@ -126,9 +126,19 @@
                         <div class="col-md-7">
                             <h6 class="font-weight-bold">Pratinjau File</h6>
                             @if(Str::endsWith($submission->file_path, '.pdf'))
-                                <div class="embed-responsive embed-responsive-4by3" style="border: 1px solid #ddd;">
-                                    <embed src="{{ Storage::url($submission->file_path) }}" type="application/pdf" width="100%" height="650px" />
-                                </div>
+                                {{-- <div class="embed-responsive embed-responsive-4by3" style="border: 1px solid #ddd;">
+                                    <embed src="{{ Storage::url($submission->file_path) }}" type="application/pdf" width="100%" height="800px" />
+                                </div> --}}
+<div class="pdf-viewer-container">
+    <iframe src="{{ Storage::url($submission->file_path) }}" 
+            width="100%" 
+            height="100%" 
+            frameborder="0"
+            style="display: block;">
+        This browser does not support PDFs. Please download the PDF to view it.
+    </iframe>
+</div>
+
                             @else
                                 <div class="text-center p-5 bg-light">
                                     <i class="fa fa-file-zip-o fa-3x"></i>
@@ -152,7 +162,7 @@
                                 @csrf
                                 <div class="form-group">
                                     <label for="grade-{{ $submission->id }}">Nilai (0-100)</label>
-                                    <input type="number" name="grade" id="grade-{{ $submission->id }}" class="form-control" value="{{ old('grade', $submission->grade) }}" min="0" max="100" required>
+                                    <input type="number" name="grade" id="grade-{{ $submission->id }}" class="form-control" style="width: 10%;" value="{{ old('grade', $submission->grade) }}" min="0" max="100" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="feedback-{{ $submission->id }}">Umpan Balik (Feedback)</label>
@@ -168,4 +178,82 @@
     </div>
     @endforeach
 </div>
+
+
+
+<style>
+.pdf-viewer-container {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    
+    /* Desktop: Large and wide */
+    height: 85vh;
+    min-height: 600px;
+    max-height: 1200px;
+}
+
+/* Tablet (medium screens) */
+@media (max-width: 768px) {
+    .pdf-viewer-container {
+        height: 70vh;
+        min-height: 500px;
+    }
+}
+
+/* Mobile (small screens) */
+@media (max-width: 576px) {
+    .pdf-viewer-container {
+        height: 60vh;
+        min-height: 400px;
+    }
+}
+
+.pdf-viewer-container {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    
+    /* Desktop: Large and wide */
+    height: 85vh;
+    min-height: 600px;
+    max-height: 1200px;
+}
+
+/* Custom modal size for PDF viewing */
+.modal-pdf-viewer {
+    max-width: 95%;
+    margin: 1rem auto;
+}
+
+/* Tablet (medium screens) */
+@media (max-width: 768px) {
+    .pdf-viewer-container {
+        height: 70vh;
+        min-height: 500px;
+    }
+    
+    .modal-pdf-viewer {
+        max-width: 98%;
+        margin: 0.5rem auto;
+    }
+}
+
+/* Mobile (small screens) */
+@media (max-width: 576px) {
+    .pdf-viewer-container {
+        height: 60vh;
+        min-height: 400px;
+    }
+    
+    .modal-pdf-viewer {
+        max-width: 100%;
+        margin: 0;
+    }
+}
+
+</style>
+
+
 @endsection
+

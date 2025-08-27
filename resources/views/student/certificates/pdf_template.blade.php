@@ -115,14 +115,14 @@
             <div class="completion-text">CERTIFICATION OF COMPLETION</div>
 
             <div class="course-title">
-                {{ $course->title }} Digital Marketing (Jurusan Teknologi Multimedia Kreatif)
+                {{ $course->title }}
             </div>
 
-            <div class="instructor-name">Instructors <strong>Ashafidz Fauzan Dianta</strong></div>
+            <div class="instructor-name">Instructors <strong>{{ $course->instructor->name }}</strong></div>
 
-            <div class="student-name">Akhmad Nabil Gibran</div>
+            <div class="student-name">{{ $user->name }}</div>
             
-            <div class="issue-date">Date <strong>16 August 2025</strong></div>
+            <div class="issue-date">Date <strong>{{ $certificate->issued_at->format('d F Y') }}</strong></div>
         </div>
     </div>
 </body>
