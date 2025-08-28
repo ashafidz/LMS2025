@@ -11,6 +11,9 @@
         </div>
     </div>
     <div class="card-body">
+        <div class="alert alert-info small py-2 mb-3">
+            <i class="fa fa-info-circle me-2"></i> Nilai kuis telah dikonversi ke skala 0-100 untuk kemudahan pembacaan. Rumus: (Skor yang diperoleh / Skor maksimum) × 100. Arahkan kursor ke nilai untuk melihat skor asli.
+        </div>
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-sm">
                 <thead class="table-light">
@@ -24,7 +27,7 @@
                                 {{ $lesson->title }}
                                 {{-- DIPERBARUI: Tampilkan nilai kelulusan absolut --}}
                                 @if($lesson->lessonable_type === 'App\Models\Quiz')
-                                    <br><small class="text-muted">(KKM: {{ $lesson->lessonable->minimum_passing_score }})</small>
+                                    <br><small class="text-muted">(KKM: {{ $lesson->lessonable->minimum_passing_score }}%)</small>
                                 @elseif($lesson->lessonable_type === 'App\Models\LessonAssignment')
                                     <br><small class="text-muted">(KKM: {{ $lesson->lessonable->pass_mark }})</small>
                                 @endif
@@ -40,7 +43,16 @@
                         <td class="text-center">{{ $scores[$student->id]['total_course_points'] }}</td>
                         <td class="text-center">{{ $scores[$student->id]['total_module_points'] }}</td>
                         @foreach($gradableLessons as $lesson)
-                            <td class="text-center">{{ $scores[$student->id][$lesson->id] }}</td>
+                            <td class="text-center">
+                                @if($lesson->lessonable_type === 'App\Models\Quiz' && isset($scores[$student->id][$lesson->id.'_raw']))
+                                    <span data-bs-toggle="tooltip" data-bs-placement="top" 
+                                          title="Skor asli: {{ $scores[$student->id][$lesson->id.'_raw'] }} dari {{ $lesson->lessonable->max_possible_score }} poin">
+                                        {{ $scores[$student->id][$lesson->id] }}
+                                    </span>
+                                @else
+                                    {{ $scores[$student->id][$lesson->id] }}
+                                @endif
+                            </td>
                         @endforeach
                     </tr>
                     @empty
@@ -53,3 +65,13 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>

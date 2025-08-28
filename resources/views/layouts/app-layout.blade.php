@@ -220,6 +220,8 @@
     <script src="{{ asset('pages/waves/js/waves.min.js') }}"></script>
     <!-- jquery slimscroll js -->
     <script type="text/javascript" src="{{ asset('js/jquery-slimscroll/jquery.slimscroll.js') }} "></script>
+    <!-- CSRF protection -->
+    <script type="text/javascript" src="{{ asset('js/csrf-refresh.js') }}"></script>
     <!-- modernizr js -->
     <script type="text/javascript" src="{{ asset('js/modernizr/modernizr.js') }} "></script>
     <!-- slimscroll js -->

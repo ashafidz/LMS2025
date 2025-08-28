@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $siteSettings->site_name }}</title>
     <meta name="description" content="">
     <meta name="keywords" content="">
@@ -219,20 +220,41 @@
         // Cek jika timezone belum diatur di session storage browser
         if (!sessionStorage.getItem('timezone_set')) {
             const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const token = document.querySelector('meta[name="csrf-token"]').content;
 
             // Kirim timezone ke server menggunakan Fetch API
             fetch('/set-timezone', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // Penting untuk keamanan
+                    'X-CSRF-TOKEN': token // Gunakan token dari meta tag
                 },
                 body: JSON.stringify({
                     timezone: userTimezone
                 })
-            }).then(() => {
-                // Tandai bahwa timezone sudah diatur agar tidak dikirim berulang kali
-                sessionStorage.setItem('timezone_set', 'true');
+            }).then(response => {
+                if (response.ok) {
+                    // Tandai bahwa timezone sudah diatur agar tidak dikirim berulang kali
+                    sessionStorage.setItem('timezone_set', 'true');
+                } else if (response.status === 419) {
+                    // CSRF token mismatch, refresh token and try again
+                    refreshCsrfToken().then(newToken => {
+                        fetch('/set-timezone', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': newToken
+                            },
+                            body: JSON.stringify({
+                                timezone: userTimezone
+                            })
+                        }).then(() => {
+                            sessionStorage.setItem('timezone_set', 'true');
+                        });
+                    });
+                }
+            }).catch(error => {
+                console.error('Error setting timezone:', error);
             });
         }
     </script>
@@ -269,7 +291,8 @@
 <!-- Main JS File -->
 <script src="{{ asset('home-page/assets/js/main.js') }}"></script>
 
-
+<!-- CSRF protection -->
+<script type="text/javascript" src="{{ asset('js/csrf-refresh.js') }}"></script>
 
 <!-- Tambah di sini -->
 @stack('scripts')

@@ -166,7 +166,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="feedback-{{ $submission->id }}">Umpan Balik (Feedback)</label>
-                                    <textarea name="feedback" id="feedback-{{ $submission->id }}" class="form-control" rows="8" placeholder="Berikan umpan balik untuk siswa...">{{ old('feedback', $submission->feedback) }}</textarea>
+                                    <textarea name="feedback" id="feedback-{{ $submission->id }}" class="form-control" rows="8" style="width: 75%" placeholder="Berikan umpan balik untuk siswa...">{{ old('feedback', $submission->feedback) }}</textarea>
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-block">Simpan Penilaian</button>
                             </form>

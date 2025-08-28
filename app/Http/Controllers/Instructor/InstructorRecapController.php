@@ -61,7 +61,17 @@ class InstructorRecapController extends Controller
      */
     private function prepareRecapData(Module $module)
     {
-        $students = $module->course->students()->with('studentProfile')->get();
+        // Get students and sort them by unique_id_number
+        $students = $module->course->students()
+            ->with('studentProfile')
+            ->get()
+            ->sortBy(function ($student) {
+                // Put null values at the bottom
+                return $student->studentProfile && $student->studentProfile->unique_id_number
+                    ? (int)$student->studentProfile->unique_id_number
+                    : PHP_INT_MAX; // Using PHP_INT_MAX to push nulls to the bottom
+            });
+
         $gradableLessons = $module->lessons()
             ->whereIn('lessonable_type', [
                 \App\Models\Quiz::class,
@@ -100,7 +110,15 @@ class InstructorRecapController extends Controller
                     $quizMaxScore = $quiz->questions()->sum('score');
                     $quizMinimumScore = $quizMaxScore * ($quiz->pass_mark / 100);
                     if ($bestAttempt) {
-                        $score = rtrim(rtrim(number_format($bestAttempt->score, 2, ',', '.'), '0'), ',');
+                        // Calculate score on a 0-100 scale
+                        // Rumus: (Skor yang diperoleh / Skor maksimum) × 100
+                        $rawScore = $bestAttempt->score;
+                        $scaledScore = ($quizMaxScore > 0) ? min(100, round(($rawScore / $quizMaxScore) * 100, 2)) : 0;
+                        // Format the score with comma as decimal separator and period for thousands
+                        $score = rtrim(rtrim(number_format($scaledScore, 2, ',', '.'), '0'), ',');
+
+                        // Store both raw and scaled scores
+                        $scores[$student->id][$lesson->id . '_raw'] = rtrim(rtrim(number_format($rawScore, 2, ',', '.'), '0'), ',');
                     }
                 } elseif ($lessonable instanceof \App\Models\LessonAssignment) {
                     $submission = $student->assignmentSubmissions()
@@ -126,8 +144,12 @@ class InstructorRecapController extends Controller
             if ($lesson->lessonable_type === 'App\Models\Quiz') {
                 $totalScore = $lesson->lessonable->questions->sum('score');
                 $passMarkPercentage = $lesson->lessonable->pass_mark;
-                // Hitung skor minimal dan bulatkan
-                $lesson->lessonable->minimum_passing_score = round(($totalScore * $passMarkPercentage) / 100);
+
+                // Store original max score for reference
+                $lesson->lessonable->max_possible_score = $totalScore;
+
+                // Pass mark is already a percentage (0-100), so we can use it directly
+                $lesson->lessonable->minimum_passing_score = $passMarkPercentage;
             }
         }
         // --- AKHIR LOGIKA BARU ---

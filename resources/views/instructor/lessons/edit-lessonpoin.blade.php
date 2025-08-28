@@ -2,7 +2,24 @@
 @section('content')
 <div class="pcoded-content">
     <div class="page-header">
-        {{-- ... (header sama seperti halaman edit lainnya) ... --}}
+        <div class="page-block">
+            <div class="row align-items-center">
+                <div class="col-md-12">
+                    <div class="page-header-title">
+                        <h5 class="m-b-10">Edit Pelajaran</h5>
+                        <p class="m-b-0">Tipe: Sesi Poin (Lesson Poin)</p>
+                    </div>
+                </div>
+                <div class="col-md-12 d-flex mt-3">
+                    <ul class="breadcrumb-title">
+                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $lesson->module->course) }}">Modul</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}">{{ Str::limit($lesson->module->title, 20) }}</a></li>
+                        <li class="breadcrumb-item"><a href="#!">Edit Sesi Poin</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="pcoded-inner-content">
         <div class="main-body"><div class="page-wrapper"><div class="page-body">

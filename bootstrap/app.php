@@ -19,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'checkStudentStatus' => App\Http\Middleware\CheckStudentStatus::class,
             'prevent.caching' => \App\Http\Middleware\PreventCaching::class,
         ]);
+
+        // Add the ConfigureSessionDomain middleware to the web middleware group
+        $middleware->web(\App\Http\Middleware\ConfigureSessionDomain::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

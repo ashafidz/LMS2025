@@ -119,6 +119,8 @@ Route::get('/switch-role/{role}', [RoleSwitchController::class, 'switch'])->name
 //     return view('home');
 // })->name('home');
 Route::get('/', [HomeController::class, 'index'])->name('home');
+// Add a route to refresh CSRF tokens
+Route::get('/csrf-refresh', [Controllers\CsrfController::class, 'refresh']);
 // Route::get('/courses', function () {
 //     return view('catalog');
 // })->name('courses');
