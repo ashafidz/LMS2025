@@ -158,8 +158,8 @@
                                                     <span class="pcoded-mcaret"></span>
                                                 </a>
                                                 <ul class="pcoded-submenu">
-                                                    <li class="{{ Request::routeIs('superadmin.settings.edit') ? 'active' : '' }}">
-                                                        <a href="{{ route('superadmin.settings.edit') }}" class="waves-effect waves-dark">
+                                                    <li class="{{ Request::routeIs('admin.likert-questions.index') ? 'active' : '' }}">
+                                                        <a href="{{ route('admin.likert-questions.index') }}" class="waves-effect waves-dark">
                                                             <span class="pcoded-micon"><i
                                                                     class="ti-angle-right"></i></span>
                                                             <span class="pcoded-mtext"

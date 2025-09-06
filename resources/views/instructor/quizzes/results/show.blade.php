@@ -38,7 +38,62 @@
                                     @else
                                         <h4 class="text-danger">Status: Gagal</h4>
                                     @endif
-                                    <h5>Skor: <strong>{{ rtrim(rtrim(number_format($attempt->score, 2, ',', '.'), '0'), ',') }}</strong></h5>
+                                    
+                                    <!-- Informasi Skor -->
+                                    <div class="row mt-4">
+                                        <div class="col-md-4">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center py-3">
+                                                    <h6 class="card-title mb-1">Skor Student</h6>
+                                                    <h4 class="text-primary mb-0"><strong>{{ rtrim(rtrim(number_format($attempt->score, 2, ',', '.'), '0'), ',') }}</strong></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center py-3">
+                                                    <h6 class="card-title mb-1">Skor Minimum</h6>
+                                                    <h4 class="text-warning mb-0"><strong>{{ rtrim(rtrim(number_format($minimumScore, 2, ',', '.'), '0'), ',') }}</strong></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center py-3">
+                                                    <h6 class="card-title mb-1">Skor Maksimum</h6>
+                                                    <h4 class="text-info mb-0"><strong>{{ rtrim(rtrim(number_format($totalMaxScore, 2, ',', '.'), '0'), ',') }}</strong></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Informasi Nilai -->
+                                    <div class="row mt-3">
+                                        <div class="col-md-4">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center py-3">
+                                                    <h6 class="card-title mb-1">Nilai Student</h6>
+                                                    <h4 class="text-primary mb-0"><strong>{{ rtrim(rtrim(number_format($studentScoreScaled, 2, ',', '.'), '0'), ',') }}</strong></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center py-3">
+                                                    <h6 class="card-title mb-1">Nilai Minimum</h6>
+                                                    <h4 class="text-warning mb-0"><strong>{{ rtrim(rtrim(number_format($minimumScoreScaled, 2, ',', '.'), '0'), ',') }}</strong></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center py-3">
+                                                    <h6 class="card-title mb-1">Passing Grade</h6>
+                                                    <h4 class="text-info mb-0"><strong>{{ $attempt->quiz->pass_mark }}%</strong></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 

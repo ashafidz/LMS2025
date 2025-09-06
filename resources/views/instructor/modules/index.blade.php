@@ -9,7 +9,7 @@
                 <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Course Modules</h5>
-                        <p class="m-b-0">Manage modules for: <strong>{{ $course->title }}</strong></p>
+                        <p class="m-b-0 fw-bolder" style="font-size: 2rem;" ><strong>{{ $course->title }}</strong></p>
                     </div>
                 </div>
                 <div class="col-md-12 d-flex mt-3">

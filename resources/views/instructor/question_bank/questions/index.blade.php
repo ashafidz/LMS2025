@@ -8,8 +8,11 @@
                 <div class="row align-items-center">
                     <div class="col-md-12">
                         <div class="page-header-title">
-                            <h5 class="m-b-10">Pertanyaan Untuk Topik: {{ $topic->name }}</h5>
-                            <p class="m-b-0">Kelola pertanyaan untuk topik ini.</p>
+                            <p class="m-b-10">Kelola pertanyaan untuk topik ini.</p>
+                            <h5 class="m-b-0" style="font-size: 2rem;">
+                                Topik: {{ $topic->name }}
+
+                            </h5>
                         </div>
                     </div>
                     <div class="col-md-12 d-flex mt-3">
@@ -37,6 +40,10 @@
                                         <h5>List Pertanyaan</h5>
                                         <span>Berikut adalah daftar semua pertanyaan untuk topik ini.</span>
                                         <div class="card-header-right">
+                                            <button type="button" class="btn btn-info  ml-2 " data-toggle="modal" data-target="#topicInfoModal" title="Informasi Topik">
+                                    <i class="fa fa-info-circle text-white"></i>
+                                    Informasi Topik
+                                </button>
                                             {{-- UPDATE: This button now triggers the modal --}}
                                             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#selectQuestionTypeModal"><i class="bi bi-plus-lg text-white"></i>Buat Pertanyaan</button>
                                         </div>
@@ -79,23 +86,23 @@
                                                             <td class="text-center">
                                                                 {{-- Show Edit button only if not locked --}}
                                                                 @if (!$isLocked)
-                                                                    <a href="{{ route('instructor.question-bank.questions.edit', $question->id) }}" class="btn btn-info btn-sm"><i class="fas fa-edit"></i>Edit</a>
+                                                                    <a href="{{ route('instructor.question-bank.questions.edit', $question->id) }}" class="btn btn-info btn-sm"><i class="fas fa-edit"></i></a>
                                                                 @endif
 
                                                                 {{-- Move Question Button --}}
-                                                                <button type="button" class="btn btn-warning btn-sm" onclick="openMoveModal({{ $question->id }}, '{{ Str::limit(strip_tags($question->question_text), 50) }}')"><i class="fas fa-arrows-alt"></i>Pindah</button>
+                                                                <button type="button" class="btn btn-info btn-sm" onclick="openMoveModal({{ $question->id }}, '{{ Str::limit(strip_tags($question->question_text), 50) }}')"><i class="fas fa-arrows-alt"></i></button>
 
                                                                 {{-- Always show Clone button --}}
                                                                 <form action="{{ route('instructor.question-bank.questions.clone', $question->id) }}" method="POST" class="d-inline">
                                                                     @csrf
-                                                                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-clone"></i>Duplikat</button>
+                                                                    <button type="submit" class="btn btn-warning btn-sm text-dark"><i class="fa fa-clone"></i></button>
                                                                 </form>
 
                                                                 {{-- Disable Delete button if locked --}}
                                                                 <form action="{{ route('instructor.question-bank.questions.destroy', $question->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this question?');">
                                                                     @csrf
                                                                     @method('DELETE')
-                                                                    <button type="submit" class="btn btn-danger btn-sm" {{ $isLocked ? 'disabled' : '' }} title="{{ $isLocked ? 'This question is locked and cannot be deleted.' : '' }}"><i class="fas fa-trash"></i>Hapus</button>
+                                                                    <button type="submit" class="btn btn-danger btn-sm" {{ $isLocked ? 'disabled' : '' }} title="{{ $isLocked ? 'This question is locked and cannot be deleted.' : '' }}"><i class="fas fa-trash"></i></button>
                                                                 </form>
                                                             </td>
                                                         </tr>
@@ -170,7 +177,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="moveQuestionModalLabel">Pindah Pertanyaan ke Topik Lain</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeMoveModal()">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -208,10 +215,104 @@
                         <input type="hidden" id="selectedTopicId" name="target_topic_id" required>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="closeMoveModal()">Batal</button>
                         <button type="submit" class="btn btn-primary" id="moveButton" disabled>Pindah Pertanyaan</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Topic Information Modal -->
+    <div class="modal fade" id="topicInfoModal" tabindex="-1" role="dialog" aria-labelledby="topicInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="topicInfoModalLabel">
+                        <i class="fa fa-info-circle text-info"></i> Informasi Topik
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <!-- Nama Topik -->
+                            <div class="form-group">
+                                <label><strong>Nama Topik:</strong></label>
+                                <p class="form-control-static">{{ $topic->name }}</p>
+                            </div>
+
+                            <!-- Deskripsi -->
+                            <div class="form-group">
+                                <label><strong>Deskripsi:</strong></label>
+                                <p class="form-control-static">{{ $topic->description ?: 'Tidak ada deskripsi' }}</p>
+                            </div>
+
+                            <!-- Total Soal -->
+                            <div class="form-group">
+                                <label><strong>Total Soal:</strong></label>
+                                <p class="form-control-static">
+                                    <span class="badge badge-primary">{{ $allQuestions->count() }} soal</span>
+                                </p>
+                            </div>
+
+                            <!-- Breakdown Tipe Soal -->
+                            <div class="form-group">
+                                <label><strong>Breakdown Berdasarkan Tipe Soal:</strong></label>
+                                <div class="row">
+                                    @php
+                                        $questionTypes = $allQuestions->groupBy('question_type');
+                                        $typeLabels = [
+                                            'multiple_choice_single' => 'Pilihan Ganda (Tunggal)',
+                                            'multiple_choice_multiple' => 'Pilihan Ganda (Multiple)',
+                                            'true_false' => 'Benar/Salah',
+                                            'drag_and_drop' => 'Drag & Drop'
+                                        ];
+                                    @endphp
+                                    @foreach($typeLabels as $type => $label)
+                                        <div class="col-md-6 mb-2">
+                                            <div class="card bg-light">
+                                                <div class="card-body py-2">
+                                                    <small><strong>{{ $label }}:</strong></small>
+                                                    <span class="badge badge-secondary float-right">
+                                                        {{ $questionTypes->get($type, collect())->count() }} soal
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <!-- Ketersediaan Kursus -->
+                            <div class="form-group">
+                                <label><strong>Tersedia di Kursus:</strong></label>
+                                @if($topic->available_for_all_courses)
+                                    <p class="form-control-static">
+                                        <span class="badge badge-success">
+                                            <i class="fa fa-globe"></i> Semua Kursus Saya
+                                        </span>
+                                    </p>
+                                @else
+                                    <div class="form-control-static">
+                                        @if($topic->courses && $topic->courses->count() > 0)
+                                            @foreach($topic->courses as $course)
+                                                <span class="badge badge-info mr-1 mb-1">{{ $course->title }}</span>
+                                            @endforeach
+                                        @else
+                                            <span class="text-muted">Tidak tersedia di kursus manapun</span>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                </div>
             </div>
         </div>
     </div>
@@ -318,5 +419,32 @@
             
             return true;
         }
+
+        function closeMoveModal() {
+            // Reset form dan variabel
+            currentQuestionId = null;
+            document.getElementById('questionPreview').textContent = '';
+            document.getElementById('topic_filter').value = 'all';
+            document.getElementById('selectedTopicId').value = '';
+            document.getElementById('moveButton').disabled = true;
+            document.getElementById('topicsList').innerHTML = '';
+            
+            // Tutup modal secara manual jika data-dismiss tidak bekerja
+            $('#moveQuestionModal').modal('hide');
+        }
+
+        // Tambahkan event listener untuk ESC key
+        $(document).ready(function() {
+            $('#moveQuestionModal').on('hidden.bs.modal', function () {
+                closeMoveModal();
+            });
+            
+            // Handle ESC key
+            $(document).keydown(function(e) {
+                if (e.keyCode === 27 && $('#moveQuestionModal').hasClass('show')) { // ESC key
+                    closeMoveModal();
+                }
+            });
+        });
     </script>
 @endsection

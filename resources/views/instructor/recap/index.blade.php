@@ -8,7 +8,7 @@
                 <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Rekap Nilai Kursus</h5>
-                        <p class="m-b-0">Analisis detail nilai untuk kursus: <strong>{{ $course->title }}</strong></p>
+                        <p class="m-b-0" style="font-size: 2rem;"><strong>{{ $course->title }}</strong></p>
                     </div>
                 </div>
             </div>

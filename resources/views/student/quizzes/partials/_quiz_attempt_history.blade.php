@@ -12,6 +12,7 @@
                         <th>#</th>
                         <th>Tanggal & Waktu</th>
                         <th>Skor</th>
+                        <th>Nilai</th>
                         <th>Status</th>
                         <th>Durasi</th>
                         <th>Aksi</th>
@@ -28,6 +29,11 @@
 
                             {{-- Skor --}}
                             <td>{{ rtrim(rtrim($attempt->score, '0'), '.') }}</td>
+
+                            {{-- Nilai dalam skala 0-100 --}}
+                            <td>
+                                <strong class="text-primary">{{ rtrim(rtrim(number_format($attempt->studentScoreScaled, 2, ',', '.'), '0'), ',') }}</strong>
+                            </td>
 
                             {{-- Status Lulus/Gagal --}}
                             <td>
@@ -65,7 +71,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
+                            <td colspan="7" class="text-center text-muted py-4">
                                 Anda belum pernah mengerjakan kuis ini.
                             </td>
                         </tr>

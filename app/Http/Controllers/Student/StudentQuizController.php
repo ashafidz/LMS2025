@@ -321,7 +321,11 @@ class StudentQuizController extends Controller
             // quiz minimum score, not percentage
             $minimumScore = $maxPossibleScore * ($attempt->quiz->pass_mark / 100);
 
-            return view('student.quizzes.result', compact('attempt', 'is_preview', 'maxPossibleScore', 'minimumScore'));
+            // Hitung nilai student dalam skala 0-100 (sama seperti di InstructorRecapController)
+            $studentScoreScaled = ($maxPossibleScore > 0) ? min(100, round(($attempt->score / $maxPossibleScore) * 100, 2)) : 0;
+            $minimumScoreScaled = $attempt->quiz->pass_mark; // pass_mark sudah dalam bentuk persentase 0-100
+
+            return view('student.quizzes.result', compact('attempt', 'is_preview', 'maxPossibleScore', 'minimumScore', 'studentScoreScaled', 'minimumScoreScaled'));
         }
         return redirect()->route('student.quiz.result', $attempt->id);
     }
@@ -357,8 +361,12 @@ class StudentQuizController extends Controller
         // quiz minimum score, not percentage
         $minimumScore = $maxPossibleScore * ($attempt->quiz->pass_mark / 100);
 
+        // Hitung nilai student dalam skala 0-100 (sama seperti di InstructorRecapController)
+        $studentScoreScaled = ($maxPossibleScore > 0) ? min(100, round(($attempt->score / $maxPossibleScore) * 100, 2)) : 0;
+        $minimumScoreScaled = $attempt->quiz->pass_mark; // pass_mark sudah dalam bentuk persentase 0-100
 
-        return view('student.quizzes.result', ['attempt' => $attempt, 'is_preview' => false, 'maxPossibleScore' => $maxPossibleScore, 'minimumScore' => $minimumScore]);
+
+        return view('student.quizzes.result', ['attempt' => $attempt, 'is_preview' => false, 'maxPossibleScore' => $maxPossibleScore, 'minimumScore' => $minimumScore, 'studentScoreScaled' => $studentScoreScaled, 'minimumScoreScaled' => $minimumScoreScaled]);
     }
 
     // public function checkAnswerAjax(Request $request)

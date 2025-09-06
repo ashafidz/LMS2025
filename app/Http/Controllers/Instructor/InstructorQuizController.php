@@ -25,6 +25,9 @@ class InstructorQuizController extends Controller
         $totalMaxScore = $quiz->questions->sum('score');
         $minimumScore = ($quiz->pass_mark / 100) * $totalMaxScore;
 
+        // Hitung nilai minimum dalam skala 0-100 (sama seperti di InstructorRecapController)
+        $minimumScoreScaled = $quiz->pass_mark; // pass_mark sudah dalam bentuk persentase 0-100
+
         // 1. Ambil kursus yang terkait dengan kuis ini
         $course = $quiz->lesson->module->course;
 
@@ -64,7 +67,7 @@ class InstructorQuizController extends Controller
             }
         }
 
-        return view('instructor.quizzes.results.index', compact('quiz', 'enrolledStudents', 'minimumScore'));
+        return view('instructor.quizzes.results.index', compact('quiz', 'enrolledStudents', 'minimumScore', 'totalMaxScore', 'minimumScoreScaled'));
     }
 
     /**
@@ -84,6 +87,16 @@ class InstructorQuizController extends Controller
             'student'
         ]);
 
-        return view('instructor.quizzes.results.show', compact('attempt'));
+        // Hitung total skor maksimal dan nilai minimum
+        $quiz = $attempt->quiz;
+        $quiz->load('questions');
+        $totalMaxScore = $quiz->questions->sum('score');
+        $minimumScore = ($quiz->pass_mark / 100) * $totalMaxScore;
+
+        // Hitung nilai student dalam skala 0-100 (sama seperti di InstructorRecapController)
+        $studentScoreScaled = ($totalMaxScore > 0) ? min(100, round(($attempt->score / $totalMaxScore) * 100, 2)) : 0;
+        $minimumScoreScaled = $quiz->pass_mark; // pass_mark sudah dalam bentuk persentase 0-100
+
+        return view('instructor.quizzes.results.show', compact('attempt', 'totalMaxScore', 'minimumScore', 'studentScoreScaled', 'minimumScoreScaled'));
     }
 }

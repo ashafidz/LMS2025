@@ -100,7 +100,8 @@
     </section><!-- /Contact Section -->
 
     
-    <!-- Call To Action 2 Section -->
+    @guest
+          <!-- Call To Action 2 Section -->
     <section id="call-to-action-2" class="call-to-action-2 section dark-background">
 
       <div class="container">
@@ -109,7 +110,7 @@
             <div class="text-center">
               <h3>Ayo Mulai Sekarang!</h3>
               <p>Jangan tunggu nanti. Ayo, wujudkan ide dan tujuan kamu bersama kami. Tim kami siap membantu dari awal sampai sukses!</p>
-              <a class="cta-btn" href="#">Call To Action</a>
+              <a class="cta-btn" href="{{ route('register') }}">Daftar Sekarang</a>
             </div>
           </div>
         </div>
@@ -117,4 +118,5 @@
 
     </section><!-- /Call To Action 2 Section -->
 
+    @endguest
 @endsection

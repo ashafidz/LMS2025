@@ -233,13 +233,17 @@
       <div class="col-lg-4">
         <div class="mb-4">
           <h6 class="fw-bold mb-3">Instruktur</h6>
-          <div class="d-flex align-items-center">
-            <img src="{{ $course->instructor->profile_picture_url ? asset('storage/' . ltrim($course->instructor->profile_picture_url, '/')) : 'https://placehold.co/80x80/EBF4FF/767676?text=' . strtoupper(substr($course->instructor->name, 0, 1)) }}"
-                 class="rounded-circle me-3" style="width: 45px; height: 45px; object-fit: cover;">
-            <div>
+
+            <a href="{{ route('profile.show', $course->instructor->id) }}">
+              <div class="d-flex align-items-center">
+                  <img src="{{ $course->instructor->profile_picture_url ? asset($course->instructor->profile_picture_url) : 'https://placehold.co/80x80/EBF4FF/767676?text=' . strtoupper(substr($course->instructor->name, 0, 1)) }}"
+                  class="rounded-circle me-3" style="width: 45px; height: 45px; object-fit: cover;">
+              <div>
               <strong>{{ $course->instructor->name }}</strong>
             </div>
-          </div>
+                      </div>
+            </a>
+
         </div>
 
         <hr>

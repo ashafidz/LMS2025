@@ -15,8 +15,19 @@ class LessonPointController extends Controller
     public function index(Lesson $lesson)
     {
         $course = $lesson->module->course;
-        $students = $course->students()->with(['coursePoints' => fn($q) => $q->where('course_id', $course->id)])->simplePaginate(20);
-        return view('instructor.lesson-points.manage', compact('lesson', 'course', 'students'));
+        $module = $lesson->module;
+
+        // Get students with proper sorting by unique_id_number (nulls last)
+        $students = $course->students()
+            ->with(['coursePoints' => fn($q) => $q->where('course_id', $course->id)])
+            ->with('studentProfile')
+            ->leftJoin('student_profiles', 'users.id', '=', 'student_profiles.user_id')
+            ->orderByRaw('CASE WHEN student_profiles.unique_id_number IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('student_profiles.unique_id_number', 'asc')
+            ->select('users.*')
+            ->simplePaginate(20);
+
+        return view('instructor.lesson-points.manage', compact('lesson', 'course', 'module', 'students'));
     }
     public function award(Request $request, Lesson $lesson)
     {

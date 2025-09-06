@@ -16,6 +16,12 @@ class QuestionController extends Controller
     {
         $questions = $topic->questions()->with('options', 'quizzes')->latest()->simplePaginate(10);
 
+        // Load topic with courses for modal info
+        $topic->load('courses');
+
+        // Get all questions for breakdown statistics (not paginated)
+        $allQuestions = $topic->questions()->get();
+
         // Get all available topics for the move functionality
         $user = Auth::user();
         $availableTopics = QuestionTopic::where('instructor_id', $user->id)
@@ -39,7 +45,7 @@ class QuestionController extends Controller
         // Get courses for filter dropdown
         $courses = $user->courses()->orderBy('title')->get(['id', 'title']);
 
-        return view('instructor.question_bank.questions.index', compact('topic', 'questions', 'availableTopics', 'courses'));
+        return view('instructor.question_bank.questions.index', compact('topic', 'questions', 'allQuestions', 'availableTopics', 'courses'));
     }
 
     public function create(Request $request, QuestionTopic $topic)

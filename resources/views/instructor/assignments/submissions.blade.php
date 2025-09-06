@@ -123,7 +123,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-7">
+                        <div class="col-md-10">
                             <h6 class="font-weight-bold">Pratinjau File</h6>
                             @if(Str::endsWith($submission->file_path, '.pdf'))
                                 {{-- <div class="embed-responsive embed-responsive-4by3" style="border: 1px solid #ddd;">
@@ -149,11 +149,11 @@
                                 <i class="fa fa-download"></i> Unduh File Tugas
                             </a>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-2">
                             <h6 class="font-weight-bold">Form Penilaian</h6>
                             {{-- Tambahkan peringatan keterlambatan di sini --}}
                             @if ($submission->is_late)
-                                <div class="alert alert-warning" role="alert">
+                                <div class="alert alert-warning bg-warning text-dark" role="alert">
                                     <i class="fa fa-exclamation-triangle"></i> 
                                     <strong>Perhatian:</strong> Siswa ini mengumpulkan tugas melewati batas waktu.
                                 </div>
@@ -162,11 +162,11 @@
                                 @csrf
                                 <div class="form-group">
                                     <label for="grade-{{ $submission->id }}">Nilai (0-100)</label>
-                                    <input type="number" name="grade" id="grade-{{ $submission->id }}" class="form-control" style="width: 10%;" value="{{ old('grade', $submission->grade) }}" min="0" max="100" required>
+                                    <input type="number" name="grade" id="grade-{{ $submission->id }}" class="form-control" style="width: 30%;" value="{{ old('grade', $submission->grade) }}" min="0" max="100" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="feedback-{{ $submission->id }}">Umpan Balik (Feedback)</label>
-                                    <textarea name="feedback" id="feedback-{{ $submission->id }}" class="form-control" rows="8" style="width: 75%" placeholder="Berikan umpan balik untuk siswa...">{{ old('feedback', $submission->feedback) }}</textarea>
+                                    <textarea name="feedback" id="feedback-{{ $submission->id }}" class="form-control" rows="8" style="width: 100%" placeholder="Berikan umpan balik untuk siswa...">{{ old('feedback', $submission->feedback) }}</textarea>
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-block">Simpan Penilaian</button>
                             </form>

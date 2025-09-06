@@ -15,17 +15,24 @@
             @if(isset($maxScore))
             <li class="list-group-item d-flex justify-content-between">
                 <span><i class="fa fa-trophy mr-2"></i> Total Skor Maksimal</span>
-                <strong>{{ $maxScore }} poin</strong>
+                <strong>{{ $maxScore }}</strong>
             </li>
             @endif
+             <li class="list-group-item d-flex justify-content-between">
+                <span><i class="fa fa-check-square-o mr-2"></i> Skor Minimum</span>
+                <strong>{{ rtrim(rtrim(number_format($minimumScore, 2, ',', '.'), '0'), ',') }}</strong>
+            </li>
             <li class="list-group-item d-flex justify-content-between">
-                <span><i class="fa fa-check-square-o mr-2"></i> Nilai Kelulusan</span>
+                <span><i class="fa fa-check-square-o mr-2"></i> Passing Grade Kelulusan</span>
                 <strong>{{ $lesson->lessonable->pass_mark }}%</strong>
             </li>
-             <li class="list-group-item d-flex justify-content-between">
+            <li class="list-group-item d-flex justify-content-between">
                 <span><i class="fa fa-check-square-o mr-2"></i> Nilai Minimum</span>
-                <strong>{{ $minimumScore }}</strong>
+                <strong>{{ rtrim(rtrim(number_format($minimumScoreScaled, 2, ',', '.'), '0'), ',') }}</strong>
             </li>
+
+
+
             <li class="list-group-item d-flex justify-content-between">
                 <span><i class="fa fa-clock-o mr-2"></i> Batas Waktu</span>
                 <strong>{{ $lesson->lessonable->time_limit ? $lesson->lessonable->time_limit . ' menit' : 'Tidak ada' }}</strong>

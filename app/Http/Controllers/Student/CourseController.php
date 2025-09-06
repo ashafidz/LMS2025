@@ -175,7 +175,11 @@ class CourseController extends Controller
             // HITUNG TOTAL SKOR MAKSIMAL
             $data['maxScore'] = $quiz->questions->sum('score');
 
+            // HITUNG NILAI MINIMUM ABSOLUT (dalam poin)
             $data['minimumScore'] = $data['maxScore'] * ($quiz->pass_mark / 100);
+
+            // HITUNG NILAI MINIMUM DALAM SKALA 0-100 (sama seperti di InstructorRecapController)
+            $data['minimumScoreScaled'] = $quiz->pass_mark; // pass_mark sudah dalam bentuk persentase 0-100
 
             // LOGIKA BARU: Cek ketersediaan kuis berdasarkan jadwal
             $now = Carbon::now();
@@ -200,15 +204,22 @@ class CourseController extends Controller
 
             // LOGIKA YANG DIPERBARUI
             if ($user && !$is_preview_for_view) {
-                // Ambil SEMUA percobaan, urutkan dari yang paling awal (asc)
+                // Ambil SEMUA percobaan, urutkan dari yang paling akhir (desc)
                 $allAttempts = $quiz->attempts()
                     ->where('student_id', $user->id)
-                    ->orderBy('created_at', 'asc') // Diubah ke 'asc'
+                    ->orderBy('created_at', 'desc') // Diubah ke 'desc' untuk menampilkan dari yang paling akhir
                     ->get();
+
+                // Tambahkan perhitungan nilai untuk setiap attempt
+                $totalMaxScore = $data['maxScore'];
+                foreach ($allAttempts as $attempt) {
+                    // Hitung nilai student dalam skala 0-100 (sama seperti di InstructorRecapController)
+                    $attempt->studentScoreScaled = ($totalMaxScore > 0) ? min(100, round(($attempt->score / $totalMaxScore) * 100, 2)) : 0;
+                }
 
                 $data['allAttempts'] = $allAttempts; // Kirim semua percobaan
                 $data['attemptCount'] = $allAttempts->count();
-                $data['lastAttempt'] = $allAttempts->last(); // Ambil yang terakhir dari koleksi
+                $data['lastAttempt'] = $allAttempts->first(); // Ambil yang pertama dari koleksi (yang terbaru karena desc)
             }
             // AKHIR LOGIKA YANG DIPERBARUI
 

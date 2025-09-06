@@ -21,7 +21,10 @@ class QuestionTopicController extends Controller
         // Mulai query dasar untuk topik milik instruktur
         $query = $user->questionTopics()
             ->withExists(['questions as is_locked' => fn($q) => $q->whereHas('quizzes')])
-            ->withCount('questions');
+            ->withCount('questions')
+            ->with(['courses', 'questions' => function ($q) {
+                $q->select('id', 'topic_id', 'question_type');
+            }]);
 
         // Terapkan filter berdasarkan pilihan dropdown
         if ($filter === 'global') {

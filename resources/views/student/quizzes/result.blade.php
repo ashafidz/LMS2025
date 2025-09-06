@@ -44,10 +44,75 @@
                                         <i class="fa fa-times-circle fa-4x text-danger mb-3"></i>
                                     @endif
 
-                                    <h4>Skor Anda: <strong>{{ rtrim(rtrim(number_format($attempt->score, 2, ',', '.'), '0'), ',') }}</strong></h4>
-                                    <p class="">Nilai Kelulusan Minimum: {{ $attempt->quiz->pass_mark }}%</p>
+                                    {{-- <h4>Skor Anda: <strong>{{ rtrim(rtrim(number_format($attempt->score, 2, ',', '.'), '0'), ',') }}</strong></h4> --}}
+                                    
+                                    <!-- Informasi Nilai Baru -->
+                                    <div class="mt-4">
+                                        <div class="row">
+                                            {{-- Skor Student --}}
+                                            <div class="col-md-4">
+                                                <div class="card bg-light">
+                                                    <div class="card-body text-center py-3">
+                                                        <h6 class="card-title mb-1">Skor Anda</h6>
+                                                        <h4 class="text-primary mb-0"><strong>{{ rtrim(rtrim(number_format($attempt->score, 2, ',', '.'), '0'), ',') }}</strong></h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- Skor Minimum --}}
+                                            <div class="col-md-4">
+                                                <div class="card bg-light">
+                                                    <div class="card-body text-center py-3">
+                                                        <h6 class="card-title mb-1">Skor Minimum</h6>
+                                                        <h4 class="text-info mb-0"><strong>{{ rtrim(rtrim(number_format($minimumScore, 2, ',', '.'), '0'), ',') }}</strong></h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Skor Maksimum --}}
+                                            <div class="col-md-4">
+                                                <div class="card bg-light">
+                                                    <div class="card-body text-center py-3">
+                                                        <h6 class="card-title mb-1">Skor Maksimum</h6>
+                                                        <h4 class="text-info mb-0"><strong>{{ rtrim(rtrim(number_format($maxPossibleScore, 2, ',', '.'), '0'), ',') }}</strong></h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{--  --}}
+                                            
+                                            {{-- Nilai Student --}}
+                                            <div class="col-md-6">
+                                                <div class="card bg-light">
+                                                    <div class="card-body text-center py-3">
+                                                        <h6 class="card-title mb-1">Nilai Anda</h6>
+                                                        <h4 class="text-primary mb-0"><strong>{{ rtrim(rtrim(number_format($studentScoreScaled, 2, ',', '.'), '0'), ',') }}</strong></h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- Nilai Minimum --}}
+                                            <div class="col-md-6">
+                                                <div class="card bg-light">
+                                                    <div class="card-body text-center py-3">
+                                                        <h6 class="card-title mb-1">Nilai Minimum</h6>
+                                                        <h4 class="text-info mb-0"><strong>{{ rtrim(rtrim(number_format($minimumScoreScaled, 2, ',', '.'), '0'), ',') }}</strong></h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- Passing Grade --}}
+                                            <div class="col-md-12">
+                                                <div class="card bg-light">
+                                                    <div class="card-body text-center py-3">
+                                                        <h6 class="card-title mb-1">Passing Grade</h6>
+                                                        <h4 class="text-info mb-0"><strong>{{ rtrim(rtrim(number_format($attempt->quiz->pass_mark, 2, ',', '.'), '0'), ',') }} %</strong></h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    
+                                    {{-- <p class="">Nilai Kelulusan Minimum: {{ $attempt->quiz->pass_mark }}%</p>
                                     <p class="" >Nilai Kelulusan Maksimum : {{ $maxPossibleScore }}</p>
-                                    <p class="" >Nilai Kelulusan Minimum (dalam score) : {{ $minimumScore }}</p>
+                                    <p class="" >Nilai Kelulusan Minimum (dalam score) : {{ $minimumScore }}</p> --}}
                                     <hr>
                                     @if ($is_preview)
                                         <a href="{{ route('student.courses.show', ['course' => $attempt->quiz->lesson->module->course->slug, 'preview' => 'true']) }}" class="btn btn-primary">Kembali ke Preview Kursus</a>

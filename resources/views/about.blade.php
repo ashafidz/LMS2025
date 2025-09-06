@@ -155,6 +155,22 @@
     <!-- /Features 2 Section -->
 
 
+
+
+<section id="call-to-action-2" class="call-to-action-2 section dark-background text-white py-5">
+    <div class="container">
+        <div class="row justify-content-center" data-aos="zoom-in" data-aos-delay="100">
+            <div class="col-xl-10">
+                <div class="text-center">
+                    <h3>Periksa Semua Testimoni</h3>
+                    <p>Kami menerima banyak feedback positif dari pelanggan kami. Yuk, lihat pengalaman mereka menggunakan layanan kami!</p>
+                    <a class="cta-btn btn btn-outline-light mt-3 px-4 py-2" href="{{ route('testimonials') }}">Lihat Semua Testimoni</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Testimonials Section -->
 <section id="testimonials" class="testimonials section light-background">
 

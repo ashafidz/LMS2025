@@ -33,7 +33,7 @@
                                 <div class="card-header">
                                     <h5>Daftar Pertanyaan</h5>
                                     <div class="card-header-right">
-                                        <a href="{{ route(Auth::user()->getRoleNames()->first() . '.likert-questions.create') }}" class="btn btn-primary">Buat Pertanyaan Baru</a>
+                                        <a href="{{ route(Auth::user()->getRoleNames()->first() . '.likert-questions.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg text-white"></i> Buat Pertanyaan Baru</a>
                                     </div>
                                 </div>
                                 <div class="card-block table-border-style">
@@ -74,13 +74,13 @@
                                                         </td>
                                                         <td class="text-center">
                                                             <a href="{{ route(Auth::user()->getRoleNames()->first() . '.likert-questions.edit', $question->id) }}" class="btn btn-info btn-sm">
-                                                                <i class="fa fa-pencil"></i> Edit
+                                                                <i class="fa fa-pencil"></i> 
                                                             </a>
                                                             <form action="{{ route(Auth::user()->getRoleNames()->first() . '.likert-questions.destroy', $question->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pertanyaan ini?');">
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <button type="submit" class="btn btn-danger btn-sm">
-                                                                    <i class="fa fa-trash"></i> Hapus
+                                                                    <i class="fa fa-trash"></i> 
                                                                 </button>
                                                             </form>
                                                         </td>

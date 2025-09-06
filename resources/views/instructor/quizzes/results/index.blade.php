@@ -6,13 +6,13 @@
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Hasil Kuis</h5>
                         <p class="m-b-0">Judul Kuis: <strong>{{ $quiz->title }}</strong></p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
                         <li class="breadcrumb-item"><a href="#!"><i class="fa fa-home"></i> </a></li>
                         <li class="breadcrumb-item"><a href="#!">Kursus Saya</a></li>
@@ -111,18 +111,28 @@
                                     <tr>
                                         <th>Waktu Selesai</th>
                                         <th>Skor</th>
+                                        <th>Nilai</th>
                                         <th>Status</th>
                                         <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($student->attempts->sortByDesc('created_at') as $attempt)
+                                    @php
+                                        // Hitung nilai student dalam skala 0-100 (sama seperti di InstructorRecapController)
+                                        $studentScoreScaled = ($totalMaxScore > 0) ? min(100, round(($attempt->score / $totalMaxScore) * 100, 2)) : 0;
+                                    @endphp
                                     <tr>
                                         <td>{{ $attempt->end_time ? $attempt->end_time->format('d M Y, H:i') : 'Dalam Pengerjaan' }}</td>
                                         <td>
                                             <strong>{{ rtrim(rtrim(number_format($attempt->score, 2, ',', '.'), '0'), ',') }}</strong>
                                             <br>
                                             <small class="text-muted">Min: {{ rtrim(rtrim(number_format($minimumScore, 2, ',', '.'), '0'), ',') }}</small>
+                                        </td>
+                                        <td>
+                                            <strong>{{ rtrim(rtrim(number_format($studentScoreScaled, 2, ',', '.'), '0'), ',') }}</strong>
+                                            <br>
+                                            <small class="text-muted">Min: {{ rtrim(rtrim(number_format($minimumScoreScaled, 2, ',', '.'), '0'), ',') }}</small>
                                         </td>
                                         <td>
                                             @if($attempt->status == 'passed')

@@ -28,8 +28,9 @@
                     <div class="card">
                         <div class="card-header">
                             <h5>Daftar Kategori</h5>
+                            <span>Kelola daftar kategori kursus </span>
                             <div class="card-header-right">
-                                <a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-categories.create') }}" class="btn btn-primary">Buat Kategori Baru</a>
+                                <a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-categories.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg text-white"></i> Buat Kategori Baru</a>
                             </div>
                         </div>
                         <div class="card-block table-border-style">
@@ -50,9 +51,9 @@
                                                 <td><strong>{{ $category->name }}</strong></td>
                                                 <td>{{ $category->courses_count }} Kursus</td>
                                                 <td class="text-center">
-                                                    <a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-categories.edit', $category->id) }}" class="btn btn-info btn-sm"><i class="fa fa-pencil"></i> Edit</a>
+                                                    <a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-categories.edit', $category->id) }}" class="btn btn-info btn-sm"><i class="fa fa-pencil"></i> </a>
                                                     <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal-{{ $category->id }}" {{ $categories->count() <= 1 ? 'disabled' : '' }}>
-                                                        <i class="fa fa-trash"></i> Hapus
+                                                        <i class="fa fa-trash"></i> 
                                                     </button>
                                                 </td>
                                             </tr>

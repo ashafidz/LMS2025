@@ -7,7 +7,8 @@
             <div class="row align-items-center">
                 <div class="col-md-12">
                     <div class="page-header-title">
-                        <h5 class="m-b-10">Kelola Pelajaran: {{ $module->title }}</h5>
+                        <h5 class="m-b-10">Course: {{ $module->course->title }}</h5>
+                        <p class="m-b-10 fw-bolder" style="font-size: 2rem;">Kelola Pelajaran Modul: {{ $module->title }}</p>
                         <p class="m-b-0">Atur semua pelajaran untuk modul ini.</p>
                     </div>
                 </div>

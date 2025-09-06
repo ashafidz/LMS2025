@@ -5,13 +5,15 @@
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Beri Poin Manual</h5>
+                        <p class="m-b-0">Kursus: <strong>{{ $course->title }}</strong></p>
+                        <p class="m-b-0">Modul: <strong>{{ $module->title }}</strong></p>
                         <p class="m-b-0">Pelajaran: <strong>{{ $lesson->title }}</strong></p>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
                         <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
                         <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}">Daftar Pelajaran</a></li>
@@ -29,8 +31,13 @@
                         <div class="col-sm-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h5>Daftar Siswa di Kursus: {{ $course->title }}</h5>
-                                    <span>Berikan poin kepada siswa berdasarkan partisipasi atau pencapaian mereka.</span>
+                                    <h5>Daftar Siswa</h5>
+                                    <span>
+                                        <strong>Kursus:</strong> {{ $course->title }} <br>
+                                        <strong>Modul:</strong> {{ $module->title }} <br>
+                                        <strong>Pelajaran:</strong> {{ $lesson->title }} <br>
+                                        Berikan poin kepada siswa berdasarkan partisipasi atau pencapaian mereka.
+                                    </span>
                                 </div>
                                 <div class="card-block table-border-style">
                                     @if (session('success'))
@@ -59,7 +66,7 @@
                                             <tbody>
                                                 @forelse ($students as $student)
                                                     <tr>
-                                                        <td class="text-center" >{{ $student->unique_id_number ? $student->unique_id_number : '-' }}</td>
+                                                        <td class="text-center" >{{ $student->studentProfile->unique_id_number ? $student->studentProfile->unique_id_number : '-' }}</td>
                                                         <td><a href="{{ route('profile.show', $student->id) }}">{{ $student->name }}</a></td>
                                                         <td>
                                                             {{-- Ambil total poin dari relasi pivot --}}
