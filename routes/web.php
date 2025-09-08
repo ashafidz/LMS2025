@@ -1,7 +1,611 @@
 <?php
 
+use App\Http\Controllers;
+use App\Models\SiteSetting;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AboutController;
+use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\RoleSwitchController;
+use App\Http\Controllers\TestimonialController;
+use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\Student\CartController;
+use App\Http\Controllers\Shared\CouponController;
+use App\Http\Controllers\MidtransCallbackController;
+use App\Http\Controllers\Student\CheckoutController;
+use App\Http\Controllers\Superadmin\BadgeController;
+use App\Http\Controllers\Instructor\CourseController;
+use App\Http\Controllers\Instructor\LessonController;
+use App\Http\Controllers\Instructor\ModuleController;
+use App\Http\Controllers\Shared\PublicationController;
+use App\Http\Controllers\Instructor\QuestionController;
+use App\Http\Controllers\Student\CertificateController;
+use App\Http\Controllers\Student\StudentQuizController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Shared\StudentStatusController;
+use App\Http\Controllers\Student\CourseReviewController;
+use App\Http\Controllers\Student\GamificationController;
+use App\Http\Controllers\Student\StudentBadgeController;
+use App\Http\Controllers\Student\StudentPointController;
+use App\Http\Controllers\Shared\CourseCategoryController;
+use App\Http\Controllers\Shared\LikertQuestionController;
+use App\Http\Controllers\Student\PointPurchaseController;
+use App\Http\Controllers\Student\StudentReviewController;
+use App\Http\Controllers\Instructor\LessonPointController;
+use App\Http\Controllers\Superadmin\SiteSettingController;
+use App\Http\Controllers\Instructor\QuizQuestionController;
+use App\Http\Controllers\Shared\CourseEnrollmentController;
+use App\Http\Controllers\Student\DiamondPurchaseController;
+use App\Http\Controllers\Instructor\QuestionTopicController;
+use App\Http\Controllers\Student\LessonDiscussionController;
+use App\Http\Controllers\Student\StudentDashboardController;
+use App\Http\Controllers\Instructor\InstructorQuizController;
 
-Route::get('/', function () {
-    return view('welcome');
+use App\Http\Controllers\Student\DiamondConversionController;
+use App\Http\Controllers\Student\StudentAssignmentController;
+use App\Http\Controllers\Instructor\InstructorRecapController;
+use App\Http\Controllers\Student\TransactionHistoryController;
+use App\Http\Controllers\Shared\InstructorApplicationController;
+use App\Http\Controllers\Instructor\InstructorDashboardController;
+use App\Http\Controllers\PublicProfileController; // Tambahkan ini
+
+use App\Http\Controllers\Superadmin\SuperAdminDashboardController;
+use App\Http\Controllers\Instructor\InstructorAssignmentController;
+use App\Http\Controllers\Instructor\InstructorLeaderboardController;
+use App\Http\Controllers\Student\CourseController as StudentCourseController;
+use App\Http\Controllers\Student\StudentCertificateController; // Tambahkan ini
+use App\Http\Controllers\Superadmin\AdminManagementController; // Tambahkan ini
+
+// Route::get('/neweditprofil', function () {
+//     return view('1edit-index');
+// });
+// Route::get('/newprofil', function () {
+//     return view('1student');
+// });
+
+Route::get('/template-pdf', function () {
+    // --- FIX 1: PASS DATA TO THE VIEW ---
+    // You must provide the data that your view expects.
+    // Here, we create a simple object for demonstration.
+    // In your real application, you would fetch this from the database.
+    $course = (object)[
+        'title' => 'Digital Marketing Course'
+    ];
+
+    // It's better practice to get data in the route/controller
+    // and pass it to the view, rather than querying in the view itself.
+    $settings = SiteSetting::first();
+
+    // --- FIX 2: ADD THE 'return' KEYWORD ---
+    // You must return the view for it to be sent to the browser.
+    return view('template_certificate', compact('course', 'settings'));
+});
+
+Route::get('/testimonials', [TestimonialController::class, 'index'])->name('testimonials');
+
+// RUTE BARU UNTUK LEADERBOARD
+Route::get('/courses/{course}/leaderboard', [StudentCourseController::class, 'getLeaderboard'])->name('student.course.leaderboard');
+// RUTE BARU UNTUK HALAMAN PROFIL PUBLIK
+Route::get('/profile/{user}', [PublicProfileController::class, 'show'])->name('profile.show');
+
+
+
+// di dalam file routes/web.php RUTE LEADERBOARD MODULE
+Route::get('/modules/{module}/leaderboard', [StudentCourseController::class, 'getModuleLeaderboard'])->name('student.module.leaderboard');
+
+Route::post('/set-timezone', function (Request $request) {
+    $request->validate(['timezone' => 'required|string']);
+
+    // Simpan ke session (untuk tamu atau fallback)
+    session(['user_timezone' => $request->timezone]);
+
+    // JIKA USER LOGIN, SIMPAN JUGA KE DATABASE
+    if (Auth::check()) {
+        $user = Auth::user();
+        $user->timezone = $request->timezone;
+        $user->save();
+    }
+
+    return response()->json(['status' => 'success']);
+});
+
+
+Route::get('/switch-role/{role}', [RoleSwitchController::class, 'switch'])->name('role.switch');
+
+// Route::get('/', function () {
+//     return view('home');
+// })->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+// Add a route to refresh CSRF tokens
+Route::get('/csrf-refresh', [Controllers\CsrfController::class, 'refresh']);
+// Route::get('/courses', function () {
+//     return view('catalog');
+// })->name('courses');
+Route::get('/courses', [CatalogController::class, 'index'])->name('courses');
+Route::get('/courses/{course:slug}', [CatalogController::class, 'show'])->name('courses.show');
+Route::get('/about', [AboutController::class, 'index'])->name('about');
+Route::get('/contact', function () {
+    return view('contact');
+})->name('contact');
+Route::get('/faqs', function () {
+    return view('faq');
+})->name('faqs');
+Route::get('/detail-service', function () {
+    return view('detail-layanan');
+})->name('services.detail');
+
+
+
+Route::middleware(['auth'])->group(function () {
+    // profile index
+    Route::get('/user/profile/view', [UserProfileController::class, 'index'])->name('user.profile.index');
+    Route::get('/user/profile/edit', [UserProfileController::class, 'edit'])->name('user.profile.edit');
+    Route::put('/user/profile', [UserProfileController::class, 'update'])->name('user.profile.update');
+    Route::get('/user/password', function () {
+        return view('auth.password');
+    })->name('user.password.edit');
+
+    Route::get('/student/courses/{course:slug}', [StudentCourseController::class, 'show'])->name('student.courses.show');
+    // Rute baru untuk mengambil konten pelajaran secara dinamis (AJAX)
+    Route::get('/student/lessons/{lesson}/content', [StudentCourseController::class, 'getContent'])->name('student.lessons.content')->middleware('auth');
+
+    // Halaman perkenalan sebelum memulai kuis
+    Route::get('/student/quiz/{quiz}/start', [StudentQuizController::class, 'start'])->name('student.quiz.start');
+
+    // Aksi untuk memulai kuis dan membuat 'attempt'
+    Route::post('/student/quiz/{quiz}/begin', [StudentQuizController::class, 'begin'])->name('student.quiz.begin');
+
+    // Halaman utama pengerjaan kuis
+    Route::get('/student/quiz/attempt/{attempt}', [StudentQuizController::class, 'take'])->middleware('prevent.caching')->name('student.quiz.take');
+
+    // Aksi untuk mengirimkan semua jawaban
+    Route::post('/student/quiz/attempt/{attempt}/submit', [StudentQuizController::class, 'submit'])->name('student.quiz.submit');
+
+    // Halaman untuk menampilkan hasil akhir kuis
+    Route::get('/student/quiz/attempt/{attempt}/result', [StudentQuizController::class, 'result'])->name('student.quiz.result');
+
+    // RUTE BARU UNTUK MENGECEK JAWABAN SECARA REAL-TIME (AJAX)
+    Route::post('/student/quiz/check-answer', [StudentQuizController::class, 'checkAnswerAjax'])->name('student.quiz.check_answer');
+});
+
+// * group route for superadmin
+Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
+    Route::get('/dashboard', [SuperAdminDashboardController::class, 'index'])->name('superadmin.dashboard');
+    Route::get('/dashboard/search/instructors', [SuperAdminDashboardController::class, 'searchInstructors'])->name('superadmin.dashboard.search.instructors');
+    Route::get('/dashboard/search/categories', [SuperAdminDashboardController::class, 'searchCategories'])->name('superadmin.dashboard.search.categories');
+
+    Route::get('/superadmin/instructor-application', [InstructorApplicationController::class, 'index'])->name('superadmin.instructor-application.index');
+    Route::patch('/superadmin/applications/{application}/approve', [InstructorApplicationController::class, 'approve'])->name('superadmin.instructor-applications.approve');
+    Route::patch('/superadmin/applications/{application}/reject', [InstructorApplicationController::class, 'reject'])->name('superadmin.instructor-applications.reject');
+    Route::patch('/superadmin/applications/{application}/deactive', [InstructorApplicationController::class, 'deactive'])->name('superadmin.instructor-applications.deactive');
+    Route::patch('/superadmin/applications/{application}/reactivate', [InstructorApplicationController::class, 'reactivate'])->name('superadmin.instructor-applications.reactivate');
+
+    Route::get('/superadmin/student-management', [StudentStatusController::class, 'index'])->name('superadmin.manajemen-student.index');
+    Route::patch('/superadmin/student-management/{student_status_data}/deactive', [StudentStatusController::class, 'deactive'])->name('superadmin.manajemen-student.deactive');
+    Route::patch('/superadmin/student-management/{student_status_data}/reactivate', [StudentStatusController::class, 'reactivate'])->name('superadmin.manajemen-student.reactivate');
+
+    Route::get('/superadmin/publication', [PublicationController::class, 'index'])->name('superadmin.publication.index');
+    Route::patch('/superadmin/publication/{course}/publish', [PublicationController::class, 'publish'])->name('superadmin.publication.publish');
+    Route::patch('/superadmin/publication/{course}/reject', [PublicationController::class, 'reject'])->name('superadmin.publication.reject');
+
+    // --- Rute untuk Manajemen Kupon ---
+    Route::get('/superadmin/coupons', [CouponController::class, 'index'])->name('superadmin.coupons.index');
+    Route::get('/superadmin/coupons/create', [CouponController::class, 'create'])->name('superadmin.coupons.create');
+    Route::post('/superadmin/coupons', [CouponController::class, 'store'])->name('superadmin.coupons.store');
+    Route::get('/superadmin/coupons/{coupon}/edit', [CouponController::class, 'edit'])->name('superadmin.coupons.edit');
+    Route::put('/superadmin/coupons/{coupon}', [CouponController::class, 'update'])->name('superadmin.coupons.update');
+    Route::delete('/superadmin/coupons/{coupon}', [CouponController::class, 'destroy'])->name('superadmin.coupons.destroy');
+
+
+    // --- Rute untuk Pengaturan Situs ---
+    Route::get('/superadmin/settings', [SiteSettingController::class, 'edit'])->name('superadmin.settings.edit');
+    Route::put('/superadmin/settings', [SiteSettingController::class, 'update'])->name('superadmin.settings.update');
+
+
+    // --- Rute untuk Manajemen Pertanyaan Skala Likert ---
+    Route::get('/superadmin/likert-questions', [LikertQuestionController::class, 'index'])->name('superadmin.likert-questions.index');
+    Route::get('/superadmin/likert-questions/create', [LikertQuestionController::class, 'create'])->name('superadmin.likert-questions.create');
+    Route::post('/superadmin/likert-questions', [LikertQuestionController::class, 'store'])->name('superadmin.likert-questions.store');
+    Route::get('/superadmin/likert-questions/{likertQuestion}/edit', [LikertQuestionController::class, 'edit'])->name('superadmin.likert-questions.edit');
+    Route::put('/superadmin/likert-questions/{likertQuestion}', [LikertQuestionController::class, 'update'])->name('superadmin.likert-questions.update');
+    Route::delete('/superadmin/likert-questions/{likertQuestion}', [LikertQuestionController::class, 'destroy'])->name('superadmin.likert-questions.destroy');
+
+
+
+    // --- RUTE BARU UNTUK MANAJEMEN BADGE ---
+    Route::get('/superadmin/badges', [BadgeController::class, 'index'])->name('superadmin.badges.index');
+    Route::get('/superadmin/badges/create', [BadgeController::class, 'create'])->name('superadmin.badges.create');
+    Route::post('/superadmin/badges', [BadgeController::class, 'store'])->name('superadmin.badges.store');
+    Route::get('/superadmin/badges/{badge}/edit', [BadgeController::class, 'edit'])->name('superadmin.badges.edit');
+    Route::put('/superadmin/badges/{badge}', [BadgeController::class, 'update'])->name('superadmin.badges.update');
+    Route::delete('/superadmin/badges/{badge}', [BadgeController::class, 'destroy'])->name('superadmin.badges.destroy');
+
+
+    // --- RUTE BARU UNTUK KELOLA USER KURSUS ---
+    Route::get('/superadmin/course-enrollments', [CourseEnrollmentController::class, 'index'])->name('superadmin.course-enrollments.index');
+    Route::get('/superadmin/course-enrollments/{course}', [CourseEnrollmentController::class, 'show'])->name('superadmin.course-enrollments.show');
+    Route::get('/superadmin/course-enrollments/{course}/add', [CourseEnrollmentController::class, 'create'])->name('superadmin.course-enrollments.create');
+    Route::post('/superadmin/course-enrollments/{course}', [CourseEnrollmentController::class, 'store'])->name('superadmin.course-enrollments.store');
+    Route::delete('/superadmin/course-enrollments/{course}/remove', [CourseEnrollmentController::class, 'destroy'])->name('superadmin.course-enrollments.destroy');
+
+
+    // --- RUTE BARU UNTUK MANAJEMEN KATEGORI KURSUS ---
+    Route::resource('/superadmin/course-categories', CourseCategoryController::class, [
+        'as' => 'superadmin'
+    ])->except(['show']);
+
+
+
+    // --- RUTE BARU UNTUK MANAJEMEN ADMIN ---
+    Route::resource('/superadmin/admins', AdminManagementController::class, [
+        'as' => 'superadmin'
+    ])->except(['show']);
+});
+
+// * group route for admin
+Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
+    // Route::view('/admin/dashboard', 'admin.dashboard')->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/dashboard/search/instructors', [AdminDashboardController::class, 'searchInstructors'])->name('dashboard.search.instructors');
+    Route::get('/admin/dashboard/search/categories', [AdminDashboardController::class, 'searchCategories'])->name('dashboard.search.categories');
+
+    Route::get('/admin/instructor-application', [InstructorApplicationController::class, 'index'])->name('admin.instructor-application.index');
+    Route::patch('/admin/applications/{application}/approve', [InstructorApplicationController::class, 'approve'])->name('admin.instructor-applications.approve');
+    Route::patch('/admin/applications/{application}/reject', [InstructorApplicationController::class, 'reject'])->name('admin.instructor-applications.reject');
+    Route::patch('/admin/applications/{application}/deactive', [InstructorApplicationController::class, 'deactive'])->name('admin.instructor-applications.deactive');
+    Route::patch('/admin/applications/{application}/reactivate', [InstructorApplicationController::class, 'reactivate'])->name('admin.instructor-applications.reactivate');
+
+    Route::get('/admin/student-management', [StudentStatusController::class, 'index'])->name('admin.manajemen-student.index');
+    Route::patch('/admin/student-management/{student_status_data}/deactive', [StudentStatusController::class, 'deactive'])->name('admin.manajemen-student.deactive');
+    Route::patch('/admin/student-management/{student_status_data}/reactivate', [StudentStatusController::class, 'reactivate'])->name('admin.manajemen-student.reactivate');
+
+    Route::get('/admin/publication', [PublicationController::class, 'index'])->name('admin.publication.index');
+    Route::patch('/admin/publication/{course}/publish', [PublicationController::class, 'publish'])->name('admin.publication.publish');
+    Route::patch('/admin/publication/{course}/reject', [PublicationController::class, 'reject'])->name('admin.publication.reject');
+
+
+    // --- Rute untuk Manajemen Kupon ---
+    Route::get('/admin/coupons', [CouponController::class, 'index'])->name('admin.coupons.index');
+    Route::get('/admin/coupons/create', [CouponController::class, 'create'])->name('admin.coupons.create');
+    Route::post('/admin/coupons', [CouponController::class, 'store'])->name('admin.coupons.store');
+    Route::get('/admin/coupons/{coupon}/edit', [CouponController::class, 'edit'])->name('admin.coupons.edit');
+    Route::put('/admin/coupons/{coupon}', [CouponController::class, 'update'])->name('admin.coupons.update');
+    Route::delete('/admin/coupons/{coupon}', [CouponController::class, 'destroy'])->name('admin.coupons.destroy');
+
+
+    // --- Rute untuk Manajemen Pertanyaan Skala Likert ---
+    Route::get('/admin/likert-questions', [LikertQuestionController::class, 'index'])->name('admin.likert-questions.index');
+    Route::get('/admin/likert-questions/create', [LikertQuestionController::class, 'create'])->name('admin.likert-questions.create');
+    Route::post('/admin/likert-questions', [LikertQuestionController::class, 'store'])->name('admin.likert-questions.store');
+    Route::get('/admin/likert-questions/{likertQuestion}/edit', [LikertQuestionController::class, 'edit'])->name('admin.likert-questions.edit');
+    Route::put('/admin/likert-questions/{likertQuestion}', [LikertQuestionController::class, 'update'])->name('admin.likert-questions.update');
+    Route::delete('/admin/likert-questions/{likertQuestion}', [LikertQuestionController::class, 'destroy'])->name('admin.likert-questions.destroy');
+
+    // --- RUTE BARU UNTUK KELOLA USER KURSUS ---
+    Route::get('/admin/course-enrollments', [CourseEnrollmentController::class, 'index'])->name('admin.course-enrollments.index');
+    Route::get('/admin/course-enrollments/{course}', [CourseEnrollmentController::class, 'show'])->name('admin.course-enrollments.show');
+    Route::get('/admin/course-enrollments/{course}/add', [CourseEnrollmentController::class, 'create'])->name('admin.course-enrollments.create');
+    Route::post('/admin/course-enrollments/{course}', [CourseEnrollmentController::class, 'store'])->name('admin.course-enrollments.store');
+    Route::delete('/admin/course-enrollments/{course}/remove', [CourseEnrollmentController::class, 'destroy'])->name('admin.course-enrollments.destroy');
+
+
+    // --- RUTE BARU UNTUK MANAJEMEN KATEGORI KURSUS ---
+    Route::resource('/admin/course-categories', CourseCategoryController::class, [
+        'as' => 'admin'
+    ])->except(['show']);
+});
+
+
+
+// Group route for instructor
+Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
+
+    // Status-specific instructor routes
+    Route::view('/instructor/pending', 'auth.pending-instructor')->name('instructor.pending');
+    Route::view('/instructor/deactive', 'auth.deactive-instructor')->name('instructor.deactive');
+    Route::view('/instructor/rejected', 'auth.rejected-instructor')->name('instructor.rejected');
+
+    // Routes for APPROVED instructors
+    Route::middleware(['checkInstructorStatus'])->group(function () {
+
+        // Route::view('/instructor/dashboard', 'instructor.dashboard')->name('instructor.dashboard');
+        // MENJADI rute ini:
+        Route::get('/instructor/dashboard', [InstructorDashboardController::class, 'index'])->name('instructor.dashboard');
+
+        // Explicitly defined routes for Question Topics (as per user request)
+        Route::get('/instructor/question-topics', [QuestionTopicController::class, 'index'])->name('instructor.question-bank.topics.index');
+        Route::get('/instructor/question-topics/create', [QuestionTopicController::class, 'create'])->name('instructor.question-bank.topics.create');
+        Route::post('/instructor/question-topics', [QuestionTopicController::class, 'store'])->name('instructor.question-bank.topics.store');
+        Route::get('/instructor/question-topics/{topic}', [QuestionTopicController::class, 'show'])->name('instructor.question-bank.topics.show');
+        Route::get('/instructor/question-topics/{topic}/edit', [QuestionTopicController::class, 'edit'])->name('instructor.question-bank.topics.edit');
+        Route::put('/instructor/question-topics/{topic}', [QuestionTopicController::class, 'update'])->name('instructor.question-bank.topics.update');
+        Route::patch('/instructor/question-topics/{topic}', [QuestionTopicController::class, 'update']); // Patch route for update
+        Route::delete('/instructor/question-topics/{topic}', [QuestionTopicController::class, 'destroy'])->name('instructor.question-bank.topics.destroy');
+
+        // Custom route for cloning a question
+        Route::post('questions/{question}/clone', [QuestionController::class, 'clone'])->name('instructor.question-bank.questions.clone');
+
+        // Explicitly defined routes for Questions (as per user request)
+        // Nested routes for index, create, store
+        Route::get('/instructor/question-topics/{topic}/questions', [QuestionController::class, 'index'])->name('instructor.question-bank.questions.index');
+        Route::get('/instructor/question-topics/{topic}/questions/create', [QuestionController::class, 'create'])->name('instructor.question-bank.questions.create');
+        Route::post('/instructor/question-topics/{topic}/questions', [QuestionController::class, 'store'])->name('instructor.question-bank.questions.store');
+
+        // Shallow routes for show, edit, update, destroy
+        Route::get('/questions/{question}', [QuestionController::class, 'show'])->name('instructor.question-bank.questions.show');
+        Route::get('/questions/{question}/edit', [QuestionController::class, 'edit'])->name('instructor.question-bank.questions.edit');
+        Route::put('/questions/{question}', [QuestionController::class, 'update'])->name('instructor.question-bank.questions.update');
+        Route::patch('/questions/{question}', [QuestionController::class, 'update']); // Patch route for update
+        Route::delete('/questions/{question}', [QuestionController::class, 'destroy'])->name('instructor.question-bank.questions.destroy');
+
+
+        // GET /instructor/courses -> List all courses
+        Route::get('/instructor/courses', [CourseController::class, 'index'])->name('instructor.courses.index');
+
+        // GET /instructor/courses/create -> Show create form
+        Route::get('/instructor/courses/create', [CourseController::class, 'create'])->name('instructor.courses.create');
+
+        // POST /instructor/courses -> Store new course
+        Route::post('/instructor/courses', [CourseController::class, 'store'])->name('instructor.courses.store');
+
+        // GET /instructor/courses/{course} -> Show a single course
+        Route::get('/instructor/courses/{course}', [CourseController::class, 'show'])->name('instructor.courses.show');
+
+        // GET /instructor/courses/{course}/edit -> Show edit form
+        Route::get('/instructor/courses/{course}/edit', [CourseController::class, 'edit'])->name('instructor.courses.edit');
+
+        // PUT /instructor/courses/{course} -> Update a course
+        Route::put('/instructor/courses/{course}', [CourseController::class, 'update'])->name('instructor.courses.update');
+
+        // DELETE /instructor/courses/{course} -> Delete a course
+        Route::delete('/instructor/courses/{course}', [CourseController::class, 'destroy'])->name('instructor.courses.destroy');
+
+
+
+        // List all modules for a course & handle reordering
+        Route::get('/instructor/courses/{course}/modules', [ModuleController::class, 'index'])->name('instructor.courses.modules.index');
+        Route::post('/instructor/courses/{course}/modules/reorder', [ModuleController::class, 'reorder'])->name('instructor.courses.modules.reorder');
+
+        // Create and Store a new module for a course
+        Route::get('/instructor/courses/{course}/modules/create', [ModuleController::class, 'create'])->name('instructor.courses.modules.create');
+        Route::post('/instructor/courses/{course}/modules', [ModuleController::class, 'store'])->name('instructor.courses.modules.store');
+
+        // Edit, Update, and Destroy a specific module (shallow routes)
+        Route::get('/instructor/modules/{module}/edit', [ModuleController::class, 'edit'])->name('instructor.modules.edit');
+        Route::put('/instructor/modules/{module}', [ModuleController::class, 'update'])->name('instructor.modules.update');
+        Route::delete('/instructor/modules/{module}', [ModuleController::class, 'destroy'])->name('instructor.modules.destroy');
+
+        // Halaman untuk menampilkan daftar semua pengumpulan tugas untuk satu pelajaran
+        Route::get('/instructor/assignments/{assignment}/submissions', [InstructorAssignmentController::class, 'index'])->name('instructor.assignment.submissions');
+
+        // Aksi untuk menyimpan nilai dan feedback
+        Route::post('/submissions/{submission}/grade', [InstructorAssignmentController::class, 'grade'])->name('instructor.submission.grade');
+
+
+        // --- Routes untuk Mengelola Pelajaran (Lessons) dalam sebuah Modul ---
+
+        // Menampilkan daftar pelajaran & menangani pengurutan
+        Route::get('/instructor/modules/{module}/lessons', [LessonController::class, 'index'])->name('instructor.modules.lessons.index');
+        Route::post('/instructor/modules/{module}/lessons/reorder', [LessonController::class, 'reorder'])->name('instructor.modules.lessons.reorder');
+
+        // Membuat (Create) dan Menyimpan (Store) pelajaran baru
+        Route::get('/instructor/modules/{module}/lessons/create', [LessonController::class, 'create'])->name('instructor.modules.lessons.create');
+        Route::post('/instructor/modules/{module}/lessons', [LessonController::class, 'store'])->name('instructor.modules.lessons.store');
+
+        // Mengedit (Edit), Memperbarui (Update), dan Menghapus (Destroy) pelajaran (rute dangkal/shallow)
+        Route::get('/instructor/lessons/{lesson}/edit', [LessonController::class, 'edit'])->name('instructor.lessons.edit');
+        Route::put('/instructor/lessons/{lesson}', [LessonController::class, 'update'])->name('instructor.lessons.update');
+        Route::delete('/instructor/lessons/{lesson}', [LessonController::class, 'destroy'])->name('instructor.lessons.destroy');
+
+
+        // --- Routes untuk Mengelola Soal di dalam sebuah Kuis ---
+
+        // Halaman utama yang menampilkan daftar soal dalam kuis
+        Route::get('/instructor/quizzes/{quiz}/manage-questions', [QuizQuestionController::class, 'index'])->name('instructor.quizzes.manage_questions');
+
+        // Halaman untuk memilih soal dari Bank Soal
+        Route::get('/instructor/quizzes/{quiz}/browse-bank', [QuizQuestionController::class, 'browseBank'])->name('instructor.quizzes.browse_bank');
+
+        // Menyimpan soal yang dipilih dari Bank Soal ke dalam kuis
+        Route::post('/instructor/quizzes/{quiz}/attach-questions', [QuizQuestionController::class, 'attachQuestions'])->name('instructor.quizzes.attach_questions');
+
+        // Menghapus satu soal dari kuis
+        Route::delete('/instructor/quizzes/{quiz}/detach-question/{question}', [QuizQuestionController::class, 'detachQuestion'])->name('instructor.quizzes.detach_question');
+
+        Route::patch('/instructor/courses/{course}/submit-review', [CourseController::class, 'submitForReview'])->name('instructor.courses.submit_review');
+        Route::patch('/instructor/courses/{course}/make-private', [CourseController::class, 'makePrivate'])->name('instructor.courses.make_private');
+
+
+        Route::get('/instructor/lesson-points/{lesson}/manage', [LessonPointController::class, 'index'])->name('instructor.lesson_points.manage');
+        Route::post('/instructor/lesson-points/{lesson}/award', [LessonPointController::class, 'award'])->name('instructor.lesson_points.award');
+
+
+        // --- RUTE BARU UNTUK LEADERBOARD INSTRUKTUR ---
+        Route::get('/instructor/courses/{course}/leaderboard', [InstructorLeaderboardController::class, 'courseLeaderboard'])->name('instructor.course.leaderboard');
+        Route::get('/instructor/modules/{module}/leaderboard', [InstructorLeaderboardController::class, 'moduleLeaderboard'])->name('instructor.module.leaderboard');
+
+
+        // Halaman untuk menampilkan daftar semua hasil/percobaan untuk sebuah kuis
+        Route::get('/instructor/quizzes/{quiz}/results', [InstructorQuizController::class, 'showResults'])->name('instructor.quiz.results');
+
+        // Halaman untuk mereview jawaban detail dari satu percobaan kuis
+        Route::get('/instructor/quiz-attempts/{attempt}/review', [InstructorQuizController::class, 'reviewAttempt'])->name('instructor.quiz.review_attempt');
+
+        // RUTE BARU UNTUK MENG-CLONE KURSUS
+        Route::post('/instructor/courses/{course}/clone', [CourseController::class, 'clone'])->name('instructor.courses.clone');
+
+
+        // --- RUTE UNTUK REKAP NILAI ---
+        Route::get('/instructor/courses/{course}/recap', [InstructorRecapController::class, 'index'])->name('instructor.recap.index');
+        Route::get('/instructor/modules/{module}/recap-data', [InstructorRecapController::class, 'getModuleRecapData'])->name('instructor.recap.module_data');
+
+        // RUTE BARU UNTUK UNDUH
+        Route::get('/instructor/modules/{module}/recap/pdf', [InstructorRecapController::class, 'downloadPdf'])->name('instructor.recap.download_pdf');
+        Route::get('/instructor/modules/{module}/recap/excel', [InstructorRecapController::class, 'downloadExcel'])->name('instructor.recap.download_excel');
+
+
+
+        // NEW: Route for moving questions between topics
+        Route::patch('/questions/{question}/move', [QuestionController::class, 'move'])->name('instructor.question-bank.questions.move');
+
+        // OPTIONAL: API endpoint for dynamic topic filtering (if you want real-time filtering in the modal)
+        Route::get('/instructor/questions/filtered-topics', [QuestionController::class, 'getFilteredTopics'])->name('instructor.question-bank.questions.filtered-topics');
+    });
+});
+
+// // * group route for instructor
+// Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
+
+//     Route::get('/instructor/pending', function () {
+//         return view('auth.pending-instructor');
+//     })->name('instructor.pending');
+
+//     Route::get('/instructor/deactive', function () {
+//         return view('auth.deactive-instructor');
+//     })->name('instructor.deactive');
+
+//     Route::get('/instructor/rejected', function () {
+//         return view('auth.rejected-instructor');
+//     })->name('instructor.rejected');
+
+//     //! This nested group IS protected by the status-checking middleware.
+//     Route::middleware(['checkInstructorStatus'])->group(function () {
+//         Route::view('/instructor/dashboard', 'instructor.dashboard')->name('instructor.dashboard');
+//         // Add any other instructor routes that require 'approved' status here.
+//         // For example: Route::get('/instructor/my-courses', ...);
+
+
+//         // Group for the Question Bank feature
+//         Route::prefix('instructor.question-bank')->name('instructor.question-bank.')->group(function () {
+
+//             // Resourceful route for managing Question Topics
+//             // This will create routes for index, create, store, show, edit, update, destroy
+//             Route::resource('topics', QuestionTopicController::class);
+
+//             // Nested resourceful route for managing Questions within a Topic
+//             // URL will be like: /instructor/question-bank/topics/{topic}/questions
+//             Route::resource('topics.questions', QuestionController::class)->shallow();
+//             // Using shallow() makes routes for specific questions simpler, e.g., /questions/{question}/edit
+//             // instead of /topics/{topic}/questions/{question}/edit
+//         });
+//     });
+// });
+
+
+
+
+// * group route for student
+Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
+
+    Route::get('/student/deactive', function () {
+        return view('auth.deactive-student');
+    })->name('student.deactive');
+
+    //! This nested group IS protected by the status-checking middleware.
+    Route::middleware(['checkStudentStatus'])->group(function () {
+        Route::view('/student/dashboard', 'student.dashboard')->name('student.dashboard');
+
+        // RUTE BARU UNTUK HALAMAN SERTIFIKAT SAYA
+        Route::get('/my-certificates', [StudentCertificateController::class, 'index'])->name('student.certificates.index');
+
+
+
+
+        // Halaman utama untuk menampilkan isi keranjang
+        Route::get('/cart', [CartController::class, 'index'])->name('student.cart.index');
+
+        // Aksi untuk menambahkan kursus ke keranjang
+        Route::post('/cart/add/{course}', [CartController::class, 'add'])->name('student.cart.add');
+
+        // Aksi untuk menghapus item dari keranjang
+        Route::delete('/cart/remove/{cart}', [CartController::class, 'remove'])->name('student.cart.remove');
+
+        // Aksi untuk menerapkan kode kupon
+        Route::post('/cart/apply-coupon', [CartController::class, 'applyCoupon'])->name('student.cart.apply_coupon');
+
+        // Aksi untuk menghapus kupon yang sudah diterapkan
+        Route::post('/cart/remove-coupon', [CartController::class, 'removeCoupon'])->name('student.cart.remove_coupon');
+
+
+        // --- RUTE UNTUK PROSES CHECKOUT ---
+        // Aksi untuk memproses keranjang menjadi pesanan
+        Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+
+        // Halaman untuk menampilkan detail pesanan dan tombol bayar
+        Route::get('/orders/{order}', [CheckoutController::class, 'show'])->name('checkout.show');
+
+
+        Route::get('/my-transactions', [TransactionHistoryController::class, 'index'])->name('student.transactions.index');
+
+
+        Route::get('/orders/{order}/success', [PaymentController::class, 'success'])->name('payment.success');
+        Route::get('/orders/{order}/pending', [PaymentController::class, 'pending'])->name('payment.pending');
+        Route::get('/orders/{order}/failed', [PaymentController::class, 'failed'])->name('payment.failed');
+        Route::get('/orders/{order}/cancelled', [PaymentController::class, 'cancelled'])->name('payment.cancelled');
+        Route::get('/my-transactions/{order}/download', [TransactionHistoryController::class, 'downloadInvoice'])->name('student.transactions.download');
+
+        Route::get('/my-courses', [StudentDashboardController::class, 'myCourses'])->name('student.my_courses');
+        Route::post('/lessons/{lesson}/complete', [StudentCourseController::class, 'markAsComplete'])->name('student.lessons.complete');
+        Route::post('/assignments/{assignment}/submit', [StudentAssignmentController::class, 'submit'])->name('student.assignment.submit');
+
+        // Rute untuk mengambil form ulasan via AJAX
+        Route::get('/courses/{course}/review/create', [CourseReviewController::class, 'create'])->name('student.course.review.create');
+
+        // Rute untuk menyimpan data ulasan yang dikirim dari form
+        Route::post('/courses/{course}/review', [CourseReviewController::class, 'store'])->name('student.course.review.store');
+
+        // Rute untuk mengambil pratinjau sertifikat via AJAX
+        Route::get('/courses/{course}/certificate/preview', [CertificateController::class, 'preview'])->name('student.certificate.preview');
+
+        // Rute untuk mengunduh sertifikat sebagai PDF
+        Route::get('/courses/{course}/certificate/download', [CertificateController::class, 'download'])->name('student.certificate.download');
+
+
+        // Halaman utama untuk menampilkan semua ulasan
+        Route::get('/my-reviews', [StudentReviewController::class, 'index'])->name('student.reviews.index');
+
+        // Aksi untuk menyimpan/memperbarui ulasan platform
+        Route::post('/reviews/platform', [StudentReviewController::class, 'storeOrUpdatePlatformReview'])->name('student.reviews.platform.store');
+
+        // Aksi untuk memperbarui ulasan kursus yang sudah ada
+        Route::put('/reviews/course/{review}', [StudentReviewController::class, 'updateCourseReview'])->name('student.reviews.course.update');
+
+        // Aksi untuk memperbarui ulasan instruktur yang sudah ada
+        Route::put('/reviews/instructor/{review}', [StudentReviewController::class, 'updateInstructorReview'])->name('student.reviews.instructor.update');
+
+        // RUTE BARU UNTUK HALAMAN KELOLA POIN
+        // Route::get('/my-points', [StudentPointController::class, 'index'])->name('student.points.index');
+
+        Route::post('/courses/{course}/purchase-with-diamonds', [DiamondPurchaseController::class, 'purchase'])->name('student.courses.purchase_with_diamonds');
+
+
+        // RUTE BARU UNTUK HALAMAN "BADGE SAYA"
+        Route::get('/my-badges', [StudentBadgeController::class, 'index'])->name('student.badges.index');
+
+
+        // RUTE BARU UNTUK FITUR DISKUSI
+        Route::post('/lessons/{lesson}/discussions', [LessonDiscussionController::class, 'store'])->name('student.lessons.discussions.store');
+
+        // RUTE BARU UNTUK MENGHAPUS KOMENTAR
+        Route::delete('/discussions/{discussion}', [LessonDiscussionController::class, 'destroy'])->name('student.lessons.discussions.destroy');
+
+
+        // --- RUTE BARU UNTUK HALAMAN POIN & DIAMOND ---
+        Route::get('/my-points', [GamificationController::class, 'points'])->name('student.points.index');
+        Route::get('/my-diamonds', [GamificationController::class, 'diamonds'])->name('student.diamonds.index');
+
+
+
+
+        // RUTE BARU UNTUK MENGONVERSI POIN
+        Route::post('/courses/{course}/convert-points', [DiamondConversionController::class, 'convert'])->name('student.course.convert_points');
+
+
+        // --- RUTE BARU UNTUK PENDAFTARAN INSTRUKTUR ---
+        Route::get('/apply-instructor', [InstructorApplicationController::class, 'create'])->name('student.apply_instructor.create');
+        Route::post('/apply-instructor', [InstructorApplicationController::class, 'store'])->name('student.apply_instructor.store');
+    });
 });
