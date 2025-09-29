@@ -117,23 +117,6 @@
         </div>
     </div>
 </div>
-
-<div class="modal fade" id="timeUpModal" tabindex="-1" role="dialog" aria-labelledby="timeUpModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-    {{-- DIUBAH: Tambahkan kelas 'modal-dialog-centered' di sini --}}
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="timeUpModalLabel">Waktu Habis!</h5>
-            </div>
-            <div class="modal-body">
-                Waktu pengerjaan kuis telah habis. Jawaban Anda akan dikirim secara otomatis.
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="time-up-ok-btn" class="btn btn-primary">OK</button>
-            </div>
-        </div>
-    </div>
-</div>
 @endsection
 
 
@@ -152,7 +135,6 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // BARU: Ambil elemen tombol dari modal
     const confirmSubmitBtn = document.getElementById('confirm-submit-btn');
-    const timeUpOkBtn = document.getElementById('time-up-ok-btn');
 
     if (!isPreview) {
         const timerEl = document.getElementById('quiz-timer');
@@ -177,10 +159,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         timerEl.innerText = "00:00";
                         timerEl.classList.add('text-danger');
                         
-                        // DIUBAH: Ganti alert dengan modal
-                        $('#timeUpModal').modal('show');
-                        
-                        // Form akan disubmit saat pengguna menekan OK di modal
+                        // Tampilkan alert dan submit form
+                        alert('Waktu pengerjaan kuis telah habis. Jawaban Anda akan dikirim secara otomatis.');
+                        form.submit();
                         return;
                     }
                 }
@@ -305,11 +286,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 2. Saat tombol "Ya, Selesaikan" di dalam modal diklik, kirim form
     confirmSubmitBtn.addEventListener('click', function() {
-        form.submit();
-    });
-
-    // 3. Saat tombol "OK" di modal waktu habis diklik, kirim form
-    timeUpOkBtn.addEventListener('click', function() {
         form.submit();
     });
 
