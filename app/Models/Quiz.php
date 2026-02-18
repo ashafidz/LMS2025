@@ -45,4 +45,40 @@ class Quiz extends Model
     {
         return $this->hasMany(QuizAttempt::class);
     }
+
+
+    /**
+     * Relationship: Quiz has one security setting
+     */
+    public function securitySetting()
+    {
+        return $this->hasOne(QuizSecuritySetting::class);
+    }
+
+    /**
+     * Check if camera detection is enabled
+     */
+    public function hasCameraDetection()
+    {
+        return $this->securitySetting()->exists() &&
+            $this->securitySetting->enable_camera_detection;
+    }
+
+    /**
+     * Check if tab detection is enabled
+     */
+    public function hasTabDetection()
+    {
+        return $this->securitySetting()->exists() &&
+            $this->securitySetting->enable_tab_detection;
+    }
+
+    /**
+     * Check if question shuffle is enabled
+     */
+    public function hasQuestionShuffle()
+    {
+        return $this->securitySetting()->exists() &&
+            $this->securitySetting->enable_question_shuffle;
+    }
 }

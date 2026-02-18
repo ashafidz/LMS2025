@@ -12,6 +12,14 @@
                         <p class="m-b-0">Siswa: <strong>{{ $attempt->student->name }}</strong> | Kuis: <strong>{{ $attempt->quiz->title }}</strong></p>
                     </div>
                 </div>
+                <div class="col-md-4 text-right">
+                    <a href="{{ route('instructor.quiz.monitoring.detail', $attempt->id) }}" class="btn btn-info btn-sm" title="Lihat Detail Monitoring">
+                        <i class="fa fa-eye"></i> Monitor
+                    </a>
+                    <a href="{{ route('instructor.quiz.results', $attempt->quiz_id) }}" class="btn btn-secondary btn-sm">
+                        <i class="fa fa-arrow-left"></i> Kembali
+                    </a>
+                </div>
                 <div class="col-md-4">
                     <ul class="breadcrumb-title">
                         <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
@@ -90,6 +98,42 @@
                                                 <div class="card-body text-center py-3">
                                                     <h6 class="card-title mb-1">Passing Grade</h6>
                                                     <h4 class="text-info mb-0"><strong>{{ $attempt->quiz->pass_mark }}%</strong></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Informasi Revisi Skor -->
+                                    <div class="row mt-3">
+                                        <div class="col-md-3">
+                                            <div class="card {{ $attempt->revised_score !== null ? 'bg-info text-white' : 'bg-light' }}">
+                                                <div class="card-body text-center py-3">
+                                                    <h6 class="card-title mb-1">Skor Revisi</h6>
+                                                    <h4 class="mb-0"><strong>{{ $attempt->revised_score !== null ? rtrim(rtrim(number_format($attempt->revised_score, 2, ',', '.'), '0'), ',') : '-' }}</strong></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center py-3">
+                                                    <h6 class="card-title mb-1">Direvisi Oleh</h6>
+                                                    <h6 class="mb-0"><strong>{{ $attempt->revisedBy->name ?? '-' }}</strong></h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center py-3">
+                                                    <h6 class="card-title mb-1">Waktu Revisi</h6>
+                                                    <h6 class="mb-0"><strong>{{ $attempt->revised_at ? $attempt->revised_at->format('d M Y H:i') : '-' }}</strong></h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card bg-light">
+                                                <div class="card-body text-center py-3">
+                                                    <h6 class="card-title mb-1">Catatan Revisi</h6>
+                                                    <small><strong>{{ $attempt->revision_note ?? '-' }}</strong></small>
                                                 </div>
                                             </div>
                                         </div>

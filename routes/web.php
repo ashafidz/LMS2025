@@ -37,21 +37,22 @@ use App\Http\Controllers\Student\StudentReviewController;
 use App\Http\Controllers\Instructor\LessonPointController;
 use App\Http\Controllers\Superadmin\SiteSettingController;
 use App\Http\Controllers\Instructor\QuizQuestionController;
+use App\Http\Controllers\Instructor\QuizSecurityController;
 use App\Http\Controllers\Shared\CourseEnrollmentController;
 use App\Http\Controllers\Student\DiamondPurchaseController;
 use App\Http\Controllers\Instructor\QuestionTopicController;
 use App\Http\Controllers\Student\LessonDiscussionController;
 use App\Http\Controllers\Student\StudentDashboardController;
-use App\Http\Controllers\Instructor\InstructorQuizController;
 
+use App\Http\Controllers\Instructor\InstructorQuizController;
 use App\Http\Controllers\Student\DiamondConversionController;
 use App\Http\Controllers\Student\StudentAssignmentController;
 use App\Http\Controllers\Instructor\InstructorRecapController;
 use App\Http\Controllers\Student\TransactionHistoryController;
 use App\Http\Controllers\Shared\InstructorApplicationController;
 use App\Http\Controllers\Instructor\InstructorDashboardController;
-use App\Http\Controllers\PublicProfileController; // Tambahkan ini
 
+use App\Http\Controllers\PublicProfileController; // Tambahkan ini
 use App\Http\Controllers\Superadmin\SuperAdminDashboardController;
 use App\Http\Controllers\Instructor\InstructorAssignmentController;
 use App\Http\Controllers\Instructor\InstructorLeaderboardController;
@@ -169,6 +170,12 @@ Route::middleware(['auth'])->group(function () {
 
     // RUTE BARU UNTUK MENGECEK JAWABAN SECARA REAL-TIME (AJAX)
     Route::post('/student/quiz/check-answer', [StudentQuizController::class, 'checkAnswerAjax'])->name('student.quiz.check_answer');
+
+    // RUTE UNTUK LOG TAB VIOLATION
+    Route::post('/student/quiz/attempt/{attempt}/log-tab-violation', [StudentQuizController::class, 'logTabViolation'])->name('student.quiz.log_tab_violation');
+
+    // RUTE UNTUK LOG CAMERA VIOLATION
+    Route::post('/student/quiz/attempt/{attempt}/log-camera-violation', [StudentQuizController::class, 'logCameraViolation'])->name('student.quiz.log_camera_violation');
 });
 
 // * group route for superadmin
@@ -454,6 +461,26 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         // OPTIONAL: API endpoint for dynamic topic filtering (if you want real-time filtering in the modal)
         Route::get('/instructor/questions/filtered-topics', [QuestionController::class, 'getFilteredTopics'])->name('instructor.question-bank.questions.filtered-topics');
     });
+
+    // Quiz Security Settings
+    Route::get('quiz/{quiz}/security', [QuizSecurityController::class, 'edit'])
+        ->name('instructor.quiz.security.edit');
+    Route::get('quiz/{quiz}/security/show', [QuizSecurityController::class, 'show'])
+        ->name('instructor.quiz.security.show');
+    Route::post('quiz/{quiz}/security', [QuizSecurityController::class, 'update'])
+        ->name('instructor.quiz.security.update');
+    Route::delete('quiz/{quiz}/security', [QuizSecurityController::class, 'destroy'])
+        ->name('instructor.quiz.security.destroy');
+
+    // Quiz Monitoring Review
+    Route::get('course/{course}/monitoring', [InstructorQuizController::class, 'courseMonitoringOverview'])
+        ->name('instructor.course.monitoring.overview');
+    Route::get('quiz/{quiz}/monitoring', [InstructorQuizController::class, 'monitoringReview'])
+        ->name('instructor.quiz.monitoring.review');
+    Route::get('quiz/attempt/{attempt}/monitoring-detail', [InstructorQuizController::class, 'monitoringDetail'])
+        ->name('instructor.quiz.monitoring.detail');
+    Route::post('quiz/attempt/{attempt}/revise-score', [InstructorQuizController::class, 'reviseScore'])
+        ->name('instructor.quiz.attempt.revise_score');
 });
 
 // // * group route for instructor

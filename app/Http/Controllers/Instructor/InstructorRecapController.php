@@ -110,15 +110,32 @@ class InstructorRecapController extends Controller
                     $quizMaxScore = $quiz->questions()->sum('score');
                     $quizMinimumScore = $quizMaxScore * ($quiz->pass_mark / 100);
                     if ($bestAttempt) {
-                        // Calculate score on a 0-100 scale
+                        // Gunakan effective_score (revised_score → scaled_score → kalkulasi manual)
+                        // agar rekap nilai mencerminkan skor yang sudah direvisi instruktur
+                        if ($bestAttempt->revised_score !== null) {
+                            // Jika ada revisi skor, gunakan revised_score (skor mentah) lalu scale
+                            $rawScore = $bestAttempt->revised_score;
+                            $scaledScore = ($quizMaxScore > 0) ? min(100, round(($rawScore / $quizMaxScore) * 100, 2)) : 0;
+                        } elseif ($bestAttempt->scaled_score !== null) {
+                            // Jika ada scaled_score, gunakan langsung
+                            $rawScore = $bestAttempt->score;
+                            $scaledScore = $bestAttempt->scaled_score;
+                        } else {
+                            // Fallback untuk data lama: hitung manual
+                            $rawScore = $bestAttempt->score;
+                            $scaledScore = ($quizMaxScore > 0) ? min(100, round(($rawScore / $quizMaxScore) * 100, 2)) : 0;
+                        }
                         // Rumus: (Skor yang diperoleh / Skor maksimum) × 100
-                        $rawScore = $bestAttempt->score;
-                        $scaledScore = ($quizMaxScore > 0) ? min(100, round(($rawScore / $quizMaxScore) * 100, 2)) : 0;
                         // Format the score with comma as decimal separator and period for thousands
                         $score = rtrim(rtrim(number_format($scaledScore, 2, ',', '.'), '0'), ',');
 
                         // Store both raw and scaled scores
                         $scores[$student->id][$lesson->id . '_raw'] = rtrim(rtrim(number_format($rawScore, 2, ',', '.'), '0'), ',');
+
+                        // Tandai jika skor sudah direvisi
+                        if ($bestAttempt->revised_score !== null) {
+                            $scores[$student->id][$lesson->id . '_revised'] = true;
+                        }
                     }
                 } elseif ($lessonable instanceof \App\Models\LessonAssignment) {
                     $submission = $student->assignmentSubmissions()

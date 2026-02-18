@@ -7,11 +7,15 @@ use App\Models\Quiz;
 use App\Models\Question;
 use App\Models\QuizAttempt;
 use App\Models\PointHistory;
+use App\Models\MonitoringLog;
+use App\Models\QuizAttemptIntegritySummary;
 use Illuminate\Http\Request;
 use App\Services\BadgeService;
 use App\Services\PointService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Services\QuizShuffleService;
 use Illuminate\Support\Facades\Auth;
 
 class StudentQuizController extends Controller
@@ -128,7 +132,7 @@ class StudentQuizController extends Controller
 
         // dd($request['is_preview']);
 
-
+        // preview mode (tidak generate shuffle)
         if ($request['is_preview'] === 'true') {
             $quiz->load('questions.options');
             $is_preview = true;
@@ -140,12 +144,49 @@ class StudentQuizController extends Controller
                 'endTime' => null
             ]);
         }
+
+        // create quize attampt
+        // $attempt = QuizAttempt::create([
+        //     'quiz_id' => $quiz->id,
+        //     'student_id' => Auth::id(),
+        //     'status' => 'in_progress',
+        //     'start_time' => now()
+        // ]);
+
+        // =====================================================================
+        // FISHER-YATES SHUFFLE INTEGRATION
+        // =====================================================================
+
+        // Create quiz attempt
         $attempt = QuizAttempt::create([
             'quiz_id' => $quiz->id,
             'student_id' => Auth::id(),
             'status' => 'in_progress',
             'start_time' => now()
         ]);
+
+        // Generate shuffled question order (Fisher-Yates Algorithm)
+        $shuffleService = new QuizShuffleService();
+        $shuffleResult = $shuffleService->generateShuffledOrder($attempt);
+
+        if (!$shuffleResult) {
+            // Jika shuffle gagal, rollback dan tampilkan error
+            $attempt->delete();
+            Log::error('Failed to generate shuffled order for attempt', [
+                'attempt_id' => $attempt->id,
+                'quiz_id' => $quiz->id,
+                'student_id' => Auth::id(),
+            ]);
+
+            return redirect()->route('student.quiz.start', $quiz)
+                ->with('error', 'Terjadi kesalahan saat memulai kuis. Silakan coba lagi.');
+        }
+
+        // =====================================================================
+        // END FISHER-YATES INTEGRATION
+        // =====================================================================
+
+
         return redirect()->route('student.quiz.take', $attempt);
     }
 
@@ -182,7 +223,24 @@ class StudentQuizController extends Controller
         // --- AKHIR LOGIKA TAMBAHAN ---
 
 
-        $attempt->load('quiz.questions.options');
+        // =====================================================================
+        // LOAD QUESTIONS BERDASARKAN SHUFFLED ORDER
+        // =====================================================================
+
+        // Load questions sesuai urutan yang sudah diacak
+        $shuffleService = new QuizShuffleService();
+        $questions = $shuffleService->getShuffledQuestions($attempt);
+
+        // Set questions ke quiz relation (agar tetap kompatibel dengan view existing)
+        $attempt->quiz->setRelation('questions', $questions);
+
+        // =====================================================================
+        // END SHUFFLED QUESTIONS LOADING
+        // =====================================================================
+
+        // Jangan load ulang questions karena sudah di-shuffle di atas
+        // $attempt->load('quiz.questions.options'); // DIHAPUS - akan menimpa urutan shuffle
+
         $is_preview = false;
         return view('student.quizzes.take', [
             'attempt' => $attempt,
@@ -240,6 +298,7 @@ class StudentQuizController extends Controller
 
                 // 2. Set dan Simpan Hasil Attempt (Tidak berubah)
                 $attempt->score = $totalScore;
+                $attempt->scaled_score = round($percentageScore, 2); // Simpan skor skala 0-100 langsung di database
                 $attempt->status = $newStatus;
                 $attempt->end_time = now();
                 $attempt->save();
@@ -361,8 +420,9 @@ class StudentQuizController extends Controller
         // quiz minimum score, not percentage
         $minimumScore = $maxPossibleScore * ($attempt->quiz->pass_mark / 100);
 
-        // Hitung nilai student dalam skala 0-100 (sama seperti di InstructorRecapController)
-        $studentScoreScaled = ($maxPossibleScore > 0) ? min(100, round(($attempt->score / $maxPossibleScore) * 100, 2)) : 0;
+        // Gunakan scaled_score dari database, fallback ke kalkulasi manual untuk data lama
+        $studentScoreScaled = $attempt->scaled_score
+            ?? (($maxPossibleScore > 0) ? min(100, round(($attempt->score / $maxPossibleScore) * 100, 2)) : 0);
         $minimumScoreScaled = $attempt->quiz->pass_mark; // pass_mark sudah dalam bentuk persentase 0-100
 
 
@@ -485,6 +545,217 @@ class StudentQuizController extends Controller
             }
         } else if ($userAnswer) {
             $collection->push(['question_id' => $question->id, 'selected_option_id' => $userAnswer, 'is_correct' => $isCorrect]);
+        }
+    }
+
+    /**
+     * Mencatat pelanggaran pindah tab (Tab Switching)
+     */
+    public function logTabViolation(Request $request, $attemptId)
+    {
+        try {
+            // Cari data percobaan kuis siswa
+            $attempt = QuizAttempt::findOrFail($attemptId);
+
+            // Validasi: Pastikan yang mengirim log adalah siswa yang sedang mengerjakan kuis tersebut
+            if ($attempt->student_id != Auth::id()) {
+                return response()->json(['error' => 'Tidak diizinkan'], 403);
+            }
+
+            // Validasi: Pastikan kuis masih dalam status aktif (in_progress)
+            if ($attempt->status !== 'in_progress') {
+                return response()->json(['error' => 'Kuis tidak sedang berlangsung'], 400);
+            }
+
+            // Cek apakah fitur deteksi tab aktif untuk kuis ini
+            $securitySetting = $attempt->quiz->securitySetting;
+            if (!$securitySetting || !$securitySetting->enable_tab_detection) {
+                return response()->json(['message' => 'Deteksi tab tidak aktif'], 200);
+            }
+
+            // Simpan detail log pelanggaran ke tabel 'monitoring_logs'
+            $log = MonitoringLog::create([
+                'attempt_id' => $attempt->id,
+                'violation_type' => 'tab_switch', // Tipe: Pindah tab
+                'violation_timestamp' => now(), // Waktu kejadian
+            ]);
+
+            Log::info('Pelanggaran tab dicatat', ['log_id' => $log->id, 'attempt_id' => $attempt->id]);
+
+            // Ambil atau buat ringkasan integritas (summary) untuk percobaan kuis ini
+            $summary = QuizAttemptIntegritySummary::firstOrCreate(
+                ['attempt_id' => $attempt->id],
+                [
+                    'total_tab_switches' => 0,
+                    'total_face_violations' => 0,
+                ]
+            );
+
+            // Tambah jumlah pelanggaran tab (+1) secara otomatis
+            $summary->increment('total_tab_switches');
+
+            // Cek apakah jumlah pelanggaran sudah melebihi batas (threshold) yang diatur instruktur
+            $threshold = $securitySetting->tab_violation_threshold ?? 5;
+            $shouldBlock = $summary->total_tab_switches >= $threshold;
+
+            // Kirim respon balik ke browser (apakah kuis harus diblokir atau sekadar peringatan)
+            return response()->json([
+                'success' => true,
+                'violation_count' => $summary->total_tab_switches, // Total pelanggaran saat ini
+                'threshold' => $threshold, // Batas maksimal
+                'should_block' => $shouldBlock, // Status: Blokir atau tidak
+                'message' => $shouldBlock
+                    ? 'Anda telah melebihi batas perpindahan tab yang diizinkan!'
+                    : "Peringatan: Anda telah pindah tab {$summary->total_tab_switches} kali. Batas maksimal: {$threshold} kali.",
+            ]);
+        } catch (\Exception $e) {
+            // Jika ada kesalahan teknis, catat ke log server
+            Log::error('Gagal mencatat pelanggaran tab', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'attempt_id' => $attemptId
+            ]);
+
+            return response()->json([
+                'error' => 'Gagal mencatat pelanggaran',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Mencatat pelanggaran kamera (Deteksi Wajah / Arah Pandangan)
+     */
+    public function logCameraViolation(Request $request, $attemptId)
+    {
+        try {
+            // Cari data percobaan kuis siswa
+            $attempt = QuizAttempt::findOrFail($attemptId);
+
+            // Validasi: Pastikan yang mengirim data adalah pemilik sesi kuis
+            if ($attempt->student_id != Auth::id()) {
+                return response()->json(['error' => 'Tidak diizinkan'], 403);
+            }
+
+            // Validasi: Pastikan kuis sedang berlangsung
+            if ($attempt->status !== 'in_progress') {
+                return response()->json(['error' => 'Kuis tidak sedang berlangsung'], 400);
+            }
+
+            // Cek apakah fitur deteksi kamera aktif
+            $securitySetting = $attempt->quiz->securitySetting;
+            if (!$securitySetting || !$securitySetting->enable_camera_detection) {
+                return response()->json(['message' => 'Deteksi kamera tidak aktif'], 200);
+            }
+
+            // Validasi tipe pelanggaran yang dikirim dari browser
+            $violationType = $request->input('violation_type');
+            $validTypes = ['face_not_detected', 'look_left', 'look_right', 'look_down', 'look_up'];
+
+            if (!in_array($violationType, $validTypes)) {
+                return response()->json(['error' => 'Tipe pelanggaran tidak valid'], 400);
+            }
+
+            // Proses upload bukti screenshot jika dilampirkan
+            $screenshotPath = null;
+            if ($request->hasFile('screenshot')) {
+                try {
+                    $screenshot = $request->file('screenshot');
+
+                    // Tentukan folder penyimpanan berdasarkan ID pengerjaan kuis
+                    $directory = 'screenshots/violations/' . $attempt->id;
+
+                    // Buat nama file unik (tipe_waktu_id.jpg)
+                    $filename = $violationType . '_' . time() . '_' . uniqid() . '.jpg';
+
+                    // Simpan file ke storage publik
+                    $screenshotPath = $screenshot->storeAs($directory, $filename, 'public');
+
+                    Log::info('Screenshot bukti berhasil disimpan', [
+                        'path' => $screenshotPath,
+                        'size' => $screenshot->getSize()
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Gagal mengunggah screenshot', ['error' => $e->getMessage()]);
+                    // Lanjut tanpa screenshot jika upload gagal
+                }
+            }
+
+            // Simpan log detail ke database
+            $log = MonitoringLog::create([
+                'attempt_id' => $attempt->id,
+                'violation_type' => $violationType, // Jenis gerakan/pelanggaran
+                'violation_timestamp' => now(), // Waktu kejadian
+                'duration_seconds' => $request->input('duration_seconds'), // Berapa lama kejadian berlangsung
+                'screenshot_path' => $screenshotPath, // Path bukti foto
+                'additional_data' => $request->input('additional_data'),
+            ]);
+
+            Log::info('Pelanggaran kamera dicatat', [
+                'log_id' => $log->id,
+                'type' => $violationType,
+                'has_screenshot' => $screenshotPath ? 'Ya' : 'Tidak'
+            ]);
+
+            // Ambil atau inisialisasi ringkasan integritas (summary)
+            $summary = QuizAttemptIntegritySummary::firstOrCreate(
+                ['attempt_id' => $attempt->id],
+                [
+                    'total_tab_switches' => 0,
+                    'total_face_violations' => 0,
+                    'face_not_detected_count' => 0,
+                    'look_left_count' => 0,
+                    'look_right_count' => 0,
+                    'look_down_count' => 0,
+                    'look_up_count' => 0,
+                ]
+            );
+
+            // Tambah counter khusus untuk tipe pelanggaran tertentu (misal: menoleh kiri)
+            $fieldMap = [
+                'face_not_detected' => 'face_not_detected_count',
+                'look_left' => 'look_left_count',
+                'look_right' => 'look_right_count',
+                'look_down' => 'look_down_count',
+                'look_up' => 'look_up_count',
+            ];
+
+            $summary->increment($fieldMap[$violationType]);
+            $summary->increment('total_face_violations'); // Tambah total pelanggaran kamera secara umum
+            $summary->save();
+
+            // Cek apakah total pelanggaran kamera melebihi batas yang diizinkan
+            $threshold = $securitySetting->camera_violation_threshold ?? 10;
+            $shouldBlock = $summary->total_face_violations >= $threshold;
+
+            return response()->json([
+                'success' => true,
+                'violation_count' => $summary->total_face_violations,
+                'violation_breakdown' => [ // Rincian masing-masing pelanggaran
+                    'face_not_detected' => $summary->face_not_detected_count,
+                    'look_left' => $summary->look_left_count,
+                    'look_right' => $summary->look_right_count,
+                    'look_down' => $summary->look_down_count,
+                    'look_up' => $summary->look_up_count,
+                ],
+                'threshold' => $threshold,
+                'should_block' => $shouldBlock, // Instruksi untuk blokir layar
+                'risk_level' => $summary->risk_level, // Level risiko (Low/Medium/High)
+                'message' => $shouldBlock
+                    ? 'Kuis diblokir karena terlalu banyak pelanggaran kamera!'
+                    : "Pelanggaran kamera dicatat: {$summary->total_face_violations}/{$threshold}",
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Gagal mencatat pelanggaran kamera', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'attempt_id' => $attemptId
+            ]);
+
+            return response()->json([
+                'error' => 'Gagal mencatat pelanggaran',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

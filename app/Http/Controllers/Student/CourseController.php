@@ -213,8 +213,9 @@ class CourseController extends Controller
                 // Tambahkan perhitungan nilai untuk setiap attempt
                 $totalMaxScore = $data['maxScore'];
                 foreach ($allAttempts as $attempt) {
-                    // Hitung nilai student dalam skala 0-100 (sama seperti di InstructorRecapController)
-                    $attempt->studentScoreScaled = ($totalMaxScore > 0) ? min(100, round(($attempt->score / $totalMaxScore) * 100, 2)) : 0;
+                    // Gunakan scaled_score dari DB, fallback ke kalkulasi manual untuk data lama
+                    $attempt->studentScoreScaled = $attempt->scaled_score
+                        ?? (($totalMaxScore > 0) ? min(100, round(($attempt->score / $totalMaxScore) * 100, 2)) : 0);
                 }
 
                 $data['allAttempts'] = $allAttempts; // Kirim semua percobaan

@@ -92,6 +92,9 @@
                                                             <a href="{{ route('instructor.recap.index', $course->id) }}" class="btn btn-success btn-sm" title="Rekap">
                                                                 <i class="fa fa-list-ul"></i> Rekap
                                                             </a>
+                                                            <a href="{{ route('instructor.course.monitoring.overview', $course->id) }}" class="btn btn-info btn-sm" title="Monitoring Kuis">
+                                                                <i class="fa fa-shield"></i> Monitoring
+                                                            </a>
                                                             <button type="button" class="btn btn-warning btn-sm leaderboard-btn text-dark" data-url="{{ route('instructor.course.leaderboard', $course->id) }}" title="Lihat Papan Peringkat Kursus">
                                                                 <i class="fa fa-bar-chart text-dark"></i> Data Student
                                                             </button>

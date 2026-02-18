@@ -119,8 +119,9 @@
                                 <tbody>
                                     @foreach($student->attempts->sortByDesc('created_at') as $attempt)
                                     @php
-                                        // Hitung nilai student dalam skala 0-100 (sama seperti di InstructorRecapController)
-                                        $studentScoreScaled = ($totalMaxScore > 0) ? min(100, round(($attempt->score / $totalMaxScore) * 100, 2)) : 0;
+                                        // Gunakan scaled_score dari DB, fallback ke kalkulasi manual untuk data lama
+                                        $studentScoreScaled = $attempt->scaled_score
+                                            ?? (($totalMaxScore > 0) ? min(100, round(($attempt->score / $totalMaxScore) * 100, 2)) : 0);
                                     @endphp
                                     <tr>
                                         <td>{{ $attempt->end_time ? $attempt->end_time->format('d M Y, H:i') : 'Dalam Pengerjaan' }}</td>
@@ -143,6 +144,9 @@
                                         </td>
                                         <td class="text-center">
                                             <a href="{{ route('instructor.quiz.review_attempt', $attempt->id) }}" class="btn btn-inverse btn-sm">Periksa Jawaban</a>
+                                            <a href="{{ route('instructor.quiz.monitoring.detail', $attempt->id) }}" class="btn btn-info btn-sm" title="Lihat Detail Monitoring">
+                                                <i class="fa fa-eye"></i> Monitor
+                                            </a>
                                         </td>
                                     </tr>
                                     @endforeach

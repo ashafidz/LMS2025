@@ -73,6 +73,8 @@
             }
         </style>
         @stack('styles')
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 
 <body>
@@ -209,7 +211,7 @@
 
 
 
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Required Jquery -->
     <script type="text/javascript" src="{{ asset('js/jquery/jquery.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/jquery-ui/jquery-ui.min.js') }}"></script>

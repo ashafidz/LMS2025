@@ -69,10 +69,21 @@
                                                                     Pratinjau
                                                                 </button>
                                                             @endif
-    
-                                                            
-    
                                                             @if ($lessonType === 'quiz')
+                                                                <!-- Button Pengaturan Keamanan -->
+                                                                <a href="{{ route('instructor.quiz.security.edit', $lesson->lessonable_id) }}" 
+                                                                class="btn btn-secondary btn-sm" 
+                                                                title="Pengaturan Keamanan Kuis">
+                                                                    <i class="fa fa-shield me-1"></i>Keamanan
+                                                                </a>
+
+                                                                <!-- Button Review Monitoring -->
+                                                                <a href="{{ route('instructor.quiz.monitoring.review', $lesson->lessonable_id) }}" 
+                                                                class="btn btn-warning btn-sm" 
+                                                                title="Review Monitoring & Integritas">
+                                                                    <i class="fa fa-eye me-1"></i>Monitoring
+                                                                </a>
+                                                                
                                                                 <a href="{{ route('instructor.quiz.results', $lesson->lessonable_id) }}" class="btn btn-info btn-sm"><i class="fa fa-calculator me-1"></i>Lihat Nilai</a>
                                                                 <a href="{{ route('instructor.quizzes.manage_questions', $lesson->lessonable_id) }}" class="btn btn-success btn-sm"><i class="fa fa-pencil-square me-1"></i>Kelola Soal</a>
                                                             @endif
