@@ -74,7 +74,7 @@
                                     </div>
                                     <div class="modal-footer border-0 justify-content-center pb-4">
                                         <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                                        <form action="{{ route('student.cart.remove', $item->id) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('student.cart.remove', $item) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger rounded-pill px-4 ms-2">

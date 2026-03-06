@@ -37,7 +37,7 @@
                                         <span>Ubah detail pertanyaan di bawah ini.</span>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.question-bank.questions.update', $question->id) }}" method="POST" id="true-false-form">
+                                        <form action="{{ route('instructor.question-bank.questions.update', $question) }}" method="POST" id="true-false-form">
                                             @csrf
                                             @method('PUT')
 
@@ -87,22 +87,22 @@
                                             {{-- Static option for "True" --}}
                                             <div class="form-group row align-items-center">
                                                 <label class="col-sm-2 col-form-label text-right">
-                                                    <input type="radio" name="correct_option" value="true" class="form-check-input" required {{ $correctValue === 'True' ? 'checked' : '' }}>
+                                                    <input type="radio" name="correct_option" value="true" class="form-check-input" required {{ ($correctValue === 'True' || $correctValue === 'Benar') ? 'checked' : '' }}>
                                                 </label>
                                                 <div class="col-sm-8">
-                                                    <input type="text" name="options[0][text]" class="form-control" value="True" readonly>
-                                                    <input type="hidden" name="options[0][is_correct]" value="{{ $correctValue === 'True' ? '1' : '0' }}">
+                                                    <input type="text" name="options[0][text]" class="form-control" value="Benar" readonly>
+                                                    <input type="hidden" name="options[0][is_correct]" value="{{ ($correctValue === 'True' || $correctValue === 'Benar') ? '1' : '0' }}">
                                                 </div>
                                             </div>
 
                                             {{-- Static option for "False" --}}
                                             <div class="form-group row align-items-center">
                                                 <label class="col-sm-2 col-form-label text-right">
-                                                    <input type="radio" name="correct_option" value="false" class="form-check-input" required {{ $correctValue === 'False' ? 'checked' : '' }}>
+                                                    <input type="radio" name="correct_option" value="false" class="form-check-input" required {{ ($correctValue === 'False' || $correctValue === 'Salah') ? 'checked' : '' }}>
                                                 </label>
                                                 <div class="col-sm-8">
-                                                    <input type="text" name="options[1][text]" class="form-control" value="False" readonly>
-                                                    <input type="hidden" name="options[1][is_correct]" value="{{ $correctValue === 'False' ? '1' : '0' }}">
+                                                    <input type="text" name="options[1][text]" class="form-control" value="Salah" readonly>
+                                                    <input type="hidden" name="options[1][is_correct]" value="{{ ($correctValue === 'False' || $correctValue === 'Salah') ? '1' : '0' }}">
                                                 </div>
                                             </div>
 

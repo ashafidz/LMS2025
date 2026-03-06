@@ -15,7 +15,7 @@
                         <ul class="breadcrumb-title">
                             <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
                             <li class="breadcrumb-item"><a href="{{ route('instructor.courses.index') }}">Kursus Saya</a></li>
-                             <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $module->course->id) }}">Modul Saya</a></li>
+                             <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $module->course) }}">Modul Saya</a></li>
                             <li class="breadcrumb-item"><a href="#!">Edit</a></li>
                         </ul>
                     </div>
@@ -37,7 +37,7 @@
                                         <span>Perbarui Judul Modul Anda.</span>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.modules.update', $module->id) }}" method="POST">
+                                        <form action="{{ route('instructor.modules.update', $module) }}" method="POST">
                                             @csrf
                                             @method('PUT')
 
@@ -64,7 +64,7 @@
                                             <div class="form-group row">
                                                 <label class="col-sm-2"></label>
                                                 <div class="col-sm-10">
-                                                    <a href="{{ route('instructor.courses.modules.index', $module->course->id) }}" class="btn btn-secondary">Batal</a>
+                                                    <a href="{{ route('instructor.courses.modules.index', $module->course) }}" class="btn btn-secondary">Batal</a>
                                                     <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                                                 </div>
                                             </div>

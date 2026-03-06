@@ -85,19 +85,19 @@
         snap.pay('{{ $snapToken }}', {
           onSuccess: function(result){
             console.log(result);
-            window.location.href = "{{ route('payment.success', $order->id) }}";
+            window.location.href = "{{ route('payment.success', $order) }}";
           },
           onPending: function(result){
             console.log(result);
-            window.location.href = "{{ route('payment.pending', $order->id) }}";
+            window.location.href = "{{ route('payment.pending', $order) }}";
           },
           onError: function(result){
             console.log(result);
-            window.location.href = "{{ route('payment.failed', $order->id) }}";
+            window.location.href = "{{ route('payment.failed', $order) }}";
           },
           onClose: function(){
             /* Pengguna menutup popup tanpa menyelesaikan pembayaran */
-            window.location.href = "{{ route('payment.cancelled', $order->id) }}";
+            window.location.href = "{{ route('payment.cancelled', $order) }}";
           }
         });
       });

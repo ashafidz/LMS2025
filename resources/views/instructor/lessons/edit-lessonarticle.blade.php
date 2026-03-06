@@ -36,7 +36,7 @@
                                         <h5>Edit Detail Pelajaran Artikel</h5>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.lessons.update', $lesson->id) }}" method="POST">
+                                        <form action="{{ route('instructor.lessons.update', $lesson) }}" method="POST">
                                             @csrf
                                             @method('PUT')
 

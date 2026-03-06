@@ -27,7 +27,7 @@
                                 <a href="{{ route('instructor.courses.index') }}">Kursus Saya</a>
                             </li>
                              <li class="breadcrumb-item">
-                                <a href="{{ route('instructor.courses.modules.index', $course->id) }}">Modul Saya</a>
+                                <a href="{{ route('instructor.courses.modules.index', $course) }}">Modul Saya</a>
                             </li>
                             <li class="breadcrumb-item">
                                 <a href="#!">Buat</a>
@@ -52,7 +52,7 @@
                                         <span>Isi formulir di bawah ini untuk membuat modul baru.</span>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.courses.modules.store', $course->id) }}" method="POST">
+                                        <form action="{{ route('instructor.courses.modules.store', $course) }}" method="POST">
                                             @csrf
 
                                             {{-- Title --}}
@@ -78,7 +78,7 @@
                                             <div class="form-group row">
                                                 <label class="col-sm-2"></label>
                                                 <div class="col-sm-10">
-                                                    <a href="{{ route('instructor.courses.modules.index', $course->id) }}" class="btn btn-secondary">Batal</a>
+                                                    <a href="{{ route('instructor.courses.modules.index', $course) }}" class="btn btn-secondary">Batal</a>
                                                     <button type="submit" class="btn btn-primary">Buat Modul</button>
                                                 </div>
                                             </div>

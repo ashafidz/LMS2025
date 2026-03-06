@@ -94,12 +94,12 @@
                                                             @endif
     
                                                             @if ($lessonType === 'lessonpoint')
-                                                                <a href="{{ route('instructor.lesson_points.manage', $lesson->id) }}" class="btn btn-success btn-sm"><i class="bi bi-gear-fill"></i>Kelola LessonPoin</a>
+                                                                <a href="{{ route('instructor.lesson_points.manage', $lesson) }}" class="btn btn-success btn-sm"><i class="bi bi-gear-fill"></i>Kelola LessonPoin</a>
                                                             @endif
                                                         </div>
                                                         <div>
-                                                            <a href="{{ route('instructor.lessons.edit', $lesson->id) }}" class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i>Edit</a>
-                                                        <form action="{{ route('instructor.lessons.destroy', $lesson->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pelajaran ini?');">
+                                                            <a href="{{ route('instructor.lessons.edit', $lesson) }}" class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i>Edit</a>
+                                                        <form action="{{ route('instructor.lessons.destroy', $lesson) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pelajaran ini?');">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>Hapus</button>

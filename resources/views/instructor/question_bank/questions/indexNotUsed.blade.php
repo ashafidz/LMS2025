@@ -85,15 +85,15 @@
                                                                 @endif
                                                             </td>
                                                             <td class="text-center">
-                                                                <a href="{{ route('instructor.question-bank.questions.edit', $question->id) }}" class="btn btn-info btn-sm">Edit</a>
+                                                                <a href="{{ route('instructor.question-bank.questions.edit', $question) }}" class="btn btn-info btn-sm">Edit</a>
                                                                 
-                                                                <form action="{{ route('instructor.question-bank.questions.clone', $question->id) }}" method="POST" class="d-inline">
+                                                                <form action="{{ route('instructor.question-bank.questions.clone', $question) }}" method="POST" class="d-inline">
                                                                     @csrf
                                                                     <button type="submit" class="btn btn-primary btn-sm">Clone</button>
                                                                 </form>
 
                                                                 <span {{ $isLocked ? 'data-toggle=tooltip' : '' }} title="{{ $isLocked ? 'This question is used in a quiz and cannot be deleted.' : '' }}">
-                                                                    <form action="{{ route('instructor.question-bank.questions.destroy', $question->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this question?');">
+                                                                    <form action="{{ route('instructor.question-bank.questions.destroy', $question) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this question?');">
                                                                         @csrf
                                                                         @method('DELETE')
                                                                         <button type="submit" class="btn btn-danger btn-sm" {{ $isLocked ? 'disabled' : '' }}>Delete</button>

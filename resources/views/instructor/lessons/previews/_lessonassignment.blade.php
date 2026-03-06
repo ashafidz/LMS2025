@@ -5,67 +5,113 @@
     }
     $assignment = $lesson->lessonable;
 
-        // Variabel untuk mengecek apakah sudah melewati batas waktu
+    // Variabel untuk mengecek apakah sudah melewati batas waktu
     $isLate = $assignment->due_date && now()->isAfter($assignment->due_date);
 @endphp
 
+<div class="assignment-header mb-4 border-bottom pb-3">
+    <h3 class="font-weight-bold text-primary mb-2"><i class="fa fa-tasks mr-2"></i>{{ $lesson->title }}</h3>
+    
+    <div class="d-flex flex-wrap align-items-center mt-3 text-muted">
+        <div class="mr-4 mb-2">
+            <i class="fa fa-calendar-alt mr-1"></i> <strong>Batas Waktu:</strong> 
+            <span class="{{ $isLate ? 'text-danger font-weight-bold' : '' }}">
+                {{ $assignment->due_date ? $assignment->due_date->format('d F Y, H:i') : 'Tidak ada' }}
+            </span>
+        </div>
+        <div class="mb-2">
+            <i class="fa fa-check-circle mr-1 text-success"></i> <strong>Nilai Kelulusan Minimum:</strong> {{ $assignment->pass_mark }} / 100
+        </div>
+    </div>
+</div>
 
-<h4 class="font-weight-bold">{{ $lesson->title }}</h4>
-<hr>
+<div class="card shadow-sm border-0 mb-4 bg-light">
+    <div class="card-body">
+        <h5 class="font-weight-bold text-dark mb-3"><i class="fa fa-info-circle mr-2 text-info"></i>Instruksi Tugas</h5>
+        <div class="instructions text-secondary" style="white-space: pre-wrap; font-size: 15px; line-height: 1.6;">{!! nl2br(e($assignment->instructions)) !!}</div>
+    </div>
+</div>
 
-<div class="assignment-container">
-
-
-    <p class="text-danger" ><strong>Batas Waktu:</strong> {{ $assignment->due_date ? $assignment->due_date->format('d F Y, H:i') : 'Tidak ada' }}</p>
+<div class="assignment-submission-section mt-4">
     @if($isLate && !$submission)
-        <div class="alert alert-danger">
-            <h5 class="font-weight-bold"><i class="fa fa-exclamation-triangle"></i> Batas Waktu Sudah Lewat</h5>
-            <p>Batas waktu untuk tugas ini telah lewat, cepat kumpulkan tugas Anda.</p>
+        <div class="alert alert-danger shadow-sm border-0 border-left-danger">
+            <h5 class="font-weight-bold mb-2"><i class="fa fa-exclamation-triangle mr-2"></i>Batas Waktu Sudah Lewat</h5>
+            <p class="mb-0">Batas waktu untuk tugas ini telah lewat, segera kumpulkan tugas Anda jika masih diizinkan.</p>
         </div>
     @endif
 
-
     @if($submission)
         {{-- Jika siswa sudah pernah mengumpulkan --}}
-        <div class="alert alert-info">
-            <h5 class="font-weight-bold"><i class="fa fa-info-circle"></i> Status Pengumpulan Anda</h5>
-            <ul>
-                <li><strong>File Terakhir Diunggah:</strong> <code>{{ basename($submission->file_path) }}</code> <a href="{{ Storage::url($submission->file_path) }}" download> (Unduh)</a></li>
-                <li><strong>Waktu Mengumpulkan:</strong> {{ $submission->submitted_at->format('d F Y, H:i') }}</li>
-            </ul>
+        <div class="card shadow-sm border-0 border-left-info mb-4">
+            <div class="card-body">
+                <h5 class="font-weight-bold text-info mb-3"><i class="fa fa-file-alt mr-2"></i>Status Pengumpulan Anda</h5>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><i class="fa fa-file-pdf-o text-danger mr-2"></i><strong>File Terakhir Diunggah:</strong> <code>{{ basename($submission->file_path) }}</code> <a href="{{ Storage::url($submission->file_path) }}" class="btn btn-sm btn-outline-primary ml-2 py-0 px-2" download><i class="fa fa-download"></i> Unduh</a></li>
+                    <li><i class="fa fa-clock-o text-muted mr-2"></i><strong>Waktu Mengumpulkan:</strong> {{ $submission->submitted_at->format('d F Y, H:i') }}</li>
+                </ul>
+            </div>
         </div>
 
         @if($submission->status === 'submitted')
-            <p class="text-muted mt-3">Tugas Anda sedang menunggu penilaian dari instruktur.</p>
+            <div class="alert alert-secondary border-0 shadow-sm text-center py-3">
+                <i class="fa fa-hourglass-half fa-2x text-muted mb-2"></i>
+                <p class="mb-0 font-weight-bold text-dark">Tugas Anda sedang menunggu penilaian dari instruktur.</p>
+            </div>
             
             {{-- Form edit jika belum terlambat --}}
             @if(!$isLate && !$is_preview)
-                <div class="alert alert-warning mt-3">
-                    <strong>Ingin mengganti file tugas Anda?</strong><br>
-                    Anda masih bisa mengganti file tugas selama belum melewati batas waktu.
+                <div class="card border-warning shadow-sm mt-4">
+                    <div class="card-header bg-warning text-dark font-weight-bold">
+                        <i class="fa fa-edit mr-2"></i>Ingin mengganti file tugas Anda?
+                    </div>
+                    <div class="card-body bg-light">
+                        <p class="text-muted small mb-3">Anda masih bisa mengganti file tugas selama belum melewati batas waktu.</p>
+                        @include('student.courses.partials._assignment_form', ['assignment' => $assignment])
+                    </div>
                 </div>
-                @include('student.courses.partials._assignment_form', ['assignment' => $assignment])
             @endif
             
         @elseif($submission->status === 'revision_required')
-            <div class="card mt-3">
-                <div class="card-header bg-danger text-white"><strong>Penilaian & Revisi dari Instruktur</strong></div>
-                <div class="card-block">
-                    <p><strong>Nilai:</strong> <span class="font-weight-bold text-danger">{{ $submission->grade }} / 100</span></p>
-                    <p class="mb-0"><strong>Umpan Balik:</strong><br>{!! nl2br(e($submission->feedback)) !!}</p>
+            <div class="card shadow-sm border-0 border-left-danger mt-4">
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                    <h5 class="font-weight-bold text-danger mb-0"><i class="fa fa-times-circle mr-2"></i>Penilaian & Revisi dari Instruktur</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <h1 class="display-4 text-danger mb-0 mr-3">{{ $submission->grade }}</h1>
+                        <span class="text-muted h5 mb-0"> / 100</span>
+                    </div>
+                    <div class="bg-light p-3 rounded">
+                        <strong><i class="fa fa-commenting-o mr-1"></i> Umpan Balik:</strong>
+                        <p class="mb-0 mt-2">{!! nl2br(e($submission->feedback)) !!}</p>
+                    </div>
                 </div>
             </div>
-            <div class="alert alert-warning mt-4">
-                <strong>Nilai Anda belum mencapai standar kelulusan.</strong><br>
-                Silakan perbaiki tugas Anda dan unggah kembali file yang baru di bawah ini.
+            
+            <div class="card shadow-sm border-0 border-left-warning mt-4">
+                <div class="card-body">
+                    <h5 class="font-weight-bold text-warning mb-2"><i class="fa fa-refresh mr-2"></i>Revisi Diperlukan</h5>
+                    <p class="text-muted mb-3">Nilai Anda belum mencapai standar kelulusan. Silakan perbaiki tugas Anda dan unggah kembali file yang baru di bawah ini.</p>
+                    @include('student.courses.partials._assignment_form', ['assignment' => $assignment])
+                </div>
             </div>
-            @include('student.courses.partials._assignment_form', ['assignment' => $assignment])
+            
         @elseif($submission->status === 'passed')
-            <div class="card mt-3">
-                <div class="card-header bg-success text-white"><strong>Penilaian dari Instruktur</strong></div>
-                <div class="card-block">
-                    <p><strong>Nilai:</strong> <span class="font-weight-bold text-success">{{ $submission->grade }} / 100</span></p>
-                    <p class="mb-0"><strong>Umpan Balik:</strong><br>{!! nl2br(e($submission->feedback)) !!}</p>
+            <div class="card shadow-sm border-0 border-left-success mt-4">
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                    <h5 class="font-weight-bold text-success mb-0"><i class="fa fa-check-circle mr-2"></i>Penilaian dari Instruktur (Lulus)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <h1 class="display-4 text-success mb-0 mr-3">{{ $submission->grade }}</h1>
+                        <span class="text-muted h5 mb-0"> / 100</span>
+                    </div>
+                    @if($submission->feedback)
+                    <div class="bg-light p-3 rounded">
+                        <strong><i class="fa fa-commenting-o mr-1"></i> Umpan Balik:</strong>
+                        <p class="mb-0 mt-2">{!! nl2br(e($submission->feedback)) !!}</p>
+                    </div>
+                    @endif
                 </div>
             </div>
         @endif
@@ -73,21 +119,24 @@
     @else
         {{-- Jika siswa belum mengumpulkan sama sekali --}}
         @if(!$is_preview)
-            @include('student.courses.partials._assignment_form', ['assignment' => $assignment])
+            <div class="card shadow-sm border-0 mt-4">
+                <div class="card-header bg-white pb-0 border-bottom-0">
+                    <h5 class="font-weight-bold text-primary mb-0"><i class="fa fa-upload mr-2"></i>Pengumpulan Tugas</h5>
+                </div>
+                <div class="card-body">
+                    @include('student.courses.partials._assignment_form', ['assignment' => $assignment])
+                </div>
+            </div>
         @else
-            <div class="text-center text-muted">
-                <p>Ini adalah pratinjau. Siswa akan melihat tombol untuk mengunggah file tugas di sini.</p>
-                <button class="btn btn-primary" disabled><i class="fa fa-upload"></i> Kumpulkan Tugas</button>
+            <div class="card mt-4 border-primary border-dashed bg-light">
+                <div class="card-body text-center py-5">
+                    <div class="rounded-circle bg-white shadow-sm mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                        <i class="fa fa-cloud-upload text-primary fa-2x"></i>
+                    </div>
+                    <p class="text-muted mb-3">Ini adalah pratinjau. Siswa akan melihat formulir untuk mengunggah file tugas di bagian ini.</p>
+                    <button class="btn btn-outline-primary" disabled><i class="fa fa-upload mr-2"></i> Kumpulkan Tugas</button>
+                </div>
             </div>
         @endif
     @endif
-
-
-    
-    <h5 class="font-weight-bold mt-5">Instruksi Tugas</h5>
-    <div class="instructions mb-4" style="white-space: pre-wrap;">{!! nl2br(e($assignment->instructions)) !!}</div>
-    <p class="text-danger" ><strong>Batas Waktu:</strong> {{ $assignment->due_date ? $assignment->due_date->format('d F Y, H:i') : 'Tidak ada' }}</p>
-    <p><strong>Nilai Kelulusan Minimum:</strong> {{ $assignment->pass_mark }}</p>
-    <hr>
-
 </div>

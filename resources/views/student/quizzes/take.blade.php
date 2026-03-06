@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('⚠️ Tab switched or window minimized - Sending log to server...');
             
             // Kirim log ke server
-            fetch('{{ route("student.quiz.log_tab_violation", $attempt->id) }}', {
+            fetch('{{ route('student.quiz.log_tab_violation', $attempt) }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -835,7 +835,7 @@ document.addEventListener('DOMContentLoaded', function () {
             formData.append('screenshot', screenshot, `violation_${Date.now()}.jpg`);
         }
         
-        fetch('{{ route("student.quiz.log_camera_violation", $attempt->id) }}', {
+        fetch('{{ route('student.quiz.log_camera_violation', $attempt) }}', {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'

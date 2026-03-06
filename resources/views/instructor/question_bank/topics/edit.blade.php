@@ -30,7 +30,7 @@
                 <div class="card">
                     <div class="card-header"><h5>Detail Topik</h5></div>
                     <div class="card-block">
-                        <form action="{{ route('instructor.question-bank.topics.update', $topic->id) }}" method="POST">
+                        <form action="{{ route('instructor.question-bank.topics.update', $topic) }}" method="POST">
                             @csrf
                             @method('PUT')
                             <div class="form-group row">

@@ -4,7 +4,7 @@
 <div id="review-error-alert" class="alert alert-danger" style="display: none;"></div>
 
 
-    <form id="course-review-form" action="{{ route('student.course.review.store', $course->id) }}" method="POST">
+    <form id="course-review-form" action="{{ route('student.course.review.store', $course) }}" method="POST">
         @csrf
         {{-- Rating & Ulasan untuk Kursus --}}
         <div class="card mb-4">

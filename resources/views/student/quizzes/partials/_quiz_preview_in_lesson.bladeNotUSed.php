@@ -62,7 +62,7 @@
             @else
                 {{-- Tombol untuk siswa biasa --}}
                 @if(isset($lastAttempt) && $lastAttempt->status == 'passed')
-                    <a href="{{ route('student.quiz.result', $lastAttempt->id) }}" class="btn btn-info btn-lg">Lihat Hasil</a>
+                    <a href="{{ route('student.quiz.result', $lastAttempt) }}" class="btn btn-info btn-lg">Lihat Hasil</a>
                     {{-- Opsional: tambahkan tombol coba lagi jika diizinkan --}}
                     {{-- <a href="{{ route('student.quiz.start', $lesson->lessonable->id) }}" class="btn btn-primary btn-lg">Coba Lagi</a> --}}
                 @else

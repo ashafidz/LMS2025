@@ -277,7 +277,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                         @if ($pointsData && !$pointsData->pivot->is_converted_to_diamond)
-                            <form action="{{ route('student.course.convert_points', $course->id) }}" method="POST">
+                            <form action="{{ route('student.course.convert_points', $course) }}" method="POST">
                                 @csrf
                                 <button type="submit" class="btn btn-primary">Konfirmasi & Konversi Poin</button>
                             </form>
@@ -392,7 +392,7 @@
                     e.preventDefault();
                     lessonTitleEl.innerText = 'Ulasan & Rating Kursus';
                     lessonContentEl.innerHTML = '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
-                    const url = "{{ route('student.course.review.create', $course->id) }}";
+                    const url = "{{ route('student.course.review.create', $course) }}";
                     fetch(url)
                         .then(response => response.json())
                         .then(data => {
@@ -510,7 +510,7 @@
                     e.preventDefault();
                     lessonTitleEl.innerText = 'Sertifikat Kelulusan';
                     lessonContentEl.innerHTML = '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
-                    const url = "{{ route('student.certificate.preview', $course->id) }}";
+                    const url = "{{ route('student.certificate.preview', $course) }}";
                     fetch(url)
                         .then(response => response.json())
                         .then(data => {
@@ -534,7 +534,7 @@
                     e.preventDefault();
                     lessonTitleEl.innerText = 'Papan Peringkat Kursus';
                     lessonContentEl.innerHTML = '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
-                    const url = "{{ route('student.course.leaderboard', $course->id) }}";
+                    const url = "{{ route('student.course.leaderboard', $course) }}";
                     fetch(url)
                         .then(response => response.json())
                         .then(data => {

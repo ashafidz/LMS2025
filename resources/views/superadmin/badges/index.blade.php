@@ -69,10 +69,10 @@
                                                             @endif
                                                         </td>
                                                         <td class="text-center">
-                                                            <a href="{{ route('superadmin.badges.edit', $badge->id) }}" class="btn btn-info btn-sm">
-                                                                <i class="fa fa-pencil"></i> Edit
+                                                            <a href="{{ route('superadmin.badges.edit', $badge) }}" class="btn btn-info btn-sm">
+                                                                <i class="fa fa-pencil"></i>
                                                             </a>
-                                                            <form action="{{ route('superadmin.badges.destroy', $badge->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus badge ini?');">
+                                                            <form action="{{ route('superadmin.badges.destroy', $badge) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus badge ini?');">
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <button type="submit" class="btn btn-danger btn-sm">

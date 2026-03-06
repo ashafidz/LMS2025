@@ -36,7 +36,7 @@
                                         <h5>Edit Detail Pelajaran Dokumen</h5>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.lessons.update', $lesson->id) }}" method="POST" enctype="multipart/form-data">
+                                        <form action="{{ route('instructor.lessons.update', $lesson) }}" method="POST" enctype="multipart/form-data">
                                             @csrf
                                             @method('PUT')
 

@@ -148,7 +148,7 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form action="{{ route('admin.publication.reject', $course->id) }}" method="POST">
+                    <form action="{{ route('admin.publication.reject', $course) }}" method="POST">
                         @csrf
                         @method('PATCH')
                         <div class="modal-body">

@@ -15,6 +15,7 @@ use App\Services\PointService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Services\HashIdService;
 use App\Services\QuizShuffleService;
 use Illuminate\Support\Facades\Auth;
 
@@ -192,7 +193,7 @@ class StudentQuizController extends Controller
 
     public function take($attemptId)
     {
-
+        $attemptId = HashIdService::decode($attemptId) ?? $attemptId;
         $attempt = QuizAttempt::with('quiz.questions.options')->findOrFail($attemptId);
 
         // Validasi: Pastikan siswa terdaftar di kursus ini
@@ -259,6 +260,7 @@ class StudentQuizController extends Controller
             $attempt = new QuizAttempt(['quiz_id' => $quiz->id]);
             $attempt->setRelation('quiz', $quiz);
         } else {
+            $attemptId = HashIdService::decode($attemptId) ?? $attemptId;
             $attempt = QuizAttempt::findOrFail($attemptId);
 
             // Validasi: Pastikan siswa terdaftar di kursus ini
@@ -391,6 +393,7 @@ class StudentQuizController extends Controller
 
     public function result($attemptId)
     {
+        $attemptId = HashIdService::decode($attemptId) ?? $attemptId;
         // check ownership attemp
         $attempt = QuizAttempt::findOrFail($attemptId);
 
@@ -554,6 +557,7 @@ class StudentQuizController extends Controller
     public function logTabViolation(Request $request, $attemptId)
     {
         try {
+            $attemptId = HashIdService::decode($attemptId) ?? $attemptId;
             // Cari data percobaan kuis siswa
             $attempt = QuizAttempt::findOrFail($attemptId);
 
@@ -629,6 +633,7 @@ class StudentQuizController extends Controller
     public function logCameraViolation(Request $request, $attemptId)
     {
         try {
+            $attemptId = HashIdService::decode($attemptId) ?? $attemptId;
             // Cari data percobaan kuis siswa
             $attempt = QuizAttempt::findOrFail($attemptId);
 

@@ -12,7 +12,7 @@
                     </div>
                 </div>
                 <div class="col-md-4 text-right">
-                    <a href="{{ route('instructor.quiz.review_attempt', $attempt->id) }}" class="btn btn-inverse btn-sm" title="Lihat Nilai Kuis">
+                    <a href="{{ route('instructor.quiz.review_attempt', $attempt) }}" class="btn btn-inverse btn-sm" title="Lihat Nilai Kuis">
                         <i class="fa fa-file-text-o"></i> Nilai Kuis
                     </a>
                     <a href="{{ route('instructor.quiz.monitoring.review', $attempt->quiz_id) }}" class="btn btn-secondary btn-sm">
@@ -234,7 +234,7 @@
                             @endif
 
                             {{-- Form Revisi Skor --}}
-                            <form action="{{ route('instructor.quiz.attempt.revise_score', $attempt->id) }}" method="POST">
+                            <form action="{{ route('instructor.quiz.attempt.revise_score', $attempt) }}" method="POST">
                                 @csrf
                                 <div class="row">
                                     <div class="col-md-4">

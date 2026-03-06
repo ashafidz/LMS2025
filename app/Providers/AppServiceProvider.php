@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Models\SiteSetting;
+use App\Services\HashIdService;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Blade;
 use App\Models\Question;
 use App\Models\QuestionTopic;
 use Illuminate\Support\Facades\Gate;
@@ -35,5 +37,14 @@ class AppServiceProvider extends ServiceProvider
 
         // Kirim variabel $siteSettings ke semua view
         View::share('siteSettings', $settings);
+
+        // Register Blade directives untuk Hashids
+        Blade::directive('hashid', function ($expression) {
+            return "<?php echo \App\Services\HashIdService::encode($expression); ?>";
+        });
+
+        Blade::directive('unhashid', function ($expression) {
+            return "<?php echo \App\Services\HashIdService::decode($expression); ?>";
+        });
     }
 }

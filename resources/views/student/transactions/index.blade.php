@@ -78,7 +78,7 @@
                                                             </td>
                                                             <td class="text-center">
                                                                 @if($order->status == 'pending')
-                                                                    <a href="{{ route('checkout.show', $order->id) }}" class="btn btn-primary btn-sm"><i class="fas fa-money-bill-wave"></i>Bayar Sekarang</a>
+                                                                    <a href="{{ route('checkout.show', $order) }}" class="btn btn-primary btn-sm"><i class="fas fa-money-bill-wave"></i>Bayar Sekarang</a>
                                                                 @else
                                                                     <button type="button" class="btn btn-success  btn-sm" data-toggle="modal" data-target="#invoiceModal-{{ $order->id }}">
                                                                     <i class="fa fa-refresh"></i>Lihat Invoice
@@ -131,7 +131,7 @@
                                 <a href="#" class="btn btn-secondary btn-block" target="_blank"><i class="fa fa-eye"></i> Lihat PDF</a>
                             </div> --}}
                             <div class="col-md-12">
-                                <a href="{{ route('student.transactions.download', $order->id) }}" class="btn btn-primary btn-block"><i class="fa fa-download"></i> Unduh PDF</a>
+                                <a href="{{ route('student.transactions.download', $order) }}" class="btn btn-primary btn-block"><i class="fa fa-download"></i> Unduh PDF</a>
                             </div>
                         </div>
                         <div class="row">

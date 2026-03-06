@@ -13,7 +13,7 @@
                     </div>
                 </div>
                 <div class="col-md-4 text-right">
-                    <a href="{{ route('instructor.quiz.monitoring.detail', $attempt->id) }}" class="btn btn-info btn-sm" title="Lihat Detail Monitoring">
+                    <a href="{{ route('instructor.quiz.monitoring.detail', $attempt) }}" class="btn btn-info btn-sm" title="Lihat Detail Monitoring">
                         <i class="fa fa-eye"></i> Monitor
                     </a>
                     <a href="{{ route('instructor.quiz.results', $attempt->quiz_id) }}" class="btn btn-secondary btn-sm">

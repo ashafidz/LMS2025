@@ -35,7 +35,7 @@
                                         <h5>Detail Kursus</h5>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.courses.update', $course->id) }}" method="POST"
+                                        <form action="{{ route('instructor.courses.update', $course) }}" method="POST"
                                             enctype="multipart/form-data">
                                             @csrf
                                             @method('PUT')

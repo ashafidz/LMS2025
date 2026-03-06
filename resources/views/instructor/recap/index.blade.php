@@ -27,7 +27,7 @@
                                 </div>
                                 <div class="module-list-container">
                                     @forelse($course->modules as $module)
-                                        <a href="#" class="module-item" data-url="{{ route('instructor.recap.module_data', $module->id) }}">
+                                        <a href="#" class="module-item" data-url="{{ route('instructor.recap.module_data', $module) }}">
                                             <i class="feather icon-book-open module-icon"></i>
                                             <span class="module-title">{{ $module->title }}</span>
                                             <i class="feather icon-chevron-right arrow-icon"></i>

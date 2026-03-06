@@ -79,17 +79,17 @@
                                                             <td class="text-center">
                                                                 {{-- Show Edit button only if not locked --}}
                                                                 @if (!$isLocked)
-                                                                    <a href="{{ route('instructor.question-bank.questions.edit', $question->id) }}" class="btn btn-info btn-sm"><i class="fas fa-edit"></i>Edit</a>
+                                                                    <a href="{{ route('instructor.question-bank.questions.edit', $question) }}" class="btn btn-info btn-sm"><i class="fas fa-edit"></i>Edit</a>
                                                                 @endif
 
                                                                 {{-- Always show Clone button --}}
-                                                                <form action="{{ route('instructor.question-bank.questions.clone', $question->id) }}" method="POST" class="d-inline">
+                                                                <form action="{{ route('instructor.question-bank.questions.clone', $question) }}" method="POST" class="d-inline">
                                                                     @csrf
                                                                     <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-clone"></i>Duplikat</button>
                                                                 </form>
 
                                                                 {{-- Disable Delete button if locked --}}
-                                                                <form action="{{ route('instructor.question-bank.questions.destroy', $question->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this question?');">
+                                                                <form action="{{ route('instructor.question-bank.questions.destroy', $question) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this question?');">
                                                                     @csrf
                                                                     @method('DELETE')
                                                                     <button type="submit" class="btn btn-danger btn-sm" {{ $isLocked ? 'disabled' : '' }} title="{{ $isLocked ? 'This question is locked and cannot be deleted.' : '' }}"><i class="fas fa-trash"></i>Hapus</button>

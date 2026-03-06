@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Coupon;
 use App\Traits\HasLocalDates;
+use App\Traits\HasHashedRouteKey;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -11,6 +12,7 @@ class Order extends Model
 {
     use HasFactory;
     use HasLocalDates;
+    use HasHashedRouteKey;
 
     protected $fillable = [
         'order_code',

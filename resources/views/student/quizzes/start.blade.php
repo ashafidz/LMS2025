@@ -86,7 +86,7 @@
                                         @endphp
                                         @if ($canAttempt)
                                
-                                            <form action="{{ route('student.quiz.begin', $quiz->id) }}" method="POST">
+                                            <form action="{{ route('student.quiz.begin', $quiz) }}" method="POST">
                                                 @csrf
                          
                                                 @if ($is_preview)
@@ -106,7 +106,7 @@
                                                 @if ($isAvailable)
                                                     {{-- Tampilkan tombol "Mulai Kuis" atau "Coba Lagi" jika masih ada kesempatan --}}
                                                     @if ($canAttempt)
-                                                        <form action="{{ route('student.quiz.begin', $quiz->id) }}"
+                                                        <form action="{{ route('student.quiz.begin', $quiz) }}"
                                                             method="POST" class="d-inline">
                                                             @csrf
                                                             <button type="submit" class="btn btn-primary btn-lg">
@@ -124,7 +124,7 @@
                                             </div>
                                         @else
                                             {{-- Tombol untuk mode Pratinjau (untuk admin/instruktur) --}}
-                                            <form action="{{ route('student.quiz.begin', $quiz->id) }}" method="POST">
+                                            <form action="{{ route('student.quiz.begin', $quiz) }}" method="POST">
                                                 @csrf
                                                 <input type="hidden" name="is_preview" value="true">
                                                 <button type="submit" class="btn btn-primary btn-lg">Mulai Kuis

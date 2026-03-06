@@ -156,7 +156,7 @@
                                                     <i class="fa fa-history"></i> History
                                                 </button>
                                                 <br>
-                                                <a href="{{ route('instructor.quiz.monitoring.detail', $attempt->id) }}" 
+                                                <a href="{{ route('instructor.quiz.monitoring.detail', $attempt) }}" 
                                                    class="btn btn-sm btn-info"
                                                    title="Lihat Detail Latest Attempt">
                                                     <i class="fa fa-eye"></i> Latest
@@ -252,12 +252,12 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <a href="{{ route('instructor.quiz.monitoring.detail', $historyAttempt->id) }}" 
+                                    <a href="{{ route('instructor.quiz.monitoring.detail', $historyAttempt) }}" 
                                        class="btn btn-sm btn-info"
                                        title="Lihat Detail">
                                         <i class="fa fa-eye"></i> Detail
                                     </a>
-                                    <a href="{{ route('instructor.quiz.review_attempt', $historyAttempt->id) }}" 
+                                    <a href="{{ route('instructor.quiz.review_attempt', $historyAttempt) }}" 
                                        class="btn btn-sm btn-inverse"
                                        title="Lihat Nilai Kuis">
                                         <i class="fa fa-file-text-o"></i> Nilai Kuis

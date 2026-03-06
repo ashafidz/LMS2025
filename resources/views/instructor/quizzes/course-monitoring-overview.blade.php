@@ -12,7 +12,7 @@
                     </div>
                 </div>
                 <div class="col-md-4 text-right">
-                    <a href="{{ route('instructor.courses.show', $course->id) }}" class="btn btn-secondary">
+                    <a href="{{ route('instructor.courses.show', $course) }}" class="btn btn-secondary">
                         <i class="fa fa-arrow-left"></i> Kembali ke Course
                     </a>
                 </div>
@@ -163,48 +163,6 @@
                             </div>
                         </div>
                     </div>
-
-                    @if($stats['total_violations'] > 0)
-                    {{-- Insights Section --}}
-                    <div class="card">
-                        <div class="card-header bg-light">
-                            <h5><i class="fa fa-lightbulb-o"></i> Insights</h5>
-                        </div>
-                        <div class="card-block">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h6 class="text-muted">Violation Rate</h6>
-                                    <div class="progress mt-2" style="height: 25px;">
-                                        @php
-                                            $violationRate = $stats['total_attempts'] > 0 
-                                                ? ($stats['total_violations'] / $stats['total_attempts']) 
-                                                : 0;
-                                            $percentage = min(100, $violationRate * 10); // Scale untuk visualisasi
-                                        @endphp
-                                        <div class="progress-bar bg-{{ $percentage > 50 ? 'danger' : ($percentage > 25 ? 'warning' : 'success') }}" 
-                                             style="width: {{ $percentage }}%">
-                                            {{ number_format($violationRate, 2) }} violations/attempt
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6 class="text-muted">Violation Distribution</h6>
-                                    <small>
-                                        Tab Switches: 
-                                        <strong>{{ $stats['total_tab_violations'] }}</strong>
-                                        ({{ $stats['total_violations'] > 0 ? number_format(($stats['total_tab_violations'] / $stats['total_violations']) * 100, 1) : 0 }}%)
-                                    </small>
-                                    <br>
-                                    <small>
-                                        Camera Violations: 
-                                        <strong>{{ $stats['total_camera_violations'] }}</strong>
-                                        ({{ $stats['total_violations'] > 0 ? number_format(($stats['total_camera_violations'] / $stats['total_violations']) * 100, 1) : 0 }}%)
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
 
                 </div>
             </div>

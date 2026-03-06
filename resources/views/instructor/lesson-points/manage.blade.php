@@ -72,7 +72,7 @@
                                                             {{-- Ambil total poin dari relasi pivot --}}
                                                             <strong>{{ $student->coursePoints->first()->pivot->points_earned ?? 0 }}</strong> Poin
                                                         </td>
-                                                        <form action="{{ route('instructor.lesson_points.award', $lesson->id) }}" method="POST">
+                                                        <form action="{{ route('instructor.lesson_points.award', $lesson) }}" method="POST">
                                                             @csrf
                                                             <input type="hidden" name="user_id" value="{{ $student->id }}">
                                                             <td>

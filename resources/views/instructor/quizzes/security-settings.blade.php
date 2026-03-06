@@ -337,7 +337,7 @@ $(document).ready(function() {
         submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Menyimpan...');
 
         $.ajax({
-            url: '{{ route("instructor.quiz.security.update", $quiz->id) }}',
+            url: '{{ route("instructor.quiz.security.update", $quiz) }}',
             method: 'POST',
             data: formData,
             success: function(response) {
@@ -379,7 +379,7 @@ $(document).ready(function() {
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: '{{ route("instructor.quiz.security.destroy", $quiz->id) }}',
+                    url: '{{ route("instructor.quiz.security.destroy", $quiz) }}',
                     method: 'DELETE',
                     data: {
                         _token: '{{ csrf_token() }}'

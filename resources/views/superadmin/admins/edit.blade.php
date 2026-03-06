@@ -20,7 +20,7 @@
             <div class="card">
                 <div class="card-header"><h5>Detail Akun Admin</h5></div>
                 <div class="card-block">
-                    <form action="{{ route('superadmin.admins.update', $admin->id) }}" method="POST">
+                    <form action="{{ route('superadmin.admins.update', $admin) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="form-group row"><label class="col-sm-2 col-form-label">Nama Lengkap</label><div class="col-sm-10"><input type="text" name="name" class="form-control" value="{{ old('name', $admin->name) }}" required></div></div>

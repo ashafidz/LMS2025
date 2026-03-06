@@ -35,7 +35,7 @@
                                     <h5>List Modul</h5>
                                     <span>Seret dan lepaskan modul untuk mengubah urutannya.</span>
                                     <div class="card-header-right">
-                                        <a href="{{ route('instructor.courses.modules.create', $course->id) }}" class="btn btn-primary">
+                                        <a href="{{ route('instructor.courses.modules.create', $course) }}" class="btn btn-primary">
                                             <i class="bi bi-plus-lg text-white"></i> Buat Modul Baru</a>
                                     </div>
                                 </div>
@@ -55,13 +55,13 @@
                                                         <span class="badge badge-info ml-2">{{ $module->lessons->count() }} Lessons</span>
                                                     </div>
                                                     <div class="">
-                                                        <div class="mb-2"><a href="{{ route('instructor.modules.lessons.index', $module->id) }}" class="btn btn-success btn-sm"><i class="bi bi-eye me-1"></i>View Lessons</a>
+                                                        <div class="mb-2"><a href="{{ route('instructor.modules.lessons.index', $module) }}" class="btn btn-success btn-sm"><i class="bi bi-eye me-1"></i>View Lessons</a>
                                                         {{-- TOMBOL BARU UNTUK LEADERBOARD MODUL --}}
-                                                        <button type="button" class="btn btn-warning btn-sm text-dark leaderboard-btn" data-url="{{ route('instructor.module.leaderboard', $module->id) }}">
+                                                        <button type="button" class="btn btn-warning btn-sm text-dark leaderboard-btn" data-url="{{ route('instructor.module.leaderboard', $module) }}">
                                                             <i class="fa fa-bar-chart text-dark me-1"></i> Peringkat
                                                         </button></div>
-                                                        <div><a href="{{ route('instructor.modules.edit', $module->id) }}" class="btn btn-info btn-sm"><i class="fa fa-pencil"></i></a>
-                                                        <form action="{{ route('instructor.modules.destroy', $module->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this module and all its lessons?');">
+                                                        <div><a href="{{ route('instructor.modules.edit', $module) }}" class="btn btn-info btn-sm"><i class="fa fa-pencil"></i></a>
+                                                        <form action="{{ route('instructor.modules.destroy', $module) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this module and all its lessons?');">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>
@@ -122,7 +122,7 @@
                 }).get();
 
                 $.ajax({
-                    url: "{{ route('instructor.courses.modules.reorder', $course->id) }}",
+                    url: "{{ route('instructor.courses.modules.reorder', $course) }}",
                     type: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',

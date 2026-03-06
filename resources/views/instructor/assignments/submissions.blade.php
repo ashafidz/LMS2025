@@ -158,7 +158,7 @@
                                     <strong>Perhatian:</strong> Siswa ini mengumpulkan tugas melewati batas waktu.
                                 </div>
                             @endif
-                            <form action="{{ route('instructor.submission.grade', $submission->id) }}" method="POST">
+                            <form action="{{ route('instructor.submission.grade', $submission) }}" method="POST">
                                 @csrf
                                 <div class="form-group">
                                     <label for="grade-{{ $submission->id }}">Nilai (0-100)</label>

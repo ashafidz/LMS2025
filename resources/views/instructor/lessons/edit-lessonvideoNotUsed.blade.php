@@ -37,7 +37,7 @@
                                     </div>
                                     <div class="card-block">
                                         {{-- Penting: tambahkan enctype untuk unggahan file --}}
-                                        <form action="{{ route('instructor.lessons.update', $lesson->id) }}" method="POST" enctype="multipart/form-data">
+                                        <form action="{{ route('instructor.lessons.update', $lesson) }}" method="POST" enctype="multipart/form-data">
                                             @csrf
                                             @method('PUT')
 

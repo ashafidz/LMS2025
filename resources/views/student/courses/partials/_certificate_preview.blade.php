@@ -104,7 +104,7 @@
     <hr class="my-4">
     <p>Unduh sertifikat kelulusan Anda sebagai bukti pencapaian ini. Bagikan di profil profesional Anda untuk menunjukkan keahlian baru Anda!</p>
     <div class="mt-4">
-        <a href="{{ route('student.certificate.download', $course->id) }}" class="btn btn-primary btn-lg">
+        <a href="{{ route('student.certificate.download', $course) }}" class="btn btn-primary btn-lg">
             <i class="fa fa-download"></i> Unduh Sertifikat (PDF)
         </a>
     </div>

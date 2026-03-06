@@ -38,7 +38,7 @@
                                     </div>
                                     <div class="card-block">
                                         {{-- Form points to the UPDATE route --}}
-                                        <form action="{{ route('instructor.question-bank.questions.update', $question->id) }}" method="POST">
+                                        <form action="{{ route('instructor.question-bank.questions.update', $question) }}" method="POST">
                                             @csrf
                                             @method('PUT') {{-- Use PUT method for updates --}}
 

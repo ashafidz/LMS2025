@@ -35,7 +35,7 @@
                                     <h5>Detail Badge</h5>
                                 </div>
                                 <div class="card-block">
-                                    <form action="{{ route('superadmin.badges.update', $badge->id) }}" method="POST" enctype="multipart/form-data">
+                                    <form action="{{ route('superadmin.badges.update', $badge) }}" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         @method('PUT')
                                         <div class="form-group row">

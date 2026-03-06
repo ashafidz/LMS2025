@@ -180,7 +180,19 @@ class CourseController extends Controller
                 // 1. Replikasi data kursus utama
                 $newCourse = $course->replicate();
                 $newCourse->title = $course->title . ' (Salinan)';
-                $newCourse->slug = Str::slug($newCourse->title);
+                
+                // Generate unique slug
+                $baseSlug = Str::slug($newCourse->title);
+                $slug = $baseSlug;
+                $counter = 1;
+                
+                // Check if slug exists and add number suffix if needed
+                while (Course::where('slug', $slug)->exists()) {
+                    $slug = $baseSlug . '-' . $counter;
+                    $counter++;
+                }
+                
+                $newCourse->slug = $slug;
                 $newCourse->status = 'draft'; // Set status menjadi draft
                 $newCourse->created_at = now();
                 $newCourse->updated_at = now();

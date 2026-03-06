@@ -86,7 +86,7 @@
         <div class="text-center mt-4">
             @if($is_preview)
                 {{-- Tombol untuk mode pratinjau (Admin/Instruktur) --}}
-                <a href="{{ route('student.quiz.start', $quiz->id) }}" 
+                <a href="{{ route('student.quiz.start', $quiz) }}" 
    class="btn btn-primary" 
    style="padding:6px 16px; font-size:14px;">
    Mulai Kuis
@@ -103,25 +103,25 @@
 
                 {{-- Tombol "Lihat Hasil" akan selalu muncul jika sudah pernah mencoba --}}
                 {{-- @if(isset($lastAttempt) && $lastAttempt)
-                    <a href="{{ route('student.quiz.result', $lastAttempt->id) }}" class="btn btn-info btn-lg">Lihat Hasil Terakhir</a>
+                    <a href="{{ route('student.quiz.result', $lastAttempt) }}" class="btn btn-info btn-lg">Lihat Hasil Terakhir</a>
                 @endif --}}
 
                 @if ($isAvailable)
                     {{-- Tombol "Mulai Kuis/Coba Lagi" hanya muncul jika masih ada kesempatan --}}
                     @if ($canAttempt)
                         @if (!isset($lastAttempt) || $lastAttempt->status != 'in_progress')
-                            <a href="{{ route('student.quiz.start', $quiz->id) }}" class="btn btn-primary btn-md">
+                            <a href="{{ route('student.quiz.start', $quiz) }}" class="btn btn-primary btn-md">
                                 {{-- Ganti teks tombol jika sudah pernah mencoba --}}
                                 {{ $currentAttemptCount > 0 ? 'Coba Lagi' : 'Mulai Kuis' }}
                             </a>
                         @else
-                            <a href="{{ route('student.quiz.start', $quiz->id) }}" class="btn btn-primary btn-md">
+                            <a href="{{ route('student.quiz.start', $quiz) }}" class="btn btn-primary btn-md">
                                 Lanjutkan
                             </a>
                         @endif
                     @elseif(!isset($lastAttempt))
                         {{-- Jika belum pernah mencoba tapi kesempatan habis (kasus aneh, tapi untuk jaga-jaga) --}}
-                        <a href="{{ route('student.quiz.start', $quiz->id) }}" class="btn btn-primary btn-md">Mulai Kuis</a>
+                        <a href="{{ route('student.quiz.start', $quiz) }}" class="btn btn-primary btn-md">Mulai Kuis</a>
                     @else
                         {{-- Tampilkan pesan jika kesempatan sudah habis dan sudah pernah mencoba --}}
                         <p class="text-danger mt-2">Anda telah mencapai batas maksimal pengerjaan.</p>

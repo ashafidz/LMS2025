@@ -27,7 +27,7 @@
                 <div class="card">
                     <div class="card-header"><h5>Edit Detail Sesi Poin</h5></div>
                     <div class="card-block">
-                        <form action="{{ route('instructor.lessons.update', $lesson->id) }}" method="POST">
+                        <form action="{{ route('instructor.lessons.update', $lesson) }}" method="POST">
                             @csrf
                             @method('PUT')
                             <div class="form-group row">

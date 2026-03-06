@@ -37,7 +37,7 @@
                                         <span>Ubah detail pertanyaan di bawah ini.</span>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.question-bank.questions.update', $question->id) }}" method="POST">
+                                        <form action="{{ route('instructor.question-bank.questions.update', $question) }}" method="POST">
                                             @csrf
                                             @method('PUT')
 

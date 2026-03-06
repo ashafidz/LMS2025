@@ -59,11 +59,11 @@
                             {{-- Tombol Lihat Hasil --}}
                             <td>
                                 @if ($attempt->status != 'in_progress')
-                                    <a href="{{ route('student.quiz.result', $attempt->id) }}" class="btn btn-sm btn-outline-info">
+                                    <a href="{{ route('student.quiz.result', $attempt) }}" class="btn btn-sm btn-outline-info">
                                         <i class="fa fa-eye"></i> Lihat
                                     </a>
                                 @else
-                                    <a href="{{ route('student.quiz.take', $attempt->id) }}" class="btn btn-sm btn-outline-warning">
+                                    <a href="{{ route('student.quiz.take', $attempt) }}" class="btn btn-sm btn-outline-warning">
                                         <i class="fa fa-pencil"></i> Lanjutkan
                                     </a>
                                 @endif

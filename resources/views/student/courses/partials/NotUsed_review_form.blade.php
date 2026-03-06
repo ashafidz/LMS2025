@@ -11,7 +11,7 @@
         <h5 class="mb-0">Form Penilaian & Ulasan</h5>
     </div>
     <div class="card-body">
-        <form id="course-review-form" action="{{ route('student.course.review.store', $course->id) }}" method="POST">
+        <form id="course-review-form" action="{{ route('student.course.review.store', $course) }}" method="POST">
             @csrf
 
             {{-- Bagian Penilaian Kursus --}}

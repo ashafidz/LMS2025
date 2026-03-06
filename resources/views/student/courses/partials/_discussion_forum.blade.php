@@ -8,7 +8,7 @@
     @if (!$is_preview)
         <div class="card mb-4">
             <div class="card-body">
-                <form action="{{ route('student.lessons.discussions.store', $lesson->id) }}" method="POST">
+                <form action="{{ route('student.lessons.discussions.store', $lesson) }}" method="POST">
                     @csrf
                     <div class="form-group">
                         <textarea name="content" class="form-control" rows="3" placeholder="Tulis komentar atau pertanyaan Anda di sini..."
@@ -56,7 +56,7 @@
                     {{-- Tampilkan tombol Hapus hanya untuk pemilik komentar --}}
                     @if (Auth::user()->id == $discussion->user_id)
                         <span class="text-muted small mx-1">&middot;</span>
-                        <form action="{{ route('student.lessons.discussions.destroy', $discussion->id) }}"
+                        <form action="{{ route('student.lessons.discussions.destroy', $discussion) }}"
                             method="POST" class="d-inline"
                             onsubmit="return confirm('Apakah Anda yakin ingin menghapus komentar ini? Aksi ini tidak dapat dibatalkan.');">
                             @csrf
@@ -68,7 +68,7 @@
 
                 {{-- Form Balasan yang Tersembunyi --}}
                 <div class="collapse mt-3" id="reply-form-{{ $discussion->id }}">
-                    <form action="{{ route('student.lessons.discussions.store', $lesson->id) }}" method="POST">
+                    <form action="{{ route('student.lessons.discussions.store', $lesson) }}" method="POST">
                         @csrf
                         <input type="hidden" name="parent_id" value="{{ $discussion->id }}">
                         <div class="form-group">

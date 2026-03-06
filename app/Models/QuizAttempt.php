@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasLocalDates;
+use App\Traits\HasHashedRouteKey;
 use App\Services\QuizShuffleService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +12,7 @@ class QuizAttempt extends Model
 {
     use HasFactory;
     use HasLocalDates;
+    use HasHashedRouteKey;
 
     protected $fillable = [
         'quiz_id',

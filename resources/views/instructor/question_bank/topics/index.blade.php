@@ -90,9 +90,9 @@
                                                                 <i class="fa fa-info-circle"></i>
                                                             </button>
                                                             <a href="{{ route('instructor.question-bank.questions.index', $topic) }}" class="btn btn-dark  btn-sm"><i class="bi bi-eye me-1"></i></a>
-                                                            {{-- <a href="{{ route('instructor.question-bank.topics.edit', $topic->id) }}" class="btn btn-info btn-sm {{ $topic->is_locked ? 'disabled' : '' }}" {{ $topic->is_locked ? 'onclick="return false;"' : '' }}><i class="fa fa-pencil"></i>Edit</a> --}}
-                                                            <a href="{{ route('instructor.question-bank.topics.edit', $topic->id) }}" class="btn btn-info btn-sm"><i class="fa fa-pencil"></i></a>
-                                                            <form action="{{ route('instructor.question-bank.topics.destroy', $topic->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus topik ini?');">
+                                                            {{-- <a href="{{ route('instructor.question-bank.topics.edit', $topic) }}" class="btn btn-info btn-sm {{ $topic->is_locked ? 'disabled' : '' }}" {{ $topic->is_locked ? 'onclick="return false;"' : '' }}><i class="fa fa-pencil"></i>Edit</a> --}}
+                                                            <a href="{{ route('instructor.question-bank.topics.edit', $topic) }}" class="btn btn-info btn-sm"><i class="fa fa-pencil"></i></a>
+                                                            <form action="{{ route('instructor.question-bank.topics.destroy', $topic) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus topik ini?');">
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <button type="submit" 
