@@ -144,6 +144,7 @@ class InstructorQuizController extends Controller
             'total_attempts' => $attempts->count(), // Total berapa kali kuis dikerjakan
             'total_tab_violations' => $attempts->sum(fn($a) => $a->integritySummary?->total_tab_switches ?? 0), // Total semua pindah tab
             'total_camera_violations' => $attempts->sum(fn($a) => $a->integritySummary?->total_face_violations ?? 0), // Total semua pelanggaran kamera
+            'total_expelled' => $attempts->where('expelled_by_violation', true)->count(), // Total dikeluarkan karena pelanggaran
         ];
 
         return view('instructor.quizzes.monitoring-review', compact('quiz', 'attemptsByStudent', 'stats'));

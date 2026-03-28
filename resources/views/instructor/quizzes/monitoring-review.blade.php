@@ -27,7 +27,7 @@
 
                     {{-- Statistics Cards --}}
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="card">
                                 <div class="card-block text-center">
                                     <h3 class="text-primary">{{ $stats['total_attempts'] }}</h3>
@@ -35,7 +35,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="card">
                                 <div class="card-block text-center">
                                     <h3 class="text-warning">{{ $stats['total_tab_violations'] }}</h3>
@@ -43,11 +43,19 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="card">
                                 <div class="card-block text-center">
                                     <h3 class="text-info">{{ $stats['total_camera_violations'] }}</h3>
                                     <p class="m-b-0">Total Camera Violations</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-block text-center">
+                                    <h3 class="text-danger">{{ $stats['total_expelled'] ?? 0 }}</h3>
+                                    <p class="m-b-0">Dikeluarkan</p>
                                 </div>
                             </div>
                         </div>
@@ -69,6 +77,7 @@
                                             <th class="text-center">Tab Switch</th>
                                             <th class="text-center">Camera Violations</th>
                                             <th class="text-center">Total Violations</th>
+                                            <th class="text-center">Dikeluarkan</th>
                                             <th class="text-center">Aksi</th>
                                         </tr>
                                     </thead>
@@ -148,6 +157,13 @@
                                                 @endif
                                             </td>
                                             <td class="text-center">
+                                                @if($attempt->expelled_by_violation)
+                                                    <span class="badge badge-danger"><i class="fa fa-ban"></i> Ya</span>
+                                                @else
+                                                    <span class="badge badge-secondary">Tidak</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-center">
                                                 <button type="button" 
                                                         class="btn btn-sm btn-primary mb-1"
                                                         data-toggle="modal" 
@@ -165,7 +181,7 @@
                                         </tr>
                                         @empty
                                         <tr>
-                                            <td colspan="7" class="text-center">
+                                            <td colspan="8" class="text-center">
                                                 <p class="text-muted">Belum ada mahasiswa yang mengerjakan kuis ini</p>
                                             </td>
                                         </tr>
@@ -205,11 +221,12 @@
                         <thead>
                             <tr>
                                 <th width="5%">#</th>
-                                <th width="30%">Waktu Mulai</th>
-                                <th width="15%">Skor</th>
-                                <th width="15%">Status</th>
-                                <th width="20%">Violations</th>
-                                <th width="15%">Aksi</th>
+                                <th width="25%">Waktu Mulai</th>
+                                <th width="12%">Skor</th>
+                                <th width="12%">Status</th>
+                                <th width="15%">Violations</th>
+                                <th width="12%">Dikeluarkan</th>
+                                <th width="19%">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -249,6 +266,13 @@
                                         </small>
                                     @else
                                         <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($historyAttempt->expelled_by_violation)
+                                        <span class="badge badge-danger"><i class="fa fa-ban"></i> Ya</span>
+                                    @else
+                                        <span class="badge badge-secondary">Tidak</span>
                                     @endif
                                 </td>
                                 <td>

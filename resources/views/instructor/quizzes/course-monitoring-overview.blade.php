@@ -12,8 +12,8 @@
                     </div>
                 </div>
                 <div class="col-md-4 text-right">
-                    <a href="{{ route('instructor.courses.show', $course) }}" class="btn btn-secondary">
-                        <i class="fa fa-arrow-left"></i> Kembali ke Course
+                    <a href="{{ route('instructor.courses.index') }}" class="btn btn-secondary">
+                        <i class="fa fa-arrow-left"></i> Kembali ke Manajemen Course
                     </a>
                 </div>
             </div>

@@ -37,6 +37,9 @@ class CertificateController extends Controller
     {
         $user = Auth::user();
 
+        // Eager load relasi untuk mencegah N+1 query
+        $course->load('instructor', 'modules.lessons');
+
         if (!$this->isEligibleForCertificate($user, $course)) {
             return response()->json(['success' => false, 'message' => 'Anda belum memenuhi syarat untuk mendapatkan sertifikat.'], 403);
         }
@@ -96,6 +99,9 @@ class CertificateController extends Controller
     {
         $user = Auth::user();
 
+        // Eager load relasi untuk mencegah N+1 query
+        $course->load('instructor', 'modules.lessons');
+
         if (!$this->isEligibleForCertificate($user, $course)) {
             return redirect()->back()->with('error', 'Anda belum memenuhi syarat untuk mengunduh sertifikat.');
         }
@@ -108,18 +114,30 @@ class CertificateController extends Controller
             ]
         );
 
+        // Pre-fetch settings untuk menghindari query di view
+        $settings = \App\Models\SiteSetting::first();
+
+        // Set timeout timeout yang lebih besar untuk PDF generation
+        set_time_limit(120);
+
         $data = [
             'user' => $user,
             'course' => $course,
             'certificate' => $certificate,
+            'settings' => $settings,
         ];
 
-        // DIPERBARUI: Menggunakan view baru dan mengatur orientasi menjadi landscape
-        $pdf = Pdf::loadView('student.certificates.pdf_template', $data)->setPaper('a4', 'landscape');
+        try {
+            $pdf = Pdf::loadView('student.certificates.pdf_template', $data)
+                ->setPaper('a4', 'landscape');
 
-        $fileName = 'sertifikat-' . Str::slug($course->title) . '.pdf';
+            $fileName = 'sertifikat-' . Str::slug($course->title) . '.pdf';
 
-        return $pdf->download($fileName);
+            return $pdf->download($fileName);
+        } catch (\Exception $e) {
+            \Log::error('Certificate PDF generation failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal membuat sertifikat. Silakan coba lagi nanti.');
+        }
     }
 
     /**
@@ -128,10 +146,21 @@ class CertificateController extends Controller
     private function isEligibleForCertificate(User $user, Course $course): bool
     {
         // Syarat 1: Progres belajar harus 100%
-        $totalLessons = $course->lessons()->count();
-        $completedLessons = $user->completedLessons()->whereIn('lesson_id', $course->lessons->pluck('id'))->count();
+        // Gunakan relasi yang sudah di-load untuk mencegah query tambahan
+        $lessons = $course->modules()->with('lessons')->get()->flatMap(function ($module) {
+            return $module->lessons;
+        });
 
-        if ($totalLessons === 0 || $completedLessons < $totalLessons) {
+        $totalLessons = $lessons->count();
+        if ($totalLessons === 0) {
+            return false;
+        }
+
+        $completedLessons = $user->completedLessons()
+            ->whereIn('lesson_id', $lessons->pluck('id'))
+            ->count();
+
+        if ($completedLessons < $totalLessons) {
             return false;
         }
 

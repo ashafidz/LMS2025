@@ -115,6 +115,16 @@
                                                 @endif
                                             </td>
                                         </tr>
+                                        <tr>
+                                            <td><strong>Dikeluarkan:</strong></td>
+                                            <td>
+                                                @if($attempt->expelled_by_violation)
+                                                    <span class="badge badge-danger"><i class="fa fa-ban"></i> Ya - Pelanggaran</span>
+                                                @else
+                                                    <span class="badge badge-success"><i class="fa fa-check"></i> Tidak</span>
+                                                @endif
+                                            </td>
+                                        </tr>
                                     </table>
                                 </div>
                             </div>

@@ -11,7 +11,7 @@
                     <tr>
                         <th>#</th>
                         <th>Tanggal & Waktu</th>
-                        <th>Skor</th>
+                        {{-- <th>Skor</th> --}}
                         <th>Nilai</th>
                         <th>Status</th>
                         <th>Durasi</th>
@@ -28,7 +28,7 @@
                             <td>{{ $attempt->start_time->isoFormat('D MMM YYYY, HH:mm') }}</td>
 
                             {{-- Skor --}}
-                            <td>{{ rtrim(rtrim($attempt->score, '0'), '.') }}</td>
+                            {{-- <td>{{ rtrim(rtrim($attempt->score, '0'), '.') }}</td> --}}
 
                             {{-- Nilai dalam skala 0-100 --}}
                             <td>

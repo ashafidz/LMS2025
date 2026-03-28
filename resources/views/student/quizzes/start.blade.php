@@ -58,7 +58,7 @@
                                             <div class="col-6 mb-4">
                                                 <div class="d-flex flex-column align-items-center">
                                                     <i class="fa fa-clock-o fa-3x mb-2"></i>
-                                                    <h5>Batas Waktu</h5>
+                                                    <h5>Durasi Waktu</h5>
                                                     <p class="card-text text-muted" style="font-size: 16px;">{{ $quiz->time_limit ? $quiz->time_limit . ' Menit' : 'Tidak ada' }}</p>
                                                 </div>
                                             </div>
@@ -66,7 +66,7 @@
                                                 <div class="d-flex flex-column align-items-center">
                                                     <i class="fa fa-check-square-o fa-3x mb-2"></i>
                                                     <h5>Nilai Kelulusan</h5>
-                                                    <p class="card-text text-muted" style="font-size: 16px;">{{ $quiz->pass_mark }}%</p>
+                                                    <p class="card-text text-muted" style="font-size: 16px;">{{ $quiz->pass_mark }}</p>
                                                 </div>
                                             </div>
                                             <div class="col-6 mb-4">

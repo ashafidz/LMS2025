@@ -26,12 +26,14 @@ class QuizAttempt extends Model
         'revised_by',
         'revised_at',
         'revision_note',
+        'expelled_by_violation',
     ];
 
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
         'revised_at' => 'datetime',
+        'expelled_by_violation' => 'boolean',
     ];
 
     /**

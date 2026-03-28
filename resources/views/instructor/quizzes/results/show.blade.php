@@ -162,19 +162,23 @@
                                                         $isStudentAnswer = in_array($option->id, $studentAnswerIds);
                                                         $isCorrectAnswer = $option->is_correct;
                                                         $labelClass = '';
-                                                        if ($isStudentAnswer && $isCorrectAnswer) { $labelClass = 'bg-success text-white'; } 
-                                                        elseif ($isStudentAnswer && !$isCorrectAnswer) { $labelClass = 'bg-danger text-white'; } 
-                                                        elseif (!$isStudentAnswer && $isCorrectAnswer) { $labelClass = 'bg-info text-white'; }
+                                                        if ($isStudentAnswer && $isCorrectAnswer) { $labelClass = 'answer-option--correct'; } 
+                                                        elseif ($isStudentAnswer && !$isCorrectAnswer) { $labelClass = 'answer-option--incorrect'; } 
+                                                        elseif (!$isStudentAnswer && $isCorrectAnswer) { $labelClass = 'answer-option--key'; }
                                                     @endphp
-                                                    <div class="p-2 rounded mb-2 {{ $labelClass }}">
-                                                        @if($isStudentAnswer)
-                                                            <i class="fa fa-check-circle-o mr-2"></i> <strong>Jawaban Siswa</strong>
-                                                        @elseif($isCorrectAnswer)
-                                                            <i class="fa fa-check mr-2"></i> <strong>Kunci Jawaban</strong>
-                                                        @else
-                                                            <i class="fa fa-circle-o mr-2" style="opacity: 0.5;"></i>
-                                                        @endif
-                                                        {{ $option->option_text }}
+                                                    <div class="answer-option {{ $labelClass }}">
+                                                        <div class="answer-option__content">
+                                                            <span class="answer-option__text">{{ $option->option_text }}</span>
+                                                            <span class="answer-option__label">
+                                                                @if($isStudentAnswer)
+                                                                    <i class="fa fa-check-circle-o"></i> <strong>Jawaban Siswa</strong>
+                                                                @elseif($isCorrectAnswer)
+                                                                    <i class="fa fa-check"></i> <strong>Kunci Jawaban</strong>
+                                                                @else
+                                                                    <i class="fa fa-circle-o" style="opacity: 0.5;"></i>
+                                                                @endif
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 @endforeach
                                             </div>

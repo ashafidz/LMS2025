@@ -12,20 +12,20 @@
                 <span><i class="fa fa-question-circle-o mr-2"></i> Jumlah Soal</span>
                 <strong>{{ $lesson->lessonable->questions->count() }} soal</strong>
             </li>
-            @if(isset($maxScore))
+            {{-- @if(isset($maxScore))
             <li class="list-group-item d-flex justify-content-between">
                 <span><i class="fa fa-trophy mr-2"></i> Total Skor Maksimal</span>
                 <strong>{{ $maxScore }}</strong>
             </li>
-            @endif
-             <li class="list-group-item d-flex justify-content-between">
+            @endif --}}
+             {{-- <li class="list-group-item d-flex justify-content-between">
                 <span><i class="fa fa-check-square-o mr-2"></i> Skor Minimum</span>
                 <strong>{{ rtrim(rtrim(number_format($minimumScore, 2, ',', '.'), '0'), ',') }}</strong>
-            </li>
-            <li class="list-group-item d-flex justify-content-between">
+            </li> --}}
+            {{-- <li class="list-group-item d-flex justify-content-between">
                 <span><i class="fa fa-check-square-o mr-2"></i> Passing Grade Kelulusan</span>
                 <strong>{{ $lesson->lessonable->pass_mark }}%</strong>
-            </li>
+            </li> --}}
             <li class="list-group-item d-flex justify-content-between">
                 <span><i class="fa fa-check-square-o mr-2"></i> Nilai Minimum</span>
                 <strong>{{ rtrim(rtrim(number_format($minimumScoreScaled, 2, ',', '.'), '0'), ',') }}</strong>
@@ -46,9 +46,9 @@
                 </li>
                 @if(isset($lastAttempt) && $lastAttempt)
                     <li class="list-group-item d-flex justify-content-between">
-                        <span><i class="fa fa-star mr-2"></i> Skor Terakhir Anda</span>
+                        <span><i class="fa fa-star mr-2"></i> Status Kelulusan Terakhir</span>
                         <strong>
-                            {{ rtrim(rtrim($lastAttempt->score, '0'), '.') }}
+                            {{-- {{ $lastAttempt->scaled_score ? rtrim(rtrim($lastAttempt->scaled_score, '0'), '.') : rtrim(rtrim($lastAttempt->score, '0'), '.')  }} --}}
                             @if($lastAttempt->status == 'passed')
                                 <span class="badge badge-success ml-2">Lulus</span>
                             @elseif($lastAttempt->status == 'in_progress')

@@ -34,6 +34,7 @@
                                     <input type="hidden" name="is_preview" value="true">
                                     <input type="hidden" name="quiz_id_preview" value="{{ $attempt->quiz->id }}">
                                 @endif
+                                <input type="hidden" name="expelled_by_violation" id="expelled-flag" value="0">
                                 
                                 <div class="card">
                                     <div class="card-header">
@@ -412,7 +413,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (data.should_block) {
                         isQuizBlocked = true;
                         
-                        // Disable semua input
+                        // Tandai kuis dikeluarkan karena pelanggaran
+                        document.getElementById('expelled-flag').value = '1';
                         document.querySelectorAll('input[type="radio"], input[type="checkbox"], textarea, input[type="text"]').forEach(input => {
                             input.disabled = true;
                         });
@@ -556,6 +558,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const cameraThreshold = {{ $attempt->quiz->securitySetting->camera_violation_threshold ?? 10 }};
     const detectionInterval = {{ $attempt->quiz->securitySetting->face_detection_interval_seconds ?? 5 }} * 1000;
+
+    // Flag tipe pelanggaran yang aktif (dikonfigurasi instruktur)
+    const detectFaceNotDetected = {{ ($attempt->quiz->securitySetting->detect_face_not_detected ?? true) ? 'true' : 'false' }};
+    const detectLookLeft = {{ ($attempt->quiz->securitySetting->detect_look_left ?? true) ? 'true' : 'false' }};
+    const detectLookRight = {{ ($attempt->quiz->securitySetting->detect_look_right ?? true) ? 'true' : 'false' }};
+    const detectLookUp = {{ ($attempt->quiz->securitySetting->detect_look_up ?? true) ? 'true' : 'false' }};
+    const detectLookDown = {{ ($attempt->quiz->securitySetting->detect_look_down ?? true) ? 'true' : 'false' }};
+    const violationDuration = {{ $attempt->quiz->securitySetting->violation_duration_seconds ?? 3 }} * 1000;
     
     let isCameraBlocked = false;
     let violationCounts = {
@@ -576,6 +586,10 @@ document.addEventListener('DOMContentLoaded', function () {
     let lastViolationTime = 0;
     let noFaceDetectedCount = 0;
     const NO_FACE_THRESHOLD = 3; // Berapa kali deteksi tidak ada wajah sebelum log violation
+
+    // Sustained violation tracking (durasi pelanggaran harus berlangsung sebelum dihitung)
+    let sustainedViolationType = null;
+    let sustainedViolationStart = 0;
 
     // Canvas untuk drawing
     const canvas = document.getElementById('camera-canvas');
@@ -661,9 +675,11 @@ document.addEventListener('DOMContentLoaded', function () {
             
             // Jika wajah hilang beberapa kali berturut-turut, catat sebagai pelanggaran
             if (noFaceDetectedCount >= NO_FACE_THRESHOLD) {
-                console.log('🚨 Pelanggaran: Wajah tidak terdeteksi');
-                logCameraViolation('face_not_detected'); // Kirim log ke server
-                lastViolationTime = now;
+                if (detectFaceNotDetected) {
+                    console.log('🚨 Pelanggaran: Wajah tidak terdeteksi');
+                    logCameraViolation('face_not_detected'); // Kirim log ke server
+                    lastViolationTime = now;
+                }
                 noFaceDetectedCount = 0;
             }
             return;
@@ -684,9 +700,36 @@ document.addEventListener('DOMContentLoaded', function () {
         const violation = checkPoseViolation(headPose);
         
         if (violation) {
-            console.log(`🚨 Pelanggaran Terdeteksi: ${violation}`);
-            logCameraViolation(violation); // Kirim jenis pelanggaran ke server
-            lastViolationTime = now;
+            if (violationDuration <= 0) {
+                // Durasi 0 = langsung dihitung sebagai pelanggaran (perilaku lama)
+                console.log(`🚨 Pelanggaran Terdeteksi: ${violation}`);
+                logCameraViolation(violation);
+                lastViolationTime = now;
+            } else if (sustainedViolationType === violation) {
+                // Pelanggaran yang sama masih berlangsung — cek apakah sudah cukup lama
+                const elapsed = now - sustainedViolationStart;
+                if (elapsed >= violationDuration) {
+                    console.log(`🚨 Pelanggaran Terdeteksi: ${violation} (berlangsung ${(elapsed/1000).toFixed(1)}s)`);
+                    logCameraViolation(violation);
+                    lastViolationTime = now;
+                    sustainedViolationType = null;
+                    sustainedViolationStart = 0;
+                } else {
+                    console.log(`⏳ Pelanggaran ${violation} terdeteksi (${(elapsed/1000).toFixed(1)}s/${(violationDuration/1000)}s)`);
+                }
+            } else {
+                // Pelanggaran baru terdeteksi — mulai hitung durasi
+                sustainedViolationType = violation;
+                sustainedViolationStart = now;
+                console.log(`⏳ Mulai tracking pelanggaran: ${violation}`);
+            }
+        } else {
+            // Tidak ada pelanggaran — reset tracking
+            if (sustainedViolationType) {
+                console.log(`✅ Pelanggaran ${sustainedViolationType} berhenti sebelum durasi tercapai`);
+                sustainedViolationType = null;
+                sustainedViolationStart = 0;
+            }
         }
     }
 
@@ -735,27 +778,27 @@ document.addEventListener('DOMContentLoaded', function () {
      */
     function checkPoseViolation(pose) {
         // BATAS TOLERANSI (Semakin kecil angkanya, semakin sensitif deteksinya)
-        const YAW_THRESHOLD = 0.3;         // Ambang batas menoleh kiri/kanan
-        const PITCH_UP_THRESHOLD = -0.15;  // Ambang batas melihat ke atas 
-        const PITCH_DOWN_THRESHOLD = 0.2;  // Ambang batas melihat ke bawah/menunduk
+        const YAW_THRESHOLD = 0.45;        // Ambang batas menoleh kiri/kanan (sebelumnya 0.3)
+        const PITCH_UP_THRESHOLD = -0.3;   // Ambang batas melihat ke atas (sebelumnya -0.15)
+        const PITCH_DOWN_THRESHOLD = 0.35; // Ambang batas melihat ke bawah/menunduk (sebelumnya 0.2)
 
         // Cek apakah menoleh ke kanan melewati batas
-        if (pose.yaw > YAW_THRESHOLD) {
+        if (detectLookRight && pose.yaw > YAW_THRESHOLD) {
             return 'look_right';
         }
         
         // Cek apakah menoleh ke kiri melewati batas
-        if (pose.yaw < -YAW_THRESHOLD) {
+        if (detectLookLeft && pose.yaw < -YAW_THRESHOLD) {
             return 'look_left';
         }
         
         // Cek apakah melihat ke atas melewati batas
-        if (pose.pitch < PITCH_UP_THRESHOLD) {
+        if (detectLookUp && pose.pitch < PITCH_UP_THRESHOLD) {
             return 'look_up';
         }
         
         // Cek apakah menunduk melewati batas
-        if (pose.pitch > PITCH_DOWN_THRESHOLD) {
+        if (detectLookDown && pose.pitch > PITCH_DOWN_THRESHOLD) {
             return 'look_down';
         }
 
@@ -880,7 +923,8 @@ document.addEventListener('DOMContentLoaded', function () {
         isCameraBlocked = true;
         isQuizBlocked = true;
         
-        // Disable inputs
+        // Tandai kuis dikeluarkan karena pelanggaran kamera
+        document.getElementById('expelled-flag').value = '1';
         document.querySelectorAll('input[type="radio"], input[type="checkbox"], textarea, input[type="text"]').forEach(input => {
             input.disabled = true;
         });

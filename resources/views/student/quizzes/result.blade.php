@@ -44,39 +44,46 @@
                                         <i class="fa fa-times-circle fa-4x text-danger mb-3"></i>
                                     @endif
 
+                                    @if(!$is_preview && $attempt->expelled_by_violation)
+                                        <div class="alert alert-danger mt-3 mb-0">
+                                            <i class="fa fa-ban"></i>
+                                            <strong>Kuis ini diakhiri paksa</strong> karena Anda melebihi batas pelanggaran integritas yang diizinkan.
+                                        </div>
+                                    @endif
+
                                     {{-- <h4>Skor Anda: <strong>{{ rtrim(rtrim(number_format($attempt->score, 2, ',', '.'), '0'), ',') }}</strong></h4> --}}
                                     
                                     <!-- Informasi Nilai Baru -->
                                     <div class="mt-4">
                                         <div class="row">
                                             {{-- Skor Student --}}
-                                            <div class="col-md-4">
+                                            {{-- <div class="col-md-4">
                                                 <div class="card bg-light">
                                                     <div class="card-body text-center py-3">
                                                         <h6 class="card-title mb-1">Skor Anda</h6>
                                                         <h4 class="text-primary mb-0"><strong>{{ rtrim(rtrim(number_format($attempt->score, 2, ',', '.'), '0'), ',') }}</strong></h4>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> --}}
                                             {{-- Skor Minimum --}}
-                                            <div class="col-md-4">
+                                            {{-- <div class="col-md-4">
                                                 <div class="card bg-light">
                                                     <div class="card-body text-center py-3">
                                                         <h6 class="card-title mb-1">Skor Minimum</h6>
                                                         <h4 class="text-info mb-0"><strong>{{ rtrim(rtrim(number_format($minimumScore, 2, ',', '.'), '0'), ',') }}</strong></h4>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> --}}
 
                                             {{-- Skor Maksimum --}}
-                                            <div class="col-md-4">
+                                            {{-- <div class="col-md-4">
                                                 <div class="card bg-light">
                                                     <div class="card-body text-center py-3">
                                                         <h6 class="card-title mb-1">Skor Maksimum</h6>
                                                         <h4 class="text-info mb-0"><strong>{{ rtrim(rtrim(number_format($maxPossibleScore, 2, ',', '.'), '0'), ',') }}</strong></h4>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> --}}
                                             {{--  --}}
                                             
                                             {{-- Nilai Student --}}
@@ -98,14 +105,14 @@
                                                 </div>
                                             </div>
                                             {{-- Passing Grade --}}
-                                            <div class="col-md-12">
+                                            {{-- <div class="col-md-12">
                                                 <div class="card bg-light">
                                                     <div class="card-body text-center py-3">
                                                         <h6 class="card-title mb-1">Passing Grade</h6>
                                                         <h4 class="text-info mb-0"><strong>{{ rtrim(rtrim(number_format($attempt->quiz->pass_mark, 2, ',', '.'), '0'), ',') }} %</strong></h4>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> --}}
 
                                         </div>
                                     </div>
@@ -150,24 +157,28 @@
                                                         $labelClass = '';
 
                                                         if ($isStudentAnswer && $isCorrectAnswer) {
-                                                            $labelClass = 'bg-success text-white'; // Jawaban siswa, dan itu benar
+                                                            $labelClass = 'answer-option--correct'; // Jawaban siswa, dan itu benar
                                                         } elseif ($isStudentAnswer && !$isCorrectAnswer) {
-                                                            $labelClass = 'bg-danger text-white'; // Jawaban siswa, tapi salah
+                                                            $labelClass = 'answer-option--incorrect'; // Jawaban siswa, tapi salah
                                                         } elseif (!$isStudentAnswer && $isCorrectAnswer) {
-                                                            $labelClass = 'bg-info text-white'; // Bukan jawaban siswa, tapi ini kunci jawaban
+                                                            $labelClass = 'answer-option--key'; // Bukan jawaban siswa, tapi ini kunci jawaban
                                                         }
                                                     @endphp
-                                                    <div class="p-2 rounded mb-2 {{ $labelClass }}">
-                                                        @if($isStudentAnswer && $isCorrectAnswer)
-                                                            <i class="fa fa-check-circle-o mr-2"></i> <strong>Jawaban Anda (Benar)</strong>
-                                                        @elseif($isStudentAnswer && !$isCorrectAnswer)
-                                                            <i class="fa fa-times-circle-o mr-2"></i> <strong>Jawaban Anda (Salah)</strong>
-                                                        @elseif(!$isStudentAnswer && $isCorrectAnswer)
-                                                            <i class="fa fa-check mr-2"></i> <strong>Kunci Jawaban</strong>
-                                                        @else
-                                                            <i class="fa fa-circle-o mr-2" style="opacity: 0.5;"></i>
-                                                        @endif
-                                                        {{ $option->option_text }}
+                                                    <div class="answer-option {{ $labelClass }}">
+                                                        <div class="answer-option__content">
+                                                            <span class="answer-option__text">{{ $option->option_text }}</span>
+                                                            <span class="answer-option__label">
+                                                                @if($isStudentAnswer && $isCorrectAnswer)
+                                                                    <i class="fa fa-check-circle-o"></i> <strong>Jawaban Anda (Benar)</strong>
+                                                                @elseif($isStudentAnswer && !$isCorrectAnswer)
+                                                                    <i class="fa fa-times-circle-o"></i> <strong>Jawaban Anda (Salah)</strong>
+                                                                @elseif(!$isStudentAnswer && $isCorrectAnswer)
+                                                                    <i class="fa fa-check"></i> <strong>Kunci Jawaban</strong>
+                                                                @else
+                                                                    <i class="fa fa-circle-o" style="opacity: 0.5;"></i>
+                                                                @endif
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 @endforeach
                                             </div>

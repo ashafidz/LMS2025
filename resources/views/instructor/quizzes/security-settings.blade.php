@@ -76,6 +76,58 @@
                                                     <!-- Advanced Settings Camera -->
                                                     <div id="cameraSettings" class="mt-3 pt-3 border-top" 
                                                          style="display: {{ $securitySetting->enable_camera_detection ? 'block' : 'none' }}">
+                                                        <!-- Tipe Pelanggaran yang Dideteksi -->
+                                                        <div class="form-group">
+                                                            <label class="font-weight-bold mb-2"><i class="fa fa-filter text-info"></i> Tipe Pelanggaran yang Dideteksi</label>
+                                                            <small class="form-text text-muted mb-2">Nonaktifkan tipe pelanggaran yang tidak ingin dideteksi.</small>
+                                                            <div class="row">
+                                                                <div class="col-sm-6">
+                                                                    <div class="checkbox-fade fade-in-default">
+                                                                        <label>
+                                                                            <input type="checkbox" name="detect_face_not_detected" value="1"
+                                                                                   {{ $securitySetting->detect_face_not_detected ? 'checked' : '' }}>
+                                                                            <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                                                                            <span>Wajah Tidak Terdeteksi</span>
+                                                                        </label>
+                                                                    </div>
+                                                                    <div class="checkbox-fade fade-in-default">
+                                                                        <label>
+                                                                            <input type="checkbox" name="detect_look_left" value="1"
+                                                                                   {{ $securitySetting->detect_look_left ? 'checked' : '' }}>
+                                                                            <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                                                                            <span>Menoleh Kiri</span>
+                                                                        </label>
+                                                                    </div>
+                                                                    <div class="checkbox-fade fade-in-default">
+                                                                        <label>
+                                                                            <input type="checkbox" name="detect_look_right" value="1"
+                                                                                   {{ $securitySetting->detect_look_right ? 'checked' : '' }}>
+                                                                            <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                                                                            <span>Menoleh Kanan</span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-6">
+                                                                    <div class="checkbox-fade fade-in-default">
+                                                                        <label>
+                                                                            <input type="checkbox" name="detect_look_up" value="1"
+                                                                                   {{ $securitySetting->detect_look_up ? 'checked' : '' }}>
+                                                                            <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                                                                            <span>Melihat Ke Atas</span>
+                                                                        </label>
+                                                                    </div>
+                                                                    <div class="checkbox-fade fade-in-default">
+                                                                        <label>
+                                                                            <input type="checkbox" name="detect_look_down" value="1"
+                                                                                   {{ $securitySetting->detect_look_down ? 'checked' : '' }}>
+                                                                            <span class="cr"><i class="cr-icon fa fa-check"></i></span>
+                                                                            <span>Menunduk / Melihat Ke Bawah</span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <hr class="mt-2 mb-3">
                                                         <div class="form-group row">
                                                             <label class="col-sm-5 col-form-label">Batas Toleransi Pelanggaran Kamera</label>
                                                             <div class="col-sm-7">
@@ -94,6 +146,16 @@
                                                                        value="{{ $securitySetting->face_detection_interval_seconds }}"
                                                                        min="3" max="30">
                                                                 <small class="form-text text-muted">Seberapa sering sistem memeriksa wajah siswa</small>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row">
+                                                            <label class="col-sm-5 col-form-label">Durasi Pelanggaran (Detik)</label>
+                                                            <div class="col-sm-7">
+                                                                <input type="number" name="violation_duration_seconds" 
+                                                                       class="form-control" 
+                                                                       value="{{ $securitySetting->violation_duration_seconds ?? 3 }}"
+                                                                       min="0" max="10">
+                                                                <small class="form-text text-muted">Berapa detik pelanggaran harus berlangsung sebelum dihitung. Nilai 0 = langsung dihitung.</small>
                                                             </div>
                                                         </div>
                                                     </div>

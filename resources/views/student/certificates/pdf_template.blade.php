@@ -94,8 +94,15 @@
 </head>
 <body>
     <div class="certificate-container">
-        <img src="{{ public_path('assets/images/certificate-background.png') }}" class="background-image" onerror="this.style.display='none'">
-                @php $settings = \App\Models\SiteSetting::first(); @endphp
+        {{-- Handle background image safely --}}
+        @php
+            $bgPath = public_path('assets/images/certificate-background.png');
+            $bgExists = file_exists($bgPath);
+        @endphp
+        
+        @if($bgExists)
+            <img src="{{ $bgPath }}" class="background-image" alt="Certificate Background">
+        @endif
 
         <!-- All your text content goes here -->
         <div class="content">
@@ -103,7 +110,7 @@
                 
                 @if(isset($settings) && $settings->logo_path)
                     <img src="{{ public_path('storage/' . $settings->logo_path) }}" alt="Logo" style="height: 24px;">
-                @elseif(isset($settings))
+                @elseif(isset($settings) && $settings->site_name)
                     <strong>{{ $settings->site_name }}</strong>
                 @else
                     <strong>Platform Name</strong>
@@ -118,7 +125,7 @@
                 {{ $course->title }}
             </div>
 
-            <div class="instructor-name">Instructors <strong>{{ $course->instructor->name }}</strong></div>
+            <div class="instructor-name">Instructors <strong>{{ $course->instructor->name ?? 'Unknown' }}</strong></div>
 
             <div class="student-name">{{ $user->name }}</div>
             

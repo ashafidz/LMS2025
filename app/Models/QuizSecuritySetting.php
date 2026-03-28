@@ -17,6 +17,12 @@ class QuizSecuritySetting extends Model
         'camera_violation_threshold',
         'tab_violation_threshold',
         'face_detection_interval_seconds',
+        'detect_face_not_detected',
+        'detect_look_left',
+        'detect_look_right',
+        'detect_look_up',
+        'detect_look_down',
+        'violation_duration_seconds',
     ];
 
     protected $casts = [
@@ -26,6 +32,12 @@ class QuizSecuritySetting extends Model
         'camera_violation_threshold' => 'integer',
         'tab_violation_threshold' => 'integer',
         'face_detection_interval_seconds' => 'integer',
+        'detect_face_not_detected' => 'boolean',
+        'detect_look_left' => 'boolean',
+        'detect_look_right' => 'boolean',
+        'detect_look_up' => 'boolean',
+        'detect_look_down' => 'boolean',
+        'violation_duration_seconds' => 'integer',
     ];
 
     /**

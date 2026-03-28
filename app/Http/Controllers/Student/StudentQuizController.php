@@ -93,6 +93,7 @@ class StudentQuizController extends Controller
         }
 
 
+
         // $quiz->loadCount('questions');
         // $is_preview = $request->query('preview') === 'true' && Auth::check();
         return view('student.quizzes.start', compact('quiz', 'is_preview', 'attemptCount', 'lastAttempt', 'isAvailable', 'availabilityMessage'));
@@ -276,7 +277,8 @@ class StudentQuizController extends Controller
         }
         $quizQuestions = $attempt->quiz->questions;
         $studentAnswersCollection = collect();
-        DB::transaction(function () use ($quizQuestions, $userAnswers, $attempt, &$totalScore, $is_preview, &$studentAnswersCollection) {
+        $expelledByViolation = $request->input('expelled_by_violation') === '1';
+        DB::transaction(function () use ($quizQuestions, $userAnswers, $attempt, &$totalScore, $is_preview, &$studentAnswersCollection, $expelledByViolation) {
             foreach ($quizQuestions as $question) {
                 $isCorrect = false;
                 $userAnswerForQuestion = $userAnswers[$question->id] ?? null;
@@ -303,6 +305,7 @@ class StudentQuizController extends Controller
                 $attempt->scaled_score = round($percentageScore, 2); // Simpan skor skala 0-100 langsung di database
                 $attempt->status = $newStatus;
                 $attempt->end_time = now();
+                $attempt->expelled_by_violation = $expelledByViolation;
                 $attempt->save();
 
                 // // 3. Cek Kondisi Tambahan

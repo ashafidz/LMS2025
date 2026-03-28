@@ -30,6 +30,12 @@ class QuizSecurityController extends Controller
             'camera_violation_threshold' => 3,
             'tab_violation_threshold' => 5,
             'face_detection_interval_seconds' => 5,
+            'detect_face_not_detected' => true,
+            'detect_look_left' => true,
+            'detect_look_right' => true,
+            'detect_look_up' => true,
+            'detect_look_down' => true,
+            'violation_duration_seconds' => 3,
         ]);
 
         // return view('instructor.quiz.security-settings', compact('quiz', 'securitySetting'));
@@ -57,12 +63,24 @@ class QuizSecurityController extends Controller
             'camera_violation_threshold' => 'nullable|integer|min:1|max:20', // Batas maksimal salah kamera
             'tab_violation_threshold' => 'nullable|integer|min:1|max:50',    // Batas maksimal pindah tab
             'face_detection_interval_seconds' => 'nullable|integer|min:3|max:30', // Jeda waktu deteksi AI
+            'detect_face_not_detected' => 'boolean',
+            'detect_look_left' => 'boolean',
+            'detect_look_right' => 'boolean',
+            'detect_look_up' => 'boolean',
+            'detect_look_down' => 'boolean',
+            'violation_duration_seconds' => 'nullable|integer|min:0|max:10',
         ]);
 
         // Karena checkbox HTML hanya mengirim data jika dicentang, kita paksa nilainya (true/false)
         $validated['enable_camera_detection'] = $request->has('enable_camera_detection');
         $validated['enable_tab_detection'] = $request->has('enable_tab_detection');
         $validated['enable_question_shuffle'] = $request->has('enable_question_shuffle');
+        $validated['detect_face_not_detected'] = $request->has('detect_face_not_detected');
+        $validated['detect_look_left'] = $request->has('detect_look_left');
+        $validated['detect_look_right'] = $request->has('detect_look_right');
+        $validated['detect_look_up'] = $request->has('detect_look_up');
+        $validated['detect_look_down'] = $request->has('detect_look_down');
+        $validated['violation_duration_seconds'] = $request->input('violation_duration_seconds', 3);
 
         // Gunakan nilai default jika instruktur mengosongkan angka ambang batas
         $validated['camera_violation_threshold'] = $request->input('camera_violation_threshold', 3);
@@ -121,6 +139,12 @@ class QuizSecurityController extends Controller
                     'camera_violation_threshold' => 3,
                     'tab_violation_threshold' => 5,
                     'face_detection_interval_seconds' => 5,
+                    'detect_face_not_detected' => true,
+                    'detect_look_left' => true,
+                    'detect_look_right' => true,
+                    'detect_look_up' => true,
+                    'detect_look_down' => true,
+                    'violation_duration_seconds' => 3,
                 ]
             ]);
         }
