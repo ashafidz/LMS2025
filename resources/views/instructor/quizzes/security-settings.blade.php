@@ -350,6 +350,77 @@ input:checked + .slider-modern:before {
 .badge-pill.badge-secondary {
     background-color: #6c757d;
 }
+
+/* Enhanced Checkbox Styling */
+.checkbox-fade label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-fade input[type="checkbox"] {
+    display: none;
+}
+
+.checkbox-fade .cr {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-right: 0.5rem;
+    border: 2px solid #1E88E5;
+    border-radius: 3px;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.checkbox-fade input[type="checkbox"]:checked + .cr {
+    background-color: #1E88E5;
+    border-color: #1E88E5;
+}
+
+.checkbox-fade .cr .cr-icon {
+    display: none;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.checkbox-fade input[type="checkbox"]:checked + .cr .cr-icon {
+    display: block;
+}
+
+.checkbox-fade:hover .cr {
+    border-color: #0D47A1;
+    background-color: #f5f5f5;
+}
+
+.checkbox-fade input[type="checkbox"]:checked:hover + .cr {
+    background-color: #0D47A1;
+    border-color: #0D47A1;
+}
+
+.checkbox-fade span:not(.cr) {
+    color: #333;
+    font-weight: 500;
+    margin-left: 0;
+}
+
+.checkbox-fade input[type="checkbox"]:disabled + .cr {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+}
+
+.checkbox-fade input[type="checkbox"]:disabled + .cr + span {
+    color: #6c757d;
+    cursor: not-allowed;
+}
 </style>
 @endpush
 

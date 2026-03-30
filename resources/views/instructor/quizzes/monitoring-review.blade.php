@@ -55,7 +55,7 @@
                             <div class="card">
                                 <div class="card-block text-center">
                                     <h3 class="text-danger">{{ $stats['total_expelled'] ?? 0 }}</h3>
-                                    <p class="m-b-0">Dikeluarkan</p>
+                                    <p class="m-b-0">Dikeluarkan Dari Quiz</p>
                                 </div>
                             </div>
                         </div>
@@ -77,7 +77,7 @@
                                             <th class="text-center">Tab Switch</th>
                                             <th class="text-center">Camera Violations</th>
                                             <th class="text-center">Total Violations</th>
-                                            <th class="text-center">Dikeluarkan</th>
+                                            <th class="text-center">Dikeluarkan Dari Quiz</th>
                                             <th class="text-center">Aksi</th>
                                         </tr>
                                     </thead>
@@ -225,7 +225,7 @@
                                 <th width="12%">Skor</th>
                                 <th width="12%">Status</th>
                                 <th width="15%">Violations</th>
-                                <th width="12%">Dikeluarkan</th>
+                                <th width="12%">Dikeluarkan Dari Quiz</th>
                                 <th width="19%">Aksi</th>
                             </tr>
                         </thead>
@@ -268,7 +268,7 @@
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     @if($historyAttempt->expelled_by_violation)
                                         <span class="badge badge-danger"><i class="fa fa-ban"></i> Ya</span>
                                     @else

@@ -48,7 +48,7 @@
                                     @endif
                                     
                                     <!-- Informasi Skor -->
-                                    <div class="row mt-4">
+                                    {{-- <div class="row mt-4">
                                         <div class="col-md-4">
                                             <div class="card bg-light">
                                                 <div class="card-body text-center py-3">
@@ -73,11 +73,11 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                     <!-- Informasi Nilai -->
                                     <div class="row mt-3">
-                                        <div class="col-md-4">
+                                        <div class="col-md-6">
                                             <div class="card bg-light">
                                                 <div class="card-body text-center py-3">
                                                     <h6 class="card-title mb-1">Nilai Student</h6>
@@ -85,7 +85,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-6">
                                             <div class="card bg-light">
                                                 <div class="card-body text-center py-3">
                                                     <h6 class="card-title mb-1">Nilai Minimum</h6>
@@ -93,14 +93,14 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        {{-- <div class="col-md-4">
                                             <div class="card bg-light">
                                                 <div class="card-body text-center py-3">
                                                     <h6 class="card-title mb-1">Passing Grade</h6>
                                                     <h4 class="text-info mb-0"><strong>{{ $attempt->quiz->pass_mark }}%</strong></h4>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                     </div>
 
                                     <!-- Informasi Revisi Skor -->
