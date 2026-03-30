@@ -180,20 +180,28 @@ class CourseController extends Controller
                 // 1. Replikasi data kursus utama
                 $newCourse = $course->replicate();
                 $newCourse->title = $course->title . ' (Salinan)';
-                
+
                 // Generate unique slug
                 $baseSlug = Str::slug($newCourse->title);
                 $slug = $baseSlug;
                 $counter = 1;
-                
+
                 // Check if slug exists and add number suffix if needed
-                while (Course::where('slug', $slug)->exists()) {
+                while (Course::withTrashed()->where('slug', $slug)->exists()) {
                     $slug = $baseSlug . '-' . $counter;
                     $counter++;
                 }
-                
+
                 $newCourse->slug = $slug;
                 $newCourse->status = 'draft'; // Set status menjadi draft
+
+                // Copy thumbnail jika ada
+                if ($course->thumbnail_url && Storage::disk('public')->exists($course->thumbnail_url)) {
+                    $newThumbnailPath = 'thumbnails/' . Str::random(40) . '.' . pathinfo($course->thumbnail_url, PATHINFO_EXTENSION);
+                    Storage::disk('public')->copy($course->thumbnail_url, $newThumbnailPath);
+                    $newCourse->thumbnail_url = $newThumbnailPath;
+                }
+
                 $newCourse->created_at = now();
                 $newCourse->updated_at = now();
                 $newCourse->push(); // Simpan kursus baru untuk mendapatkan ID
