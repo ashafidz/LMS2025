@@ -61,7 +61,7 @@
                                             <tbody>
                                                 @forelse ($courses as $course)
                                                     <tr>
-                                                        <th scope="row">{{ $loop->iteration + $courses->firstItem() - 1 }}</th>
+                                                        <th scope="row">{{ $loop->iteration }}</th>
                                                         <td>{{ $course->title }}</td>
                                                         <td>{{ $course->category->name }}</td>
                                                         <td>
@@ -151,9 +151,6 @@
                                                 @endforelse
                                             </tbody>
                                         </table>
-                                    </div>
-                                    <div class="d-flex justify-content-center">
-                                        {{ $courses->links() }}
                                     </div>
                                 </div>
                             </div>

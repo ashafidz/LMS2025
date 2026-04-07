@@ -61,7 +61,7 @@
                                                             @endphp
     
                                                             @if ($lessonType === 'quiz')
-                                                                <a href="{{ route('student.quiz.start', ['quiz' => $lesson->lessonable_id, 'preview' => 'true']) }}" target="_blank" class="btn btn-warning btn-sm text-dark" title="Pratinjau Kuis di Tab Baru">
+                                                                <a href="{{ route('student.quiz.start', ['quiz' => $lesson->lessonable, 'preview' => 'true']) }}" target="_blank" class="btn btn-warning btn-sm text-dark" title="Pratinjau Kuis di Tab Baru">
                                                                     <i class="bi bi-eye me-1"></i>Pratinjau
                                                                 </a>
                                                             @else
@@ -71,26 +71,26 @@
                                                             @endif
                                                             @if ($lessonType === 'quiz')
                                                                 <!-- Button Pengaturan Keamanan -->
-                                                                <a href="{{ route('instructor.quiz.security.edit', $lesson->lessonable_id) }}" 
+                                                                <a href="{{ route('instructor.quiz.security.edit', $lesson->lessonable) }}" 
                                                                 class="btn btn-secondary btn-sm" 
                                                                 title="Pengaturan Keamanan Kuis">
                                                                     <i class="fa fa-shield me-1"></i>Opsi Keamanan Kuis
                                                                 </a>
 
                                                                 <!-- Button Review Monitoring -->
-                                                                <a href="{{ route('instructor.quiz.monitoring.review', $lesson->lessonable_id) }}" 
+                                                                <a href="{{ route('instructor.quiz.monitoring.review', $lesson->lessonable) }}" 
                                                                 class="btn btn-warning btn-sm text-dark" 
                                                                 title="Review Monitoring & Integritas">
                                                                     <i class="fa fa-eye me-1"></i>Hasil Monitoring Quiz
                                                                 </a>
                                                                 
-                                                                <a href="{{ route('instructor.quiz.results', $lesson->lessonable_id) }}" class="btn btn-info btn-sm"><i class="fa fa-calculator me-1"></i>Lihat Nilai</a>
-                                                                <a href="{{ route('instructor.quizzes.manage_questions', $lesson->lessonable_id) }}" class="btn btn-success btn-sm"><i class="fa fa-pencil-square me-1"></i>Kelola Soal</a>
+                                                                <a href="{{ route('instructor.quiz.results', $lesson->lessonable) }}" class="btn btn-info btn-sm"><i class="fa fa-calculator me-1"></i>Lihat Nilai</a>
+                                                                <a href="{{ route('instructor.quizzes.manage_questions', $lesson->lessonable) }}" class="btn btn-success btn-sm"><i class="fa fa-pencil-square me-1"></i>Kelola Soal</a>
                                                             @endif
                                                             
                                                             {{-- TOMBOL BARU UNTUK TUGAS (ASSIGNMENT) --}}
                                                             @if ($lessonType === 'lessonassignment')
-                                                                <a href="{{ route('instructor.assignment.submissions', $lesson->lessonable_id) }}" class="btn btn-success btn-sm"><i class="fas fa-file-alt"></i>Lihat Pengumpulan</a>
+                                                                <a href="{{ route('instructor.assignment.submissions', $lesson->lessonable) }}" class="btn btn-success btn-sm"><i class="fas fa-file-alt"></i>Lihat Pengumpulan</a>
                                                             @endif
     
                                                             @if ($lessonType === 'lessonpoint')

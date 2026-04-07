@@ -63,15 +63,15 @@
                                     <div class="tab-content card-block">
                                         {{-- TAB: Menunggu Dinilai --}}
                                         <div class="tab-pane active" id="submitted" role="tabpanel">
-                                            @include('instructor.assignments.partials._submission_table', ['submissions' => $submittedSubmissions])
+                                            @include('instructor.assignments.partials._submission_table', ['submissions' => $submittedSubmissions, 'showGrade' => false])
                                         </div>
                                         {{-- TAB: Perlu Revisi --}}
                                         <div class="tab-pane" id="revision" role="tabpanel">
-                                            @include('instructor.assignments.partials._submission_table', ['submissions' => $revisionSubmissions])
+                                            @include('instructor.assignments.partials._submission_table', ['submissions' => $revisionSubmissions, 'showGrade' => true])
                                         </div>
                                         {{-- TAB: Lulus --}}
                                         <div class="tab-pane" id="passed" role="tabpanel">
-                                            @include('instructor.assignments.partials._submission_table', ['submissions' => $passedSubmissions])
+                                            @include('instructor.assignments.partials._submission_table', ['submissions' => $passedSubmissions, 'showGrade' => true])
                                         </div>
                                         {{-- TAB: Belum Mengumpulkan --}}
                                         <div class="tab-pane" id="not-submitted" role="tabpanel">

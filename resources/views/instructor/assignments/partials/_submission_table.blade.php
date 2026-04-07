@@ -7,7 +7,9 @@
                 <th class="text-center">NIM/NIDN/NIP</th>
                 <th>Nama Siswa</th>
                 <th>Waktu Pengumpulan</th>
+                @if($showGrade ?? true)
                 <th>Nilai</th>
+                @endif
                 <th class="text-center">Aksi</th>
             </tr>
         </thead>
@@ -25,6 +27,7 @@
                             <span class="badge badge-danger">Terlambat</span>
                         @endif
                     </td>
+                    @if($showGrade ?? true)
                     <td>
                         @if(!is_null($submission->grade))
                             <span class="badge badge-inverse">{{ $submission->grade }} / 100</span>
@@ -32,15 +35,27 @@
                             -
                         @endif
                     </td>
+                    @endif
                     <td class="text-center">
                         <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#submissionModal-{{ $submission->id }}">
                             Lihat & Nilai
                         </button>
+
+                        @if(!($showGrade ?? true))
+                        <form action="{{ route('instructor.submission.grade', $submission) }}" method="POST" class="d-inline" onsubmit="return confirm('Anda yakin ingin langsung meminta siswa ini untuk revisi? (Tugas akan diberi nilai 0)');">
+                            @csrf
+                            <input type="hidden" name="grade" value="0">
+                            <input type="hidden" name="feedback" value="Tugas belum sesuai kriteria. Silakan perbaiki dan kumpulkan kembali.">
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                <i class="fa fa-undo"></i> Revisi Cepat
+                            </button>
+                        </form>
+                        @endif
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4" class="text-center">Tidak ada data pengumpulan di kategori ini.</td>
+                    <td colspan="{{ ($showGrade ?? true) ? 5 : 4 }}" class="text-center">Tidak ada data pengumpulan di kategori ini.</td>
                 </tr>
             @endforelse
         </tbody>
