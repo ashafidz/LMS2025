@@ -54,6 +54,9 @@ jobs:
           script: |
             set -e
             cd ${{ secrets.REMOTE_PATH }}
+            # Pastikan cache bootstrap bersih sebelum artisan dipanggil
+            rm -f bootstrap/cache/*.php
+
             # 1. Matikan akses sementara
             php artisan down --secret="edukasi-maintenance"
 
