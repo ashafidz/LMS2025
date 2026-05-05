@@ -39,7 +39,7 @@
                                     </div>
                                     <div class="card-block">
                                         {{-- Penting: tambahkan enctype untuk unggahan file --}}
-                                        <form action="{{ route('instructor.modules.lessons.store', $module) }}" method="POST" enctype="multipart/form-data">
+                                        <form action="{{ route('instructor.modules.lessons.store', $module) }}" method="POST" enctype="multipart/form-data" data-lesson-submit="true">
                                             @csrf
                                             <input type="hidden" name="lesson_type" value="document">
 
@@ -61,7 +61,10 @@
                                             <div class="form-group row mt-4">
                                                 <div class="col-sm-12 text-right">
                                                     <a href="{{ route('instructor.modules.lessons.index', $module) }}" class="btn btn-secondary">Batal</a>
-                                                    <button type="submit" class="btn btn-primary">Simpan Pelajaran</button>
+                                                    <button type="submit" class="btn btn-primary js-lesson-submit-btn">
+                                                        <span class="js-lesson-submit-text">Simpan Pelajaran</span>
+                                                        <span class="spinner-border spinner-border-sm ms-2 d-none js-lesson-submit-spinner" role="status" aria-hidden="true"></span>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </form>

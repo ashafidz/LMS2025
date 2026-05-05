@@ -266,6 +266,28 @@
     }
 </script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('form[data-lesson-submit="true"]').forEach(function (form) {
+                form.addEventListener('submit', function () {
+                    const button = form.querySelector('.js-lesson-submit-btn');
+                    if (!button) {
+                        return;
+                    }
+                    button.disabled = true;
+                    const spinner = button.querySelector('.js-lesson-submit-spinner');
+                    const text = button.querySelector('.js-lesson-submit-text');
+                    if (text) {
+                        text.textContent = 'Menyimpan...';
+                    }
+                    if (spinner) {
+                        spinner.classList.remove('d-none');
+                    }
+                });
+            });
+        });
+    </script>
+
     <!-- custom js -->
     @stack('scripts')
     {{-- <script type="text/javascript" src="{{ asset('pages/dashboard/custom-dashboard.js') }}"></script> --}}

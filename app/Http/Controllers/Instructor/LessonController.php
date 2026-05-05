@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\LessonLinkCollection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class LessonController extends Controller
@@ -59,125 +60,148 @@ class LessonController extends Controller
             'lesson_type' => 'required|in:article,video,quiz,assignment,document,link,lessonpoin',
         ]);
 
-        $lessonable = null;
+        $lessonType = $request->input('lesson_type');
+        $documentFile = null;
+        $documentDedupKey = null;
 
-        DB::transaction(function () use ($request, $module, &$lessonable) {
-            $lessonType = $request->input('lesson_type');
-
-            switch ($lessonType) {
-                case 'article':
-                    $validated = $request->validate(['content' => 'required|string']);
-                    $lessonable = LessonArticle::create($validated);
-                    break;
-
-                case 'video':
-                    $validated = $request->validate([
-                        'source_type' => 'required|in:upload,youtube',
-                        'video_file' => 'required_if:source_type,upload|file|mimes:mp4,mov,avi,wmv|max:102400',
-                        'video_path' => 'required_if:source_type,youtube|url',
-                    ]);
-                    $sourceType = $validated['source_type'];
-                    $path = ($sourceType === 'upload') ? $validated['video_file']->store('lesson_videos', 'public') : $validated['video_path'];
-                    $lessonable = LessonVideo::create(['source_type' => $sourceType, 'video_path' => $path]);
-                    break;
-
-                case 'quiz':
-                    $validated = $request->validate([
-                        'quiz_title' => 'required|string|max:255',
-                        'quiz_description' => 'nullable|string',
-                        'pass_mark' => 'required|integer|min:0|max:100',
-                        'time_limit' => 'nullable|integer|min:1',
-                        'allow_exceed_time_limit' => 'required|boolean',
-                        'reveal_answers' => 'required|boolean',
-                        'max_attempts' => 'nullable|integer|min:1',
-                        'available_from' => 'nullable|date', // Tambahkan validasi
-                        'available_to' => 'nullable|date|after_or_equal:available_from', // Tambahkan validasi
-                    ]);
-
-                    // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
-                    if (!empty($validated['available_from'])) {
-                        // 1. Ambil timezone instruktur (dari data user yang login)
-                        $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
-
-                        // 2. Konversi waktu ke timezone instruktur
-                        $availableFrom = Carbon::parse($validated['available_from'], $instructorTimezone)->utc();
-
-                        // 3. Simpan waktu yang telah dikonversi
-                        $validated['available_from'] = $availableFrom;
-                    }
-
-                    if (!empty($validated['available_to'])) {
-                        // 1. Ambil timezone instruktur (dari data user yang login)
-                        $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
-
-                        $availableTo = Carbon::parse($validated['available_to'], $instructorTimezone)->utc();
-                        $validated['available_to'] = $availableTo;
-                    }
-                    // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
-
-                    $lessonable = Quiz::create([
-                        'title' => $validated['quiz_title'],
-                        'description' => $validated['quiz_description'],
-                        'pass_mark' => $validated['pass_mark'],
-                        'time_limit' => $validated['time_limit'],
-                        'allow_exceed_time_limit' => $validated['allow_exceed_time_limit'],
-                        'reveal_answers' => $validated['reveal_answers'],
-                        'max_attempts' => $validated['max_attempts'],
-                        'available_from' => $validated['available_from'], // Tambahkan validasi
-                        'available_to' => $validated['available_to'], // Tambahkan validasi
-
-                    ]);
-                    break;
-
-                case 'assignment':
-                    $validated = $request->validate(['instructions' => 'required|string', 'due_date' => 'nullable|date', 'pass_mark' => 'required|integer|min:0|max:100']);
-
-                    // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
-                    if (!empty($validated['due_date'])) {
-                        // 1. Ambil timezone instruktur (dari data user yang login)
-                        $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
-
-                        // 2. Parse input sebagai waktu lokal, lalu konversi ke UTC untuk disimpan
-                        $validated['due_date'] = Carbon::parse($validated['due_date'], $instructorTimezone)->utc();
-                    }
-                    // --- AKHIR LOGIKA BARU ---
-
-                    $lessonable = LessonAssignment::create($validated);
-                    break;
-
-                case 'document': // Diperbarui dari 'powerpoint'
-                    $validated = $request->validate(['document_file' => 'required|file|mimes:pdf|max:20480']); // Hanya PDF, max 20MB
-                    $path = $validated['document_file']->store('lesson_documents', 'public'); // Folder baru
-                    $lessonable = LessonDocument::create(['file_path' => $path]);
-                    break;
-
-                case 'link':
-                    $validated = $request->validate([
-                        'links' => 'required|array|min:1',
-                        'links.*.title' => 'required|string|max:255',
-                        'links.*.url' => 'required|url',
-                    ]);
-                    $lessonable = LessonLinkCollection::create(['links' => $validated['links']]);
-                    break;
-                case 'lessonpoin':
-                    $validated = $request->validate([
-                        'lessonpoin_title' => 'required|string|max:255',
-                        'lessonpoin_description' => 'nullable|string',
-                    ]);
-                    $lessonable = \App\Models\LessonPoint::create([
-                        'title' => $validated['lessonpoin_title'],
-                        'description' => $validated['lessonpoin_description'],
-                    ]);
-                    break;
-            }
-
-            $lastOrder = $module->lessons()->max('order') ?? 0;
-            $lessonable->lesson()->create([
-                'module_id' => $module->id,
-                'title' => $request->input('title'),
-                'order' => $lastOrder + 1,
+        if ($lessonType === 'document') {
+            $validatedDocument = $request->validate([
+                'document_file' => 'required|file|mimes:pdf|max:20480',
             ]);
-        });
+            $documentFile = $validatedDocument['document_file'];
+            $documentHash = hash_file('sha1', $documentFile->getRealPath());
+            $titleHash = md5($request->input('title'));
+            $documentDedupKey = 'lesson_document:' . Auth::id() . ':' . $module->id . ':' . $documentHash . ':' . $titleHash;
+
+            if (!Cache::add($documentDedupKey, true, now()->addSeconds(30))) {
+                return redirect()
+                    ->route('instructor.modules.lessons.index', $module)
+                    ->with('warning', 'Pelajaran sedang diproses atau sudah dibuat. Silakan cek daftar pelajaran.');
+            }
+        }
+
+        $lessonable = null;
+        try {
+            DB::transaction(function () use ($request, $module, $lessonType, $documentFile, &$lessonable) {
+                switch ($lessonType) {
+                    case 'article':
+                        $validated = $request->validate(['content' => 'required|string']);
+                        $lessonable = LessonArticle::create($validated);
+                        break;
+
+                    case 'video':
+                        $validated = $request->validate([
+                            'source_type' => 'required|in:upload,youtube',
+                            'video_file' => 'required_if:source_type,upload|file|mimes:mp4,mov,avi,wmv|max:102400',
+                            'video_path' => 'required_if:source_type,youtube|url',
+                        ]);
+                        $sourceType = $validated['source_type'];
+                        $path = ($sourceType === 'upload') ? $validated['video_file']->store('lesson_videos', 'public') : $validated['video_path'];
+                        $lessonable = LessonVideo::create(['source_type' => $sourceType, 'video_path' => $path]);
+                        break;
+
+                    case 'quiz':
+                        $validated = $request->validate([
+                            'quiz_title' => 'required|string|max:255',
+                            'quiz_description' => 'nullable|string',
+                            'pass_mark' => 'required|integer|min:0|max:100',
+                            'time_limit' => 'nullable|integer|min:1',
+                            'allow_exceed_time_limit' => 'required|boolean',
+                            'reveal_answers' => 'required|boolean',
+                            'max_attempts' => 'nullable|integer|min:1',
+                            'available_from' => 'nullable|date', // Tambahkan validasi
+                            'available_to' => 'nullable|date|after_or_equal:available_from', // Tambahkan validasi
+                        ]);
+
+                        // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
+                        if (!empty($validated['available_from'])) {
+                            // 1. Ambil timezone instruktur (dari data user yang login)
+                            $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+
+                            // 2. Konversi waktu ke timezone instruktur
+                            $availableFrom = Carbon::parse($validated['available_from'], $instructorTimezone)->utc();
+
+                            // 3. Simpan waktu yang telah dikonversi
+                            $validated['available_from'] = $availableFrom;
+                        }
+
+                        if (!empty($validated['available_to'])) {
+                            // 1. Ambil timezone instruktur (dari data user yang login)
+                            $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+
+                            $availableTo = Carbon::parse($validated['available_to'], $instructorTimezone)->utc();
+                            $validated['available_to'] = $availableTo;
+                        }
+                        // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
+
+                        $lessonable = Quiz::create([
+                            'title' => $validated['quiz_title'],
+                            'description' => $validated['quiz_description'],
+                            'pass_mark' => $validated['pass_mark'],
+                            'time_limit' => $validated['time_limit'],
+                            'allow_exceed_time_limit' => $validated['allow_exceed_time_limit'],
+                            'reveal_answers' => $validated['reveal_answers'],
+                            'max_attempts' => $validated['max_attempts'],
+                            'available_from' => $validated['available_from'], // Tambahkan validasi
+                            'available_to' => $validated['available_to'], // Tambahkan validasi
+
+                        ]);
+                        break;
+
+                    case 'assignment':
+                        $validated = $request->validate(['instructions' => 'required|string', 'due_date' => 'nullable|date', 'pass_mark' => 'required|integer|min:0|max:100']);
+
+                        // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
+                        if (!empty($validated['due_date'])) {
+                            // 1. Ambil timezone instruktur (dari data user yang login)
+                            $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+
+                            // 2. Parse input sebagai waktu lokal, lalu konversi ke UTC untuk disimpan
+                            $validated['due_date'] = Carbon::parse($validated['due_date'], $instructorTimezone)->utc();
+                        }
+                        // --- AKHIR LOGIKA BARU ---
+
+                        $lessonable = LessonAssignment::create($validated);
+                        break;
+
+                    case 'document': // Diperbarui dari 'powerpoint'
+                        $path = $documentFile->store('lesson_documents', 'public'); // Folder baru
+                        $lessonable = LessonDocument::create(['file_path' => $path]);
+                        break;
+
+                    case 'link':
+                        $validated = $request->validate([
+                            'links' => 'required|array|min:1',
+                            'links.*.title' => 'required|string|max:255',
+                            'links.*.url' => 'required|url',
+                        ]);
+                        $lessonable = LessonLinkCollection::create(['links' => $validated['links']]);
+                        break;
+                    case 'lessonpoin':
+                        $validated = $request->validate([
+                            'lessonpoin_title' => 'required|string|max:255',
+                            'lessonpoin_description' => 'nullable|string',
+                        ]);
+                        $lessonable = \App\Models\LessonPoint::create([
+                            'title' => $validated['lessonpoin_title'],
+                            'description' => $validated['lessonpoin_description'],
+                        ]);
+                        break;
+                }
+
+                $lastOrder = $module->lessons()->max('order') ?? 0;
+                $lessonable->lesson()->create([
+                    'module_id' => $module->id,
+                    'title' => $request->input('title'),
+                    'order' => $lastOrder + 1,
+                ]);
+            });
+        } catch (\Throwable $e) {
+            if ($documentDedupKey) {
+                Cache::forget($documentDedupKey);
+            }
+            throw $e;
+        }
 
         return redirect()->route('instructor.modules.lessons.index', $module)->with('success', 'Pelajaran berhasil dibuat.');
     }
