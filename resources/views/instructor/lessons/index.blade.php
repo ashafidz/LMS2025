@@ -81,7 +81,7 @@
                                                                 <a href="{{ route('instructor.quiz.monitoring.review', $lesson->lessonable) }}" 
                                                                 class="btn btn-warning btn-sm text-dark" 
                                                                 title="Review Monitoring & Integritas">
-                                                                    <i class="fa fa-eye me-1"></i>Hasil Monitoring Quiz
+                                                                    <i class="fa fa-eye me-1"></i>Hasil Pelanggaran Quiz
                                                                 </a>
                                                                 
                                                                 <a href="{{ route('instructor.quiz.results', $lesson->lessonable) }}" class="btn btn-info btn-sm"><i class="fa fa-calculator me-1"></i>Lihat Nilai</a>

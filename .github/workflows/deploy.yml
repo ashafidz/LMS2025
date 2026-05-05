@@ -1,0 +1,75 @@
+name: Deploy ZDD to cPanel
+
+on:
+  push:
+    branches:
+      - main # (Ubah menjadi 'master' atau nama branch lain jika branch utamamu bukan 'main')
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚚 Mengecek perubahan kode terbaru
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mbstring, bcmath, pdo_mysql, xml, ctype, json, zip
+
+      - name: 📦 Menginstall Composer (Tanpa Development Package)
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --optimize-autoloader --no-dev
+
+      - name: 🛠️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: 🏗️ Menginstall & Membangun Aset CSS/JS (Vite)
+        run: |
+          npm ci
+          npm run build
+
+      - name: 📂 Sinkronisasi File ke Target cPanel (Menggunakan Rsync)
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-avz --delete" # --delete berarti hapus data di server yg tidak ada di GitHub (kecuali dalam list pengecualian)
+          SOURCE: "./"
+          REMOTE_HOST: ${{ secrets.SSH_HOST }}
+          REMOTE_USER: ${{ secrets.SSH_USERNAME }}
+          REMOTE_PORT: ${{ secrets.SSH_PORT }}
+          TARGET: ${{ secrets.REMOTE_PATH }}
+          # !! Kita kecualikan (exclude) file penting agar TIDAK ikut tertimpa/dihapus saat proses sinkronisasi:
+          EXCLUDE: "/node_modules/, /.git/, /tests/, /storage/, /bootstrap/cache/, .env, /phpunit.xml, README.md, .htaccess, /public/storage, /public/.htaccess"
+
+      - name: 🚀 Memicu Skrip Refresh Pasca Deploy di Server (Zero Downtime Polish)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            cd ${{ secrets.REMOTE_PATH }}
+            # 1. Matikan akses sementara
+            php artisan down --secret="edukasi-maintenance"
+
+            # 2. Hapus sisa cache 
+            php artisan optimize:clear
+
+            # 3. PASTIKAN SYMLINK STORAGE SELALU NYALA TERHUBUNG (Fail-Safe)
+            php artisan storage:link
+
+            # 4. Jalankan migrasi database
+            php artisan migrate --force
+
+            # 5. Bangun kembali cache
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            # 6. Nyalakan kembali aplikasi (Selesai!)
+            php artisan up

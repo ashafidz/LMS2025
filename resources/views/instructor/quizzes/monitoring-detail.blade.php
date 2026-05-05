@@ -7,7 +7,7 @@
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <div class="page-header-title">
-                        <h5 class="m-b-10">Detail Monitoring - {{ $attempt->student->name }}</h5>
+                        <h5 class="m-b-10">Detail Pelanggaran - {{ $attempt->student->name }}</h5>
                         <p class="m-b-0">{{ $attempt->quiz->title }}</p>
                     </div>
                 </div>
@@ -297,7 +297,7 @@
                     {{-- Monitoring Logs --}}
                     <div class="card">
                         <div class="card-header">
-                            <h5><i class="fa fa-list"></i> Timeline Monitoring Logs ({{ $attempt->monitoringLogs->count() }} events)</h5>
+                            <h5><i class="fa fa-list"></i> Timeline Pelanggaran Logs ({{ $attempt->monitoringLogs->count() }} events)</h5>
                         </div>
                         <div class="card-block">
                             @if($attempt->monitoringLogs->count() > 0)
@@ -380,7 +380,7 @@
                                 </table>
                             </div>
                             @else
-                            <p class="text-center text-muted">Tidak ada monitoring logs tercatat</p>
+                            <p class="text-center text-muted">Tidak ada logs pelanggaran tercatat</p>
                             @endif
                         </div>
                     </div>

@@ -7,8 +7,8 @@
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <div class="page-header-title">
-                        <h5 class="m-b-10">Course Monitoring Overview - {{ $course->title }}</h5>
-                        <p class="m-b-0">Rekap monitoring untuk semua kuis dalam course ini</p>
+                        <h5 class="m-b-10">Course Quiz Violation Overview - {{ $course->title }}</h5>
+                        <p class="m-b-0">Rekap pelanggaran untuk semua kuis dalam course ini</p>
                     </div>
                 </div>
                 <div class="col-md-4 text-right">
@@ -154,7 +154,7 @@
                                         @empty
                                         <tr>
                                             <td colspan="9" class="text-center">
-                                                <p class="text-muted">Belum ada kuis dengan monitoring dalam course ini</p>
+                                                <p class="text-muted">Belum ada kuis dengan pelanggaran dalam course ini</p>
                                             </td>
                                         </tr>
                                         @endforelse

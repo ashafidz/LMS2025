@@ -145,7 +145,7 @@
                                         <td class="text-center">
                                             <a href="{{ route('instructor.quiz.review_attempt', $attempt) }}" class="btn btn-inverse btn-sm">Periksa Jawaban</a>
                                             <a href="{{ route('instructor.quiz.monitoring.detail', $attempt) }}" class="btn btn-info btn-sm" title="Lihat Detail Monitoring">
-                                                <i class="fa fa-eye"></i> Monitor
+                                                <i class="fa fa-eye"></i> Detail Pelanggaran
                                             </a>
                                         </td>
                                     </tr>

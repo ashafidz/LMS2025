@@ -7,8 +7,8 @@
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <div class="page-header-title">
-                        <h5 class="m-b-10">Monitoring Review - {{ $quiz->title }}</h5>
-                        <p class="m-b-0">Review integritas pengerjaan kuis oleh mahasiswa</p>
+                        <h5 class="m-b-10">Violation Review - {{ $quiz->title }}</h5>
+                        <p class="m-b-0">Review pelanggaran pengerjaan kuis oleh mahasiswa</p>
                     </div>
                 </div>
                 <div class="col-md-4 text-right">
@@ -64,7 +64,7 @@
                     {{-- Attempts Table --}}
                     <div class="card">
                         <div class="card-header">
-                            <h5>Daftar Mahasiswa & Status Monitoring</h5>
+                            <h5>Daftar Mahasiswa & Status Pelanggaran</h5>
                         </div>
                         <div class="card-block">
                             <div class="table-responsive">
