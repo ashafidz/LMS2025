@@ -83,18 +83,20 @@
         @endif
 
         {{-- Logika Tombol yang Diperbarui --}}
+        @php
+            $quiz = $lesson->lessonable;
+        @endphp
         <div class="text-center mt-4">
             @if($is_preview)
                 {{-- Tombol untuk mode pratinjau (Admin/Instruktur) --}}
-                <a href="{{ route('student.quiz.start', $quiz) }}" 
-   class="btn btn-primary" 
-   style="padding:6px 16px; font-size:14px;">
-   Mulai Kuis
-</a>
+                <a href="{{ route('student.quiz.start', ['quiz' => $quiz, 'preview' => 'true']) }}"
+                    class="btn btn-primary"
+                    style="padding:6px 16px; font-size:14px;">
+                    Mulai Kuis
+                </a>
             @else
                 {{-- Logika untuk siswa biasa --}}
                 @php
-                    $quiz = $lesson->lessonable;
                     // Pastikan attemptCount ada, jika tidak, anggap 0
                     $currentAttemptCount = $attemptCount ?? 0;
                     // Cek apakah siswa masih punya kesempatan
