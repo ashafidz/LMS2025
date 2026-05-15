@@ -133,7 +133,7 @@
                         <div class="col-md-8">
                             <div class="card">
                                 <div class="card-header bg-warning text-white">
-                                    <h6 class="mb-0"><i class="fa fa-exclamation-triangle"></i> Integrity Summary</h6>
+                                    <h6 class="mb-0"><i class="fa fa-exclamation-triangle"></i>Violation Summary</h6>
                                 </div>
                                 <div class="card-block">
                                     @if($attempt->integritySummary)
