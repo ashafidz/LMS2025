@@ -64,7 +64,7 @@
                     {{-- Attempts Table --}}
                     <div class="card">
                         <div class="card-header">
-                            <h5>Daftar Student & Status Pelanggaran</h5>
+                            <h5>Daftar Student &  Terakhir</h5>
                         </div>
                         <div class="card-block">
                             <div class="table-responsive">
@@ -73,11 +73,11 @@
                                         <tr>
                                             <th>Student</th>
                                             <th>Waktu Pengerjaan</th>
-                                            <th>Skor</th>
-                                            <th class="text-center">Tab Switch</th>
-                                            <th class="text-center">Camera Violations</th>
-                                            <th class="text-center">Total Violations</th>
-                                            <th class="text-center">Dikeluarkan Dari Quiz</th>
+                                            <th>Skor Terakhir</th>
+                                            <th class="text-center">Tab Switch Terakhir</th>
+                                            <th class="text-center">Camera Violations Terakhir</th>
+                                            <th class="text-center">Total Violations Terakhir</th>
+                                            <th class="text-center">Dikeluarkan Dari Quiz Terakhir</th>
                                             <th class="text-center">Aksi</th>
                                         </tr>
                                     </thead>
