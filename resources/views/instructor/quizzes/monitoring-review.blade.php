@@ -72,7 +72,7 @@
                                     <thead>
                                         <tr>
                                             <th>Student</th>
-                                            <th>Waktu Pengerjaan</th>
+                                            <th>Waktu Pengerjaan Terakhir</th>
                                             <th>Skor Terakhir</th>
                                             <th class="text-center">Tab Switch Terakhir</th>
                                             <th class="text-center">Camera Violations Terakhir</th>
@@ -100,12 +100,12 @@
                                             <td>
                                                 <small>
                                                     {{ $attempt->start_time ? $attempt->start_time->format('d M Y H:i') : '-' }}
-                                                    <br>
+                                                    {{-- <br>
                                                     <span class="text-muted">
                                                         @if($attempt->start_time && $attempt->end_time)
                                                             Durasi: {{ $attempt->start_time->diffInMinutes($attempt->end_time) }} menit
                                                         @endif
-                                                    </span>
+                                                    </span> --}}
                                                 </small>
                                             </td>
                                             <td>
