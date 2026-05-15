@@ -64,7 +64,7 @@
                     {{-- Attempts Table --}}
                     <div class="card">
                         <div class="card-header">
-                            <h5>Daftar Student &  Terakhir</h5>
+                            <h5>Daftar Student &  Sesi Terakhir</h5>
                         </div>
                         <div class="card-block">
                             <div class="table-responsive">
