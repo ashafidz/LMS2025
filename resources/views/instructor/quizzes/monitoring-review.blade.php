@@ -8,7 +8,7 @@
                 <div class="col-md-8">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Violation Review - {{ $quiz->title }}</h5>
-                        <p class="m-b-0">Review pelanggaran pengerjaan kuis oleh mahasiswa</p>
+                        <p class="m-b-0">Review pelanggaran pengerjaan kuis oleh student</p>
                     </div>
                 </div>
                 <div class="col-md-4 text-right">
@@ -64,14 +64,14 @@
                     {{-- Attempts Table --}}
                     <div class="card">
                         <div class="card-header">
-                            <h5>Daftar Mahasiswa & Status Pelanggaran</h5>
+                            <h5>Daftar Student & Status Pelanggaran</h5>
                         </div>
                         <div class="card-block">
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Mahasiswa</th>
+                                            <th>Student</th>
                                             <th>Waktu Pengerjaan</th>
                                             <th>Skor</th>
                                             <th class="text-center">Tab Switch</th>
@@ -182,7 +182,7 @@
                                         @empty
                                         <tr>
                                             <td colspan="8" class="text-center">
-                                                <p class="text-muted">Belum ada mahasiswa yang mengerjakan kuis ini</p>
+                                                <p class="text-muted">Belum ada Student yang mengerjakan kuis ini</p>
                                             </td>
                                         </tr>
                                         @endforelse

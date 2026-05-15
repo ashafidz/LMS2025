@@ -48,7 +48,7 @@
                                     <div class="card-body text-center">
                                         
                                         <h4 class="mt-3">Mulai Menganalisis</h4>
-                                        <p class="text-muted">Pilih salah satu modul dari daftar di sebelah kanan untuk menampilkan rekapitulasi nilai mahasiswa.</p>
+                                        <p class="text-muted">Pilih salah satu modul dari daftar di sebelah kanan untuk menampilkan rekapitulasi nilai student.</p>
                                     </div>
                                 </div>
                             </div>

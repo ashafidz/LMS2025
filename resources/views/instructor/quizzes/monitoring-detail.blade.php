@@ -57,7 +57,7 @@
                         <div class="col-md-4">
                             <div class="card">
                                 <div class="card-header bg-primary text-white">
-                                    <h6 class="mb-0"><i class="fa fa-user"></i> Informasi Mahasiswa</h6>
+                                    <h6 class="mb-0"><i class="fa fa-user"></i> Informasi Student</h6>
                                 </div>
                                 <div class="card-block">
                                     <table class="table table-sm">
@@ -286,7 +286,7 @@
                                 </div>
                                 <div class="text-right">
                                     <button type="submit" class="btn btn-info"
-                                            onclick="return confirm('Apakah Anda yakin ingin merevisi skor mahasiswa ini?')">
+                                            onclick="return confirm('Apakah Anda yakin ingin merevisi skor student ini?')">
                                         <i class="fa fa-save"></i> Simpan Revisi Skor
                                     </button>
                                 </div>

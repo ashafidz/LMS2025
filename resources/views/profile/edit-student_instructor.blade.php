@@ -219,7 +219,7 @@
                                 <div class="form-group">
                                     <label for="unique_id_number">Nomor Induk</label>
                                         <input type="text" name="unique_id_number" class="form-control" value="{{ old('unique_id_number', $profile->unique_id_number ?? '') }}" placeholder="NIM/NIP/NIDN...">
-                                        <small class="form-text text-muted">Isi dengan Nomor Induk Mahasiswa/Pegawai/Dosen Anda jika ada.</small>
+                                        <small class="form-text text-muted">Isi dengan Nomor Induk Student/Pegawai/Dosen Anda jika ada.</small>
                                 </div>
 
                                 <!-- Tombol -->

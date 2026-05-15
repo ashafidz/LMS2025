@@ -39,7 +39,7 @@
                             <div class="card">
                                 <div class="card-block text-center">
                                     <h3 class="text-info">{{ $stats['total_students'] }}</h3>
-                                    <p class="m-b-0">Mahasiswa</p>
+                                    <p class="m-b-0">Student</p>
                                 </div>
                             </div>
                         </div>
@@ -80,7 +80,7 @@
                     {{-- Quizzes Table --}}
                     <div class="card">
                         <div class="card-header">
-                            <h5>Monitoring per Kuis</h5>
+                            <h5>Pelanggaran per Kuis</h5>
                         </div>
                         <div class="card-block">
                             <div class="table-responsive">
