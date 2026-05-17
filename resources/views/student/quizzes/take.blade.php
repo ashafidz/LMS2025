@@ -896,7 +896,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // BATAS TOLERANSI (Semakin kecil angkanya, semakin sensitif deteksinya)
         const YAW_THRESHOLD = 0.45;        // Ambang batas menoleh kiri/kanan (sebelumnya 0.3)
         const PITCH_UP_THRESHOLD = -0.3;   // Ambang batas melihat ke atas (sebelumnya -0.15)
-        const PITCH_DOWN_THRESHOLD = 0.35; // Ambang batas melihat ke bawah/menunduk (sebelumnya 0.2)
+        const PITCH_DOWN_THRESHOLD = 0.50; // Ambang batas melihat ke bawah/menunduk (sebelumnya 0.35)
 
         // Cek apakah menoleh ke kanan melewati batas
         if (detectLookRight && pose.yaw > YAW_THRESHOLD) {
