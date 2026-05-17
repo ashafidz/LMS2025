@@ -968,6 +968,19 @@ document.addEventListener('DOMContentLoaded', function () {
     async function logCameraViolation(violationType) {
         console.log(`⚠️ Camera violation detected: ${violationType}`);
         
+        // === OPTIMISTIC UI UPDATE ===
+        // Update counter langsung di client agar responsif, tanpa menunggu server.
+        violationCounts[violationType] = (violationCounts[violationType] || 0) + 1;
+        violationCounts.total = (violationCounts.total || 0) + 1;
+
+        // Update tampilan UI secara instan
+        if (violationElements[violationType]) {
+            violationElements[violationType].textContent = violationCounts[violationType];
+        }
+        if (violationElements.total) {
+            violationElements.total.textContent = violationCounts.total;
+        }
+
         // Capture screenshot
         let screenshot = null;
         try {
@@ -998,7 +1011,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('📦 Camera violation response:', data);
             
             if (data.success) {
-                // Update counters
+                // Sync counter dari server (source of truth) untuk memastikan akurasi
                 violationCounts = {
                     face_not_detected: data.violation_breakdown.face_not_detected,
                     look_left: data.violation_breakdown.look_left,
@@ -1008,7 +1021,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     total: data.violation_count
                 };
 
-                // Update UI
+                // Sync UI dari data server
                 Object.keys(violationElements).forEach(key => {
                     if (violationElements[key]) {
                         violationElements[key].textContent = violationCounts[key] || 0;
