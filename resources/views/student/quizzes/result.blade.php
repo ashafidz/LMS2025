@@ -47,7 +47,7 @@
                                     @if(!$is_preview && $attempt->expelled_by_violation)
                                         <div class="alert alert-danger mt-3 mb-0">
                                             <i class="fa fa-ban"></i>
-                                            <strong>Kuis ini diakhiri paksa</strong> karena Anda melebihi batas pelanggaran integritas yang diizinkan.
+                                            <strong>Kuis ini diakhiri paksa</strong> karena Anda melebihi batas pelanggaran yang diizinkan.
                                         </div>
                                     @endif
 

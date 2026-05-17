@@ -320,13 +320,13 @@
                                             <td>
                                                 <small>{{ $log->violation_timestamp->format('d M Y H:i:s') }}</small>
                                                 <br>
-                                                <small class="text-muted">
+                                                {{-- <small class="text-muted">
                                                     @if($loop->first)
                                                         Start
                                                     @else
                                                         +{{ $attempt->monitoringLogs[$index - 1]->violation_timestamp->diffInSeconds($log->violation_timestamp) }}s
                                                     @endif
-                                                </small>
+                                                </small> --}}
                                             </td>
                                             <td>
                                                 @php

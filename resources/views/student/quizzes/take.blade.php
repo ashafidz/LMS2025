@@ -90,6 +90,16 @@
                                         <video id="camera-preview" autoplay playsinline style="width: 100%; border-radius: 5px; background: #000;"></video>
                                         <canvas id="camera-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none;"></canvas>
                                         
+                                        {{-- Calibration Overlay --}}
+                                        <div id="camera-calibration-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); border-radius: 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;">
+                                            <div style="color: #fff; text-align: center; padding: 10px;">
+                                                <i class="fa fa-spinner fa-spin" style="font-size: 1.5rem; margin-bottom: 8px;"></i>
+                                                <div style="font-size: 0.85rem; font-weight: 600;">Kalibrasi Kamera</div>
+                                                <div style="font-size: 0.75rem; margin-top: 4px; opacity: 0.85;">Posisikan wajah Anda di depan kamera</div>
+                                                <div id="calibration-countdown" style="font-size: 1.2rem; font-weight: 700; margin-top: 6px; color: #5bc0de;"></div>
+                                            </div>
+                                        </div>
+                                        
                                         {{-- Status Indicator --}}
                                         <div id="camera-status" class="mt-2">
                                             <small class="text-muted">
@@ -591,6 +601,19 @@ document.addEventListener('DOMContentLoaded', function () {
     let sustainedViolationType = null;
     let sustainedViolationStart = 0;
 
+    // === GRACE PERIOD / WARM-UP PHASE ===
+    // Mencegah false-positive violation saat model MediaPipe masih loading & kalibrasi
+    const GRACE_PERIOD_MS = 10000; // 10 detik grace period setelah kamera aktif
+    const WARMUP_FRAMES_REQUIRED = 5; // Minimal 5 frame deteksi wajah berhasil sebelum enforce
+    let isWarmingUp = true; // Flag: apakah masih dalam fase kalibrasi
+    let cameraStartTime = 0; // Timestamp saat kamera mulai aktif
+    let warmupSuccessFrames = 0; // Counter frame yang berhasil deteksi wajah saat warm-up
+    let gracePeriodTimer = null; // Interval untuk countdown overlay
+
+    // Calibration overlay elements
+    const calibrationOverlay = document.getElementById('camera-calibration-overlay');
+    const calibrationCountdown = document.getElementById('calibration-countdown');
+
     // Canvas untuk drawing
     const canvas = document.getElementById('camera-canvas');
     const canvasCtx = canvas ? canvas.getContext('2d') : null;
@@ -629,10 +652,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
             await camera.start();
             
-            cameraStatusIcon.className = 'badge badge-success';
-            cameraStatusIcon.innerHTML = '<i class="fa fa-circle"></i> Aktif';
+            // Kamera aktif — mulai grace period
+            cameraStartTime = Date.now();
+            cameraStatusIcon.className = 'badge badge-warning';
+            cameraStatusIcon.innerHTML = '<i class="fa fa-hourglass-half"></i> Kalibrasi...';
             
-            console.log('✅ MediaPipe Face Mesh initialized successfully');
+            console.log('✅ MediaPipe Face Mesh initialized — entering grace period (' + (GRACE_PERIOD_MS/1000) + 's)...');
+
+            // Jalankan countdown visual pada overlay kalibrasi
+            let remainingSec = Math.ceil(GRACE_PERIOD_MS / 1000);
+            if (calibrationCountdown) calibrationCountdown.textContent = remainingSec + 's';
+
+            gracePeriodTimer = setInterval(() => {
+                remainingSec--;
+                if (calibrationCountdown) calibrationCountdown.textContent = remainingSec > 0 ? remainingSec + 's' : '';
+                if (remainingSec <= 0) {
+                    clearInterval(gracePeriodTimer);
+                }
+            }, 1000);
+
+            // Setelah grace period habis, cek apakah warm-up sudah cukup
+            setTimeout(() => {
+                endWarmupPhase();
+            }, GRACE_PERIOD_MS);
             
         } catch (error) {
             console.error('❌ Camera/MediaPipe initialization failed:', error);
@@ -650,6 +692,38 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    /**
+     * Mengakhiri fase warm-up / kalibrasi.
+     * Dipanggil setelah grace period timer habis.
+     */
+    function endWarmupPhase() {
+        if (!isWarmingUp) return; // Sudah di-end sebelumnya
+
+        isWarmingUp = false;
+        console.log(`✅ Grace period selesai. Warm-up frames: ${warmupSuccessFrames}/${WARMUP_FRAMES_REQUIRED}`);
+
+        // Sembunyikan overlay kalibrasi
+        if (calibrationOverlay) {
+            calibrationOverlay.style.transition = 'opacity 0.5s ease';
+            calibrationOverlay.style.opacity = '0';
+            setTimeout(() => {
+                calibrationOverlay.style.display = 'none';
+            }, 500);
+        }
+
+        // Update badge status
+        cameraStatusIcon.className = 'badge badge-success';
+        cameraStatusIcon.innerHTML = '<i class="fa fa-circle"></i> Aktif';
+
+        // Reset semua tracking state agar bersih setelah warm-up
+        noFaceDetectedCount = 0;
+        sustainedViolationType = null;
+        sustainedViolationStart = 0;
+        lastViolationTime = Date.now(); // Reset agar interval dimulai fresh
+
+        console.log('🟢 Deteksi pelanggaran kamera sekarang AKTIF');
+    }
+
     // Callback saat AI Face Mesh berhasil mendeteksi wajah di frame video
     function onFaceMeshResults(results) {
         // Jika kuis sudah diblokir, tidak perlu cek lagi
@@ -659,6 +733,16 @@ document.addEventListener('DOMContentLoaded', function () {
         if (canvas && cameraPreview.videoWidth > 0) {
             canvas.width = cameraPreview.videoWidth;
             canvas.height = cameraPreview.videoHeight;
+        }
+
+        // === WARM-UP PHASE: hitung frame sukses, jangan catat pelanggaran ===
+        if (isWarmingUp) {
+            if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+                warmupSuccessFrames++;
+                console.log(`🔄 Warm-up frame ${warmupSuccessFrames}/${WARMUP_FRAMES_REQUIRED}`);
+            }
+            // Selama warm-up, JANGAN proses violation apapun
+            return;
         }
 
         const now = Date.now();
