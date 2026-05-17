@@ -91,24 +91,40 @@ public function reviseScore(Request $request, QuizAttempt $attempt)
 Saat kamera pertama kali diaktifkan, model AI (MediaPipe Face Mesh) membutuhkan waktu beberapa detik untuk mengunduh WASM binary dan model weights, lalu melakukan warm-up inference. Selama periode ini, hasil deteksi belum stabil dan dapat menghasilkan **false-positive** (pelanggaran palsu).
 
 ### Mekanisme Pencegahan
-Sistem menerapkan **grace period selama 10 detik** setelah kamera berhasil diinisialisasi. Selama periode ini:
+Sistem menerapkan **grace period selama 10 detik** setelah kamera berhasil diinisialisasi. Warm-up baru dianggap selesai jika **KEDUA syarat** terpenuhi:
+
+| Syarat | Deskripsi |
+|---|---|
+| **Grace period timer habis** | Minimal 10 detik telah berlalu sejak kamera aktif (minimum wait time) |
+| **Warm-up frames cukup** | Minimal 5 frame deteksi wajah berhasil diterima dari model AI (bukti model sudah stabil) |
+
+Selama warm-up berlangsung:
 
 | Aspek | Perilaku |
 |---|---|
 | **Deteksi pelanggaran** | Semua hasil deteksi **diabaikan** — tidak ada violation yang dicatat ke server |
-| **Warm-up frame counter** | Sistem menghitung berapa frame yang berhasil mendeteksi wajah untuk memastikan model stabil |
 | **Visual feedback** | Overlay semi-transparan ditampilkan di atas preview kamera dengan teks "Kalibrasi Kamera" dan countdown timer |
 | **Badge status** | Berubah dari `Memuat...` → `⏳ Kalibrasi...` → `🟢 Aktif` |
+| **Fallback text** | Jika timer habis tapi frame belum cukup, overlay menampilkan "Mendeteksi wajah..." |
 
 ### Flow Teknis
 ```
 camera.start()
   → isWarmingUp = true
   → Overlay "Kalibrasi Kamera" + countdown (10s) ditampilkan
-  → onFaceMeshResults() → return (skip semua proses violation)
-  → setTimeout(10s) → endWarmupPhase()
+  → onFaceMeshResults() dipanggil tiap frame:
+      → Jika wajah terdeteksi: warmupSuccessFrames++
+      → Jika frames >= 5: panggil tryEndWarmupPhase()
+  → setTimeout(10s):
+      → gracePeriodTimerExpired = true
+      → panggil tryEndWarmupPhase()
+
+tryEndWarmupPhase():
+  → Cek: timer expired? DAN frames cukup?
+  → Jika BELUM keduanya: return (tunggu)
+  → Jika SUDAH keduanya:
       → isWarmingUp = false
-      → Reset semua tracking state (noFaceDetectedCount, sustainedViolation, lastViolationTime)
+      → Reset tracking state
       → Overlay fade-out → Badge "Aktif"
       → Deteksi pelanggaran DIMULAI
 ```

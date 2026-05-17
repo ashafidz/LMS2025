@@ -602,10 +602,14 @@ document.addEventListener('DOMContentLoaded', function () {
     let sustainedViolationStart = 0;
 
     // === GRACE PERIOD / WARM-UP PHASE ===
-    // Mencegah false-positive violation saat model MediaPipe masih loading & kalibrasi
+    // Mencegah false-positive violation saat model MediaPipe masih loading & kalibrasi.
+    // Warm-up baru selesai jika KEDUA syarat terpenuhi:
+    //   1. Grace period timer sudah habis (minimum wait time)
+    //   2. Minimal N frame deteksi wajah berhasil diterima (model benar-benar siap)
     const GRACE_PERIOD_MS = 10000; // 10 detik grace period setelah kamera aktif
     const WARMUP_FRAMES_REQUIRED = 5; // Minimal 5 frame deteksi wajah berhasil sebelum enforce
     let isWarmingUp = true; // Flag: apakah masih dalam fase kalibrasi
+    let gracePeriodTimerExpired = false; // Flag: apakah timer sudah habis
     let cameraStartTime = 0; // Timestamp saat kamera mulai aktif
     let warmupSuccessFrames = 0; // Counter frame yang berhasil deteksi wajah saat warm-up
     let gracePeriodTimer = null; // Interval untuk countdown overlay
@@ -671,9 +675,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }, 1000);
 
-            // Setelah grace period habis, cek apakah warm-up sudah cukup
+            // Setelah grace period timer habis, set flag dan coba akhiri warm-up
             setTimeout(() => {
-                endWarmupPhase();
+                gracePeriodTimerExpired = true;
+                console.log('⏱️ Grace period timer expired. Warm-up frames so far:', warmupSuccessFrames + '/' + WARMUP_FRAMES_REQUIRED);
+                tryEndWarmupPhase(); // Coba akhiri — akan berhasil hanya jika frame sudah cukup
             }, GRACE_PERIOD_MS);
             
         } catch (error) {
@@ -693,16 +699,35 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /**
-     * Mengakhiri fase warm-up / kalibrasi.
-     * Dipanggil setelah grace period timer habis.
+     * Mencoba mengakhiri fase warm-up / kalibrasi.
+     * Hanya berhasil jika KEDUA syarat terpenuhi:
+     *   1. Grace period timer sudah expired
+     *   2. Sudah menerima cukup warm-up frames (model stabil)
+     * 
+     * Dipanggil dari 2 tempat:
+     *   - setTimeout (saat timer habis)
+     *   - onFaceMeshResults (saat frame baru masuk dan frame cukup)
      */
-    function endWarmupPhase() {
-        if (!isWarmingUp) return; // Sudah di-end sebelumnya
+    function tryEndWarmupPhase() {
+        if (!isWarmingUp) return; // Sudah selesai sebelumnya
 
+        // Cek kedua syarat harus terpenuhi
+        if (!gracePeriodTimerExpired) {
+            console.log('⏳ Warm-up frames cukup tapi timer belum habis, tunggu...');
+            return;
+        }
+        if (warmupSuccessFrames < WARMUP_FRAMES_REQUIRED) {
+            console.log(`⏳ Timer sudah habis tapi frame belum cukup (${warmupSuccessFrames}/${WARMUP_FRAMES_REQUIRED}), tunggu...`);
+            // Update overlay: beri tahu user model masih loading
+            if (calibrationCountdown) calibrationCountdown.textContent = 'Mendeteksi wajah...';
+            return;
+        }
+
+        // === Kedua syarat terpenuhi — akhiri warm-up ===
         isWarmingUp = false;
-        console.log(`✅ Grace period selesai. Warm-up frames: ${warmupSuccessFrames}/${WARMUP_FRAMES_REQUIRED}`);
+        console.log(`✅ Warm-up selesai! Timer: expired, Frames: ${warmupSuccessFrames}/${WARMUP_FRAMES_REQUIRED}`);
 
-        // Sembunyikan overlay kalibrasi
+        // Sembunyikan overlay kalibrasi dengan fade-out
         if (calibrationOverlay) {
             calibrationOverlay.style.transition = 'opacity 0.5s ease';
             calibrationOverlay.style.opacity = '0';
@@ -740,6 +765,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
                 warmupSuccessFrames++;
                 console.log(`🔄 Warm-up frame ${warmupSuccessFrames}/${WARMUP_FRAMES_REQUIRED}`);
+                
+                // Coba akhiri warm-up jika frame sudah cukup DAN timer sudah habis
+                if (warmupSuccessFrames >= WARMUP_FRAMES_REQUIRED) {
+                    tryEndWarmupPhase();
+                }
             }
             // Selama warm-up, JANGAN proses violation apapun
             return;
