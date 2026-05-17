@@ -595,7 +595,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let camera = null;
     let lastViolationTime = 0;
     let noFaceDetectedCount = 0;
-    const NO_FACE_THRESHOLD = 3; // Berapa kali deteksi tidak ada wajah sebelum log violation
+    const NO_FACE_THRESHOLD = 1; // Langsung catat jika wajah tidak terdeteksi (interval sudah jadi buffer)
 
     // Sustained violation tracking (durasi pelanggaran harus berlangsung sebelum dihitung)
     let sustainedViolationType = null;
@@ -782,6 +782,11 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        // Update timestamp agar check berikutnya menunggu interval penuh.
+        // Tanpa ini, setelah 1x interval lewat, SEMUA frame berikutnya lolos check
+        // dan counter seperti noFaceDetectedCount naik instant (bukan per-interval).
+        lastViolationTime = now;
+
         // Jika tidak ada wajah yang terlihat di kamera
         if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
             noFaceDetectedCount++;
@@ -792,7 +797,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (detectFaceNotDetected) {
                     console.log('🚨 Pelanggaran: Wajah tidak terdeteksi');
                     logCameraViolation('face_not_detected'); // Kirim log ke server
-                    lastViolationTime = now;
                 }
                 noFaceDetectedCount = 0;
             }
@@ -818,14 +822,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Durasi 0 = langsung dihitung sebagai pelanggaran (perilaku lama)
                 console.log(`🚨 Pelanggaran Terdeteksi: ${violation}`);
                 logCameraViolation(violation);
-                lastViolationTime = now;
             } else if (sustainedViolationType === violation) {
                 // Pelanggaran yang sama masih berlangsung — cek apakah sudah cukup lama
                 const elapsed = now - sustainedViolationStart;
                 if (elapsed >= violationDuration) {
                     console.log(`🚨 Pelanggaran Terdeteksi: ${violation} (berlangsung ${(elapsed/1000).toFixed(1)}s)`);
                     logCameraViolation(violation);
-                    lastViolationTime = now;
                     sustainedViolationType = null;
                     sustainedViolationStart = 0;
                 } else {
