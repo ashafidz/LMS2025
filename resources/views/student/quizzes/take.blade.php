@@ -594,8 +594,6 @@ document.addEventListener('DOMContentLoaded', function () {
     let faceMesh = null;
     let camera = null;
     let lastViolationTime = 0;
-    let noFaceDetectedCount = 0;
-    const NO_FACE_THRESHOLD = 1; // Langsung catat jika wajah tidak terdeteksi (interval sudah jadi buffer)
 
     // Sustained violation tracking (durasi pelanggaran harus berlangsung sebelum dihitung)
     let sustainedViolationType = null;
@@ -741,7 +739,6 @@ document.addEventListener('DOMContentLoaded', function () {
         cameraStatusIcon.innerHTML = '<i class="fa fa-circle"></i> Aktif';
 
         // Reset semua tracking state agar bersih setelah warm-up
-        noFaceDetectedCount = 0;
         sustainedViolationType = null;
         sustainedViolationStart = 0;
         lastViolationTime = Date.now(); // Reset agar interval dimulai fresh
@@ -787,39 +784,34 @@ document.addEventListener('DOMContentLoaded', function () {
         // dan counter seperti noFaceDetectedCount naik instant (bukan per-interval).
         lastViolationTime = now;
 
+        // Tentukan jenis pelanggaran (jika ada)
+        let violation = null;
+
         // Jika tidak ada wajah yang terlihat di kamera
         if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
-            noFaceDetectedCount++;
-            console.log(`⚠️ Wajah tidak terlihat (${noFaceDetectedCount}/${NO_FACE_THRESHOLD})`);
-            
-            // Jika wajah hilang beberapa kali berturut-turut, catat sebagai pelanggaran
-            if (noFaceDetectedCount >= NO_FACE_THRESHOLD) {
-                if (detectFaceNotDetected) {
-                    console.log('🚨 Pelanggaran: Wajah tidak terdeteksi');
-                    logCameraViolation('face_not_detected'); // Kirim log ke server
-                }
-                noFaceDetectedCount = 0;
+            if (detectFaceNotDetected) {
+                violation = 'face_not_detected';
             }
-            return;
+            console.log('⚠️ Wajah tidak terlihat');
+        } else {
+            // Jika wajah terlihat — ambil data koordinat titik-titik wajah (Landmarks)
+            const landmarks = results.multiFaceLandmarks[0];
+            
+            // Hitung arah kepala (menoleh atau menunduk) berdasarkan titik koordinat wajah
+            const headPose = calculateHeadPose(landmarks);
+            
+            console.log('👤 Wajah Terdeteksi - Pose Kepalanya:', headPose);
+
+            // Periksa apakah arah kepala melanggar aturan (terlalu jauh ke kiri/kanan/atas/bawah)
+            violation = checkPoseViolation(headPose);
         }
-
-        // Jika wajah terlihat, reset counter 'tidak ada wajah'
-        noFaceDetectedCount = 0;
-
-        // Ambil data koordinat titik-titik wajah (Landmarks)
-        const landmarks = results.multiFaceLandmarks[0];
         
-        // Hitung arah kepala (menoleh atau menunduk) berdasarkan titik koordinat wajah
-        const headPose = calculateHeadPose(landmarks);
-        
-        console.log('👤 Wajah Terdeteksi - Pose Kepalanya:', headPose);
-
-        // Periksa apakah arah kepala melanggar aturan (terlalu jauh ke kiri/kanan/atas/bawah)
-        const violation = checkPoseViolation(headPose);
-        
+        // === UNIFIED SUSTAINED VIOLATION TRACKING ===
+        // Semua tipe pelanggaran (termasuk face_not_detected) menggunakan mekanisme yang sama.
+        // Pelanggaran harus berlangsung selama 'violationDuration' detik sebelum dicatat.
         if (violation) {
             if (violationDuration <= 0) {
-                // Durasi 0 = langsung dihitung sebagai pelanggaran (perilaku lama)
+                // Durasi 0 = langsung dihitung sebagai pelanggaran
                 console.log(`🚨 Pelanggaran Terdeteksi: ${violation}`);
                 logCameraViolation(violation);
             } else if (sustainedViolationType === violation) {
