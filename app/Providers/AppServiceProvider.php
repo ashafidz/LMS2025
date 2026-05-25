@@ -35,6 +35,11 @@ class AppServiceProvider extends ServiceProvider
             return SiteSetting::first();
         });
 
+        // Force HTTPS in production to prevent Mixed Content issues behind proxy
+        if (env('APP_ENV') === 'production') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         // Kirim variabel $siteSettings ke semua view
         View::share('siteSettings', $settings);
 
