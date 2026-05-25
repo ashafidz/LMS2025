@@ -63,8 +63,9 @@ RUN npm ci
 # Copy seluruh source code
 COPY . .
 
-# Post-install scripts composer (setelah source code ada)
-RUN composer dump-autoload --optimize --no-dev
+# Re-generate autoload classmap dengan seluruh source code
+# (--no-scripts agar artisan tidak dipanggil saat build, karena belum ada DB)
+RUN composer dump-autoload --optimize --no-dev --no-scripts
 
 # Build frontend assets (Vite)
 RUN npm run build && rm -rf node_modules
