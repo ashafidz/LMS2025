@@ -76,5 +76,13 @@ RUN npm run build && rm -rf node_modules
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
+# ============================================================
+# Entrypoint (Copy assets to shared volume)
+# ============================================================
+RUN echo '#!/bin/sh' > /usr/local/bin/start.sh \
+    && echo 'cp -R /var/www/html/public/* /var/www/html/shared_public/ 2>/dev/null || true' >> /usr/local/bin/start.sh \
+    && echo 'exec php-fpm' >> /usr/local/bin/start.sh \
+    && chmod +x /usr/local/bin/start.sh
+
 EXPOSE 9000
-CMD ["php-fpm"]
+CMD ["/usr/local/bin/start.sh"]
