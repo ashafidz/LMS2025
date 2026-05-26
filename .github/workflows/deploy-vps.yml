@@ -8,43 +8,38 @@ on:
 jobs:
   deploy:
     name: 🚀 Build & Deploy
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, nuc-lab]
 
     steps:
       - name: 🚚 Checkout code
         uses: actions/checkout@v4
 
-      - name: 🚀 Deploy ke VPS via SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT }}
-          script: |
-            set -e
-            cd /opt/services/lms2025
+      - name: 🚀 Deploy langsung di VPS
+        working-directory: /opt/services/lms2025
+        run: |
+          set -e
 
-            echo "📥 Pulling latest code..."
-            git pull origin main
+          echo "📥 Pulling latest code..."
+          git pull origin main
 
-            echo "🏗️ Building & starting containers..."
-            docker compose build --no-cache app
-            docker compose up -d --remove-orphans
+          echo "🏗️ Building & starting containers..."
+          docker compose build app
+          docker compose up -d --remove-orphans
 
-            echo "⏳ Waiting for containers to be healthy..."
-            sleep 10
+          echo "⏳ Waiting for containers to be healthy..."
+          sleep 10
 
-            echo "🔧 Running post-deploy commands..."
-            docker exec lms-app php artisan down --secret="lms-maintenance-2025"
+          echo "🔧 Running post-deploy commands..."
+          docker exec lms-app php artisan down --retry=5
 
-            docker exec lms-app php artisan migrate --force
-            docker exec lms-app php artisan optimize:clear
-            docker exec lms-app php artisan storage:link
-            docker exec lms-app php artisan config:cache
-            docker exec lms-app php artisan route:cache
-            docker exec lms-app php artisan view:cache
+          docker exec lms-app php artisan migrate --force
+          docker exec lms-app php artisan optimize:clear
+          docker exec lms-app php artisan storage:link
+          docker exec lms-app php artisan config:cache
+          docker exec lms-app php artisan route:cache
+          docker exec lms-app php artisan view:cache
 
-            docker exec lms-app php artisan up
+          docker exec lms-app php artisan up
 
-            echo "✅ Deploy selesai!"
+          echo "✅ Deploy selesai!"
+
