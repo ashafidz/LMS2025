@@ -41,5 +41,8 @@ jobs:
 
           docker exec lms-app php artisan up
 
+          echo "🔄 Restarting Nginx to apply config changes..."
+          docker restart lms-nginx
+
           echo "✅ Deploy selesai!"
 
