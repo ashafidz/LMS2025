@@ -90,6 +90,25 @@ class CourseKnowledgeController extends Controller
         return back()->with('success', 'Opsi berhasil ditambahkan.');
     }
 
+    public function updateOption(Request $request, CourseKnowledgeOption $option)
+    {
+        $this->checkAccess($option->question->course);
+
+        $validated = $request->validate([
+            'option_text' => 'required|string',
+            'order' => 'required|integer',
+            'is_correct' => 'nullable|boolean',
+        ]);
+
+        $option->update([
+            'option_text' => $validated['option_text'],
+            'order' => $validated['order'],
+            'is_correct' => $request->has('is_correct'),
+        ]);
+
+        return back()->with('success', 'Opsi berhasil diperbarui.');
+    }
+
     public function destroyOption(CourseKnowledgeOption $option)
     {
         $this->checkAccess($option->question->course);

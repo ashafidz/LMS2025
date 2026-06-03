@@ -381,6 +381,7 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         
         // Opsi Jawaban (Options)
         Route::post('/instructor/knowledge-questions/{question}/options', [CourseKnowledgeController::class, 'storeOption'])->name('instructor.knowledge-questions.options.store');
+        Route::put('/instructor/knowledge-options/{option}', [CourseKnowledgeController::class, 'updateOption'])->name('instructor.knowledge-options.update');
         Route::delete('/instructor/knowledge-options/{option}', [CourseKnowledgeController::class, 'destroyOption'])->name('instructor.knowledge-options.destroy');
 
         // GET /instructor/courses -> List all courses
