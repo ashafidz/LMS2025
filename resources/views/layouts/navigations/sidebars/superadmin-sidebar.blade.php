@@ -62,6 +62,27 @@
                                     </li>
                                 </ul>
 
+                                {{-- menu adaptive learning --}}
+                                <div class="pcoded-navigation-label" data-i18n="nav.category.adaptive">
+                                    Adaptive Learning
+                                </div>
+                                <ul class="pcoded-item pcoded-left-item">
+                                    <li class="{{ Request::routeIs('superadmin.profiling-components.*', 'superadmin.profiling-questions.*') ? 'active' : '' }}">
+                                        <a href="{{ route('superadmin.profiling-components.index') }}" class="waves-effect waves-dark">
+                                            <span class="pcoded-micon"><i class="fa fa-list-alt"></i><b>P</b></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.profiling">Template Profiling</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="{{ Request::routeIs('superadmin.kmeans.*') ? 'active' : '' }}">
+                                        <a href="{{ route('superadmin.kmeans.index') }}" class="waves-effect waves-dark">
+                                            <span class="pcoded-micon"><i class="fa fa-chart-pie"></i><b>K</b></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.kmeans">K-Means Analisis</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+
                                 {{-- menu level managemen user --}}
                                 <ul class="pcoded-item pcoded-left-item">
                                     <li class="pcoded-hasmenu">

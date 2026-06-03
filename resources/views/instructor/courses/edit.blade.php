@@ -88,6 +88,27 @@
 
 
                                             <div class="form-group row">
+                                                <label class="col-sm-2 col-form-label">Tipe Kursus</label>
+                                                <div class="col-sm-10">
+                                                    <div class="form-radio">
+                                                        <div class="radio radio-inline">
+                                                            <label>
+                                                                <input type="radio" name="type" value="regular" {{ old('type', $course->type) == 'regular' ? 'checked' : '' }}>
+                                                                <i class="helper"></i>Regular (Standar)
+                                                            </label>
+                                                        </div>
+                                                        <div class="radio radio-inline">
+                                                            <label>
+                                                                <input type="radio" name="type" value="adaptive" {{ old('type', $course->type) == 'adaptive' ? 'checked' : '' }}>
+                                                                <i class="helper"></i>Adaptive (Personalized Learning)
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <small class="form-text text-muted">Kursus Adaptive akan menambahkan Profiling Test untuk menyesuaikan pembelajaran siswa.</small>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Tipe Pembayaran</label>
                                                 <div class="col-sm-10">
                                                     <div class="form-radio">

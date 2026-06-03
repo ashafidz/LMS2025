@@ -23,6 +23,7 @@ class Course extends Model
         'description',
         'price',
         'status',
+        'type', // Tambahkan type (regular/adaptive)
         'thumbnail_url',
         // Add the new fields
         'availability_type',
@@ -124,5 +125,29 @@ class Course extends Model
     public function certificates()
     {
         return $this->hasMany(Certificate::class);
+    }
+
+    /**
+     * Cek apakah kursus ini adalah kursus adaptif.
+     */
+    public function isAdaptive(): bool
+    {
+        return $this->type === 'adaptive';
+    }
+
+    /**
+     * Relasi ke soal prior knowledge (MCQ) - khusus kursus adaptif.
+     */
+    public function knowledgeQuestions()
+    {
+        return $this->hasMany(CourseKnowledgeQuestion::class, 'course_id')->orderBy('order');
+    }
+
+    /**
+     * Relasi ke profiling attempts yang dilakukan student pada kursus ini.
+     */
+    public function profilingAttempts()
+    {
+        return $this->hasMany(ProfilingAttempt::class, 'course_id');
     }
 }

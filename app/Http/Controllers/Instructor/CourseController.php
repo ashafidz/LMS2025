@@ -42,6 +42,7 @@ class CourseController extends Controller
             'end_date' => 'required_if:availability_type,period|nullable|date|after_or_equal:start_date',
             // DIUBAH: Validasi sekarang untuk 'money' atau 'diamonds'
             'payment_type' => ['required', Rule::in(['money', 'diamonds'])],
+            'type' => ['required', Rule::in(['regular', 'adaptive'])],
         ]);
 
         $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
@@ -59,6 +60,7 @@ class CourseController extends Controller
             'payment_type' => $validated['payment_type'],
             'price' => 0, // Harga akan di-set oleh admin
             'diamond_price' => 0, // Harga akan di-set oleh admin
+            'type' => $validated['type'],
         ]);
 
         return redirect()->route('instructor.courses.index')->with('success', 'Kursus berhasil dibuat.');
@@ -99,6 +101,7 @@ class CourseController extends Controller
             'end_date' => 'required_if:availability_type,period|nullable|date|after_or_equal:start_date',
             // DIUBAH: Validasi sekarang untuk 'money' atau 'diamonds'
             'payment_type' => ['required', Rule::in(['money', 'diamonds'])],
+            'type' => ['required', Rule::in(['regular', 'adaptive'])],
         ]);
 
         $courseData = $validated;

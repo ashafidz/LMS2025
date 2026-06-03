@@ -18,6 +18,7 @@ use App\Http\Controllers\MidtransCallbackController;
 use App\Http\Controllers\Student\CheckoutController;
 use App\Http\Controllers\Superadmin\BadgeController;
 use App\Http\Controllers\Instructor\CourseController;
+use App\Http\Controllers\Instructor\CourseKnowledgeController;
 use App\Http\Controllers\Instructor\LessonController;
 use App\Http\Controllers\Instructor\ModuleController;
 use App\Http\Controllers\Shared\PublicationController;
@@ -33,6 +34,7 @@ use App\Http\Controllers\Student\StudentPointController;
 use App\Http\Controllers\Shared\CourseCategoryController;
 use App\Http\Controllers\Shared\LikertQuestionController;
 use App\Http\Controllers\Student\PointPurchaseController;
+use App\Http\Controllers\Student\ProfilingTestController;
 use App\Http\Controllers\Student\StudentReviewController;
 use App\Http\Controllers\Instructor\LessonPointController;
 use App\Http\Controllers\Superadmin\SiteSettingController;
@@ -59,6 +61,9 @@ use App\Http\Controllers\Instructor\InstructorLeaderboardController;
 use App\Http\Controllers\Student\CourseController as StudentCourseController;
 use App\Http\Controllers\Student\StudentCertificateController; // Tambahkan ini
 use App\Http\Controllers\Superadmin\AdminManagementController; // Tambahkan ini
+use App\Http\Controllers\Superadmin\ProfilingComponentController;
+use App\Http\Controllers\Superadmin\ProfilingQuestionController;
+use App\Http\Controllers\Superadmin\KMeansController;
 
 // Route::get('/neweditprofil', function () {
 //     return view('1edit-index');
@@ -250,6 +255,26 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     Route::resource('/superadmin/admins', AdminManagementController::class, [
         'as' => 'superadmin'
     ])->except(['show']);
+
+    // --- RUTE BARU UNTUK PROFILING TEST TEMPLATE ---
+    Route::get('/superadmin/profiling-components', [ProfilingComponentController::class, 'index'])->name('superadmin.profiling-components.index');
+    Route::get('/superadmin/profiling-components/{component}', [ProfilingComponentController::class, 'show'])->name('superadmin.profiling-components.show');
+    
+    // Dimensi CRUD
+    Route::post('/superadmin/profiling-components/{component}/dimensions', [ProfilingQuestionController::class, 'storeDimension'])->name('superadmin.profiling-dimensions.store');
+    Route::put('/superadmin/profiling-dimensions/{dimension}', [ProfilingQuestionController::class, 'updateDimension'])->name('superadmin.profiling-dimensions.update');
+    Route::delete('/superadmin/profiling-dimensions/{dimension}', [ProfilingQuestionController::class, 'destroyDimension'])->name('superadmin.profiling-dimensions.destroy');
+    
+    // Question CRUD
+    Route::post('/superadmin/profiling-components/{component}/questions', [ProfilingQuestionController::class, 'storeQuestion'])->name('superadmin.profiling-questions.store');
+    Route::put('/superadmin/profiling-questions/{question}', [ProfilingQuestionController::class, 'updateQuestion'])->name('superadmin.profiling-questions.update');
+    Route::delete('/superadmin/profiling-questions/{question}', [ProfilingQuestionController::class, 'destroyQuestion'])->name('superadmin.profiling-questions.destroy');
+    Route::patch('/superadmin/profiling-questions/{question}/toggle', [ProfilingQuestionController::class, 'toggleQuestion'])->name('superadmin.profiling-questions.toggle');
+
+    // --- RUTE BARU UNTUK K-MEANS DASHBOARD ---
+    Route::get('/superadmin/kmeans', [KMeansController::class, 'index'])->name('superadmin.kmeans.index');
+    Route::post('/superadmin/kmeans/{course}/run', [KMeansController::class, 'run'])->name('superadmin.kmeans.run');
+    Route::get('/superadmin/kmeans/{course}', [KMeansController::class, 'show'])->name('superadmin.kmeans.show');
 });
 
 // * group route for admin
@@ -348,6 +373,15 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         Route::patch('/questions/{question}', [QuestionController::class, 'update']); // Patch route for update
         Route::delete('/questions/{question}', [QuestionController::class, 'destroy'])->name('instructor.question-bank.questions.destroy');
 
+        // --- RUTE BARU UNTUK KELOLA SOAL PRIOR KNOWLEDGE (ADAPTIVE COURSE) ---
+        Route::get('/instructor/courses/{course}/knowledge-questions', [CourseKnowledgeController::class, 'index'])->name('instructor.courses.knowledge-questions.index');
+        Route::post('/instructor/courses/{course}/knowledge-questions', [CourseKnowledgeController::class, 'storeQuestion'])->name('instructor.courses.knowledge-questions.store');
+        Route::put('/instructor/knowledge-questions/{question}', [CourseKnowledgeController::class, 'updateQuestion'])->name('instructor.knowledge-questions.update');
+        Route::delete('/instructor/knowledge-questions/{question}', [CourseKnowledgeController::class, 'destroyQuestion'])->name('instructor.knowledge-questions.destroy');
+        
+        // Opsi Jawaban (Options)
+        Route::post('/instructor/knowledge-questions/{question}/options', [CourseKnowledgeController::class, 'storeOption'])->name('instructor.knowledge-questions.options.store');
+        Route::delete('/instructor/knowledge-options/{option}', [CourseKnowledgeController::class, 'destroyOption'])->name('instructor.knowledge-options.destroy');
 
         // GET /instructor/courses -> List all courses
         Route::get('/instructor/courses', [CourseController::class, 'index'])->name('instructor.courses.index');
@@ -567,7 +601,16 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
 
         Route::get('/my-transactions', [TransactionHistoryController::class, 'index'])->name('student.transactions.index');
 
+        // --- RUTE BARU UNTUK PROFILING TEST (ADAPTIVE) ---
+        Route::get('/student/courses/{course:slug}/profiling/intro', [ProfilingTestController::class, 'intro'])->name('student.profiling-test.intro');
+        Route::get('/student/courses/{course:slug}/profiling/start', [ProfilingTestController::class, 'start'])->name('student.profiling-test.start');
+        Route::get('/student/courses/{course:slug}/profiling/component/{componentOrder}', [ProfilingTestController::class, 'showComponent'])->name('student.profiling-test.component');
+        Route::post('/student/courses/{course:slug}/profiling/component/{componentOrder}/likert', [ProfilingTestController::class, 'saveLikert'])->name('student.profiling-test.save-likert');
+        Route::post('/student/courses/{course:slug}/profiling/mcq', [ProfilingTestController::class, 'saveMcq'])->name('student.profiling-test.save-mcq');
+        Route::get('/student/courses/{course:slug}/profiling/submit', [ProfilingTestController::class, 'submit'])->name('student.profiling-test.submit');
+        Route::get('/student/courses/{course:slug}/profiling/thankyou', [ProfilingTestController::class, 'thankyou'])->name('student.profiling-test.thankyou');
 
+        Route::post('/courses/{course:slug}/checkout', [CheckoutController::class, 'process'])->name('student.checkout');
         Route::get('/orders/{order}/success', [PaymentController::class, 'success'])->name('payment.success');
         Route::get('/orders/{order}/pending', [PaymentController::class, 'pending'])->name('payment.pending');
         Route::get('/orders/{order}/failed', [PaymentController::class, 'failed'])->name('payment.failed');

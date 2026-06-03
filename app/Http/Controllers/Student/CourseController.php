@@ -41,6 +41,18 @@ class CourseController extends Controller
         $is_enrolled = false;
         if ($user) {
             $is_enrolled = $user->enrollments()->where('course_id', $course->id)->exists();
+            
+            // LOGIKA BARU: Redirect ke Profiling Test jika kursus Adaptive dan belum selesai
+            if ($is_enrolled && $course->isAdaptive() && !$is_preview) {
+                $hasCompletedProfiling = \App\Models\ProfilingAttempt::where('student_id', $user->id)
+                    ->where('course_id', $course->id)
+                    ->where('status', 'completed')
+                    ->exists();
+
+                if (!$hasCompletedProfiling) {
+                    return redirect()->route('student.profiling-test.intro', $course->slug);
+                }
+            }
         }
 
         $course->load(['modules.lessons']);

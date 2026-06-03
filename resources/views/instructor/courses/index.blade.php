@@ -62,7 +62,12 @@
                                                 @forelse ($courses as $course)
                                                     <tr>
                                                         <th scope="row">{{ $loop->iteration }}</th>
-                                                        <td>{{ $course->title }}</td>
+                                                        <td>
+                                                            {{ $course->title }}
+                                                            @if($course->isAdaptive())
+                                                                <span class="badge badge-primary">Adaptive</span>
+                                                            @endif
+                                                        </td>
                                                         <td>{{ $course->category->name }}</td>
                                                         <td>
                                                             @php
@@ -98,6 +103,12 @@
                                                             <button type="button" class="btn btn-warning btn-sm leaderboard-btn text-dark" data-url="{{ route('instructor.course.leaderboard', $course) }}" title="Lihat Papan Peringkat Kursus">
                                                                 <i class="fa fa-bar-chart text-dark"></i> Data Student
                                                             </button>
+
+                                                            @if($course->isAdaptive())
+                                                                <a href="{{ route('instructor.courses.knowledge-questions.index', $course) }}" class="btn btn-primary btn-sm" title="Kelola Soal Prior Knowledge">
+                                                                    <i class="fa fa-question-circle"></i> Soal
+                                                                </a>
+                                                            @endif
 
                                                             @if(in_array($course->status, ['draft', 'rejected']))
                                                                 <form action="{{ route('instructor.courses.submit_review', $course) }}" method="POST" class="d-inline" onsubmit="return confirm('Ajukan kursus ini untuk direview?');">
