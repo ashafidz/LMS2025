@@ -106,7 +106,7 @@
 
                                                             @if($course->isAdaptive())
                                                                 <a href="{{ route('instructor.courses.knowledge-questions.index', $course) }}" class="btn btn-primary btn-sm" title="Kelola Soal Prior Knowledge">
-                                                                    <i class="fa fa-question-circle"></i> Soal
+                                                                    <i class="fa fa-question-circle"></i> Kelola Soal Prior Knowledge
                                                                 </a>
                                                             @endif
 
