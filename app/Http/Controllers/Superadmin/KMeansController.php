@@ -74,26 +74,86 @@ class KMeansController extends Controller
 
         $assignmentsMap = $latestRun->clusterAssignments->keyBy('attempt_id');
 
+        $tableData = [];
+        $clusterCentroids = [];
+        $clusterCounts = [];
+
         $i = 0;
         foreach ($clusters as $clusterIndex => $points) {
+            $clusterNum = $clusterIndex + 1;
+            
+            // Initialize centroid for this cluster
+            $clusterCentroids[$clusterNum] = [
+                'mastery' => 0, 'performance' => 0, 'knowledge' => 0,
+                'autonomy' => 0, 'competence' => 0, 'relatedness' => 0,
+                'transparency' => 0, 'guidance' => 0, 'adaptivity' => 0, 'feedback' => 0
+            ];
+            $clusterCounts[$clusterNum] = 0;
+
             $dataPoints = [];
             foreach ($points as $point) {
                 $assignment = $assignmentsMap->get($point['attempt_id']);
+                $studentName = 'Unknown';
+                
+                if ($assignment && $assignment->attempt) {
+                    $studentName = $assignment->attempt->student->name ?? 'Unknown';
+                    $scores = $assignment->attempt->componentScores;
+                    
+                    $mastery = $scores->where('dimension.name', 'Mastery Goal')->first()?->contribution_pct ?? 0;
+                    $performance = $scores->where('dimension.name', 'Performance Goal')->first()?->contribution_pct ?? 0;
+                    $knowledge = $scores->whereNull('dimension_id')->whereNull('component_id')->first()?->average_score ?? 0;
+                    $autonomy = $scores->where('dimension.name', 'Autonomy')->first()?->contribution_pct ?? 0;
+                    $competence = $scores->where('dimension.name', 'Competence')->first()?->contribution_pct ?? 0;
+                    $relatedness = $scores->where('dimension.name', 'Relatedness')->first()?->contribution_pct ?? 0;
+                    $transparency = $scores->where('dimension.name', 'Transparency')->first()?->average_score ?? 0;
+                    $guidance = $scores->where('dimension.name', 'Guidance')->first()?->average_score ?? 0;
+                    $adaptivity = $scores->where('dimension.name', 'Adaptivity')->first()?->average_score ?? 0;
+                    $feedback = $scores->where('dimension.name', 'Feedback')->first()?->average_score ?? 0;
+                    
+                    $tableData[] = [
+                        'student_name' => $studentName,
+                        'cluster' => $clusterNum,
+                        'scores' => [
+                            'mastery' => $mastery, 'performance' => $performance, 'knowledge' => $knowledge,
+                            'autonomy' => $autonomy, 'competence' => $competence, 'relatedness' => $relatedness,
+                            'transparency' => $transparency, 'guidance' => $guidance, 'adaptivity' => $adaptivity, 'feedback' => $feedback
+                        ]
+                    ];
+
+                    $clusterCentroids[$clusterNum]['mastery'] += $mastery;
+                    $clusterCentroids[$clusterNum]['performance'] += $performance;
+                    $clusterCentroids[$clusterNum]['knowledge'] += $knowledge;
+                    $clusterCentroids[$clusterNum]['autonomy'] += $autonomy;
+                    $clusterCentroids[$clusterNum]['competence'] += $competence;
+                    $clusterCentroids[$clusterNum]['relatedness'] += $relatedness;
+                    $clusterCentroids[$clusterNum]['transparency'] += $transparency;
+                    $clusterCentroids[$clusterNum]['guidance'] += $guidance;
+                    $clusterCentroids[$clusterNum]['adaptivity'] += $adaptivity;
+                    $clusterCentroids[$clusterNum]['feedback'] += $feedback;
+                    $clusterCounts[$clusterNum]++;
+                }
+
                 $dataPoints[] = [
                     'x' => $point['x'],
                     'y' => $point['y'],
-                    'student_name' => $assignment->attempt->student->name ?? 'Unknown'
+                    'student_name' => $studentName
                 ];
             }
 
+            if ($clusterCounts[$clusterNum] > 0) {
+                foreach ($clusterCentroids[$clusterNum] as $key => $val) {
+                    $clusterCentroids[$clusterNum][$key] = round($val / $clusterCounts[$clusterNum], 2);
+                }
+            }
+
             $chartData[] = [
-                'label' => 'Kluster ' . ($clusterIndex + 1),
+                'label' => 'Kluster ' . $clusterNum,
                 'data' => $dataPoints,
                 'backgroundColor' => $colors[$i % count($colors)],
             ];
             $i++;
         }
 
-        return view('superadmin.kmeans.show', compact('course', 'latestRun', 'chartData'));
+        return view('superadmin.kmeans.show', compact('course', 'latestRun', 'chartData', 'tableData', 'clusterCentroids'));
     }
 }
