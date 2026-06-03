@@ -154,6 +154,61 @@ class KMeansController extends Controller
             $i++;
         }
 
+        // ==========================================
+        // Z-SCORE STANDARDIZATION & EUCLIDEAN DISTANCE
+        // ==========================================
+        $features = ['mastery', 'performance', 'knowledge', 'autonomy', 'competence', 'relatedness', 'transparency', 'guidance', 'adaptivity', 'feedback'];
+        $n = count($tableData);
+        $means = [];
+        $stdDevs = [];
+        
+        foreach ($features as $f) {
+            $sum = 0;
+            foreach ($tableData as $row) {
+                $sum += $row['scores'][$f];
+            }
+            $mean = $n > 0 ? $sum / $n : 0;
+            $means[$f] = $mean;
+            
+            $varianceSum = 0;
+            foreach ($tableData as $row) {
+                $varianceSum += pow($row['scores'][$f] - $mean, 2);
+            }
+            $variance = $n > 0 ? $varianceSum / $n : 0; // Rubix uses population variance
+            $stdDevs[$f] = sqrt($variance);
+        }
+
+        foreach ($tableData as &$row) {
+            $row['z_scores'] = [];
+            foreach ($features as $f) {
+                $sd = $stdDevs[$f] > 0 ? $stdDevs[$f] : 1;
+                $row['z_scores'][$f] = ($row['scores'][$f] - $means[$f]) / $sd;
+            }
+        }
+        unset($row);
+
+        $centroidZScores = [];
+        foreach ($clusterCentroids as $clusterNum => $centroid) {
+            $centroidZScores[$clusterNum] = [];
+            foreach ($features as $f) {
+                $sd = $stdDevs[$f] > 0 ? $stdDevs[$f] : 1;
+                $centroidZScores[$clusterNum][$f] = ($centroid[$f] - $means[$f]) / $sd;
+            }
+        }
+
+        foreach ($tableData as &$row) {
+            $distances = [];
+            foreach ($centroidZScores as $clusterNum => $cZScores) {
+                $dist = 0;
+                foreach ($features as $f) {
+                    $dist += pow($row['z_scores'][$f] - $cZScores[$f], 2);
+                }
+                $distances[$clusterNum] = sqrt($dist);
+            }
+            $row['distances'] = $distances;
+        }
+        unset($row);
+
         return view('superadmin.kmeans.show', compact('course', 'latestRun', 'chartData', 'tableData', 'clusterCentroids'));
     }
 }

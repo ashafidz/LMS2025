@@ -130,18 +130,25 @@
                                         <table class="table table-bordered table-striped table-sm text-center">
                                             <thead class="bg-light">
                                                 <tr>
-                                                    <th class="align-middle text-left">Nama Siswa</th>
-                                                    <th class="align-middle">Kluster</th>
-                                                    <th class="align-middle" title="Mastery Goal">Mastery</th>
-                                                    <th class="align-middle" title="Performance Goal">Perform.</th>
-                                                    <th class="align-middle bg-light text-primary" title="Prior Knowledge">Knowledge</th>
-                                                    <th class="align-middle" title="Autonomy">Autonomy</th>
-                                                    <th class="align-middle" title="Competence">Competence</th>
-                                                    <th class="align-middle" title="Relatedness">Relatedness</th>
-                                                    <th class="align-middle" title="Transparency">Transp.</th>
-                                                    <th class="align-middle" title="Guidance">Guidance</th>
-                                                    <th class="align-middle" title="Adaptivity">Adaptivity</th>
-                                                    <th class="align-middle" title="Feedback">Feedback</th>
+                                                    <th rowspan="2" class="align-middle text-left">Nama Siswa</th>
+                                                    <th rowspan="2" class="align-middle">Kluster Terpilih</th>
+                                                    <th colspan="10" class="align-middle">Data Mentah 10 Dimensi</th>
+                                                    <th colspan="{{ $latestRun->k_value }}" class="align-middle bg-warning text-dark">Jarak Euclidean (Z-Score)</th>
+                                                </tr>
+                                                <tr>
+                                                    <th title="Mastery Goal">Mastery</th>
+                                                    <th title="Performance Goal">Perform.</th>
+                                                    <th class="bg-light text-primary" title="Prior Knowledge">Knowledge</th>
+                                                    <th title="Autonomy">Autonomy</th>
+                                                    <th title="Competence">Competence</th>
+                                                    <th title="Relatedness">Relatedness</th>
+                                                    <th title="Transparency">Transp.</th>
+                                                    <th title="Guidance">Guidance</th>
+                                                    <th title="Adaptivity">Adaptivity</th>
+                                                    <th title="Feedback">Feedback</th>
+                                                    @for($k=1; $k <= $latestRun->k_value; $k++)
+                                                        <th class="bg-warning text-dark" title="Jarak ke Pusat Kluster {{ $k }}">Ke K-{{ $k }}</th>
+                                                    @endfor
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -159,6 +166,14 @@
                                                     <td>{{ round($row['scores']['guidance'], 2) }}</td>
                                                     <td>{{ round($row['scores']['adaptivity'], 2) }}</td>
                                                     <td>{{ round($row['scores']['feedback'], 2) }}</td>
+                                                    @for($k=1; $k <= $latestRun->k_value; $k++)
+                                                        @php
+                                                            $isClosest = ($row['cluster'] == $k);
+                                                        @endphp
+                                                        <td class="{{ $isClosest ? 'font-weight-bold text-success' : 'text-muted' }}">
+                                                            {{ number_format($row['distances'][$k] ?? 0, 3) }}
+                                                        </td>
+                                                    @endfor
                                                 </tr>
                                                 @endforeach
                                             </tbody>
@@ -166,6 +181,29 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- Theory Accordion -->
+                            <div class="card mt-4 border-dark">
+                                <div class="card-header bg-dark text-white" data-toggle="collapse" href="#collapseTheory" role="button" aria-expanded="false" aria-controls="collapseTheory" style="cursor: pointer;">
+                                    <h5 class="mb-0 text-white"><i class="fa fa-book"></i> Cara Kerja & Rumus Perhitungan K-Means (Klik untuk Buka) <i class="fa fa-chevron-down float-right mt-1"></i></h5>
+                                </div>
+                                <div class="collapse" id="collapseTheory">
+                                    <div class="card-body bg-light">
+                                        <h6 class="font-weight-bold text-primary">1. Fase Standarisasi (Z-Scale Standardization)</h6>
+                                        <p>Sebelum mengukur jarak, sistem mengubah skala semua data yang berbeda (seperti rentang 0-100 dan rentang 1-5) menjadi skala yang seragam menggunakan rumus matematis <em>Z-Score</em>. Tujuannya agar tidak ada parameter besar yang mendominasi dan mengabaikan parameter kecil.</p>
+                                        <p class="font-weight-bold text-dark"><code>Z = (Nilai_Asli - Rata_rata_Semua_Siswa) / Standar_Deviasi</code></p>
+                                        <hr>
+                                        <h6 class="font-weight-bold text-primary">2. Menghitung Jarak Euclidean 10 Dimensi</h6>
+                                        <p>Sistem mencari kecocokan dengan mengukur seberapa "jauh" jarak matematis seorang siswa dengan Titik Pusat (Centroid) dari setiap Kluster. Jarak ini diukur sekaligus pada ke-10 dimensi profil yang telah distandarisasi tadi, secara prinsip mirip seperti Teorema Pythagoras namun di ruang 10 Dimensi.</p>
+                                        <p class="font-weight-bold text-dark"><code>Jarak = &radic;[ (Z1 - C1)&sup2; + (Z2 - C2)&sup2; + ... + (Z10 - C10)&sup2; ]</code></p>
+                                        <hr>
+                                        <h6 class="font-weight-bold text-primary">3. Keputusan Pengelompokan (Clustering)</h6>
+                                        <p>Setelah jarak ke semua titik pusat kluster diukur secara objektif, sistem akan mendaftarkan siswa tersebut ke kluster yang nilai jaraknya <strong>paling kecil (paling mirip)</strong>. Anda bisa melihat bukti persaingan jarak tersebut secara transparan pada kolom berwarna kuning di ujung <em>Tabel Data Mentah</em> di atas (angka bercetak hijau tebal adalah jarak terdekat yang dipilih sistem).</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End Theory Accordion -->
+
                         </div>
                     </div>
 
