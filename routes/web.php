@@ -64,6 +64,7 @@ use App\Http\Controllers\Superadmin\AdminManagementController; // Tambahkan ini
 use App\Http\Controllers\Superadmin\ProfilingComponentController;
 use App\Http\Controllers\Superadmin\ProfilingQuestionController;
 use App\Http\Controllers\Superadmin\KMeansController;
+use App\Models\Course;
 
 // Route::get('/neweditprofil', function () {
 //     return view('1edit-index');
@@ -215,6 +216,10 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     // --- Rute untuk Pengaturan Situs ---
     Route::get('/superadmin/settings', [SiteSettingController::class, 'edit'])->name('superadmin.settings.edit');
     Route::put('/superadmin/settings', [SiteSettingController::class, 'update'])->name('superadmin.settings.update');
+
+    // --- Rute untuk Ubah Harga Massal Kursus ---
+    Route::get('/superadmin/courses/bulk-price', [SiteSettingController::class, 'bulkPriceEdit'])->name('superadmin.courses.bulk-price.edit');
+    Route::post('/superadmin/courses/bulk-price', [SiteSettingController::class, 'bulkPriceUpdate'])->name('superadmin.courses.bulk-price.update');
 
 
     // --- Rute untuk Manajemen Pertanyaan Skala Likert ---

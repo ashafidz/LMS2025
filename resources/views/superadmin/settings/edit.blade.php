@@ -12,13 +12,14 @@
                             <p class="m-b-0">Kelola informasi umum, logo, pajak, dan biaya transaksi untuk situs Anda.</p>
                         </div>
                     </div>
-                    <div class="col-md-12 d-flex mt-3">
+                    <div class="col-md-12 d-flex mt-3 justify-content-between align-items-center">
                         <ul class="breadcrumb-title">
-                            {{-- DIUBAH: Route sekarang langsung ke superadmin.dashboard --}}
-                            <li class="breadcrumb-item"><a href="{{ route('superadmin.dashboard') }}"><i
-                                        class="fa fa-home"></i></a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('superadmin.dashboard') }}"><i class="fa fa-home"></i></a></li>
                             <li class="breadcrumb-item"><a href="#!">Pengaturan</a></li>
                         </ul>
+                        <a href="{{ route('superadmin.courses.bulk-price.edit') }}" class="btn btn-danger btn-sm">
+                            <i class="fa fa-tags"></i> Ubah Harga Massal Kursus
+                        </a>
                     </div>
                 </div>
             </div>

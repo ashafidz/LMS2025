@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Course;
 use App\Models\SiteSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class SiteSettingController extends Controller
@@ -70,5 +72,41 @@ class SiteSettingController extends Controller
         $settings->update($validated);
 
         return back()->with('success', 'Pengaturan situs berhasil diperbarui.');
+    }
+
+    /**
+     * Menampilkan form ubah harga massal kursus berbayar (Uang).
+     */
+    public function bulkPriceEdit()
+    {
+        $courses = Course::where('payment_type', 'money')
+            ->select('id', 'title', 'price')
+            ->orderBy('title')
+            ->get();
+
+        $courseCount = $courses->count();
+
+        return view('superadmin.settings.bulk-price', compact('courses', 'courseCount'));
+    }
+
+    /**
+     * Memperbarui harga massal seluruh kursus berbayar Uang.
+     */
+    public function bulkPriceUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'new_price' => 'required|numeric|min:0',
+        ], [
+            'new_price.required' => 'Harga baru wajib diisi.',
+            'new_price.numeric'  => 'Harga harus berupa angka.',
+            'new_price.min'      => 'Harga tidak boleh negatif.',
+        ]);
+
+        DB::transaction(function () use ($validated) {
+            Course::where('payment_type', 'money')
+                ->update(['price' => $validated['new_price']]);
+        });
+
+        return back()->with('success', 'Harga seluruh kursus berbayar (Rupiah) berhasil diperbarui menjadi Rp ' . number_format($validated['new_price'], 0, ',', '.') . '.');
     }
 }
