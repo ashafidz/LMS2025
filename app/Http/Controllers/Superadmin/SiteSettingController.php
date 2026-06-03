@@ -75,38 +75,38 @@ class SiteSettingController extends Controller
     }
 
     /**
-     * Menampilkan form ubah harga massal kursus berbayar (Uang).
+     * Menampilkan daftar kursus berbayar (Uang) beserta kolom input harga.
      */
     public function bulkPriceEdit()
     {
         $courses = Course::where('payment_type', 'money')
-            ->select('id', 'title', 'price')
+            ->with('instructor:id,name')
+            ->select('id', 'title', 'price', 'status', 'instructor_id')
             ->orderBy('title')
             ->get();
 
-        $courseCount = $courses->count();
-
-        return view('superadmin.settings.bulk-price', compact('courses', 'courseCount'));
+        return view('superadmin.settings.bulk-price', compact('courses'));
     }
 
     /**
-     * Memperbarui harga massal seluruh kursus berbayar Uang.
+     * Memperbarui harga satu kursus secara individual.
      */
-    public function bulkPriceUpdate(Request $request)
+    public function updateCoursePrice(Request $request, Course $course)
     {
         $validated = $request->validate([
-            'new_price' => 'required|numeric|min:0',
+            'price' => 'required|numeric|min:0',
         ], [
-            'new_price.required' => 'Harga baru wajib diisi.',
-            'new_price.numeric'  => 'Harga harus berupa angka.',
-            'new_price.min'      => 'Harga tidak boleh negatif.',
+            'price.required' => 'Harga wajib diisi.',
+            'price.numeric'  => 'Harga harus berupa angka.',
+            'price.min'      => 'Harga tidak boleh negatif.',
         ]);
 
-        DB::transaction(function () use ($validated) {
-            Course::where('payment_type', 'money')
-                ->update(['price' => $validated['new_price']]);
-        });
+        if ($course->payment_type !== 'money') {
+            return back()->with('error', 'Kursus ini tidak menggunakan metode pembayaran Rupiah.');
+        }
 
-        return back()->with('success', 'Harga seluruh kursus berbayar (Rupiah) berhasil diperbarui menjadi Rp ' . number_format($validated['new_price'], 0, ',', '.') . '.');
+        $course->update(['price' => $validated['price']]);
+
+        return back()->with('success', 'Harga kursus "' . $course->title . '" berhasil diperbarui menjadi Rp ' . number_format($validated['price'], 0, ',', '.') . '.');
     }
 }

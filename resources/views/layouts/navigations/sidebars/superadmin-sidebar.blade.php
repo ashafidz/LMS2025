@@ -210,7 +210,7 @@
                                                     <li class="{{ Request::routeIs('superadmin.courses.bulk-price.*') ? 'active' : '' }}">
                                                         <a href="{{ route('superadmin.courses.bulk-price.edit') }}" class="waves-effect waves-dark">
                                                             <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                                            <span class="pcoded-mtext">Harga Massal Kursus</span>
+                                                            <span class="pcoded-mtext">Kelola Harga Kursus</span>
                                                             <span class="pcoded-mcaret"></span>
                                                         </a>
                                                     </li>

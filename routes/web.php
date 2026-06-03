@@ -217,9 +217,9 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     Route::get('/superadmin/settings', [SiteSettingController::class, 'edit'])->name('superadmin.settings.edit');
     Route::put('/superadmin/settings', [SiteSettingController::class, 'update'])->name('superadmin.settings.update');
 
-    // --- Rute untuk Ubah Harga Massal Kursus ---
+    // --- Rute untuk Kelola Harga Kursus (Superadmin) ---
     Route::get('/superadmin/courses/bulk-price', [SiteSettingController::class, 'bulkPriceEdit'])->name('superadmin.courses.bulk-price.edit');
-    Route::post('/superadmin/courses/bulk-price', [SiteSettingController::class, 'bulkPriceUpdate'])->name('superadmin.courses.bulk-price.update');
+    Route::patch('/superadmin/courses/{course}/price', [SiteSettingController::class, 'updateCoursePrice'])->name('superadmin.courses.update-price');
 
 
     // --- Rute untuk Manajemen Pertanyaan Skala Likert ---
