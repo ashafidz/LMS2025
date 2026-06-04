@@ -10,6 +10,7 @@ use Illuminate\Support\Collection;
 use Rubix\ML\Datasets\Labeled;
 use Rubix\ML\Datasets\Unlabeled;
 use Rubix\ML\Clusterers\KMeans;
+use Rubix\ML\Clusterers\Seeders\KMC2;
 use Rubix\ML\Transformers\NumericStringConverter;
 use Rubix\ML\Transformers\ZScaleStandardizer;
 use Rubix\ML\Transformers\PrincipalComponentAnalysis;
@@ -77,10 +78,9 @@ class KMeansService
     public function findOptimalK(array $featureMatrix, int $kMin = 2, int $kMax = 8): array
     {
         $samplesCount = count($featureMatrix);
-        $actualMaxK = min($kMax, $samplesCount - 1); // K must be < number of samples
+        $actualMaxK = min($kMax, $samplesCount - 1);
 
         if ($actualMaxK < $kMin) {
-            // Not enough data to find optimal K, fallback to basic 2 clusters
             return [
                 'optimal_k' => 2,
                 'elbow_data' => [2 => 0]
@@ -89,15 +89,21 @@ class KMeansService
 
         $dataset = new Unlabeled($featureMatrix);
         $dataset->apply(new NumericStringConverter())
-                ->apply(new ZScaleStandardizer()); // Standardize data
+                ->apply(new ZScaleStandardizer());
 
         $elbowData = [];
-        
+        $numTrials = 5; // Jalankan 5x per K, ambil rata-rata inertia
+
         for ($k = $kMin; $k <= $actualMaxK; $k++) {
-            $estimator = new KMeans($k);
-            $estimator->train($dataset);
-            $losses = $estimator->losses();
-            $elbowData[$k] = (is_array($losses) && count($losses) > 0) ? end($losses) : 0;
+            $totalInertia = 0;
+            for ($trial = 0; $trial < $numTrials; $trial++) {
+                srand(42 + $trial); // Seed deterministik per trial
+                $estimator = new KMeans($k);
+                $estimator->train(clone $dataset);
+                $losses = $estimator->losses();
+                $totalInertia += (is_array($losses) && count($losses) > 0) ? end($losses) : 0;
+            }
+            $elbowData[$k] = $totalInertia / $numTrials;
         }
 
         // Find Elbow using distance to line method (Kneedle algorithm)
@@ -108,18 +114,17 @@ class KMeansService
         $y1 = $elbowData[$kMin];
         $x2 = $actualMaxK;
         $y2 = $elbowData[$actualMaxK];
-        
+
         $denominator = sqrt(pow($y2 - $y1, 2) + pow($x2 - $x1, 2));
 
         if ($denominator > 0) {
             for ($k = $kMin; $k <= $actualMaxK; $k++) {
                 $x0 = $k;
                 $y0 = $elbowData[$k];
-                
-                // Distance from point to line
+
                 $numerator = abs(($y2 - $y1) * $x0 - ($x2 - $x1) * $y0 + $x2 * $y1 - $y2 * $x1);
                 $distance = $numerator / $denominator;
-                
+
                 if ($distance > $maxDistance) {
                     $maxDistance = $distance;
                     $optimalK = $k;
@@ -139,17 +144,18 @@ class KMeansService
     public function run(array $featureMatrix, int $k): array
     {
         $dataset = new Unlabeled($featureMatrix);
-        
-        // Keep standardizer instance to use it later if needed, but here we just apply inline
+
         $dataset->apply(new NumericStringConverter())
                 ->apply(new ZScaleStandardizer());
 
+        // Seed tetap → hasil SELALU identik pada data yang sama
+        srand(42);
         $estimator = new KMeans($k);
         $estimator->train($dataset);
-        
+
         $predictions = $estimator->predict($dataset);
 
-        return $predictions; // array of cluster assignments (e.g. 0, 1, 2...)
+        return $predictions;
     }
 
     /**
