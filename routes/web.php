@@ -389,6 +389,10 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         Route::put('/instructor/knowledge-options/{option}', [CourseKnowledgeController::class, 'updateOption'])->name('instructor.knowledge-options.update');
         Route::delete('/instructor/knowledge-options/{option}', [CourseKnowledgeController::class, 'destroyOption'])->name('instructor.knowledge-options.destroy');
 
+        // --- RUTE K-MEANS UNTUK INSTRUKTUR ---
+        Route::get('/instructor/courses/{course}/kmeans', [\App\Http\Controllers\Instructor\InstructorKMeansController::class, 'show'])->name('instructor.kmeans.show');
+        Route::post('/instructor/courses/{course}/kmeans/run', [\App\Http\Controllers\Instructor\InstructorKMeansController::class, 'run'])->name('instructor.kmeans.run');
+
         // GET /instructor/courses -> List all courses
         Route::get('/instructor/courses', [CourseController::class, 'index'])->name('instructor.courses.index');
 

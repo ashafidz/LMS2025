@@ -108,6 +108,9 @@
                                                                 <a href="{{ route('instructor.courses.knowledge-questions.index', $course) }}" class="btn btn-primary btn-sm" title="Kelola Soal Prior Knowledge">
                                                                     <i class="fa fa-question-circle"></i> Kelola Soal Prior Knowledge
                                                                 </a>
+                                                                <a href="{{ route('instructor.kmeans.show', $course) }}" class="btn btn-info btn-sm" title="Lihat Analisis K-Means">
+                                                                    <i class="fa fa-bar-chart"></i> Analisis K-Means
+                                                                </a>
                                                             @endif
 
                                                             @if(in_array($course->status, ['draft', 'rejected']))
