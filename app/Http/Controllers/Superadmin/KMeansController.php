@@ -117,7 +117,8 @@ class KMeansController extends Controller
                             'mastery' => $mastery, 'performance' => $performance, 'knowledge' => $knowledge,
                             'autonomy' => $autonomy, 'competence' => $competence, 'relatedness' => $relatedness,
                             'transparency' => $transparency, 'guidance' => $guidance, 'adaptivity' => $adaptivity, 'feedback' => $feedback
-                        ]
+                        ],
+                        'date' => $assignment->attempt->updated_at ?? null
                     ];
 
                     $clusterCentroids[$clusterNum]['mastery'] += $mastery;

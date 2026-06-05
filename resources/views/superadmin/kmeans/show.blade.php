@@ -131,6 +131,7 @@
                                             <thead class="bg-light">
                                                 <tr>
                                                     <th rowspan="2" class="align-middle text-left">Nama Siswa</th>
+                                                    <th rowspan="2" class="align-middle">Tanggal Selesai</th>
                                                     <th rowspan="2" class="align-middle">Kluster Terpilih</th>
                                                     <th colspan="10" class="align-middle">Data Mentah 10 Dimensi</th>
                                                     <th colspan="{{ $latestRun->k_value }}" class="align-middle bg-warning text-dark">Jarak Euclidean (Z-Score)</th>
@@ -152,9 +153,10 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach(collect($tableData)->sortBy('cluster') as $row)
+                                                @foreach(collect($tableData)->sortByDesc('date') as $row)
                                                 <tr>
                                                     <td class="text-left">{{ $row['student_name'] }}</td>
+                                                    <td><small class="text-muted">{{ $row['date'] ? \Carbon\Carbon::parse($row['date'])->format('d M Y, H:i') : '-' }}</small></td>
                                                     <td><span class="badge badge-primary">Kluster {{ $row['cluster'] }}</span></td>
                                                     <td>{{ round($row['scores']['mastery'], 2) }}</td>
                                                     <td>{{ round($row['scores']['performance'], 2) }}</td>

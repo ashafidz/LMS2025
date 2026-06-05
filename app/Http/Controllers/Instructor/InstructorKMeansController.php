@@ -129,6 +129,7 @@ class InstructorKMeansController extends Controller
                         'student_name' => $studentName,
                         'cluster'      => $clusterNum,
                         'scores'       => $rowScores,
+                        'date'         => $assignment->attempt->updated_at ?? null,
                     ];
 
                     foreach ($features as $f) {
