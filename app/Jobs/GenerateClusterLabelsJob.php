@@ -52,7 +52,8 @@ class GenerateClusterLabelsJob implements ShouldQueue
             if ($studentCount === 0) continue;
 
             $mastery = 0; $performance = 0; $knowledge = 0;
-            $autonomy = 0; $competence = 0;
+            $autonomy = 0; $competence = 0; $relatedness = 0;
+            $transparency = 0; $guidance = 0; $adaptivity = 0; $feedback = 0;
 
             foreach ($clusterAssignments as $assignment) {
                 $scores = $assignment->attempt->componentScores;
@@ -61,6 +62,12 @@ class GenerateClusterLabelsJob implements ShouldQueue
                 $knowledge += $scores->whereNull('dimension_id')->whereNull('component_id')->first()?->average_score ?? 0;
                 $autonomy += $scores->where('dimension.name', 'Autonomy')->first()?->contribution_pct ?? 0;
                 $competence += $scores->where('dimension.name', 'Competence')->first()?->contribution_pct ?? 0;
+                $relatedness += $scores->where('dimension.name', 'Relatedness')->first()?->contribution_pct ?? 0;
+                
+                $transparency += $scores->where('dimension.name', 'Transparency')->first()?->average_score ?? 0;
+                $guidance += $scores->where('dimension.name', 'Guidance')->first()?->average_score ?? 0;
+                $adaptivity += $scores->where('dimension.name', 'Adaptivity')->first()?->average_score ?? 0;
+                $feedback += $scores->where('dimension.name', 'Feedback')->first()?->average_score ?? 0;
             }
 
             $clusters[] = [
@@ -70,7 +77,12 @@ class GenerateClusterLabelsJob implements ShouldQueue
                 'performance' => round($performance / $studentCount, 2),
                 'knowledge' => round($knowledge / $studentCount, 2),
                 'autonomy' => round($autonomy / $studentCount, 2),
-                'competence' => round($competence / $studentCount, 2)
+                'competence' => round($competence / $studentCount, 2),
+                'relatedness' => round($relatedness / $studentCount, 2),
+                'transparency' => round($transparency / $studentCount, 2),
+                'guidance' => round($guidance / $studentCount, 2),
+                'adaptivity' => round($adaptivity / $studentCount, 2),
+                'feedback' => round($feedback / $studentCount, 2)
             ];
         }
 
