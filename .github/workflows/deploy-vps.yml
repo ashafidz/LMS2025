@@ -23,7 +23,7 @@ jobs:
           git pull origin main
 
           echo "🏗️ Building & starting containers..."
-          docker compose build app
+          docker compose build app queue
           docker compose up -d --remove-orphans
 
           echo "⏳ Waiting for containers to be healthy..."
