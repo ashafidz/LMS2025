@@ -5,8 +5,10 @@ namespace App\Services;
 use App\Models\Course;
 use App\Models\KmeansRun;
 use App\Models\KmeansClusterAssignment;
+use App\Jobs\GenerateClusterLabelsJob;
 use App\Models\ProfilingAttempt;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Rubix\ML\Datasets\Labeled;
 use Rubix\ML\Datasets\Unlabeled;
 use Rubix\ML\Clusterers\KMeans;
@@ -209,6 +211,8 @@ class KMeansService
         ]);
 
         $this->saveResults($run, $optimalData, $attemptIds, $predictions, $scatterData);
+
+        GenerateClusterLabelsJob::dispatch($run)->delay(now()->addSeconds(2));
 
         return $run;
     }

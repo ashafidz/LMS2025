@@ -689,3 +689,7 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
         Route::post('/apply-instructor', [InstructorApplicationController::class, 'store'])->name('student.apply_instructor.store');
     });
 });
+
+// API Webhook from n8n (CSRF disabled in bootstrap/app.php)
+Route::post('/api/kmeans/{run}/ai-labels', [\App\Http\Controllers\Api\AiLabelCallbackController::class, 'store'])
+    ->name('api.kmeans.ai-labels');

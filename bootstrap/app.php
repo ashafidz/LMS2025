@@ -24,6 +24,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Add the ConfigureSessionDomain middleware to the web middleware group
         $middleware->web(\App\Http\Middleware\ConfigureSessionDomain::class);
+
+        $middleware->validateCsrfTokens(except: [
+            'api/kmeans/*/ai-labels',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

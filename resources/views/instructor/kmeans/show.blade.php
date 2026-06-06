@@ -67,6 +67,17 @@
                                     Analisis terakhir dijalankan pada <strong>{{ $latestRun->created_at->format('d M Y, H:i') }}</strong>
                                     dengan jumlah kluster <strong>K = {{ $latestRun->k_value }}</strong>.
                                     Halaman ini hanya menampilkan hasil (read-only).
+                                    <br>
+                                    <strong>Status AI Labeling:</strong> 
+                                    @if($latestRun->ai_labeling_status === 'completed')
+                                        <span class="badge badge-success">Selesai</span>
+                                    @elseif($latestRun->ai_labeling_status === 'processing')
+                                        <span class="badge badge-warning" data-ai-status="processing">Memproses...</span>
+                                    @elseif($latestRun->ai_labeling_status === 'failed')
+                                        <span class="badge badge-danger">Gagal</span>
+                                    @else
+                                        <span class="badge badge-secondary">Pending</span>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -80,10 +91,17 @@
                                         <hr>
                                         @foreach(collect($chartData) as $clusterInfo)
                                             <div class="mb-3">
+                                                @php
+                                                    $cNum = (int) str_replace('Cluster ', '', $clusterInfo['label']);
+                                                    $aiLabel = $latestRun->getClusterLabel($cNum);
+                                                @endphp
                                                 <h6 style="color: {{ $clusterInfo['backgroundColor'] }}">
-                                                    {{ $clusterInfo['label'] }}
+                                                    {{ $aiLabel ? $aiLabel['name'] : $clusterInfo['label'] }}
                                                     <span class="badge badge-secondary ml-1">{{ count($clusterInfo['data']) }} Siswa</span>
                                                 </h6>
+                                                @if($aiLabel)
+                                                    <p class="small text-muted mb-1">{{ $aiLabel['description'] }}</p>
+                                                @endif
                                                 <ul class="list-unstyled ml-3 small">
                                                     @foreach($clusterInfo['data'] as $dp)
                                                         <li><i class="fa fa-user-o text-muted mr-1"></i> {{ $dp['student_name'] }}</li>
@@ -138,7 +156,10 @@
                                                 <tbody>
                                                     @foreach($clusterCentroids as $clusterNum => $centroid)
                                                     <tr>
-                                                        <td class="font-weight-bold">Kluster {{ $clusterNum }}</td>
+                                                        @php $aiLabel = $latestRun->getClusterLabel($clusterNum); @endphp
+                                                        <td class="font-weight-bold">
+                                                            {{ $aiLabel ? $aiLabel['name'] : "Kluster $clusterNum" }}
+                                                        </td>
                                                         <td>{{ $centroid['mastery'] }}</td>
                                                         <td>{{ $centroid['performance'] }}</td>
                                                         <td class="font-weight-bold text-primary bg-light">{{ $centroid['knowledge'] }}</td>
@@ -214,13 +235,18 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    if (document.querySelector('[data-ai-status="processing"]')) {
+        setTimeout(() => location.reload(), 10000);
+    }
+
+    const ctx = document.getElementById('kmeansChart').getContext('2d');
     const chartDataRaw = @json($chartData);
     chartDataRaw.forEach(dataset => {
         dataset.pointRadius = 7;
         dataset.pointHoverRadius = 10;
     });
 
-    new Chart(document.getElementById('kmeansChart').getContext('2d'), {
+    new Chart(ctx, {
         type: 'scatter',
         data: { datasets: chartDataRaw },
         options: {
