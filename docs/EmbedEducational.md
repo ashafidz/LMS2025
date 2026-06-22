@@ -243,3 +243,212 @@ beginner, scaffolding, support, foundation, guided learning
 ### Description
 
 A learner who actively embraces AI-supported learning and values
+
+personalization.
+
+### Profiling Pattern
+
+Goal Orientation:
+
+- Mastery Goal
+
+Knowledge State:
+
+- Intermediate
+
+SDT Profile:
+
+- Autonomy: High
+
+Human-AI Interaction:
+
+- Transparency: High
+- Adaptivity: High
+- Feedback: Medium
+
+### Interpretation
+
+These learners trust AI systems and expect recommendations to evolve according to their learning progress.
+
+### AI Mentor Strategy
+
+- Adaptive coaching
+- Personalized recommendations
+
+### Adaptive Pathfinding Strategy
+
+- Dynamic learning path
+- Continuous path adjustment
+
+### Bridge Quest Strategy
+
+- Personalized challenge
+
+### Social Leaderboard Role
+
+- Adaptive Explorer
+- Strategist
+
+### Keywords
+
+AI personalization, adaptive learning, recommendation, exploration
+
+---
+
+## Archetype: Strategic Performer
+
+### Description
+
+A learner who optimizes effort and learning strategies to maximize performance outcomes.
+
+### Profiling Pattern
+
+Goal Orientation:
+
+- Performance Goal
+
+Knowledge State:
+
+- Intermediate
+
+SDT Profile:
+
+- Competence: High
+- Autonomy: Medium
+
+Human-AI Interaction:
+
+- Feedback: High
+
+### Interpretation
+
+Strategic Performers focus on efficiency and achievement.
+
+### AI Mentor Strategy
+
+- Performance optimization coaching
+
+### Adaptive Pathfinding Strategy
+
+- Goal-focused progression
+
+### Bridge Quest Strategy
+
+- KPI-driven challenge
+
+### Social Leaderboard Role
+
+- Strategist
+- Performer
+
+### Keywords
+
+performance optimization, efficiency, achievement
+
+---
+
+## Archetype: Social AI Learner
+
+### Description
+
+A learner who combines social interaction and AI support to enhance learning.
+
+### Profiling Pattern
+
+Goal Orientation:
+
+- Mastery or Performance
+
+Knowledge State:
+
+- Beginner
+- Intermediate
+
+SDT Profile:
+
+- Relatedness: High
+
+Human-AI Interaction:
+
+- Guidance: High
+- Transparency: High
+
+### Interpretation
+
+These learners thrive when AI and peers jointly support their learning experience.
+
+### AI Mentor Strategy
+
+- Collaborative mentoring
+- Discussion facilitation
+
+### Adaptive Pathfinding Strategy
+
+- Community-supported pathway
+
+### Bridge Quest Strategy
+
+- Cooperative mission
+
+### Social Leaderboard Role
+
+- Community Builder
+- Collaborator
+
+### Keywords
+
+social learning, collaboration, AI-supported learning
+
+---
+
+## Archetype: Expert Innovator
+
+### Description
+
+A highly competent learner who uses AI as a thinking partner to explore advanced concepts and innovation opportunities.
+
+### Profiling Pattern
+
+Goal Orientation:
+
+- Mastery Goal
+
+Knowledge State:
+
+- Expert
+
+SDT Profile:
+
+- Autonomy: High
+- Competence: High
+
+Human-AI Interaction:
+
+- Adaptivity: High
+- Guidance: Low
+
+### Interpretation
+
+Expert Innovators seek autonomy, exploration, and intellectual challenge.
+
+### AI Mentor Strategy
+
+- Innovation coaching
+- Critical questioning
+
+### Adaptive Pathfinding Strategy
+
+- Advanced specialization path
+
+### Bridge Quest Strategy
+
+- Open innovation challenge
+
+### Social Leaderboard Role
+
+- Innovator
+- Thought Leader
+
+### Keywords
+
+innovation, expertise, advanced learner, thought leader

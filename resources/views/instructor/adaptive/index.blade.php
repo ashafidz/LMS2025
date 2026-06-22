@@ -90,6 +90,19 @@
                                             data-toggle="modal" data-target="#modal-add-module">
                                         <i class="fa fa-plus"></i> Tambah Modul
                                     </button>
+                                    <div class="dropdown-primary dropdown d-inline-block ml-1">
+                                        <button class="btn btn-warning btn-sm dropdown-toggle" type="button" id="dropdown-ai" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa fa-magic"></i> Generate AI
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-ai">
+                                            <a class="dropdown-item" href="#!" data-toggle="modal" data-target="#modal-ai-full">
+                                                <i class="fa fa-book mr-2 text-primary"></i> Full Curriculum (Modul & Lesson)
+                                            </a>
+                                            <a class="dropdown-item" href="#!" data-toggle="modal" data-target="#modal-ai-modules">
+                                                <i class="fa fa-folder mr-2 text-warning"></i> Hanya Modul Saja
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -207,6 +220,11 @@
                                                     data-target="#modal-add-lesson-{{ $module->id }}">
                                                 <i class="fa fa-plus"></i> Tambah Lesson ke Modul Ini
                                             </button>
+                                            <button type="button" class="btn btn-outline-warning btn-sm ml-1"
+                                                    data-toggle="modal"
+                                                    data-target="#modal-ai-lessons-{{ $module->id }}">
+                                                <i class="fa fa-magic"></i> Generate Lesson AI
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -279,6 +297,44 @@
                                     </div>
                                 </div>
 
+                                {{-- Modal Generate Lesson AI --}}
+                                <div class="modal fade" id="modal-ai-lessons-{{ $module->id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title text-warning"><i class="fa fa-magic mr-1"></i> Generate Lesson AI</h5>
+                                                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                                            </div>
+                                            <form action="{{ route('instructor.adaptive.ai.generate-lessons', $course) }}" method="POST" class="ai-sync-form">
+                                                @csrf
+                                                <input type="hidden" name="module_id" value="{{ $module->id }}">
+                                                <div class="modal-body">
+                                                    <div class="alert alert-warning border border-warning">
+                                                        <small><i class="fa fa-info-circle mr-1"></i> AI akan membuat lesson untuk modul <strong>{{ $module->title }}</strong> berdasarkan archetype <strong>{{ $activeArchetype }}</strong>.</small>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Jumlah Lesson <span class="text-danger">*</span></label>
+                                                        <select name="count" class="form-control" required>
+                                                            <option value="1">1 Lesson</option>
+                                                            <option value="2" selected>2 Lesson</option>
+                                                            <option value="3">3 Lesson</option>
+                                                            <option value="4">4 Lesson</option>
+                                                            <option value="5">5 Lesson</option>
+                                                        </select>
+                                                    </div>
+                                                    <p class="text-muted small mt-3"><i class="fa fa-clock-o mr-1"></i> Estimasi waktu: 10-30 detik. Mohon tunggu dan jangan tutup halaman.</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                                                    <button type="submit" class="btn btn-warning ai-submit-btn">
+                                                        <i class="fa fa-magic"></i> Generate Sekarang
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
                             @empty
                                 <div class="text-center py-5">
                                     <i class="fa fa-folder-open-o fa-4x text-muted mb-3 d-block"></i>
@@ -340,6 +396,114 @@
         </div>
     </div>
 </div>
+
+{{-- ============================================================
+     MODAL: Generate Modul Saja (AI)
+============================================================= --}}
+<div class="modal fade" id="modal-ai-modules" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-warning"><i class="fa fa-folder mr-1"></i> Generate Modul AI</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <form action="{{ route('instructor.adaptive.ai.generate-modules', $course) }}" method="POST" class="ai-sync-form">
+                @csrf
+                <input type="hidden" name="archetype_name" value="{{ $activeArchetype }}">
+                <div class="modal-body">
+                    <div class="alert alert-warning border border-warning">
+                        <small><i class="fa fa-info-circle mr-1"></i> AI akan membuat daftar modul saja (tanpa lesson di dalamnya) untuk kluster <strong>{{ $activeArchetype }}</strong>.</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Jumlah Modul <span class="text-danger">*</span></label>
+                        <select name="count" class="form-control" required>
+                            <option value="1">1 Modul</option>
+                            <option value="2">2 Modul</option>
+                            <option value="3" selected>3 Modul</option>
+                            <option value="4">4 Modul</option>
+                            <option value="5">5 Modul</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Topik Spesifik <small class="text-muted">(opsional)</small></label>
+                        <input type="text" name="extra_topics" class="form-control" placeholder="Contoh: Fokus ke pengenalan algoritma...">
+                    </div>
+                    <p class="text-muted small mt-3"><i class="fa fa-clock-o mr-1"></i> Estimasi waktu: 5-10 detik.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-warning ai-submit-btn">
+                        <i class="fa fa-magic"></i> Generate Modul
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- ============================================================
+     MODAL: Generate Full Curriculum (AI)
+============================================================= --}}
+<div class="modal fade" id="modal-ai-full" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-primary">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title text-white"><i class="fa fa-book mr-1"></i> Generate Full Curriculum</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <small>Proses ini akan membuat beberapa modul sekaligus beserta lesson di dalamnya secara otomatis menggunakan AI.</small>
+                </div>
+                
+                <form id="form-ai-full">
+                    @csrf
+                    <input type="hidden" name="archetype_name" value="{{ $activeArchetype }}">
+                    
+                    <div class="row">
+                        <div class="col-6 form-group">
+                            <label>Jumlah Modul</label>
+                            <select name="module_count" class="form-control" required>
+                                <option value="1">1 Modul</option>
+                                <option value="2" selected>2 Modul</option>
+                                <option value="3">3 Modul</option>
+                            </select>
+                        </div>
+                        <div class="col-6 form-group">
+                            <label>Lesson per Modul</label>
+                            <select name="lesson_count" class="form-control" required>
+                                <option value="1">1 Lesson</option>
+                                <option value="2" selected>2 Lesson</option>
+                                <option value="3">3 Lesson</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Topik Spesifik <small class="text-muted">(opsional)</small></label>
+                        <input type="text" name="extra_topics" class="form-control" placeholder="Fokus materi...">
+                    </div>
+                </form>
+
+                {{-- Status UI (Hidden by default) --}}
+                <div id="ai-full-status" class="d-none mt-4 text-center">
+                    <h6 class="text-primary mb-2">Sedang Memproses...</h6>
+                    <div class="progress mb-2" style="height: 10px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: 100%"></div>
+                    </div>
+                    <p class="text-muted small" id="ai-full-status-text">Menyiapkan prompt AI...</p>
+                    <p class="text-warning small"><i class="fa fa-exclamation-triangle"></i> Proses ini bisa memakan waktu 1-3 menit. Jangan tutup browser.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="btn-ai-full-cancel">Batal</button>
+                <button type="button" class="btn btn-primary" id="btn-ai-full-submit">
+                    <i class="fa fa-magic"></i> Mulai Generate
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -376,6 +540,87 @@
                     }, 300); // Tunggu animasi modal selesai
                 });
             });
+
+            // Prevent multiple clicks on sync AI forms
+            document.querySelectorAll('.ai-sync-form').forEach(form => {
+                form.addEventListener('submit', function() {
+                    const btn = this.querySelector('.ai-submit-btn');
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> Memproses...';
+                    }
+                });
+            });
+
+            // Async Full Curriculum Logic
+            const btnFullSubmit = document.getElementById('btn-ai-full-submit');
+            const btnFullCancel = document.getElementById('btn-ai-full-cancel');
+            const formFull = document.getElementById('form-ai-full');
+            const statusFull = document.getElementById('ai-full-status');
+            const statusTextFull = document.getElementById('ai-full-status-text');
+
+            if (btnFullSubmit) {
+                btnFullSubmit.addEventListener('click', function() {
+                    const formData = new FormData(formFull);
+                    
+                    // Update UI state
+                    formFull.classList.add('d-none');
+                    statusFull.classList.remove('d-none');
+                    btnFullSubmit.disabled = true;
+                    btnFullCancel.disabled = true;
+
+                    fetch('{{ route("instructor.adaptive.ai.generate-full", $course) }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'queued' && data.job_id) {
+                            pollJobStatus(data.job_id);
+                        } else {
+                            handleJobError('Gagal memulai proses generasi AI.');
+                        }
+                    })
+                    .catch(error => {
+                        handleJobError('Terjadi kesalahan jaringan.');
+                    });
+                });
+            }
+
+            function pollJobStatus(jobId) {
+                const interval = setInterval(() => {
+                    fetch(`/courses/{{ $course->id }}/adaptive/ai/status/${jobId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'processing') {
+                                statusTextFull.innerText = data.message || 'Memproses...';
+                            } else if (data.status === 'completed') {
+                                clearInterval(interval);
+                                statusTextFull.innerText = 'Selesai! Memuat ulang halaman...';
+                                statusTextFull.classList.remove('text-muted');
+                                statusTextFull.classList.add('text-success', 'font-weight-bold');
+                                setTimeout(() => window.location.reload(), 1500);
+                            } else if (data.status === 'failed') {
+                                clearInterval(interval);
+                                handleJobError(data.message || 'Proses gagal.');
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                        });
+                }, 3000); // poll every 3 seconds
+            }
+
+            function handleJobError(message) {
+                statusTextFull.innerText = message;
+                statusTextFull.classList.remove('text-muted');
+                statusTextFull.classList.add('text-danger');
+                btnFullCancel.disabled = false;
+                btnFullCancel.innerText = 'Tutup';
+            }
         });
     </script>
 @endpush
