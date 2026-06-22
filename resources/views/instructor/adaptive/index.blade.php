@@ -48,21 +48,25 @@
                          ARCHETYPE TABS
                     ===================================================== --}}
                     <div class="card">
-                        <div class="card-header p-0">
-                            <ul class="nav nav-tabs card-header-tabs flex-nowrap" style="overflow-x:auto;" id="archetype-tabs">
+                        <div class="card-header">
+                            <h5>Pilih Kluster Archetype</h5>
+                            <span>Kelola modul dan lesson spesifik untuk setiap archetype.</span>
+                        </div>
+                        <div class="card-block">
+                            <ul class="nav nav-tabs md-tabs" role="tablist">
                                 @foreach($archetypes as $name => $description)
                                     <li class="nav-item">
-                                        <a class="nav-link {{ $activeArchetype === $name ? 'active' : '' }} text-nowrap px-3 py-3"
-                                           href="{{ route('instructor.adaptive.index', [$course, 'archetype' => $name]) }}">
-                                            <i class="fa fa-users mr-1"></i>
-                                            {{ $name }}
+                                        <a class="nav-link {{ $activeArchetype === $name ? 'active' : '' }}" 
+                                           href="{{ route('instructor.adaptive.index', [$course, 'archetype' => $name]) }}" 
+                                           role="tab">
+                                            <i class="fa fa-users mr-1"></i> {{ $name }}
                                         </a>
+                                        <div class="slide"></div>
                                     </li>
                                 @endforeach
                             </ul>
-                        </div>
-
-                        <div class="card-block">
+                            
+                            <div class="tab-content card-block">
 
                             {{-- Archetype Info Banner --}}
                             <div class="alert alert-info d-flex align-items-start mb-4" style="border-left: 4px solid #1abc9c;">
@@ -286,6 +290,7 @@
                                 </div>
                             @endforelse
 
+                            </div>{{-- end tab-content --}}
                         </div>{{-- end card-block --}}
                     </div>{{-- end card --}}
 
