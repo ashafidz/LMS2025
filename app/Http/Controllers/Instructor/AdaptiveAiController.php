@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
-use App\Models\AdaptiveModule;
+use App\Models\AiChatSession;
+use App\Models\AiReference;
 use App\Services\AdaptiveAiService;
-use App\Jobs\GenerateAdaptiveContentJob;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+use Smalot\PdfParser\Parser as PdfParser;
 
 class AdaptiveAiController extends Controller
 {
@@ -20,132 +21,136 @@ class AdaptiveAiController extends Controller
     }
 
     /**
-     * Mode A: Generate Modul Saja (Synchronous)
+     * Get or create chat session and load history.
      */
-    public function generateModules(Course $course, Request $request)
+    public function loadChat(Course $course, Request $request)
     {
-        $validated = $request->validate([
-            'archetype_name' => 'required|string',
-            'count'          => 'required|integer|min:1|max:10',
-            'extra_topics'   => 'nullable|string'
+        $archetype = $request->query('archetype');
+        if (!$archetype) {
+            return response()->json(['error' => 'Archetype is required'], 400);
+        }
+
+        $session = AiChatSession::firstOrCreate(
+            ['course_id' => $course->id, 'archetype_name' => $archetype],
+            ['status' => 'idle']
+        );
+
+        $messages = $session->messages()->orderBy('created_at', 'asc')->get();
+        $references = AiReference::where('course_id', $course->id)
+                                 ->where(function($q) use ($archetype) {
+                                     $q->where('archetype_name', $archetype)
+                                       ->orWhereNull('archetype_name');
+                                 })->get();
+
+        return response()->json([
+            'session_id' => $session->id,
+            'messages' => $messages,
+            'references' => $references,
         ]);
-
-        $result = $this->aiService->generateModules($course, $validated['archetype_name'], $validated['count'], $validated['extra_topics']);
-
-        if (!$result || !isset($result['modules'])) {
-            return back()->with('error', 'Gagal menghasilkan modul dari AI. Pastikan server Ollama berjalan.');
-        }
-
-        $lastOrder = AdaptiveModule::where('course_id', $course->id)
-                                   ->where('archetype_name', $validated['archetype_name'])
-                                   ->max('order') ?? -1;
-
-        foreach ($result['modules'] as $mod) {
-            $lastOrder++;
-            $course->adaptiveModules()->create([
-                'archetype_name' => $validated['archetype_name'],
-                'title'          => $mod['title'] ?? 'Untitled Module',
-                'description'    => $mod['description'] ?? null,
-                'order'          => $lastOrder,
-                'ai_generated'   => true,
-            ]);
-        }
-
-        return back()->with('success', count($result['modules']) . ' modul berhasil di-generate.');
     }
 
     /**
-     * Mode B: Generate Lessons untuk sebuah modul (Synchronous)
+     * Send a message to AI and get response.
      */
-    public function generateLessons(Course $course, Request $request)
+    public function sendMessage(Course $course, Request $request)
     {
-        $validated = $request->validate([
-            'module_id'      => 'required|exists:adaptive_modules,id',
-            'count'          => 'required|integer|min:1|max:10',
+        $request->validate([
+            'archetype' => 'required|string',
+            'message' => 'required|string'
         ]);
 
-        $module = AdaptiveModule::findOrFail($validated['module_id']);
+        $session = AiChatSession::firstOrCreate(
+            ['course_id' => $course->id, 'archetype_name' => $request->archetype],
+            ['status' => 'processing']
+        );
+
+        // Fetch references to use as RAG Context
+        $references = AiReference::where('course_id', $course->id)
+            ->where(function($q) use ($request) {
+                $q->where('archetype_name', $request->archetype)
+                  ->orWhereNull('archetype_name');
+            })->get();
+
+        $ragContexts = [];
+        foreach ($references as $ref) {
+            $ragContexts[] = "Judul Referensi: {$ref->original_filename}\nIsi:\n" . substr($ref->extracted_text, 0, 10000); // Limit to 10k chars per ref to avoid context overflow
+        }
+
+        // Call Service (this is a blocking call, can take 10-30 seconds depending on Ollama)
+        $aiResponseText = $this->aiService->sendChatMessage($session, $request->message, $ragContexts);
+
+        if (!$aiResponseText) {
+            return response()->json(['error' => 'Failed to get response from AI'], 500);
+        }
+
+        $session->update(['status' => 'idle']);
+
+        // Fetch the newly created messages
+        $newMessages = $session->messages()->orderBy('created_at', 'desc')->take(2)->get()->reverse()->values();
+
+        return response()->json([
+            'messages' => $newMessages
+        ]);
+    }
+
+    /**
+     * Upload reference file for RAG.
+     */
+    public function uploadReference(Course $course, Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:pdf,txt,md|max:10240', // 10MB max
+            'archetype' => 'required|string'
+        ]);
+
+        $file = $request->file('file');
+        $extension = $file->getClientOriginalExtension();
+        $originalName = $file->getClientOriginalName();
+        $path = $file->store('ai_references', 'local');
         
-        // Ensure module belongs to course
-        if ($module->course_id !== $course->id) {
+        $extractedText = '';
+
+        try {
+            if ($extension === 'pdf') {
+                $parser = new PdfParser();
+                $pdf = $parser->parseFile(storage_path('app/' . $path));
+                $extractedText = $pdf->getText();
+            } else {
+                // txt, md
+                $extractedText = file_get_contents(storage_path('app/' . $path));
+            }
+        } catch (\Exception $e) {
+            Storage::disk('local')->delete($path);
+            return response()->json(['error' => 'Gagal membaca isi file: ' . $e->getMessage()], 422);
+        }
+
+        // Save to Database
+        $reference = AiReference::create([
+            'course_id' => $course->id,
+            'archetype_name' => $request->archetype,
+            'file_path' => $path,
+            'original_filename' => $originalName,
+            'extracted_text' => $extractedText,
+        ]);
+
+        return response()->json([
+            'message' => 'File berhasil diunggah',
+            'reference' => $reference
+        ]);
+    }
+
+    /**
+     * Delete reference file.
+     */
+    public function deleteReference(Course $course, AiReference $reference)
+    {
+        if ($reference->course_id !== $course->id) {
             abort(403);
         }
 
-        $result = $this->aiService->generateLessons($module, $module->archetype_name, $validated['count']);
+        Storage::disk('local')->delete($reference->file_path);
+        $reference->delete();
 
-        if (!$result || !isset($result['lessons'])) {
-            return back()->with('error', 'Gagal menghasilkan lesson dari AI. Pastikan server Ollama berjalan.');
-        }
-
-        $lastOrder = $module->lessons()->max('order') ?? -1;
-
-        foreach ($result['lessons'] as $les) {
-            $lastOrder++;
-            $module->lessons()->create([
-                'title'        => $les['title'] ?? 'Untitled Lesson',
-                'content'      => $les['content'] ?? '<p>No content generated</p>',
-                'order'        => $lastOrder,
-                'ai_generated' => true,
-            ]);
-        }
-
-        return back()->with('success', count($result['lessons']) . ' lesson berhasil di-generate untuk modul ini.');
-    }
-
-    /**
-     * Mode C: Generate Full Curriculum (Asynchronous)
-     */
-    public function generateFull(Course $course, Request $request)
-    {
-        $validated = $request->validate([
-            'archetype_name' => 'required|string',
-            'module_count'   => 'required|integer|min:1|max:5',
-            'lesson_count'   => 'required|integer|min:1|max:5',
-            'extra_topics'   => 'nullable|string'
-        ]);
-
-        $job = new GenerateAdaptiveContentJob(
-            $course,
-            $validated['archetype_name'],
-            $validated['module_count'],
-            $validated['lesson_count'],
-            $validated['extra_topics']
-        );
-
-        app(\Illuminate\Contracts\Bus\Dispatcher::class)->dispatch($job);
-        
-        // Cache initial status to ensure the client immediately gets a valid status check
-        $jobId = $job->job ? $job->job->getJobId() : null;
-        
-        // Fallback random ID if connection is sync (for local testing without queue)
-        if (!$jobId) {
-            $jobId = uniqid('sync_');
-            Cache::put("adaptive_ai_job_{$jobId}", ['status' => 'completed', 'message' => 'Job executed synchronously.'], 3600);
-        }
-
-        return response()->json([
-            'status' => 'queued',
-            'job_id' => $jobId
-        ]);
-    }
-
-    /**
-     * Polling Endpoint for Job Status
-     */
-    public function checkStatus($jobId)
-    {
-        $cacheKey = "adaptive_ai_job_{$jobId}";
-        $statusData = Cache::get($cacheKey);
-
-        if (!$statusData) {
-            return response()->json(['status' => 'unknown', 'message' => 'Job status not found or processing.']);
-        }
-
-        // If completed or failed, we can clear the cache
-        if (in_array($statusData['status'], ['completed', 'failed'])) {
-            Cache::forget($cacheKey);
-        }
-
-        return response()->json($statusData);
+        return response()->json(['message' => 'File dihapus']);
     }
 }

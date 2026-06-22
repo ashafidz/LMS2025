@@ -408,11 +408,11 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
             Route::put('/lessons/{lesson}', [\App\Http\Controllers\Instructor\AdaptiveContentController::class, 'updateLesson'])->name('lessons.update');
             Route::delete('/lessons/{lesson}', [\App\Http\Controllers\Instructor\AdaptiveContentController::class, 'destroyLesson'])->name('lessons.destroy');
 
-            // AI Generation Endpoints
-            Route::post('/ai/generate-modules', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'generateModules'])->name('ai.generate-modules');
-            Route::post('/ai/generate-lessons', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'generateLessons'])->name('ai.generate-lessons');
-            Route::post('/ai/generate-full', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'generateFull'])->name('ai.generate-full');
-            Route::get('/ai/status/{jobId}', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'checkStatus'])->name('ai.status');
+            // AI Co-Pilot Endpoints
+            Route::get('/ai/chat', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'loadChat'])->name('ai.chat.load');
+            Route::post('/ai/chat', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'sendMessage'])->name('ai.chat.send');
+            Route::post('/ai/references', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'uploadReference'])->name('ai.references.upload');
+            Route::delete('/ai/references/{reference}', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'deleteReference'])->name('ai.references.destroy');
         });
 
 
