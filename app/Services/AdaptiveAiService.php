@@ -9,8 +9,13 @@ use Illuminate\Support\Facades\Log;
 
 class AdaptiveAiService
 {
-    private string $ollamaUrl = 'http://127.0.0.1:11434/api/chat'; // Changed to chat API
+    private string $ollamaUrl;
     private string $model = 'llama3:latest';
+
+    public function __construct()
+    {
+        $this->ollamaUrl = env('OLLAMA_URL', 'http://192.168.0.223:11434') . '/api/chat';
+    }
 
     public const ARCHETYPE_DESCRIPTIONS = [
         'Expert Innovator'       => 'Siswa Expert yang sangat committed ke semua fitur AI personalisasi. Semua preferensi AI bernilai sangat tinggi (>4.5).',
