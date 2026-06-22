@@ -305,7 +305,7 @@
                                                 <h5 class="modal-title text-warning"><i class="fa fa-magic mr-1"></i> Generate Lesson AI</h5>
                                                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                                             </div>
-                                            <form action="{{ route('instructor.adaptive.ai.generate-lessons', $course) }}" method="POST" class="ai-sync-form">
+                                            <form action="{{ url('#') }}" method="POST" class="ai-sync-form">
                                                 @csrf
                                                 <input type="hidden" name="module_id" value="{{ $module->id }}">
                                                 <div class="modal-body">
@@ -407,7 +407,7 @@
                 <h5 class="modal-title text-warning"><i class="fa fa-folder mr-1"></i> Generate Modul AI</h5>
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
-            <form action="{{ route('instructor.adaptive.ai.generate-modules', $course) }}" method="POST" class="ai-sync-form">
+            <form action="{{ url('#') }}" method="POST" class="ai-sync-form">
                 @csrf
                 <input type="hidden" name="archetype_name" value="{{ $activeArchetype }}">
                 <div class="modal-body">
@@ -569,7 +569,7 @@
                     btnFullSubmit.disabled = true;
                     btnFullCancel.disabled = true;
 
-                    fetch('{{ route("instructor.adaptive.ai.generate-full", $course) }}', {
+                    fetch('{{ url('#') }}', {
                         method: 'POST',
                         body: formData,
                         headers: {
