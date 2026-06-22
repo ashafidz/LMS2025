@@ -4,92 +4,91 @@ namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
-use App\Models\AiChatSession;
+use App\Models\AiGenerationJob;
 use App\Models\AiReference;
-use App\Services\AdaptiveAiService;
+use App\Jobs\GenerateAdaptiveContentJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Smalot\PdfParser\Parser as PdfParser;
 
 class AdaptiveAiController extends Controller
 {
-    protected AdaptiveAiService $aiService;
-
-    public function __construct(AdaptiveAiService $aiService)
-    {
-        $this->aiService = $aiService;
-    }
-
     /**
-     * Get or create chat session and load history.
+     * Start Background Job to Generate Full Curriculum.
      */
-    public function loadChat(Course $course, Request $request)
-    {
-        $archetype = $request->query('archetype');
-        if (!$archetype) {
-            return response()->json(['error' => 'Archetype is required'], 400);
-        }
-
-        $session = AiChatSession::firstOrCreate(
-            ['course_id' => $course->id, 'archetype_name' => $archetype],
-            ['status' => 'idle']
-        );
-
-        $messages = $session->messages()->orderBy('created_at', 'asc')->get();
-        $references = AiReference::where('course_id', $course->id)
-                                 ->where(function($q) use ($archetype) {
-                                     $q->where('archetype_name', $archetype)
-                                       ->orWhereNull('archetype_name');
-                                 })->get();
-
-        return response()->json([
-            'session_id' => $session->id,
-            'messages' => $messages,
-            'references' => $references,
-        ]);
-    }
-
-    /**
-     * Send a message to AI and get response.
-     */
-    public function sendMessage(Course $course, Request $request)
+    public function generateFull(Course $course, Request $request)
     {
         $request->validate([
-            'archetype' => 'required|string',
-            'message' => 'required|string'
+            'archetype_name' => 'required|string',
+            'module_count' => 'required|integer|min:1|max:5',
+            'lesson_count' => 'required|integer|min:1|max:5',
+            'extra_topics' => 'nullable|string'
         ]);
 
-        $session = AiChatSession::firstOrCreate(
-            ['course_id' => $course->id, 'archetype_name' => $request->archetype],
-            ['status' => 'processing']
-        );
+        $jobRecord = AiGenerationJob::create([
+            'course_id' => $course->id,
+            'archetype_name' => $request->archetype_name,
+            'type' => 'full',
+            'status' => 'queued',
+            'progress' => 0,
+            'message' => 'Masuk antrean...'
+        ]);
 
-        // Fetch references to use as RAG Context
-        $references = AiReference::where('course_id', $course->id)
-            ->where(function($q) use ($request) {
-                $q->where('archetype_name', $request->archetype)
-                  ->orWhereNull('archetype_name');
-            })->get();
-
-        $ragContexts = [];
-        foreach ($references as $ref) {
-            $ragContexts[] = "Judul Referensi: {$ref->original_filename}\nIsi:\n" . substr($ref->extracted_text, 0, 10000); // Limit to 10k chars per ref to avoid context overflow
-        }
-
-        // Call Service (this is a blocking call, can take 10-30 seconds depending on Ollama)
-        $aiResponseText = $this->aiService->sendChatMessage($session, $request->message, $ragContexts);
-
-        if (!$aiResponseText) {
-            return response()->json(['error' => 'Failed to get response from AI'], 500);
-        }
-
-        $session->update(['status' => 'idle']);
-
-        // Fetch the newly created messages
-        $newMessages = $session->messages()->orderBy('created_at', 'desc')->take(2)->get()->reverse()->values();
+        GenerateAdaptiveContentJob::dispatch($jobRecord, [
+            'module_count' => $request->module_count,
+            'lesson_count' => $request->lesson_count,
+            'extra_topics' => $request->extra_topics
+        ]);
 
         return response()->json([
-            'messages' => $newMessages
+            'status' => 'queued',
+            'job_id' => $jobRecord->id
+        ]);
+    }
+
+    /**
+     * Start Background Job to Generate Modules only.
+     */
+    public function generateModules(Course $course, Request $request)
+    {
+        $request->validate([
+            'archetype_name' => 'required|string',
+            'count' => 'required|integer|min:1|max:10',
+            'extra_topics' => 'nullable|string'
+        ]);
+
+        $jobRecord = AiGenerationJob::create([
+            'course_id' => $course->id,
+            'archetype_name' => $request->archetype_name,
+            'type' => 'modules',
+            'status' => 'queued',
+            'progress' => 0,
+            'message' => 'Masuk antrean...'
+        ]);
+
+        GenerateAdaptiveContentJob::dispatch($jobRecord, [
+            'module_count' => $request->count,
+            'extra_topics' => $request->extra_topics
+        ]);
+
+        return response()->json([
+            'status' => 'queued',
+            'job_id' => $jobRecord->id
+        ]);
+    }
+
+    /**
+     * Poll the status of a specific job.
+     */
+    public function checkStatus(Course $course, $jobId)
+    {
+        $job = AiGenerationJob::where('course_id', $course->id)->findOrFail($jobId);
+        
+        return response()->json([
+            'status' => $job->status, // queued, processing, completed, failed
+            'progress' => $job->progress,
+            'message' => $job->message,
+            'error' => $job->error
         ]);
     }
 

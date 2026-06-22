@@ -289,29 +289,71 @@
                                     @endforelse
                                     </div>
                                 </div>
-                                
-                                {{-- AI CO-PILOT CHAT INTERFACE --}}
+                                {{-- AI GENERATION FORM & PROGRESS --}}
                                 <div class="col-lg-5">
                                     <div class="card border-primary" style="height: 100%; border: 1px solid #007bff;">
                                         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center p-2">
-                                            <h6 class="m-0 text-white"><i class="fa fa-magic mr-1"></i> AI Co-Pilot</h6>
+                                            <h6 class="m-0 text-white"><i class="fa fa-magic mr-1"></i> AI Generator</h6>
                                             <button class="btn btn-sm btn-light text-primary" data-toggle="modal" data-target="#modal-ai-references">
                                                 <i class="fa fa-paperclip"></i> RAG Referensi
                                             </button>
                                         </div>
-                                        <div class="card-body" id="chat-box" style="height: 500px; overflow-y: auto; background: #f4f7fa;">
-                                            <div class="text-center text-muted my-5">
-                                                <i class="fa fa-spinner fa-spin fa-2x"></i><br>Memuat obrolan...
+                                        <div class="card-body bg-light" id="ai-panel-body">
+                                            
+                                            {{-- PROGRESS TRACKER (Hidden initially if no active job) --}}
+                                            <div id="job-tracker" class="{{ isset($activeJob) ? '' : 'd-none' }}">
+                                                <div class="text-center mb-3">
+                                                    <i class="fa fa-cogs fa-3x text-primary fa-spin mb-2"></i>
+                                                    <h6 class="text-primary">AI Sedang Bekerja...</h6>
+                                                    <p class="small text-muted" id="job-message">{{ isset($activeJob) ? $activeJob->message : '' }}</p>
+                                                </div>
+                                                <div class="progress mb-2" style="height: 20px;">
+                                                    <div id="job-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: {{ isset($activeJob) ? $activeJob->progress : 0 }}%;" aria-valuenow="{{ isset($activeJob) ? $activeJob->progress : 0 }}" aria-valuemin="0" aria-valuemax="100">{{ isset($activeJob) ? $activeJob->progress : 0 }}%</div>
+                                                </div>
+                                                <div class="alert alert-warning small">
+                                                    <i class="fa fa-info-circle"></i> Proses ini memakan waktu beberapa menit. Anda boleh meninggalkan halaman ini atau me-refresh, proses akan tetap berjalan di latar belakang.
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="card-footer p-2 bg-light">
-                                            <form id="chat-form" class="d-flex">
-                                                <input type="text" id="chat-input" class="form-control mr-2" placeholder="Tulis instruksi untuk merancang modul..." required autocomplete="off">
-                                                <button type="submit" class="btn btn-primary" id="chat-submit">
-                                                    <i class="fa fa-paper-plane"></i>
-                                                </button>
-                                            </form>
-                                            <div class="mt-2 small text-muted text-center">AI merespons dengan format teks (Markdown).</div>
+
+                                            {{-- FORM GENERATION --}}
+                                            <div id="ai-form-container" class="{{ isset($activeJob) ? 'd-none' : '' }}">
+                                                <form id="ai-generate-form">
+                                                    <div class="form-group">
+                                                        <label class="small font-weight-bold">Tipe Generasi</label>
+                                                        <select class="form-control form-control-sm" id="gen-type" name="type">
+                                                            <option value="full">Full Curriculum (Modul & Lesson)</option>
+                                                            <option value="modules">Hanya Modul (Tanpa Lesson)</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <div class="form-group">
+                                                                <label class="small font-weight-bold">Jumlah Modul</label>
+                                                                <input type="number" class="form-control form-control-sm" id="gen-modules" name="module_count" min="1" max="10" value="3" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div class="form-group" id="lesson-group">
+                                                                <label class="small font-weight-bold">Lesson per Modul</label>
+                                                                <input type="number" class="form-control form-control-sm" id="gen-lessons" name="lesson_count" min="1" max="5" value="2">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="small font-weight-bold">Fokus / Topik Tambahan <span class="text-muted font-weight-normal">(Opsional)</span></label>
+                                                        <textarea class="form-control form-control-sm" id="gen-topics" name="extra_topics" rows="3" placeholder="Contoh: Fokus pada studi kasus industri..."></textarea>
+                                                    </div>
+                                                    
+                                                    <button type="submit" class="btn btn-primary btn-block" id="btn-generate">
+                                                        <i class="fa fa-magic"></i> Mulai Generate
+                                                    </button>
+                                                </form>
+                                                <hr>
+                                                <div class="text-center">
+                                                    <small class="text-muted"><i class="fa fa-info-circle"></i> AI akan merancang silabus berdasarkan pengaturan di atas dan dokumen RAG yang Anda unggah.</small>
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -431,41 +473,34 @@
             });
 
             // ==========================================
-            // AI CO-PILOT CHAT LOGIC
+            // AI GENERATOR & POLLING LOGIC
             // ==========================================
             const courseId = '{{ $course->id }}';
             const archetype = '{{ $activeArchetype }}';
-            const chatBox = document.getElementById('chat-box');
-            const chatForm = document.getElementById('chat-form');
-            const chatInput = document.getElementById('chat-input');
-            const chatSubmit = document.getElementById('chat-submit');
+            const csrfToken = '{{ csrf_token() }}';
+            
+            const formContainer = document.getElementById('ai-form-container');
+            const jobTracker = document.getElementById('job-tracker');
+            const aiForm = document.getElementById('ai-generate-form');
+            const btnGenerate = document.getElementById('btn-generate');
+            const genType = document.getElementById('gen-type');
+            const lessonGroup = document.getElementById('lesson-group');
             const refForm = document.getElementById('form-upload-reference');
             const refList = document.getElementById('reference-list');
-            const csrfToken = '{{ csrf_token() }}';
+            
+            let activeJobId = {{ isset($activeJob) ? $activeJob->id : 'null' }};
+            let pollInterval = null;
 
-            function renderMessage(role, content) {
-                const isAssistant = role === 'assistant';
-                const align = isAssistant ? 'text-left' : 'text-right';
-                // Use marked.js to render Markdown
-                let formattedContent = '';
-                if (typeof marked !== 'undefined') {
-                    formattedContent = marked.parse(content);
+            // Toggle lesson count input based on type
+            genType.addEventListener('change', function() {
+                if (this.value === 'modules') {
+                    lessonGroup.style.display = 'none';
+                    document.getElementById('gen-lessons').value = 0;
                 } else {
-                    formattedContent = content.replace(/\n/g, '<br>');
+                    lessonGroup.style.display = 'block';
+                    document.getElementById('gen-lessons').value = 2;
                 }
-
-                // Inject a small copy button for assistant messages if needed, or just let it render.
-                const html = `
-                    <div class="mb-3 ${align}">
-                        <div class="d-inline-block p-3 rounded text-left shadow-sm" style="max-width: 90%; ${!isAssistant ? 'background: #007bff; color: white;' : 'background: white; border: 1px solid #ddd;'}">
-                            ${isAssistant ? '<strong class="text-primary"><i class="fa fa-robot"></i> AI Co-Pilot:</strong><hr class="my-2">' : ''}
-                            <div style="font-size: 14px;">${formattedContent}</div>
-                        </div>
-                    </div>
-                `;
-                chatBox.insertAdjacentHTML('beforeend', html);
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
+            });
 
             function renderReferences(references) {
                 refList.innerHTML = '';
@@ -490,63 +525,104 @@
                                 method: 'DELETE',
                                 headers: { 'X-CSRF-TOKEN': csrfToken }
                             }).then(res => res.json()).then(data => {
-                                loadChat(); // Reload references
+                                loadReferences();
                             });
                         }
                     });
                 });
             }
 
-            function loadChat() {
-                fetch(`/instructor/courses/${courseId}/adaptive/ai/chat?archetype=${encodeURIComponent(archetype)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        chatBox.innerHTML = '';
-                        if (data.messages.length === 0) {
-                            chatBox.innerHTML = '<div class="text-center text-muted my-5"><i class="fa fa-comments-o fa-3x mb-2"></i><br>Mulai obrolan dengan AI untuk merancang modul.</div>';
-                        } else {
-                            data.messages.forEach(msg => {
-                                if (msg.role !== 'system') renderMessage(msg.role, msg.content);
-                            });
-                        }
-                        renderReferences(data.references);
-                    });
+            function loadReferences() {
+                // We use a separate fetch just for references since the chat API is gone.
+                // Wait, we don't have a dedicated getReferences API yet.
+                // It's okay, we can just reload the page if they upload/delete to keep it simple,
+                // or we can just fetch via an API if it exists.
+                // Since I didn't make a getReferences API, let's just reload.
+                location.reload();
             }
 
-            chatForm.addEventListener('submit', function(e) {
+            // Handle Form Submit
+            aiForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const msg = chatInput.value.trim();
-                if(!msg) return;
-                
-                renderMessage('user', msg);
-                chatInput.value = '';
-                chatSubmit.disabled = true;
-                chatBox.insertAdjacentHTML('beforeend', '<div id="ai-typing" class="text-muted small mb-3 text-left"><i class="fa fa-spinner fa-spin mr-1"></i> AI sedang memikirkan kurikulum...</div>');
-                chatBox.scrollTop = chatBox.scrollHeight;
+                btnGenerate.disabled = true;
+                btnGenerate.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Memulai...';
 
-                fetch(`/instructor/courses/${courseId}/adaptive/ai/chat`, {
+                const type = genType.value;
+                const endpoint = type === 'full' ? `/instructor/courses/${courseId}/adaptive/ai/generate-full` : `/instructor/courses/${courseId}/adaptive/ai/generate-modules`;
+                
+                const payload = {
+                    archetype_name: archetype,
+                    module_count: document.getElementById('gen-modules').value,
+                    extra_topics: document.getElementById('gen-topics').value
+                };
+                if (type === 'full') {
+                    payload.lesson_count = document.getElementById('gen-lessons').value;
+                } else {
+                    payload.count = document.getElementById('gen-modules').value;
+                }
+
+                fetch(endpoint, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     },
-                    body: JSON.stringify({ archetype: archetype, message: msg })
+                    body: JSON.stringify(payload)
                 })
                 .then(res => res.json())
                 .then(data => {
-                    document.getElementById('ai-typing').remove();
-                    chatSubmit.disabled = false;
-                    const asstMsg = data.messages.find(m => m.role === 'assistant');
-                    if (asstMsg) {
-                        renderMessage('assistant', asstMsg.content);
+                    if (data.job_id) {
+                        activeJobId = data.job_id;
+                        formContainer.classList.add('d-none');
+                        jobTracker.classList.remove('d-none');
+                        startPolling();
+                    } else {
+                        alert('Gagal memulai proses AI.');
+                        btnGenerate.disabled = false;
+                        btnGenerate.innerHTML = '<i class="fa fa-magic"></i> Mulai Generate';
                     }
                 })
                 .catch(err => {
-                    document.getElementById('ai-typing').remove();
-                    chatSubmit.disabled = false;
-                    alert("Terjadi kesalahan koneksi ke AI.");
+                    alert('Terjadi kesalahan.');
+                    btnGenerate.disabled = false;
+                    btnGenerate.innerHTML = '<i class="fa fa-magic"></i> Mulai Generate';
                 });
             });
+
+            function startPolling() {
+                if (!activeJobId) return;
+                
+                pollInterval = setInterval(() => {
+                    fetch(`/instructor/courses/${courseId}/adaptive/ai/status/${activeJobId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const pb = document.getElementById('job-progress-bar');
+                        const msg = document.getElementById('job-message');
+                        
+                        pb.style.width = data.progress + '%';
+                        pb.textContent = data.progress + '%';
+                        msg.textContent = data.message;
+
+                        if (data.status === 'completed') {
+                            clearInterval(pollInterval);
+                            pb.classList.remove('progress-bar-animated');
+                            msg.innerHTML = '<span class="text-success"><i class="fa fa-check"></i> Selesai! Me-refresh halaman...</span>';
+                            setTimeout(() => location.reload(), 2000);
+                        } else if (data.status === 'failed') {
+                            clearInterval(pollInterval);
+                            pb.classList.remove('progress-bar-animated', 'bg-success');
+                            pb.classList.add('bg-danger');
+                            msg.innerHTML = `<span class="text-danger"><i class="fa fa-times"></i> Gagal: ${data.error}</span>`;
+                            setTimeout(() => {
+                                formContainer.classList.remove('d-none');
+                                jobTracker.classList.add('d-none');
+                                btnGenerate.disabled = false;
+                                btnGenerate.innerHTML = '<i class="fa fa-magic"></i> Mulai Generate';
+                            }, 5000);
+                        }
+                    });
+                }, 3000); // poll every 3 seconds
+            }
 
             refForm.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -564,11 +640,13 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa fa-upload"></i> Unggah Referensi';
-                    document.getElementById('reference-file').value = '';
-                    if(data.error) alert(data.error);
-                    loadChat(); // Refresh references
+                    if(data.error) {
+                        alert(data.error);
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa fa-upload"></i> Unggah Referensi';
+                    } else {
+                        location.reload(); // Simple reload to show new reference
+                    }
                 })
                 .catch(err => {
                     btn.disabled = false;
@@ -577,8 +655,10 @@
                 });
             });
 
-            // Init load
-            loadChat();
+            // If there's an active job on page load, start polling immediately
+            if (activeJobId) {
+                startPolling();
+            }
         });
     </script>
 @endpush

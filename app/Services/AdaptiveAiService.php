@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Course;
-use App\Models\AiChatSession;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -14,6 +13,7 @@ class AdaptiveAiService
 
     public function __construct()
     {
+        // Using chat API instead of generate for better context handling
         $baseUrl = env('OLLAMA_BASE_URL', 'http://127.0.0.1:11434');
         $this->ollamaUrl = rtrim($baseUrl, '/') . '/api/chat';
         $this->model = env('OLLAMA_DEFAULT_MODEL', 'llama3:latest');
@@ -28,92 +28,94 @@ class AdaptiveAiService
         'Guided Growth Learner'  => 'Siswa dengan prior knowledge rendah (<75%). Membutuhkan scaffolding dan bimbingan intensif.',
     ];
 
-    /**
-     * Build the system prompt based on Course and Archetype.
-     */
-    public function buildSystemPrompt(Course $course, string $archetype): string
-    {
+    public function generateCurriculum(
+        Course $course, 
+        string $archetype, 
+        int $moduleCount, 
+        int $lessonCount = 0, // 0 means modules only
+        ?string $extraTopics = null,
+        array $ragContexts = [] // array of reference texts
+    ): ?array {
         $desc = self::ARCHETYPE_DESCRIPTIONS[$archetype] ?? '';
-        
-        return "Kamu adalah AI Co-Pilot untuk membantu instruktur merancang kurikulum adaptif.\n"
-             . "Kursus yang sedang dikelola: '{$course->title}'\n"
-             . "Deskripsi kursus: " . strip_tags($course->description) . "\n\n"
-             . "Target kelompok belajar (Archetype): '{$archetype}'\n"
-             . "Profil kelompok: {$desc}\n\n"
-             . "Instruksi Khusus:\n"
-             . "1. Gunakan bahasa Indonesia yang profesional dan mudah dipahami.\n"
-             . "2. Fokus pada pembuatan rancangan modul dan lesson (pelajaran) yang sesuai dengan karakteristik kelompok target.\n"
-             . "3. Jangan gunakan format JSON kecuali diminta secara spesifik. Gunakan format teks Markdown yang rapi untuk menyajikan draf silabus atau lesson.\n"
-             . "4. Jika instruktur mengunggah referensi materi, gunakan referensi tersebut sebagai dasar untuk merancang konten.";
-    }
 
-    /**
-     * Send chat request to Ollama.
-     */
-    public function sendChatMessage(AiChatSession $session, string $userMessage, array $ragContexts = []): ?string
-    {
-        // 1. Build messages array starting with System Prompt
-        $messages = [
-            [
-                'role' => 'system',
-                'content' => $this->buildSystemPrompt($session->course, $session->archetype_name)
-            ]
-        ];
+        $systemPrompt = "Kamu adalah sistem pembuat kurikulum adaptif yang outputnya WAJIB dalam format JSON murni tanpa ada teks pengantar atau penutup.\n"
+            . "Kursus: '{$course->title}'\n"
+            . "Deskripsi kursus: " . strip_tags($course->description) . "\n\n"
+            . "Target kelompok belajar (Archetype): '{$archetype}'\n"
+            . "Profil kelompok: {$desc}\n";
 
-        // 2. Append Chat History
-        $history = $session->messages()->orderBy('created_at', 'asc')->get();
-        foreach ($history as $msg) {
-            if ($msg->role === 'system') continue; // We already set the initial system prompt
-            $messages[] = [
-                'role' => $msg->role,
-                'content' => $msg->content
-            ];
-        }
-
-        // 3. Inject RAG Context into the user's latest message if available
-        $finalUserContent = $userMessage;
         if (!empty($ragContexts)) {
-            $contextText = implode("\n\n---\n\n", $ragContexts);
-            $finalUserContent = "Berikut adalah materi referensi yang relevan:\n\n{$contextText}\n\nInstruksi saya: {$userMessage}";
+            $systemPrompt .= "\n--- REFERENSI MATERI (RAG) ---\nInstruktur mengunggah referensi berikut. Gunakan sebagai dasar konten materi:\n\n";
+            $systemPrompt .= implode("\n\n=== BATAS REFERENSI ===\n\n", $ragContexts);
+            $systemPrompt .= "\n--- AKHIR REFERENSI ---\n";
         }
 
-        // Add the user's new message to the history payload
-        $messages[] = [
-            'role' => 'user',
-            'content' => $finalUserContent
-        ];
+        $userPrompt = "Tolong buatkan kurikulum dengan {$moduleCount} modul.";
+        if ($lessonCount > 0) {
+            $userPrompt .= " Setiap modul harus memiliki tepat {$lessonCount} lesson.";
+        } else {
+            $userPrompt .= " Jangan buat lesson di dalamnya.";
+        }
+        if ($extraTopics) {
+            $userPrompt .= " Fokus tambahan/topik spesifik: {$extraTopics}.";
+        }
 
-        // Save User Message to DB
-        $session->messages()->create([
-            'role' => 'user',
-            'content' => $finalUserContent
-        ]);
+        // Schema JSON for output formatting
+        if ($lessonCount > 0) {
+            $jsonSchema = '{
+                "curriculum": [
+                    {
+                        "title": "Judul Modul 1",
+                        "description": "Deskripsi Modul",
+                        "lessons": [
+                            {
+                                "title": "Judul Lesson 1",
+                                "content": "Konten artikel penjelasan materi secara detail (gunakan format HTML dasar p, b, i, ul, li)."
+                            }
+                        ]
+                    }
+                ]
+            }';
+        } else {
+            $jsonSchema = '{
+                "curriculum": [
+                    {
+                        "title": "Judul Modul 1",
+                        "description": "Deskripsi Modul"
+                    }
+                ]
+            }';
+        }
 
-        // 4. Call Ollama Chat API
+        $userPrompt .= "\n\nFormat keluaran HARUS berformat JSON seperti contoh berikut:\n$jsonSchema";
+
         try {
-            $response = Http::timeout(300)->post($this->ollamaUrl, [
+            $response = Http::timeout(600)->post($this->ollamaUrl, [
                 'model'    => $this->model,
-                'messages' => $messages,
+                'messages' => [
+                    ['role' => 'system', 'content' => $systemPrompt],
+                    ['role' => 'user', 'content' => $userPrompt]
+                ],
                 'stream'   => false,
+                'format'   => 'json' // Force Ollama to return JSON if supported by model
             ]);
 
             if ($response->successful()) {
-                $assistantContent = $response->json('message.content');
+                $content = $response->json('message.content');
                 
-                // Save Assistant Message to DB
-                $session->messages()->create([
-                    'role' => 'assistant',
-                    'content' => $assistantContent
-                ]);
+                // Coba bersihkan markdown json block jika AI bandel
+                $content = preg_replace('/```json/i', '', $content);
+                $content = preg_replace('/```/', '', $content);
+                $content = trim($content);
 
-                return $assistantContent;
+                return json_decode($content, true);
             }
-            
-            Log::error('Ollama Chat Failed', ['status' => $response->status(), 'body' => $response->body()]);
+
+            Log::error('Ollama Generation Failed', ['status' => $response->status(), 'body' => $response->body()]);
             return null;
 
         } catch (\Exception $e) {
-            Log::error('Ollama Connection Error', ['message' => $e->getMessage()]);
+            Log::error('Ollama Generation Error', ['message' => $e->getMessage()]);
             return null;
         }
     }

@@ -52,11 +52,17 @@ class AdaptiveContentController extends Controller
                           ->orderBy('order')
                           ->get();
 
+        $activeJob = \App\Models\AiGenerationJob::where('course_id', $course->id)
+            ->where('archetype_name', $activeArchetype)
+            ->whereIn('status', ['queued', 'processing'])
+            ->first();
+
         return view('instructor.adaptive.index', [
             'course'          => $course,
             'archetypes'      => self::ARCHETYPES,
             'activeArchetype' => $activeArchetype,
             'modules'         => $modules,
+            'activeJob'       => $activeJob,
         ]);
     }
 
