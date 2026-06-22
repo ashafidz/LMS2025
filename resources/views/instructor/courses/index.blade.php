@@ -138,6 +138,12 @@
                                                             <a href="{{ route('instructor.courses.edit', $course) }}" class="btn btn-info btn-sm" title="Edit Kursus">
                                                                 <i class="fa fa-pencil"></i>
                                                             </a>
+
+                                                            @if($course->type === 'adaptive')
+                                                                <a href="{{ route('instructor.adaptive.index', $course) }}" class="btn btn-success btn-sm" title="Kelola Konten Adaptif (AI)">
+                                                                    <i class="fa fa-sitemap"></i>
+                                                                </a>
+                                                            @endif
                                                             
                                                                                                                         {{-- TOMBOL BARU UNTUK CLONE --}}
                                                             <form action="{{ route('instructor.courses.clone', $course) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin meng-clone kursus ini?');">
