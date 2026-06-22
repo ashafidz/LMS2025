@@ -10,11 +10,13 @@ use Illuminate\Support\Facades\Log;
 class AdaptiveAiService
 {
     private string $ollamaUrl;
-    private string $model = 'llama3:latest';
+    private string $model;
 
     public function __construct()
     {
-        $this->ollamaUrl = env('OLLAMA_URL', 'http://192.168.0.223:11434') . '/api/chat';
+        $baseUrl = env('OLLAMA_BASE_URL', 'http://127.0.0.1:11434');
+        $this->ollamaUrl = rtrim($baseUrl, '/') . '/api/chat';
+        $this->model = env('OLLAMA_DEFAULT_MODEL', 'llama3:latest');
     }
 
     public const ARCHETYPE_DESCRIPTIONS = [
