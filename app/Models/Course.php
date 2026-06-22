@@ -150,4 +150,22 @@ class Course extends Model
     {
         return $this->hasMany(ProfilingAttempt::class, 'course_id');
     }
+
+    // ─── Adaptive Content Relations ───────────────────────────
+
+    /**
+     * Semua modul adaptif untuk kursus ini (lintas archetype).
+     */
+    public function adaptiveModules()
+    {
+        return $this->hasMany(AdaptiveModule::class)->orderBy('order');
+    }
+
+    /**
+     * Modul adaptif untuk archetype tertentu.
+     */
+    public function adaptiveModulesFor(string $archetype)
+    {
+        return $this->adaptiveModules()->where('archetype_name', $archetype);
+    }
 }

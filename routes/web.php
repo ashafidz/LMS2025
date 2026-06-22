@@ -393,6 +393,23 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         Route::get('/instructor/courses/{course}/kmeans', [\App\Http\Controllers\Instructor\InstructorKMeansController::class, 'show'])->name('instructor.kmeans.show');
         Route::post('/instructor/courses/{course}/kmeans/run', [\App\Http\Controllers\Instructor\InstructorKMeansController::class, 'run'])->name('instructor.kmeans.run');
 
+        // --- RUTE KONTEN ADAPTIVE UNTUK INSTRUKTUR ---
+        Route::prefix('/instructor/courses/{course}/adaptive')->name('instructor.adaptive.')->group(function () {
+            // Halaman utama (index + pilih archetype)
+            Route::get('/', [\App\Http\Controllers\Instructor\AdaptiveContentController::class, 'index'])->name('index');
+
+            // CRUD Modul
+            Route::post('/modules', [\App\Http\Controllers\Instructor\AdaptiveContentController::class, 'storeModule'])->name('modules.store');
+            Route::put('/modules/{module}', [\App\Http\Controllers\Instructor\AdaptiveContentController::class, 'updateModule'])->name('modules.update');
+            Route::delete('/modules/{module}', [\App\Http\Controllers\Instructor\AdaptiveContentController::class, 'destroyModule'])->name('modules.destroy');
+
+            // CRUD Lesson
+            Route::post('/modules/{module}/lessons', [\App\Http\Controllers\Instructor\AdaptiveContentController::class, 'storeLesson'])->name('lessons.store');
+            Route::put('/lessons/{lesson}', [\App\Http\Controllers\Instructor\AdaptiveContentController::class, 'updateLesson'])->name('lessons.update');
+            Route::delete('/lessons/{lesson}', [\App\Http\Controllers\Instructor\AdaptiveContentController::class, 'destroyLesson'])->name('lessons.destroy');
+        });
+
+
         // GET /instructor/courses -> List all courses
         Route::get('/instructor/courses', [CourseController::class, 'index'])->name('instructor.courses.index');
 
