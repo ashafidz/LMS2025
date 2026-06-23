@@ -38,14 +38,16 @@ class AdaptiveAiService
     ): ?array {
         $desc = self::ARCHETYPE_DESCRIPTIONS[$archetype] ?? '';
 
-        $systemPrompt = "Kamu adalah sistem pembuat kurikulum adaptif yang outputnya WAJIB dalam format JSON murni tanpa ada teks pengantar atau penutup.\n"
+        $systemPrompt = "Kamu adalah instruktur ahli yang membuat kurikulum adaptif. Output WAJIB dalam format JSON murni.\n"
             . "Kursus: '{$course->title}'\n"
             . "Deskripsi kursus: " . strip_tags($course->description) . "\n\n"
             . "Target kelompok belajar (Archetype): '{$archetype}'\n"
-            . "Profil kelompok: {$desc}\n";
+            . "Profil kelompok: {$desc}\n"
+            . "PENTING: Konten 'lesson' (materi pelajaran) HARUS ditulis dengan sangat detail, panjang, dan komprehensif. "
+            . "Minimal 4-5 paragraf per lesson. Berikan penjelasan mendalam, contoh kasus, dan langkah-langkah konkret. Jangan hanya memberikan ringkasan singkat.\n";
 
         if (!empty($ragContexts)) {
-            $systemPrompt .= "\n--- REFERENSI MATERI (RAG) ---\nInstruktur mengunggah referensi berikut. Gunakan sebagai dasar konten materi:\n\n";
+            $systemPrompt .= "\n--- REFERENSI MATERI (RAG) ---\nInstruktur mengunggah referensi berikut. Ekstrak materi yang relevan dan tuliskan penjelasannya secara lengkap dan mendalam:\n\n";
             $systemPrompt .= implode("\n\n=== BATAS REFERENSI ===\n\n", $ragContexts);
             $systemPrompt .= "\n--- AKHIR REFERENSI ---\n";
         }
@@ -53,6 +55,7 @@ class AdaptiveAiService
         $userPrompt = "Tolong buatkan kurikulum dengan {$moduleCount} modul.";
         if ($lessonCount > 0) {
             $userPrompt .= " Setiap modul harus memiliki tepat {$lessonCount} lesson.";
+            $userPrompt .= " Ingat, isi 'content' dari setiap lesson harus panjang dan sangat detail (gunakan HTML tag seperti <p>, <strong>, <ul>, <li>).";
         } else {
             $userPrompt .= " Jangan buat lesson di dalamnya.";
         }
@@ -70,7 +73,7 @@ class AdaptiveAiService
                         "lessons": [
                             {
                                 "title": "Judul Lesson 1",
-                                "content": "Konten artikel penjelasan materi secara detail (gunakan format HTML dasar p, b, i, ul, li)."
+                                "content": "<p>Paragraf pertama yang sangat panjang dan mendetail...</p><p>Paragraf kedua menjelaskan konsep lebih dalam...</p><ul><li>Poin penting 1</li><li>Poin penting 2</li></ul><p>Paragraf penutup dengan kesimpulan yang jelas...</p>"
                             }
                         ]
                     }
