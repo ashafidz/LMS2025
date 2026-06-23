@@ -652,6 +652,7 @@
                         btn.disabled = false;
                         btn.innerHTML = '<i class="fa fa-upload"></i> Unggah Referensi';
                     } else {
+                        alert('Referensi berhasil diunggah!');
                         location.reload(); // Simple reload to show new reference
                     }
                 })
