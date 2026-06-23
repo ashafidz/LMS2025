@@ -57,12 +57,19 @@ class AdaptiveContentController extends Controller
             ->whereIn('status', ['queued', 'processing'])
             ->first();
 
+        $references = \App\Models\AiReference::where('course_id', $course->id)
+            ->where(function($q) use ($activeArchetype) {
+                $q->where('archetype_name', $activeArchetype)
+                  ->orWhereNull('archetype_name');
+            })->get();
+
         return view('instructor.adaptive.index', [
             'course'          => $course,
             'archetypes'      => self::ARCHETYPES,
             'activeArchetype' => $activeArchetype,
             'modules'         => $modules,
             'activeJob'       => $activeJob,
+            'references'      => $references,
         ]);
     }
 

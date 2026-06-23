@@ -451,9 +451,15 @@
                     </button>
                 </form>
                 <hr>
-                <h6>Daftar Referensi:</h6>
                 <ul id="reference-list" class="list-group list-group-flush">
-                    <li class="list-group-item text-center text-muted small py-2">Belum ada referensi.</li>
+                    @forelse($references as $ref)
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-2 py-1 small">
+                            <span class="text-truncate" style="max-width: 80%;"><i class="fa fa-file-text-o mr-1"></i> {{ $ref->original_filename }}</span>
+                            <button type="button" class="btn btn-xs btn-danger btn-delete-ref" data-id="{{ $ref->id }}"><i class="fa fa-trash"></i></button>
+                        </li>
+                    @empty
+                        <li class="list-group-item text-center text-muted small py-2">Belum ada referensi.</li>
+                    @endforelse
                 </ul>
             </div>
         </div>
@@ -527,44 +533,20 @@
                 }
             });
 
-            function renderReferences(references) {
-                refList.innerHTML = '';
-                if (references.length === 0) {
-                    refList.innerHTML = '<li class="list-group-item text-center text-muted small py-2">Belum ada referensi.</li>';
-                    return;
-                }
-                references.forEach(ref => {
-                    refList.insertAdjacentHTML('beforeend', `
-                        <li class="list-group-item d-flex justify-content-between align-items-center px-2 py-1 small">
-                            <span class="text-truncate" style="max-width: 80%;"><i class="fa fa-file-text-o mr-1"></i> ${ref.original_filename}</span>
-                            <button type="button" class="btn btn-xs btn-danger btn-delete-ref" data-id="${ref.id}"><i class="fa fa-trash"></i></button>
-                        </li>
-                    `);
+            // Initialize delete reference buttons
+            document.querySelectorAll('.btn-delete-ref').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    if(confirm('Hapus referensi ini?')) {
+                        fetch(`/instructor/courses/${courseId}/adaptive/ai/references/${id}`, {
+                            method: 'DELETE',
+                            headers: { 'X-CSRF-TOKEN': csrfToken }
+                        }).then(res => res.json()).then(data => {
+                            location.reload();
+                        });
+                    }
                 });
-
-                document.querySelectorAll('.btn-delete-ref').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const id = this.getAttribute('data-id');
-                        if(confirm('Hapus referensi ini?')) {
-                            fetch(`/instructor/courses/${courseId}/adaptive/ai/references/${id}`, {
-                                method: 'DELETE',
-                                headers: { 'X-CSRF-TOKEN': csrfToken }
-                            }).then(res => res.json()).then(data => {
-                                loadReferences();
-                            });
-                        }
-                    });
-                });
-            }
-
-            function loadReferences() {
-                // We use a separate fetch just for references since the chat API is gone.
-                // Wait, we don't have a dedicated getReferences API yet.
-                // It's okay, we can just reload the page if they upload/delete to keep it simple,
-                // or we can just fetch via an API if it exists.
-                // Since I didn't make a getReferences API, let's just reload.
-                location.reload();
-            }
+            });
 
             // Handle Form Submit
             aiForm.addEventListener('submit', function(e) {
