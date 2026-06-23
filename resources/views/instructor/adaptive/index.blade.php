@@ -145,6 +145,11 @@
                                                             @endif
                                                         </div>
                                                         <div>
+                                                            <button class="btn btn-xs btn-outline-info mr-1"
+                                                                    data-toggle="modal"
+                                                                    data-target="#modal-preview-lesson-{{ $lesson->id }}">
+                                                                <i class="fa fa-eye"></i> Preview
+                                                            </button>
                                                             <button class="btn btn-xs btn-outline-primary mr-1"
                                                                     data-toggle="modal"
                                                                     data-target="#modal-edit-lesson-{{ $lesson->id }}">
@@ -158,6 +163,26 @@
                                                                     <i class="fa fa-trash"></i>
                                                                 </button>
                                                             </form>
+                                                        </div>
+                                                    </div>
+
+                                                    {{-- Modal Preview Lesson --}}
+                                                    <div class="modal fade" id="modal-preview-lesson-{{ $lesson->id }}" tabindex="-1">
+                                                        <div class="modal-dialog modal-lg">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title"><i class="fa fa-eye"></i> Preview: {{ $lesson->title }}</h5>
+                                                                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <div class="p-3 bg-light border rounded" style="max-height: 60vh; overflow-y: auto;">
+                                                                        {!! $lesson->content !!}
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
 
