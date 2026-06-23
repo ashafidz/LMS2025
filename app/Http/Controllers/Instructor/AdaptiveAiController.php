@@ -103,20 +103,22 @@ class AdaptiveAiController extends Controller
         ]);
 
         $file = $request->file('file');
-        $extension = $file->getClientOriginalExtension();
+        $extension = strtolower($file->getClientOriginalExtension());
         $originalName = $file->getClientOriginalName();
         $path = $file->store('ai_references', 'local');
         
         $extractedText = '';
 
         try {
+            $absolutePath = Storage::disk('local')->path($path);
+            
             if ($extension === 'pdf') {
                 $parser = new PdfParser();
-                $pdf = $parser->parseFile(storage_path('app/' . $path));
+                $pdf = $parser->parseFile($absolutePath);
                 $extractedText = $pdf->getText();
             } else {
                 // txt, md
-                $extractedText = file_get_contents(storage_path('app/' . $path));
+                $extractedText = file_get_contents($absolutePath);
             }
         } catch (\Exception $e) {
             Storage::disk('local')->delete($path);
