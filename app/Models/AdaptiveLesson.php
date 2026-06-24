@@ -16,6 +16,7 @@ class AdaptiveLesson extends Model
         'content',
         'assignment_instructions',
         'assignment_max_score',
+        'quiz_data',
         'order',
         'ai_generated',
         'ai_prompt_used',
@@ -24,6 +25,7 @@ class AdaptiveLesson extends Model
     protected $casts = [
         'ai_generated'         => 'boolean',
         'assignment_max_score' => 'integer',
+        'quiz_data'            => 'array',
     ];
 
     // ─── Relationships ────────────────────────────────────────

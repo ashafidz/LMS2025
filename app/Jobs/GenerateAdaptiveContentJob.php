@@ -136,6 +136,40 @@ class GenerateAdaptiveContentJob implements ShouldQueue
             return;
         }
 
+        // ─── QUIZZES MODE ─────────────────────────────────────────
+        if ($this->jobRecord->type === 'quizzes') {
+            $module = AdaptiveModule::findOrFail($this->params['module_id']);
+
+            $result = $aiService->generateQuizLessons(
+                $course, $archetype, $module, $lessonCount, $extraTopics, $ragContexts
+            );
+
+            if (!$result || !isset($result['quizzes'])) {
+                $this->jobRecord->update(['status' => 'failed', 'progress' => 0,
+                    'message' => 'Gagal mendapatkan response.',
+                    'error' => 'AI tidak merespons dengan format JSON yang valid atau terputus.']);
+                return;
+            }
+
+            $this->jobRecord->update(['progress' => 80, 'message' => 'Menyimpan quiz ke database...']);
+
+            $lastOrderLes = \App\Models\AdaptiveLesson::where('adaptive_module_id', $module->id)->max('order') ?? -1;
+            foreach ($result['quizzes'] as $quizData) {
+                $lastOrderLes++;
+                $module->lessons()->create([
+                    'title'        => $quizData['title'],
+                    'lesson_type'  => 'quiz',
+                    'content'      => $quizData['description'] ?? '<p>Quiz.</p>',
+                    'quiz_data'    => $quizData['questions'] ?? [],
+                    'order'        => $lastOrderLes,
+                    'ai_generated' => true,
+                ]);
+            }
+
+            $this->jobRecord->update(['status' => 'completed', 'progress' => 100, 'message' => 'Selesai! Quiz berhasil dibuat.']);
+            return;
+        }
+
         // ─── MODULES / FULL CURRICULUM MODE ─────────────────────
         $moduleCount = $this->params['module_count'] ?? 1;
 

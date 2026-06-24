@@ -413,6 +413,7 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
             Route::post('/ai/generate-modules', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'generateModules'])->name('ai.generate-modules');
             Route::post('/ai/generate-lessons', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'generateLessons'])->name('ai.generate-lessons');
             Route::post('/ai/generate-assignments', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'generateAssignments'])->name('ai.generate-assignments');
+            Route::post('/ai/generate-quizzes', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'generateQuizzes'])->name('ai.generate-quizzes');
             Route::get('/ai/status/{jobId}', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'checkStatus'])->name('ai.status');
             Route::post('/ai/references', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'uploadReference'])->name('ai.references.upload');
             Route::delete('/ai/references/{reference}', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'deleteReference'])->name('ai.references.destroy');

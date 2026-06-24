@@ -159,6 +159,39 @@ class AdaptiveAiController extends Controller
     }
 
     /**
+     * Start Background Job to Generate Quiz-type lessons for a specific Module.
+     */
+    public function generateQuizzes(Course $course, Request $request)
+    {
+        $request->validate([
+            'archetype_name' => 'required|string',
+            'module_id'      => 'required|integer|exists:adaptive_modules,id',
+            'lesson_count'   => 'required|integer|min:1|max:10', // Usually just 1 quiz per module, but we can allow more
+            'extra_topics'   => 'nullable|string'
+        ]);
+
+        $jobRecord = AiGenerationJob::create([
+            'course_id'      => $course->id,
+            'archetype_name' => $request->archetype_name,
+            'type'           => 'quizzes',
+            'status'         => 'queued',
+            'progress'       => 0,
+            'message'        => 'Masuk antrean...'
+        ]);
+
+        GenerateAdaptiveContentJob::dispatch($jobRecord, [
+            'module_id'    => $request->module_id,
+            'lesson_count' => $request->lesson_count,
+            'extra_topics' => $request->extra_topics
+        ]);
+
+        return response()->json([
+            'status' => 'queued',
+            'job_id' => $jobRecord->id
+        ]);
+    }
+
+    /**
      * Upload reference file for RAG.
      */
     public function uploadReference(Course $course, Request $request)

@@ -254,4 +254,75 @@ class AdaptiveAiService
             return null;
         }
     }
+
+    /**
+     * Generate quiz-type lessons for a specific existing module.
+     */
+    public function generateQuizLessons(
+        Course $course,
+        string $archetype,
+        \App\Models\AdaptiveModule $module,
+        int $lessonCount, // For quizzes, this is usually 1, but we support multiple
+        ?string $extraTopics = null,
+        array $ragContexts = []
+    ): ?array {
+        $desc = self::ARCHETYPE_DESCRIPTIONS[$archetype] ?? '';
+
+        $systemPrompt = "Kamu adalah instruktur ahli yang merancang soal Quiz untuk kursus. Output WAJIB dalam format JSON murni.\n"
+            . "Kursus: '{$course->title}'\n"
+            . "Modul target: '{$module->title}'\n"
+            . "Deskripsi modul: " . ($module->description ?? 'Tidak ada deskripsi') . "\n"
+            . "Target kelompok belajar (Archetype): '{$archetype}'\n"
+            . "Profil kelompok: {$desc}\n"
+            . "Kamu harus merancang quiz berupa pilihan ganda (Multiple Choice) yang:\n"
+            . "- Menguji pemahaman konsep-konsep kunci pada modul tersebut\n"
+            . "- Disesuaikan tingkat kesulitannya dengan kelompok belajar\n"
+            . "- Terdiri dari 5-10 pertanyaan per quiz\n";
+
+        if (!empty($ragContexts)) {
+            $systemPrompt .= "\n--- REFERENSI MATERI ---\n";
+            $systemPrompt .= implode("\n\n=== BATAS REFERENSI ===\n\n", $ragContexts);
+            $systemPrompt .= "\n--- AKHIR REFERENSI ---\n";
+        }
+
+        $userPrompt = "Buatkan {$lessonCount} modul quiz untuk modul '{$module->title}'.";
+        if ($extraTopics) {
+            $userPrompt .= " Fokus tambahan quiz: {$extraTopics}.";
+        }
+        $userPrompt .= "\n\nSetiap quiz harus memiliki:\n"
+            . "- 'title': Judul quiz (misalnya: Quiz Pemahaman Modul 1)\n"
+            . "- 'description': Deskripsi atau instruksi singkat quiz (HTML, 1 paragraf)\n"
+            . "- 'questions': Array dari objek pertanyaan yang berisi:\n"
+            . "    - 'question_text': Teks pertanyaan\n"
+            . "    - 'options': Array yang berisi tepat 4 pilihan jawaban (string)\n"
+            . "    - 'correct_answer_index': Index pilihan jawaban yang benar (0 sampai 3)\n"
+            . "    - 'explanation': Penjelasan singkat mengapa jawaban tersebut benar\n\n"
+            . "Format keluaran JSON:\n"
+            . '{"quizzes": [{"title": "Quiz...", "description": "<p>...</p>", "questions": [{"question_text": "Apa...", "options": ["A", "B", "C", "D"], "correct_answer_index": 0, "explanation": "Karena..."}]}]}';
+
+        try {
+            $response = Http::timeout(600)->post($this->ollamaUrl, [
+                'model'    => $this->model,
+                'messages' => [
+                    ['role' => 'system', 'content' => $systemPrompt],
+                    ['role' => 'user',   'content' => $userPrompt]
+                ],
+                'stream'   => false,
+                'format'   => 'json'
+            ]);
+
+            if ($response->successful()) {
+                $content = preg_replace('/```json/i', '', $response->json('message.content'));
+                $content = trim(preg_replace('/```/', '', $content));
+                return json_decode($content, true);
+            }
+
+            Log::error('Ollama Quiz Generation Failed', ['status' => $response->status(), 'body' => $response->body()]);
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('Ollama Quiz Generation Error', ['message' => $e->getMessage()]);
+            return null;
+        }
+    }
 }

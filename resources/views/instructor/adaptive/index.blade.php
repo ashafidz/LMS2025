@@ -142,6 +142,10 @@
                                                                 <span class="badge badge-danger ml-1" title="Penugasan">
                                                                     <i class="fa fa-tasks"></i> Tugas
                                                                 </span>
+                                                            @elseif($lesson->lesson_type === 'quiz')
+                                                                <span class="badge badge-success ml-1" title="Quiz">
+                                                                    <i class="fa fa-check-square-o"></i> Quiz
+                                                                </span>
                                                             @endif
                                                             @if($lesson->ai_generated)
                                                                 <span class="badge badge-warning ml-1" title="Dibuat oleh AI">
@@ -175,15 +179,17 @@
                                                     <div class="modal fade" id="modal-preview-lesson-{{ $lesson->id }}" tabindex="-1">
                                                         <div class="modal-dialog modal-lg">
                                                             <div class="modal-content">
-                                                                <div class="modal-header {{ $lesson->lesson_type === 'assignment' ? 'bg-danger text-white' : '' }}">
+                                                                <div class="modal-header {{ $lesson->lesson_type === 'assignment' ? 'bg-danger text-white' : ($lesson->lesson_type === 'quiz' ? 'bg-success text-white' : '') }}">
                                                                     <h5 class="modal-title">
                                                                         @if($lesson->lesson_type === 'assignment')
                                                                             <i class="fa fa-tasks"></i> Penugasan: {{ $lesson->title }}
+                                                                        @elseif($lesson->lesson_type === 'quiz')
+                                                                            <i class="fa fa-check-square-o"></i> Quiz: {{ $lesson->title }}
                                                                         @else
                                                                             <i class="fa fa-eye"></i> Preview: {{ $lesson->title }}
                                                                         @endif
                                                                     </h5>
-                                                                    <button type="button" class="close {{ $lesson->lesson_type === 'assignment' ? 'text-white' : '' }}" data-dismiss="modal"><span>&times;</span></button>
+                                                                    <button type="button" class="close {{ in_array($lesson->lesson_type, ['assignment', 'quiz']) ? 'text-white' : '' }}" data-dismiss="modal"><span>&times;</span></button>
                                                                 </div>
                                                                 <div class="modal-body">
                                                                     @if($lesson->lesson_type === 'assignment')
@@ -199,6 +205,40 @@
                                                                         @endif
                                                                         <div class="d-flex align-items-center">
                                                                             <span class="badge badge-primary"><i class="fa fa-star"></i> Nilai Maks: {{ $lesson->assignment_max_score ?? 100 }}</span>
+                                                                        </div>
+                                                                    @elseif($lesson->lesson_type === 'quiz')
+                                                                        <div class="mb-3">
+                                                                            <h6 class="text-muted text-uppercase small font-weight-bold">Instruksi Quiz</h6>
+                                                                            <div class="p-3 bg-light border rounded">{!! $lesson->content !!}</div>
+                                                                        </div>
+                                                                        <div class="mb-2">
+                                                                            <h6 class="text-muted text-uppercase small font-weight-bold">Pertanyaan Quiz (Dibuat AI)</h6>
+                                                                            <div class="p-3 bg-light border rounded" style="max-height: 50vh; overflow-y: auto;">
+                                                                                @if(empty($lesson->quiz_data))
+                                                                                    <p class="text-muted"><i>Belum ada pertanyaan quiz.</i></p>
+                                                                                @else
+                                                                                    @foreach($lesson->quiz_data as $qIndex => $qData)
+                                                                                        <div class="mb-3 pb-3 border-bottom">
+                                                                                            <p class="font-weight-bold mb-1">{{ $qIndex + 1 }}. {{ $qData['question_text'] ?? '' }}</p>
+                                                                                            <ol type="A" class="mb-2">
+                                                                                                @foreach($qData['options'] ?? [] as $optIndex => $optText)
+                                                                                                    <li class="{{ isset($qData['correct_answer_index']) && $qData['correct_answer_index'] == $optIndex ? 'text-success font-weight-bold' : '' }}">
+                                                                                                        {{ $optText }}
+                                                                                                        @if(isset($qData['correct_answer_index']) && $qData['correct_answer_index'] == $optIndex)
+                                                                                                            <i class="fa fa-check-circle ml-1"></i> (Jawaban Benar)
+                                                                                                        @endif
+                                                                                                    </li>
+                                                                                                @endforeach
+                                                                                            </ol>
+                                                                                            @if(!empty($qData['explanation']))
+                                                                                                <div class="small bg-white p-2 border border-info rounded text-info">
+                                                                                                    <i class="fa fa-info-circle mr-1"></i> <strong>Penjelasan:</strong> {{ $qData['explanation'] }}
+                                                                                                </div>
+                                                                                            @endif
+                                                                                        </div>
+                                                                                    @endforeach
+                                                                                @endif
+                                                                            </div>
                                                                         </div>
                                                                     @else
                                                                         <div class="p-3 bg-light border rounded" style="max-height: 60vh; overflow-y: auto;">
@@ -377,6 +417,7 @@
                                                             <option value="modules">Hanya Modul (Tanpa Lesson)</option>
                                                             <option value="lessons">Tambah Lesson ke Modul yang Ada</option>
                                                             <option value="assignments">Tambah Penugasan ke Modul yang Ada</option>
+                                                            <option value="quizzes">Tambah Quiz ke Modul yang Ada</option>
                                                         </select>
                                                     </div>
 
@@ -584,7 +625,7 @@
                     lessonOnlyCountGroup.classList.add('d-none');
                     lessonGroup.style.display = 'none';
                     document.getElementById('gen-modules').value = 3;
-                } else if (val === 'lessons' || val === 'assignments') {
+                } else if (val === 'lessons' || val === 'assignments' || val === 'quizzes') {
                     moduleSelectGroup.classList.remove('d-none');
                     moduleCountGroup.classList.add('d-none');
                     lessonOnlyCountGroup.classList.remove('d-none');
@@ -626,10 +667,12 @@
                     endpoint = `/instructor/courses/${courseId}/adaptive/ai/generate-full`;
                     payload.module_count = document.getElementById('gen-modules').value;
                     payload.lesson_count = document.getElementById('gen-lessons').value;
-                } else if (type === 'lessons' || type === 'assignments') {
+                } else if (type === 'lessons' || type === 'assignments' || type === 'quizzes') {
                     const moduleId = document.getElementById('gen-module-id').value;
                     if (!moduleId) {
-                        const what = type === 'assignments' ? 'penugasan' : 'lesson';
+                        let what = 'lesson';
+                        if (type === 'assignments') what = 'penugasan';
+                        if (type === 'quizzes') what = 'quiz';
                         alert(`Pilih modul yang ingin ditambahkan ${what}-nya.`);
                         btnGenerate.disabled = false;
                         btnGenerate.innerHTML = '<i class="fa fa-magic"></i> Mulai Generate';
