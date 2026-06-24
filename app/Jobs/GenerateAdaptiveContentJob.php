@@ -58,15 +58,57 @@ class GenerateAdaptiveContentJob implements ShouldQueue
             'message' => 'Menghubungi AI Model (memakan waktu beberapa menit)...'
         ]);
 
-        $moduleCount = $this->params['module_count'] ?? 1;
-        $lessonCount = $this->params['lesson_count'] ?? 0;
+        $lessonCount = $this->params['lesson_count'] ?? 2;
         $extraTopics = $this->params['extra_topics'] ?? null;
 
         Log::info("Starting AI Generation Job", [
             'job_id' => $this->jobRecord->id,
+            'type'   => $this->jobRecord->type,
             'course' => $course->id,
             'archetype' => $archetype
         ]);
+
+        // ─── LESSONS-ONLY MODE ───────────────────────────────────
+        if ($this->jobRecord->type === 'lessons') {
+            $module = AdaptiveModule::findOrFail($this->params['module_id']);
+
+            $result = $aiService->generateLessonsForModule(
+                $course,
+                $archetype,
+                $module,
+                $lessonCount,
+                $extraTopics,
+                $ragContexts
+            );
+
+            if (!$result || !isset($result['lessons'])) {
+                $this->jobRecord->update([
+                    'status' => 'failed', 'progress' => 0,
+                    'message' => 'Gagal mendapatkan response.',
+                    'error' => 'AI tidak merespons dengan format JSON yang valid atau terputus.'
+                ]);
+                return;
+            }
+
+            $this->jobRecord->update(['progress' => 80, 'message' => 'Menyimpan lesson ke database...']);
+
+            $lastOrderLes = \App\Models\AdaptiveLesson::where('adaptive_module_id', $module->id)->max('order') ?? -1;
+            foreach ($result['lessons'] as $lesData) {
+                $lastOrderLes++;
+                $module->lessons()->create([
+                    'title'        => $lesData['title'],
+                    'content'      => $lesData['content'] ?? '<p>Konten tidak tersedia.</p>',
+                    'order'        => $lastOrderLes,
+                    'ai_generated' => true,
+                ]);
+            }
+
+            $this->jobRecord->update(['status' => 'completed', 'progress' => 100, 'message' => 'Selesai! Lesson berhasil ditambahkan.']);
+            return;
+        }
+
+        // ─── MODULES / FULL CURRICULUM MODE ─────────────────────
+        $moduleCount = $this->params['module_count'] ?? 1;
 
         $result = $aiService->generateCurriculum(
             $course, 

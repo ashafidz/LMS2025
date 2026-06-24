@@ -346,27 +346,48 @@
                                                     <div class="form-group">
                                                         <label class="small font-weight-bold">Tipe Generasi</label>
                                                         <select class="form-control form-control-sm" id="gen-type" name="type">
-                                                            <option value="full">Full Curriculum (Modul & Lesson)</option>
+                                                            <option value="full">Full Curriculum (Modul &amp; Lesson)</option>
                                                             <option value="modules">Hanya Modul (Tanpa Lesson)</option>
+                                                            <option value="lessons">Tambah Lesson ke Modul yang Ada</option>
                                                         </select>
                                                     </div>
-                                                    <div class="row">
+
+                                                    {{-- Module selector (only for 'lessons' type) --}}
+                                                    <div class="form-group d-none" id="module-select-group">
+                                                        <label class="small font-weight-bold">Pilih Modul Target <span class="text-danger">*</span></label>
+                                                        <select class="form-control form-control-sm" id="gen-module-id" name="module_id">
+                                                            @forelse($modules as $mod)
+                                                                <option value="{{ $mod->id }}">{{ $mod->title }}</option>
+                                                            @empty
+                                                                <option value="" disabled>Belum ada modul. Buat modul dulu.</option>
+                                                            @endforelse
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="row" id="module-count-group">
                                                         <div class="col-6">
                                                             <div class="form-group">
                                                                 <label class="small font-weight-bold">Jumlah Modul</label>
-                                                                <input type="number" class="form-control form-control-sm" id="gen-modules" name="module_count" min="1" max="10" value="3" required>
+                                                                <input type="number" class="form-control form-control-sm" id="gen-modules" name="module_count" min="1" max="10" value="3">
                                                             </div>
                                                         </div>
                                                         <div class="col-6">
                                                             <div class="form-group" id="lesson-group">
                                                                 <label class="small font-weight-bold">Lesson per Modul</label>
-                                                                <input type="number" class="form-control form-control-sm" id="gen-lessons" name="lesson_count" min="1" max="5" value="2">
+                                                                <input type="number" class="form-control form-control-sm" id="gen-lessons" name="lesson_count" min="1" max="10" value="2">
                                                             </div>
                                                         </div>
                                                     </div>
+
+                                                    {{-- Lesson count for single-module mode --}}
+                                                    <div class="form-group d-none" id="lesson-only-count-group">
+                                                        <label class="small font-weight-bold">Jumlah Lesson yang dibuat</label>
+                                                        <input type="number" class="form-control form-control-sm" id="gen-lessons-only" min="1" max="10" value="3">
+                                                    </div>
+
                                                     <div class="form-group">
                                                         <label class="small font-weight-bold">Fokus / Topik Tambahan <span class="text-muted font-weight-normal">(Opsional)</span></label>
-                                                        <textarea class="form-control form-control-sm" id="gen-topics" name="extra_topics" rows="3" placeholder="Contoh: Fokus pada studi kasus industri..."></textarea>
+                                                        <textarea class="form-control form-control-sm" id="gen-topics" name="extra_topics" rows="2" placeholder="Contoh: Fokus pada studi kasus industri..."></textarea>
                                                     </div>
                                                     
                                                     <button type="submit" class="btn btn-primary btn-block" id="btn-generate">
@@ -522,12 +543,27 @@
             let activeJobId = {{ isset($activeJob) ? $activeJob->id : 'null' }};
             let pollInterval = null;
 
-            // Toggle lesson count input based on type
+            const moduleSelectGroup = document.getElementById('module-select-group');
+            const moduleCountGroup = document.getElementById('module-count-group');
+            const lessonOnlyCountGroup = document.getElementById('lesson-only-count-group');
+
+            // Toggle fields based on generation type
             genType.addEventListener('change', function() {
-                if (this.value === 'modules') {
+                const val = this.value;
+                if (val === 'modules') {
+                    moduleSelectGroup.classList.add('d-none');
+                    moduleCountGroup.classList.remove('d-none');
+                    lessonOnlyCountGroup.classList.add('d-none');
                     lessonGroup.style.display = 'none';
-                    document.getElementById('gen-lessons').value = 0;
-                } else {
+                    document.getElementById('gen-modules').value = 3;
+                } else if (val === 'lessons') {
+                    moduleSelectGroup.classList.remove('d-none');
+                    moduleCountGroup.classList.add('d-none');
+                    lessonOnlyCountGroup.classList.remove('d-none');
+                } else { // full
+                    moduleSelectGroup.classList.add('d-none');
+                    moduleCountGroup.classList.remove('d-none');
+                    lessonOnlyCountGroup.classList.add('d-none');
                     lessonGroup.style.display = 'block';
                     document.getElementById('gen-lessons').value = 2;
                 }
@@ -555,16 +591,26 @@
                 btnGenerate.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Memulai...';
 
                 const type = genType.value;
-                const endpoint = type === 'full' ? `/instructor/courses/${courseId}/adaptive/ai/generate-full` : `/instructor/courses/${courseId}/adaptive/ai/generate-modules`;
-                
-                const payload = {
-                    archetype_name: archetype,
-                    module_count: document.getElementById('gen-modules').value,
-                    extra_topics: document.getElementById('gen-topics').value
-                };
+                let endpoint;
+                let payload = { archetype_name: archetype, extra_topics: document.getElementById('gen-topics').value };
+
                 if (type === 'full') {
+                    endpoint = `/instructor/courses/${courseId}/adaptive/ai/generate-full`;
+                    payload.module_count = document.getElementById('gen-modules').value;
                     payload.lesson_count = document.getElementById('gen-lessons').value;
-                } else {
+                } else if (type === 'lessons') {
+                    const moduleId = document.getElementById('gen-module-id').value;
+                    if (!moduleId) {
+                        alert('Pilih modul yang ingin ditambahkan lesson-nya.');
+                        btnGenerate.disabled = false;
+                        btnGenerate.innerHTML = '<i class="fa fa-magic"></i> Mulai Generate';
+                        return;
+                    }
+                    endpoint = `/instructor/courses/${courseId}/adaptive/ai/generate-lessons`;
+                    payload.module_id = moduleId;
+                    payload.lesson_count = document.getElementById('gen-lessons-only').value;
+                } else { // modules only
+                    endpoint = `/instructor/courses/${courseId}/adaptive/ai/generate-modules`;
                     payload.count = document.getElementById('gen-modules').value;
                 }
 

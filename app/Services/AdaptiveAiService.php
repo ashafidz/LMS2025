@@ -122,4 +122,66 @@ class AdaptiveAiService
             return null;
         }
     }
+
+    /**
+     * Generate only lessons for a specific existing module.
+     */
+    public function generateLessonsForModule(
+        Course $course,
+        string $archetype,
+        \App\Models\AdaptiveModule $module,
+        int $lessonCount,
+        ?string $extraTopics = null,
+        array $ragContexts = []
+    ): ?array {
+        $desc = self::ARCHETYPE_DESCRIPTIONS[$archetype] ?? '';
+
+        $systemPrompt = "Kamu adalah instruktur ahli yang membuat materi pelajaran (lesson). Output WAJIB dalam format JSON murni.\n"
+            . "Kursus: '{$course->title}'\n"
+            . "Modul target: '{$module->title}'\n"
+            . "Deskripsi modul: " . ($module->description ?? 'Tidak ada deskripsi') . "\n"
+            . "Target kelompok belajar (Archetype): '{$archetype}'\n"
+            . "Profil kelompok: {$desc}\n"
+            . "PENTING: Konten setiap lesson HARUS sangat detail dan komprehensif. Minimal 4-5 paragraf. "
+            . "Berikan penjelasan mendalam, contoh konkret, dan langkah-langkah praktis.\n";
+
+        if (!empty($ragContexts)) {
+            $systemPrompt .= "\n--- REFERENSI MATERI ---\n";
+            $systemPrompt .= implode("\n\n=== BATAS REFERENSI ===\n\n", $ragContexts);
+            $systemPrompt .= "\n--- AKHIR REFERENSI ---\n";
+        }
+
+        $userPrompt = "Buatkan {$lessonCount} lesson untuk modul '{$module->title}'.";
+        if ($extraTopics) {
+            $userPrompt .= " Fokus tambahan: {$extraTopics}.";
+        }
+        $userPrompt .= " Isi 'content' harus panjang (gunakan HTML: <p>, <strong>, <ul>, <li>).\n\n";
+        $userPrompt .= "Format keluaran JSON:\n"
+            . '{"lessons": [{"title": "Judul Lesson", "content": "<p>Konten panjang...</p>"}]}';
+
+        try {
+            $response = Http::timeout(600)->post($this->ollamaUrl, [
+                'model'    => $this->model,
+                'messages' => [
+                    ['role' => 'system', 'content' => $systemPrompt],
+                    ['role' => 'user',   'content' => $userPrompt]
+                ],
+                'stream'   => false,
+                'format'   => 'json'
+            ]);
+
+            if ($response->successful()) {
+                $content = preg_replace('/```json/i', '', $response->json('message.content'));
+                $content = trim(preg_replace('/```/', '', $content));
+                return json_decode($content, true);
+            }
+
+            Log::error('Ollama Lessons Generation Failed', ['status' => $response->status(), 'body' => $response->body()]);
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('Ollama Lessons Generation Error', ['message' => $e->getMessage()]);
+            return null;
+        }
+    }
 }

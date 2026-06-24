@@ -411,6 +411,7 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
             // AI Co-Pilot Endpoints (Form & RAG)
             Route::post('/ai/generate-full', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'generateFull'])->name('ai.generate-full');
             Route::post('/ai/generate-modules', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'generateModules'])->name('ai.generate-modules');
+            Route::post('/ai/generate-lessons', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'generateLessons'])->name('ai.generate-lessons');
             Route::get('/ai/status/{jobId}', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'checkStatus'])->name('ai.status');
             Route::post('/ai/references', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'uploadReference'])->name('ai.references.upload');
             Route::delete('/ai/references/{reference}', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'deleteReference'])->name('ai.references.destroy');
