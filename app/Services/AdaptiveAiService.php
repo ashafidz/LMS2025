@@ -184,4 +184,74 @@ class AdaptiveAiService
             return null;
         }
     }
+
+    /**
+     * Generate assignment-type lessons for a specific existing module.
+     */
+    public function generateAssignmentLessons(
+        Course $course,
+        string $archetype,
+        \App\Models\AdaptiveModule $module,
+        int $lessonCount,
+        ?string $extraTopics = null,
+        array $ragContexts = []
+    ): ?array {
+        $desc = self::ARCHETYPE_DESCRIPTIONS[$archetype] ?? '';
+
+        $systemPrompt = "Kamu adalah instruktur ahli yang merancang tugas/penugasan (assignment) untuk kursus. Output WAJIB dalam format JSON murni.\n"
+            . "Kursus: '{$course->title}'\n"
+            . "Modul target: '{$module->title}'\n"
+            . "Deskripsi modul: " . ($module->description ?? 'Tidak ada deskripsi') . "\n"
+            . "Target kelompok belajar (Archetype): '{$archetype}'\n"
+            . "Profil kelompok: {$desc}\n"
+            . "Kamu harus merancang tugas yang:\n"
+            . "- Relevan dengan topik modul\n"
+            . "- Memiliki instruksi yang SANGAT JELAS dan DETAIL (langkah-langkah pengerjaan, format pengumpulan, dll)\n"
+            . "- Disesuaikan dengan karakteristik kelompok belajar\n"
+            . "- Memiliki kriteria penilaian yang terukur\n";
+
+        if (!empty($ragContexts)) {
+            $systemPrompt .= "\n--- REFERENSI MATERI ---\n";
+            $systemPrompt .= implode("\n\n=== BATAS REFERENSI ===\n\n", $ragContexts);
+            $systemPrompt .= "\n--- AKHIR REFERENSI ---\n";
+        }
+
+        $userPrompt = "Buatkan {$lessonCount} penugasan untuk modul '{$module->title}'.";
+        if ($extraTopics) {
+            $userPrompt .= " Fokus tambahan: {$extraTopics}.";
+        }
+        $userPrompt .= "\n\nSetiap penugasan harus memiliki:\n"
+            . "- 'title': Judul penugasan yang deskriptif\n"
+            . "- 'description': Deskripsi singkat tujuan penugasan (HTML, 1-2 paragraf)\n"
+            . "- 'instructions': Instruksi pengerjaan yang sangat detail (HTML: <p>, <ol>, <li>, <strong>). "
+            . "  Sertakan: latar belakang, langkah-langkah, format pengumpulan, dan kriteria penilaian.\n"
+            . "- 'max_score': Nilai maksimum (angka, misal 100)\n\n"
+            . "Format keluaran JSON:\n"
+            . '{"assignments": [{"title": "Judul Penugasan", "description": "<p>Deskripsi...</p>", "instructions": "<p>Latar belakang...</p><ol><li>Langkah 1...</li></ol>", "max_score": 100}]}';
+
+        try {
+            $response = Http::timeout(600)->post($this->ollamaUrl, [
+                'model'    => $this->model,
+                'messages' => [
+                    ['role' => 'system', 'content' => $systemPrompt],
+                    ['role' => 'user',   'content' => $userPrompt]
+                ],
+                'stream'   => false,
+                'format'   => 'json'
+            ]);
+
+            if ($response->successful()) {
+                $content = preg_replace('/```json/i', '', $response->json('message.content'));
+                $content = trim(preg_replace('/```/', '', $content));
+                return json_decode($content, true);
+            }
+
+            Log::error('Ollama Assignment Generation Failed', ['status' => $response->status(), 'body' => $response->body()]);
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('Ollama Assignment Generation Error', ['message' => $e->getMessage()]);
+            return null;
+        }
+    }
 }

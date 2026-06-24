@@ -138,6 +138,11 @@
                                                         <div>
                                                             <i class="fa fa-file-text-o text-muted mr-2"></i>
                                                             <span>{{ $lessonIndex + 1 }}. {{ $lesson->title }}</span>
+                                                            @if($lesson->lesson_type === 'assignment')
+                                                                <span class="badge badge-danger ml-1" title="Penugasan">
+                                                                    <i class="fa fa-tasks"></i> Tugas
+                                                                </span>
+                                                            @endif
                                                             @if($lesson->ai_generated)
                                                                 <span class="badge badge-warning ml-1" title="Dibuat oleh AI">
                                                                     <i class="fa fa-magic"></i> AI
@@ -170,14 +175,36 @@
                                                     <div class="modal fade" id="modal-preview-lesson-{{ $lesson->id }}" tabindex="-1">
                                                         <div class="modal-dialog modal-lg">
                                                             <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title"><i class="fa fa-eye"></i> Preview: {{ $lesson->title }}</h5>
-                                                                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                                                                <div class="modal-header {{ $lesson->lesson_type === 'assignment' ? 'bg-danger text-white' : '' }}">
+                                                                    <h5 class="modal-title">
+                                                                        @if($lesson->lesson_type === 'assignment')
+                                                                            <i class="fa fa-tasks"></i> Penugasan: {{ $lesson->title }}
+                                                                        @else
+                                                                            <i class="fa fa-eye"></i> Preview: {{ $lesson->title }}
+                                                                        @endif
+                                                                    </h5>
+                                                                    <button type="button" class="close {{ $lesson->lesson_type === 'assignment' ? 'text-white' : '' }}" data-dismiss="modal"><span>&times;</span></button>
                                                                 </div>
                                                                 <div class="modal-body">
-                                                                    <div class="p-3 bg-light border rounded" style="max-height: 60vh; overflow-y: auto;">
-                                                                        {!! $lesson->content !!}
-                                                                    </div>
+                                                                    @if($lesson->lesson_type === 'assignment')
+                                                                        <div class="mb-3">
+                                                                            <h6 class="text-muted text-uppercase small font-weight-bold">Deskripsi Tugas</h6>
+                                                                            <div class="p-3 bg-light border rounded">{!! $lesson->content !!}</div>
+                                                                        </div>
+                                                                        @if($lesson->assignment_instructions)
+                                                                        <div class="mb-2">
+                                                                            <h6 class="text-muted text-uppercase small font-weight-bold">Instruksi Pengerjaan</h6>
+                                                                            <div class="p-3 bg-light border rounded" style="max-height: 50vh; overflow-y: auto;">{!! $lesson->assignment_instructions !!}</div>
+                                                                        </div>
+                                                                        @endif
+                                                                        <div class="d-flex align-items-center">
+                                                                            <span class="badge badge-primary"><i class="fa fa-star"></i> Nilai Maks: {{ $lesson->assignment_max_score ?? 100 }}</span>
+                                                                        </div>
+                                                                    @else
+                                                                        <div class="p-3 bg-light border rounded" style="max-height: 60vh; overflow-y: auto;">
+                                                                            {!! $lesson->content !!}
+                                                                        </div>
+                                                                    @endif
                                                                 </div>
                                                                 <div class="modal-footer">
                                                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
@@ -349,6 +376,7 @@
                                                             <option value="full">Full Curriculum (Modul &amp; Lesson)</option>
                                                             <option value="modules">Hanya Modul (Tanpa Lesson)</option>
                                                             <option value="lessons">Tambah Lesson ke Modul yang Ada</option>
+                                                            <option value="assignments">Tambah Penugasan ke Modul yang Ada</option>
                                                         </select>
                                                     </div>
 
@@ -556,7 +584,7 @@
                     lessonOnlyCountGroup.classList.add('d-none');
                     lessonGroup.style.display = 'none';
                     document.getElementById('gen-modules').value = 3;
-                } else if (val === 'lessons') {
+                } else if (val === 'lessons' || val === 'assignments') {
                     moduleSelectGroup.classList.remove('d-none');
                     moduleCountGroup.classList.add('d-none');
                     lessonOnlyCountGroup.classList.remove('d-none');
@@ -598,15 +626,16 @@
                     endpoint = `/instructor/courses/${courseId}/adaptive/ai/generate-full`;
                     payload.module_count = document.getElementById('gen-modules').value;
                     payload.lesson_count = document.getElementById('gen-lessons').value;
-                } else if (type === 'lessons') {
+                } else if (type === 'lessons' || type === 'assignments') {
                     const moduleId = document.getElementById('gen-module-id').value;
                     if (!moduleId) {
-                        alert('Pilih modul yang ingin ditambahkan lesson-nya.');
+                        const what = type === 'assignments' ? 'penugasan' : 'lesson';
+                        alert(`Pilih modul yang ingin ditambahkan ${what}-nya.`);
                         btnGenerate.disabled = false;
                         btnGenerate.innerHTML = '<i class="fa fa-magic"></i> Mulai Generate';
                         return;
                     }
-                    endpoint = `/instructor/courses/${courseId}/adaptive/ai/generate-lessons`;
+                    endpoint = `/instructor/courses/${courseId}/adaptive/ai/generate-${type}`;
                     payload.module_id = moduleId;
                     payload.lesson_count = document.getElementById('gen-lessons-only').value;
                 } else { // modules only

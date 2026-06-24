@@ -12,14 +12,18 @@ class AdaptiveLesson extends Model
     protected $fillable = [
         'adaptive_module_id',
         'title',
+        'lesson_type',          // 'article' | 'assignment'
         'content',
+        'assignment_instructions',
+        'assignment_max_score',
         'order',
         'ai_generated',
         'ai_prompt_used',
     ];
 
     protected $casts = [
-        'ai_generated' => 'boolean',
+        'ai_generated'         => 'boolean',
+        'assignment_max_score' => 'integer',
     ];
 
     // ─── Relationships ────────────────────────────────────────

@@ -73,20 +73,13 @@ class GenerateAdaptiveContentJob implements ShouldQueue
             $module = AdaptiveModule::findOrFail($this->params['module_id']);
 
             $result = $aiService->generateLessonsForModule(
-                $course,
-                $archetype,
-                $module,
-                $lessonCount,
-                $extraTopics,
-                $ragContexts
+                $course, $archetype, $module, $lessonCount, $extraTopics, $ragContexts
             );
 
             if (!$result || !isset($result['lessons'])) {
-                $this->jobRecord->update([
-                    'status' => 'failed', 'progress' => 0,
+                $this->jobRecord->update(['status' => 'failed', 'progress' => 0,
                     'message' => 'Gagal mendapatkan response.',
-                    'error' => 'AI tidak merespons dengan format JSON yang valid atau terputus.'
-                ]);
+                    'error' => 'AI tidak merespons dengan format JSON yang valid atau terputus.']);
                 return;
             }
 
@@ -97,6 +90,7 @@ class GenerateAdaptiveContentJob implements ShouldQueue
                 $lastOrderLes++;
                 $module->lessons()->create([
                     'title'        => $lesData['title'],
+                    'lesson_type'  => 'article',
                     'content'      => $lesData['content'] ?? '<p>Konten tidak tersedia.</p>',
                     'order'        => $lastOrderLes,
                     'ai_generated' => true,
@@ -104,6 +98,41 @@ class GenerateAdaptiveContentJob implements ShouldQueue
             }
 
             $this->jobRecord->update(['status' => 'completed', 'progress' => 100, 'message' => 'Selesai! Lesson berhasil ditambahkan.']);
+            return;
+        }
+
+        // ─── ASSIGNMENTS MODE ─────────────────────────────────────
+        if ($this->jobRecord->type === 'assignments') {
+            $module = AdaptiveModule::findOrFail($this->params['module_id']);
+
+            $result = $aiService->generateAssignmentLessons(
+                $course, $archetype, $module, $lessonCount, $extraTopics, $ragContexts
+            );
+
+            if (!$result || !isset($result['assignments'])) {
+                $this->jobRecord->update(['status' => 'failed', 'progress' => 0,
+                    'message' => 'Gagal mendapatkan response.',
+                    'error' => 'AI tidak merespons dengan format JSON yang valid atau terputus.']);
+                return;
+            }
+
+            $this->jobRecord->update(['progress' => 80, 'message' => 'Menyimpan penugasan ke database...']);
+
+            $lastOrderLes = \App\Models\AdaptiveLesson::where('adaptive_module_id', $module->id)->max('order') ?? -1;
+            foreach ($result['assignments'] as $asgData) {
+                $lastOrderLes++;
+                $module->lessons()->create([
+                    'title'                   => $asgData['title'],
+                    'lesson_type'             => 'assignment',
+                    'content'                 => $asgData['description'] ?? '<p>Deskripsi penugasan tidak tersedia.</p>',
+                    'assignment_instructions' => $asgData['instructions'] ?? null,
+                    'assignment_max_score'    => $asgData['max_score'] ?? 100,
+                    'order'                   => $lastOrderLes,
+                    'ai_generated'            => true,
+                ]);
+            }
+
+            $this->jobRecord->update(['status' => 'completed', 'progress' => 100, 'message' => 'Selesai! Penugasan berhasil dibuat.']);
             return;
         }
 
