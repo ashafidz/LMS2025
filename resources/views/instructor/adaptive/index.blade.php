@@ -81,7 +81,7 @@
                                  SPLIT LAYOUT: LEFT (MODULES), RIGHT (AI CHAT)
                             ================================================= --}}
                             <div class="row">
-                                <div class="col-lg-7">
+                                <div class="col-12">
                                     {{-- ACTION BAR --}}
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h6 class="m-0 text-muted">
@@ -92,6 +92,10 @@
                                             <button type="button" class="btn btn-success btn-sm"
                                                     data-toggle="modal" data-target="#modal-add-module">
                                                 <i class="fa fa-plus"></i> Tambah Modul
+                                            </button>
+                                            <button type="button" class="btn btn-primary btn-sm ml-2"
+                                                    data-toggle="modal" data-target="#modal-ai-generator">
+                                                <i class="fa fa-magic"></i> Buka AI Generator
                                             </button>
                                         </div>
                                     </div>
@@ -382,144 +386,152 @@
                                     </div>
                                 </div>
                                 {{-- AI GENERATION FORM & PROGRESS --}}
-                                <div class="col-lg-5">
-                                    <div class="card border-primary" style="height: 100%; border: 1px solid #007bff;">
-                                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center p-2">
-                                            <h6 class="m-0 text-white"><i class="fa fa-magic mr-1"></i> AI Generator</h6>
-                                            <button class="btn btn-sm btn-light text-primary" data-toggle="modal" data-target="#modal-ai-references">
-                                                <i class="fa fa-paperclip"></i> RAG Referensi
-                                            </button>
-                                        </div>
-                                        <div class="card-body bg-light" id="ai-panel-body">
-                                            
-                                            {{-- PROGRESS TRACKER (Hidden initially if no active job) --}}
-                                            <div id="job-tracker" class="{{ isset($activeJob) ? '' : 'd-none' }}">
-                                                <div class="text-center mb-3">
-                                                    <i class="fa fa-cogs fa-3x text-primary fa-spin mb-2"></i>
-                                                    <h6 class="text-primary">AI Sedang Bekerja...</h6>
-                                                    <p class="small text-muted" id="job-message">{{ isset($activeJob) ? $activeJob->message : '' }}</p>
-                                                </div>
-                                                <div class="progress mb-2" style="height: 20px;">
-                                                    <div id="job-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: {{ isset($activeJob) ? $activeJob->progress : 0 }}%;" aria-valuenow="{{ isset($activeJob) ? $activeJob->progress : 0 }}" aria-valuemin="0" aria-valuemax="100">{{ isset($activeJob) ? $activeJob->progress : 0 }}%</div>
-                                                </div>
-                                                <div class="alert alert-warning small">
-                                                    <i class="fa fa-info-circle"></i> Proses ini memakan waktu beberapa menit. Anda boleh meninggalkan halaman ini atau me-refresh, proses akan tetap berjalan di latar belakang.
-                                                </div>
-                                                <div class="text-center mt-2">
-                                                    <button type="button" class="btn btn-danger btn-sm" id="btn-cancel-job" data-job-id="{{ isset($activeJob) ? $activeJob->id : '' }}">
-                                                        <i class="fa fa-times-circle"></i> Batalkan Proses
+                                {{-- MODAL AI GENERATOR --}}
+                                <div class="modal fade" id="modal-ai-generator" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+                                    <div class="modal-dialog modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-primary text-white d-flex justify-content-between align-items-center p-3">
+                                                <h5 class="modal-title m-0"><i class="fa fa-magic"></i> AI Generator Co-Pilot</h5>
+                                                <div>
+                                                    <button class="btn btn-sm btn-light text-primary mr-2" data-toggle="modal" data-target="#modal-ai-references">
+                                                        <i class="fa fa-paperclip"></i> RAG Referensi
+                                                    </button>
+                                                    <button type="button" class="close text-white d-inline-block" data-dismiss="modal" aria-label="Close" style="margin: -1rem -1rem -1rem auto; float: none;">
+                                                        <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
                                             </div>
-
-                                            {{-- FORM GENERATION --}}
-                                            <div id="ai-form-container" class="{{ isset($activeJob) ? 'd-none' : '' }}">
-                                                <form id="ai-generate-form">
-                                                    <div class="form-group">
-                                                        <label class="small font-weight-bold">Tipe Generasi</label>
-                                                        <select class="form-control form-control-sm" id="gen-type" name="type">
-                                                            <option value="full">Full Curriculum (Modul &amp; Lesson)</option>
-                                                            <option value="modules">Hanya Modul (Tanpa Lesson)</option>
-                                                            <option value="lessons">Tambah Lesson ke Modul yang Ada</option>
-                                                            <option value="assignments">Tambah Penugasan ke Modul yang Ada</option>
-                                                            <option value="quizzes">Tambah Quiz ke Modul yang Ada</option>
-                                                        </select>
+                                            <div class="modal-body bg-light" id="ai-panel-body">
+                                                
+                                                {{-- PROGRESS TRACKER (Hidden initially if no active job) --}}
+                                                <div id="job-tracker" class="{{ isset($activeJob) ? '' : 'd-none' }}">
+                                                    <div class="text-center mb-3">
+                                                        <i class="fa fa-cogs fa-3x text-primary fa-spin mb-2"></i>
+                                                        <h6 class="text-primary">AI Sedang Bekerja...</h6>
+                                                        <p class="small text-muted" id="job-message">{{ isset($activeJob) ? $activeJob->message : '' }}</p>
                                                     </div>
-
-                                                    {{-- Module selector (only for 'lessons' type) --}}
-                                                    <div class="form-group d-none" id="module-select-group">
-                                                        <label class="small font-weight-bold">Pilih Modul Target <span class="text-danger">*</span></label>
-                                                        <select class="form-control form-control-sm" id="gen-module-id" name="module_id">
-                                                            @forelse($modules as $mod)
-                                                                <option value="{{ $mod->id }}">{{ $mod->title }}</option>
-                                                            @empty
-                                                                <option value="" disabled>Belum ada modul. Buat modul dulu.</option>
-                                                            @endforelse
-                                                        </select>
+                                                    <div class="progress mb-2" style="height: 20px;">
+                                                        <div id="job-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: {{ isset($activeJob) ? $activeJob->progress : 0 }}%;" aria-valuenow="{{ isset($activeJob) ? $activeJob->progress : 0 }}" aria-valuemin="0" aria-valuemax="100">{{ isset($activeJob) ? $activeJob->progress : 0 }}%</div>
                                                     </div>
-
-                                                    <div class="row" id="module-count-group">
-                                                        <div class="col-6">
-                                                            <div class="form-group">
-                                                                <label class="small font-weight-bold">Jumlah Modul</label>
-                                                                <input type="number" class="form-control form-control-sm" id="gen-modules" name="module_count" min="1" max="10" value="3">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <div class="form-group" id="lesson-group">
-                                                                <label class="small font-weight-bold">Lesson per Modul</label>
-                                                                <input type="number" class="form-control form-control-sm" id="gen-lessons" name="lesson_count" min="1" max="10" value="2">
-                                                            </div>
-                                                        </div>
+                                                    <div class="alert alert-warning small">
+                                                        <i class="fa fa-info-circle"></i> Proses ini memakan waktu beberapa menit. Anda boleh menutup modal ini, proses akan tetap berjalan di latar belakang.
                                                     </div>
-
-                                                    {{-- Lesson count for single-module mode --}}
-                                                    <div class="form-group d-none" id="lesson-only-count-group">
-                                                        <label class="small font-weight-bold">Jumlah Lesson yang dibuat</label>
-                                                        <input type="number" class="form-control form-control-sm" id="gen-lessons-only" min="1" max="10" value="3">
+                                                    <div class="text-center mt-2">
+                                                        <button type="button" class="btn btn-danger btn-sm" id="btn-cancel-job" data-job-id="{{ isset($activeJob) ? $activeJob->id : '' }}">
+                                                            <i class="fa fa-times-circle"></i> Batalkan Proses
+                                                        </button>
                                                     </div>
-
-                                                    <div class="form-group">
-                                                        <label class="small font-weight-bold">Fokus / Topik Tambahan <span class="text-muted font-weight-normal">(Opsional)</span></label>
-                                                        <textarea class="form-control form-control-sm" id="gen-topics" name="extra_topics" rows="2" placeholder="Contoh: Fokus pada studi kasus industri..."></textarea>
-                                                    </div>
-                                                    
-                                                    <button type="submit" class="btn btn-primary btn-block" id="btn-generate">
-                                                        <i class="fa fa-magic"></i> Mulai Generate
-                                                    </button>
-                                                </form>
-                                                <hr>
-                                                <div class="text-center">
-                                                    <small class="text-muted"><i class="fa fa-info-circle"></i> AI akan merancang silabus berdasarkan pengaturan di atas dan dokumen RAG yang Anda unggah.</small>
                                                 </div>
-                                            </div>
 
+                                                {{-- FORM GENERATION --}}
+                                                <div id="ai-form-container" class="{{ isset($activeJob) ? 'd-none' : '' }}">
+                                                    <form id="ai-generate-form">
+                                                        <div class="form-group">
+                                                            <label class="small font-weight-bold">Tipe Generasi</label>
+                                                            <select class="form-control form-control-sm" id="gen-type" name="type">
+                                                                <option value="full">Full Curriculum (Modul &amp; Lesson)</option>
+                                                                <option value="modules">Hanya Modul (Tanpa Lesson)</option>
+                                                                <option value="lessons">Tambah Lesson ke Modul yang Ada</option>
+                                                                <option value="assignments">Tambah Penugasan ke Modul yang Ada</option>
+                                                                <option value="quizzes">Tambah Quiz ke Modul yang Ada</option>
+                                                            </select>
+                                                        </div>
+
+                                                        {{-- Module selector (only for 'lessons' type) --}}
+                                                        <div class="form-group d-none" id="module-select-group">
+                                                            <label class="small font-weight-bold">Pilih Modul Target <span class="text-danger">*</span></label>
+                                                            <select class="form-control form-control-sm" id="gen-module-id" name="module_id">
+                                                                @forelse($modules as $mod)
+                                                                    <option value="{{ $mod->id }}">{{ $mod->title }}</option>
+                                                                @empty
+                                                                    <option value="" disabled>Belum ada modul. Buat modul dulu.</option>
+                                                                @endforelse
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="row" id="module-count-group">
+                                                            <div class="col-6">
+                                                                <div class="form-group">
+                                                                    <label class="small font-weight-bold">Jumlah Modul</label>
+                                                                    <input type="number" class="form-control form-control-sm" id="gen-modules" name="module_count" min="1" max="10" value="3">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <div class="form-group" id="lesson-group">
+                                                                    <label class="small font-weight-bold">Lesson per Modul</label>
+                                                                    <input type="number" class="form-control form-control-sm" id="gen-lessons" name="lesson_count" min="1" max="10" value="2">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {{-- Lesson count for single-module mode --}}
+                                                        <div class="form-group d-none" id="lesson-only-count-group">
+                                                            <label class="small font-weight-bold">Jumlah Lesson yang dibuat</label>
+                                                            <input type="number" class="form-control form-control-sm" id="gen-lessons-only" min="1" max="10" value="3">
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label class="small font-weight-bold">Fokus / Topik Tambahan <span class="text-muted font-weight-normal">(Opsional)</span></label>
+                                                            <textarea class="form-control form-control-sm" id="gen-topics" name="extra_topics" rows="2" placeholder="Contoh: Fokus pada studi kasus industri..."></textarea>
+                                                        </div>
+                                                        
+                                                        <button type="submit" class="btn btn-primary btn-block" id="btn-generate">
+                                                            <i class="fa fa-magic"></i> Mulai Generate
+                                                        </button>
+                                                    </form>
+                                                    <hr>
+                                                    <div class="text-center">
+                                                        <small class="text-muted"><i class="fa fa-info-circle"></i> AI akan merancang silabus berdasarkan pengaturan di atas dan dokumen RAG yang Anda unggah.</small>
+                                                    </div>
+                                                </div>
+
+                                                {{-- RIWAYAT JOB --}}
+                                                <div class="card mt-4">
+                                                    <div class="card-header bg-white p-2 border-bottom">
+                                                        <h6 class="m-0 text-dark"><i class="fa fa-history mr-1"></i> Riwayat Job AI (Terbaru)</h6>
+                                                    </div>
+                                                    <div class="card-body p-0">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-sm table-striped m-0" style="font-size: 0.85rem;">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Waktu</th>
+                                                                        <th>Tipe</th>
+                                                                        <th>Status</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @forelse($jobHistory ?? [] as $history)
+                                                                        <tr>
+                                                                            <td>{{ $history->created_at->format('d M H:i') }}</td>
+                                                                            <td>{{ ucfirst($history->type) }}</td>
+                                                                            <td>
+                                                                                @if(in_array($history->status, ['queued', 'processing']))
+                                                                                    <span class="badge badge-warning text-white"><i class="fa fa-spinner fa-spin"></i> {{ ucfirst($history->status) }}</span>
+                                                                                @elseif($history->status === 'completed')
+                                                                                    <span class="badge badge-success"><i class="fa fa-check"></i> Selesai</span>
+                                                                                @else
+                                                                                    <span class="badge badge-danger" title="{{ $history->error }}"><i class="fa fa-times"></i> Gagal</span>
+                                                                                @endif
+                                                                            </td>
+                                                                        </tr>
+                                                                    @empty
+                                                                        <tr>
+                                                                            <td colspan="3" class="text-center text-muted">Belum ada riwayat job.</td>
+                                                                        </tr>
+                                                                    @endforelse
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {{-- END RIWAYAT JOB --}}
+
+                                            </div>
                                         </div>
                                     </div>
-
-                                    {{-- RIWAYAT JOB --}}
-                                    <div class="card mt-3">
-                                        <div class="card-header bg-light p-2">
-                                            <h6 class="m-0 text-dark"><i class="fa fa-history mr-1"></i> Riwayat Job AI (Terbaru)</h6>
-                                        </div>
-                                        <div class="card-body p-0">
-                                            <div class="table-responsive">
-                                                <table class="table table-sm table-striped m-0" style="font-size: 0.85rem;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Waktu</th>
-                                                            <th>Tipe</th>
-                                                            <th>Status</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @forelse($jobHistory ?? [] as $history)
-                                                            <tr>
-                                                                <td>{{ $history->created_at->format('d M H:i') }}</td>
-                                                                <td>{{ ucfirst($history->type) }}</td>
-                                                                <td>
-                                                                    @if(in_array($history->status, ['queued', 'processing']))
-                                                                        <span class="badge badge-warning text-white"><i class="fa fa-spinner fa-spin"></i> {{ ucfirst($history->status) }}</span>
-                                                                    @elseif($history->status === 'completed')
-                                                                        <span class="badge badge-success"><i class="fa fa-check"></i> Selesai</span>
-                                                                    @else
-                                                                        <span class="badge badge-danger" title="{{ $history->error }}"><i class="fa fa-times"></i> Gagal</span>
-                                                                    @endif
-                                                                </td>
-                                                            </tr>
-                                                        @empty
-                                                            <tr>
-                                                                <td colspan="3" class="text-center text-muted">Belum ada riwayat job.</td>
-                                                            </tr>
-                                                        @endforelse
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {{-- END RIWAYAT JOB --}}
-
                                 </div>
+                                {{-- END MODAL AI GENERATOR --}}
                             </div>
                             {{-- END SPLIT LAYOUT --}}
 
@@ -862,6 +874,7 @@
 
             // If there's an active job on page load, start polling immediately
             if (activeJobId) {
+                $('#modal-ai-generator').modal('show');
                 startPolling();
             }
         });
