@@ -57,6 +57,12 @@ class AdaptiveContentController extends Controller
             ->whereIn('status', ['queued', 'processing'])
             ->first();
 
+        $jobHistory = \App\Models\AiGenerationJob::where('course_id', $course->id)
+            ->where('archetype_name', $activeArchetype)
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
         $references = \App\Models\AiReference::where('course_id', $course->id)
             ->where(function($q) use ($activeArchetype) {
                 $q->where('archetype_name', $activeArchetype)
@@ -69,6 +75,7 @@ class AdaptiveContentController extends Controller
             'activeArchetype' => $activeArchetype,
             'modules'         => $modules,
             'activeJob'       => $activeJob,
+            'jobHistory'      => $jobHistory,
             'references'      => $references,
         ]);
     }

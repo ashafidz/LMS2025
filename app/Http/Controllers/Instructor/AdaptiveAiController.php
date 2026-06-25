@@ -251,6 +251,25 @@ class AdaptiveAiController extends Controller
         Storage::disk('local')->delete($reference->file_path);
         $reference->delete();
 
-        return response()->json(['message' => 'File dihapus']);
+        return response()->json(['message' => 'Referensi dihapus']);
+    }
+
+    /**
+     * Cancel an active AI generation job.
+     */
+    public function cancelJob(Course $course, $jobId)
+    {
+        $job = AiGenerationJob::where('course_id', $course->id)->findOrFail($jobId);
+
+        if (in_array($job->status, ['queued', 'processing'])) {
+            $job->update([
+                'status' => 'failed',
+                'message' => 'Dibatalkan oleh pengguna.',
+                'error' => 'Proses AI dihentikan secara manual oleh instruktur.'
+            ]);
+            return response()->json(['message' => 'Job berhasil dibatalkan']);
+        }
+
+        return response()->json(['message' => 'Job tidak bisa dibatalkan karena sudah selesai atau gagal.'], 400);
     }
 }

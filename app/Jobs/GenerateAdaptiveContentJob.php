@@ -229,6 +229,8 @@ class GenerateAdaptiveContentJob implements ShouldQueue
                     'message' => 'Menghasilkan konten untuk Modul ' . ($index + 1) . ' dari ' . $totalMods . '...'
                 ]);
 
+                if ($this->jobRecord->fresh()->status === 'failed') return;
+                
                 // Generate Articles
                 $articleRes = $aiService->generateLessonsForModule($course, $archetype, $module, $lessonCount, $extraTopics, $ragContexts);
                 $lastOrderLes = \App\Models\AdaptiveLesson::where('adaptive_module_id', $module->id)->max('order') ?? -1;
@@ -247,6 +249,7 @@ class GenerateAdaptiveContentJob implements ShouldQueue
                 }
 
                 // Generate Quiz (1 Quiz per module by default)
+                if ($this->jobRecord->fresh()->status === 'failed') return;
                 $this->jobRecord->update(['message' => 'Menghasilkan Quiz untuk Modul ' . ($index + 1) . '...']);
                 $quizRes = $aiService->generateQuizLessons($course, $archetype, $module, 1, $extraTopics, $ragContexts);
                 if ($quizRes && isset($quizRes['quizzes'])) {
@@ -264,6 +267,7 @@ class GenerateAdaptiveContentJob implements ShouldQueue
                 }
 
                 // Generate Assignment (1 Assignment per module by default)
+                if ($this->jobRecord->fresh()->status === 'failed') return;
                 $this->jobRecord->update(['message' => 'Menghasilkan Penugasan untuk Modul ' . ($index + 1) . '...']);
                 $asgRes = $aiService->generateAssignmentLessons($course, $archetype, $module, 1, $extraTopics, $ragContexts);
                 if ($asgRes && isset($asgRes['assignments'])) {

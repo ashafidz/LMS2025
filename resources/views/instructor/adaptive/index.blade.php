@@ -405,6 +405,11 @@
                                                 <div class="alert alert-warning small">
                                                     <i class="fa fa-info-circle"></i> Proses ini memakan waktu beberapa menit. Anda boleh meninggalkan halaman ini atau me-refresh, proses akan tetap berjalan di latar belakang.
                                                 </div>
+                                                <div class="text-center mt-2">
+                                                    <button type="button" class="btn btn-danger btn-sm" id="btn-cancel-job" data-job-id="{{ isset($activeJob) ? $activeJob->id : '' }}">
+                                                        <i class="fa fa-times-circle"></i> Batalkan Proses
+                                                    </button>
+                                                </div>
                                             </div>
 
                                             {{-- FORM GENERATION --}}
@@ -471,6 +476,49 @@
 
                                         </div>
                                     </div>
+
+                                    {{-- RIWAYAT JOB --}}
+                                    <div class="card mt-3">
+                                        <div class="card-header bg-light p-2">
+                                            <h6 class="m-0 text-dark"><i class="fa fa-history mr-1"></i> Riwayat Job AI (Terbaru)</h6>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-striped m-0" style="font-size: 0.85rem;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Waktu</th>
+                                                            <th>Tipe</th>
+                                                            <th>Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @forelse($jobHistory ?? [] as $history)
+                                                            <tr>
+                                                                <td>{{ $history->created_at->format('d M H:i') }}</td>
+                                                                <td>{{ ucfirst($history->type) }}</td>
+                                                                <td>
+                                                                    @if(in_array($history->status, ['queued', 'processing']))
+                                                                        <span class="badge badge-warning text-white"><i class="fa fa-spinner fa-spin"></i> {{ ucfirst($history->status) }}</span>
+                                                                    @elseif($history->status === 'completed')
+                                                                        <span class="badge badge-success"><i class="fa fa-check"></i> Selesai</span>
+                                                                    @else
+                                                                        <span class="badge badge-danger" title="{{ $history->error }}"><i class="fa fa-times"></i> Gagal</span>
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
+                                                        @empty
+                                                            <tr>
+                                                                <td colspan="3" class="text-center text-muted">Belum ada riwayat job.</td>
+                                                            </tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {{-- END RIWAYAT JOB --}}
+
                                 </div>
                             </div>
                             {{-- END SPLIT LAYOUT --}}
@@ -747,6 +795,37 @@
                         }
                     });
                 }, 3000); // poll every 3 seconds
+            }
+
+            const btnCancelJob = document.getElementById('btn-cancel-job');
+            if (btnCancelJob) {
+                btnCancelJob.addEventListener('click', function() {
+                    const jid = this.getAttribute('data-job-id') || activeJobId;
+                    if (!jid) return;
+
+                    if (!confirm('Apakah Anda yakin ingin menghentikan proses AI ini?')) return;
+
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Membatalkan...';
+
+                    fetch(`/instructor/courses/${courseId}/adaptive/ai/cancel/${jid}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        // Polling will naturally pick up the 'failed' status and update the UI
+                        alert('Permintaan pembatalan terkirim. Menunggu proses latar belakang dihentikan...');
+                    })
+                    .catch(err => {
+                        this.disabled = false;
+                        this.innerHTML = '<i class="fa fa-times-circle"></i> Batalkan Proses';
+                        alert('Terjadi kesalahan saat membatalkan.');
+                    });
+                });
             }
 
             refForm.addEventListener('submit', function(e) {
