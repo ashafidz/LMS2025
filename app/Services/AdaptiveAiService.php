@@ -28,13 +28,15 @@ class AdaptiveAiService
         'Guided Growth Learner'  => 'Siswa dengan prior knowledge rendah (<75%). Membutuhkan scaffolding dan bimbingan intensif.',
     ];
 
-    public function generateCurriculum(
+    /**
+     * Generate only module structures (titles and descriptions)
+     */
+    public function generateModules(
         Course $course, 
         string $archetype, 
         int $moduleCount, 
-        int $lessonCount = 0, // 0 means modules only
         ?string $extraTopics = null,
-        array $ragContexts = [] // array of reference texts
+        array $ragContexts = []
     ): ?array {
         $desc = self::ARCHETYPE_DESCRIPTIONS[$archetype] ?? '';
 
@@ -42,53 +44,27 @@ class AdaptiveAiService
             . "Kursus: '{$course->title}'\n"
             . "Deskripsi kursus: " . strip_tags($course->description) . "\n\n"
             . "Target kelompok belajar (Archetype): '{$archetype}'\n"
-            . "Profil kelompok: {$desc}\n"
-            . "PENTING: Konten 'lesson' (materi pelajaran) HARUS ditulis dengan sangat detail, panjang, dan komprehensif. "
-            . "Minimal 4-5 paragraf per lesson. Berikan penjelasan mendalam, contoh kasus, dan langkah-langkah konkret. Jangan hanya memberikan ringkasan singkat.\n";
+            . "Profil kelompok: {$desc}\n";
 
         if (!empty($ragContexts)) {
-            $systemPrompt .= "\n--- REFERENSI MATERI (RAG) ---\nInstruktur mengunggah referensi berikut. Ekstrak materi yang relevan dan tuliskan penjelasannya secara lengkap dan mendalam:\n\n";
+            $systemPrompt .= "\n--- REFERENSI MATERI (RAG) ---\nInstruktur mengunggah referensi berikut. Ekstrak informasi relevan untuk membantu membentuk struktur kurikulum:\n\n";
             $systemPrompt .= implode("\n\n=== BATAS REFERENSI ===\n\n", $ragContexts);
             $systemPrompt .= "\n--- AKHIR REFERENSI ---\n";
         }
 
-        $userPrompt = "Tolong buatkan kurikulum dengan {$moduleCount} modul.";
-        if ($lessonCount > 0) {
-            $userPrompt .= " Setiap modul harus memiliki tepat {$lessonCount} lesson.";
-            $userPrompt .= " Ingat, isi 'content' dari setiap lesson harus panjang dan sangat detail (gunakan HTML tag seperti <p>, <strong>, <ul>, <li>).";
-        } else {
-            $userPrompt .= " Jangan buat lesson di dalamnya.";
-        }
+        $userPrompt = "Tolong buatkan struktur kurikulum dengan tepat {$moduleCount} modul. Jangan buat konten materinya, hanya judul dan deskripsi per modul.";
         if ($extraTopics) {
             $userPrompt .= " Fokus tambahan/topik spesifik: {$extraTopics}.";
         }
 
-        // Schema JSON for output formatting
-        if ($lessonCount > 0) {
-            $jsonSchema = '{
-                "curriculum": [
-                    {
-                        "title": "Judul Modul 1",
-                        "description": "Deskripsi Modul",
-                        "lessons": [
-                            {
-                                "title": "Judul Lesson 1",
-                                "content": "<p>Paragraf pertama yang sangat panjang dan mendetail...</p><p>Paragraf kedua menjelaskan konsep lebih dalam...</p><ul><li>Poin penting 1</li><li>Poin penting 2</li></ul><p>Paragraf penutup dengan kesimpulan yang jelas...</p>"
-                            }
-                        ]
-                    }
-                ]
-            }';
-        } else {
-            $jsonSchema = '{
-                "curriculum": [
-                    {
-                        "title": "Judul Modul 1",
-                        "description": "Deskripsi Modul"
-                    }
-                ]
-            }';
-        }
+        $jsonSchema = '{
+            "modules": [
+                {
+                    "title": "Judul Modul 1",
+                    "description": "Deskripsi singkat modul ini (1-2 kalimat)"
+                }
+            ]
+        }';
 
         $userPrompt .= "\n\nFormat keluaran HARUS berformat JSON seperti contoh berikut:\n$jsonSchema";
 
@@ -100,25 +76,20 @@ class AdaptiveAiService
                     ['role' => 'user', 'content' => $userPrompt]
                 ],
                 'stream'   => false,
-                'format'   => 'json' // Force Ollama to return JSON if supported by model
+                'format'   => 'json'
             ]);
 
             if ($response->successful()) {
-                $content = $response->json('message.content');
-                
-                // Coba bersihkan markdown json block jika AI bandel
-                $content = preg_replace('/```json/i', '', $content);
-                $content = preg_replace('/```/', '', $content);
-                $content = trim($content);
-
+                $content = preg_replace('/```json/i', '', $response->json('message.content'));
+                $content = trim(preg_replace('/```/', '', $content));
                 return json_decode($content, true);
             }
 
-            Log::error('Ollama Generation Failed', ['status' => $response->status(), 'body' => $response->body()]);
+            Log::error('Ollama Module Generation Failed', ['status' => $response->status(), 'body' => $response->body()]);
             return null;
 
         } catch (\Exception $e) {
-            Log::error('Ollama Generation Error', ['message' => $e->getMessage()]);
+            Log::error('Ollama Module Generation Error', ['message' => $e->getMessage()]);
             return null;
         }
     }

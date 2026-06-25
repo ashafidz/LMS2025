@@ -173,38 +173,40 @@ class GenerateAdaptiveContentJob implements ShouldQueue
         // ─── MODULES / FULL CURRICULUM MODE ─────────────────────
         $moduleCount = $this->params['module_count'] ?? 1;
 
-        $result = $aiService->generateCurriculum(
+        $this->jobRecord->update(['progress' => 15, 'message' => 'Menghasilkan struktur modul...']);
+
+        // 1. Generate Modules only
+        $result = $aiService->generateModules(
             $course, 
             $archetype, 
             $moduleCount, 
-            $lessonCount, 
             $extraTopics,
             $ragContexts
         );
 
-        if (!$result || !isset($result['curriculum'])) {
+        if (!$result || !isset($result['modules'])) {
             $this->jobRecord->update([
                 'status' => 'failed',
                 'progress' => 0,
                 'message' => 'Gagal mendapatkan response.',
-                'error' => 'AI tidak merespons dengan format JSON yang valid atau terputus.'
+                'error' => 'AI tidak merespons dengan format JSON struktur modul yang valid atau terputus.'
             ]);
             return;
         }
 
         $this->jobRecord->update([
-            'progress' => 80,
-            'message' => 'Menyimpan hasil ke database...'
+            'progress' => 30,
+            'message' => 'Menyimpan struktur modul ke database...'
         ]);
 
-        // Save to Database
+        // Save Modules to Database
         $lastOrderMod = AdaptiveModule::where('course_id', $course->id)
                                       ->where('archetype_name', $archetype)
                                       ->max('order') ?? -1;
 
-        foreach ($result['curriculum'] as $modData) {
+        $createdModules = [];
+        foreach ($result['modules'] as $modData) {
             $lastOrderMod++;
-            
             $module = $course->adaptiveModules()->create([
                 'archetype_name' => $archetype,
                 'title'          => $modData['title'],
@@ -212,18 +214,74 @@ class GenerateAdaptiveContentJob implements ShouldQueue
                 'order'          => $lastOrderMod,
                 'ai_generated'   => true,
             ]);
+            $createdModules[] = $module;
+        }
 
-            if (!empty($modData['lessons'])) {
-                $lastOrderLes = -1;
-                foreach ($modData['lessons'] as $lesData) {
-                    $lastOrderLes++;
-                    $module->lessons()->create([
-                        'title'        => $lesData['title'],
-                        'content'      => $lesData['content'] ?? '<p>Konten tidak tersedia.</p>',
-                        'order'        => $lastOrderLes,
-                        'ai_generated' => true,
-                    ]);
+        // 2. If FULL mode, generate contents per module sequentially
+        if ($this->jobRecord->type === 'full') {
+            $totalMods = count($createdModules);
+            $progressPerMod = 60 / ($totalMods > 0 ? $totalMods : 1);
+            $currentProgress = 30;
+
+            foreach ($createdModules as $index => $module) {
+                $this->jobRecord->update([
+                    'progress' => min(90, round($currentProgress)),
+                    'message' => 'Menghasilkan konten untuk Modul ' . ($index + 1) . ' dari ' . $totalMods . '...'
+                ]);
+
+                // Generate Articles
+                $articleRes = $aiService->generateLessonsForModule($course, $archetype, $module, $lessonCount, $extraTopics, $ragContexts);
+                $lastOrderLes = \App\Models\AdaptiveLesson::where('adaptive_module_id', $module->id)->max('order') ?? -1;
+                
+                if ($articleRes && isset($articleRes['lessons'])) {
+                    foreach ($articleRes['lessons'] as $lesData) {
+                        $lastOrderLes++;
+                        $module->lessons()->create([
+                            'title'        => $lesData['title'],
+                            'lesson_type'  => 'article',
+                            'content'      => $lesData['content'] ?? '<p>Konten tidak tersedia.</p>',
+                            'order'        => $lastOrderLes,
+                            'ai_generated' => true,
+                        ]);
+                    }
                 }
+
+                // Generate Quiz (1 Quiz per module by default)
+                $this->jobRecord->update(['message' => 'Menghasilkan Quiz untuk Modul ' . ($index + 1) . '...']);
+                $quizRes = $aiService->generateQuizLessons($course, $archetype, $module, 1, $extraTopics, $ragContexts);
+                if ($quizRes && isset($quizRes['quizzes'])) {
+                    foreach ($quizRes['quizzes'] as $quizData) {
+                        $lastOrderLes++;
+                        $module->lessons()->create([
+                            'title'        => $quizData['title'],
+                            'lesson_type'  => 'quiz',
+                            'content'      => $quizData['description'] ?? '<p>Quiz.</p>',
+                            'quiz_data'    => $quizData['questions'] ?? [],
+                            'order'        => $lastOrderLes,
+                            'ai_generated' => true,
+                        ]);
+                    }
+                }
+
+                // Generate Assignment (1 Assignment per module by default)
+                $this->jobRecord->update(['message' => 'Menghasilkan Penugasan untuk Modul ' . ($index + 1) . '...']);
+                $asgRes = $aiService->generateAssignmentLessons($course, $archetype, $module, 1, $extraTopics, $ragContexts);
+                if ($asgRes && isset($asgRes['assignments'])) {
+                    foreach ($asgRes['assignments'] as $asgData) {
+                        $lastOrderLes++;
+                        $module->lessons()->create([
+                            'title'                   => $asgData['title'],
+                            'lesson_type'             => 'assignment',
+                            'content'                 => $asgData['description'] ?? '<p>Deskripsi penugasan tidak tersedia.</p>',
+                            'assignment_instructions' => $asgData['instructions'] ?? null,
+                            'assignment_max_score'    => $asgData['max_score'] ?? 100,
+                            'order'                   => $lastOrderLes,
+                            'ai_generated'            => true,
+                        ]);
+                    }
+                }
+
+                $currentProgress += $progressPerMod;
             }
         }
 
@@ -234,5 +292,25 @@ class GenerateAdaptiveContentJob implements ShouldQueue
         ]);
         
         Log::info("AI Generation Job Completed", ['job_id' => $this->jobRecord->id]);
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        Log::error('GenerateAdaptiveContentJob Failed', [
+            'job_id' => $this->jobRecord->id ?? null,
+            'error'  => $exception->getMessage(),
+            'trace'  => $exception->getTraceAsString()
+        ]);
+
+        if (isset($this->jobRecord)) {
+            $this->jobRecord->update([
+                'status'  => 'failed',
+                'message' => 'Job gagal karena kesalahan sistem atau timeout.',
+                'error'   => $exception->getMessage()
+            ]);
+        }
     }
 }
