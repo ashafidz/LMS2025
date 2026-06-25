@@ -498,11 +498,12 @@
                                                                         <th>Waktu</th>
                                                                         <th>Tipe</th>
                                                                         <th>Status</th>
+                                                                        <th class="text-right">Aksi</th>
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
                                                                     @forelse($jobHistory ?? [] as $history)
-                                                                        <tr>
+                                                                        <tr id="job-row-{{ $history->id }}">
                                                                             <td>{{ $history->created_at->format('d M H:i') }}</td>
                                                                             <td>{{ ucfirst($history->type) }}</td>
                                                                             <td>
@@ -514,10 +515,17 @@
                                                                                     <span class="badge badge-danger" title="{{ $history->error }}"><i class="fa fa-times"></i> Gagal</span>
                                                                                 @endif
                                                                             </td>
+                                                                            <td class="text-right">
+                                                                                @if($history->status === 'failed')
+                                                                                    <button type="button" class="btn btn-xs btn-outline-danger btn-delete-job" data-job-id="{{ $history->id }}" title="Hapus Riwayat">
+                                                                                        <i class="fa fa-trash"></i>
+                                                                                    </button>
+                                                                                @endif
+                                                                            </td>
                                                                         </tr>
                                                                     @empty
                                                                         <tr>
-                                                                            <td colspan="3" class="text-center text-muted">Belum ada riwayat job.</td>
+                                                                            <td colspan="4" class="text-center text-muted">Belum ada riwayat job.</td>
                                                                         </tr>
                                                                     @endforelse
                                                                 </tbody>
@@ -839,6 +847,38 @@
                     });
                 });
             }
+
+            // Handle hapus riwayat job
+            document.querySelectorAll('.btn-delete-job').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const jid = this.getAttribute('data-job-id');
+                    if(!confirm('Yakin ingin menghapus riwayat ini?')) return;
+
+                    const row = document.getElementById('job-row-' + jid);
+                    this.disabled = true;
+
+                    fetch(`/instructor/courses/${courseId}/adaptive/ai/jobs/${jid}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.message) {
+                            if(row) row.remove();
+                        } else {
+                            alert(data.error || 'Gagal menghapus riwayat');
+                            this.disabled = false;
+                        }
+                    })
+                    .catch(err => {
+                        alert('Terjadi kesalahan jaringan.');
+                        this.disabled = false;
+                    });
+                });
+            });
 
             refForm.addEventListener('submit', function(e) {
                 e.preventDefault();

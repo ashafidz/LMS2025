@@ -272,4 +272,19 @@ class AdaptiveAiController extends Controller
 
         return response()->json(['message' => 'Job tidak bisa dibatalkan karena sudah selesai atau gagal.'], 400);
     }
+
+    /**
+     * Delete a failed or cancelled AI generation job from history.
+     */
+    public function destroyJob(Course $course, $jobId)
+    {
+        $job = AiGenerationJob::where('course_id', $course->id)->findOrFail($jobId);
+
+        if ($job->status === 'failed') {
+            $job->delete();
+            return response()->json(['message' => 'Riwayat job berhasil dihapus']);
+        }
+
+        return response()->json(['message' => 'Hanya job yang gagal atau dibatalkan yang dapat dihapus.'], 400);
+    }
 }
