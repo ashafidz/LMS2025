@@ -20,7 +20,7 @@ jobs:
           set -e
 
           echo "📥 Pulling latest code..."
-          git pull origin main
+          git pull https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
 
           echo "🏗️ Building & starting containers..."
           docker compose build app queue
