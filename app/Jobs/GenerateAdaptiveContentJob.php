@@ -18,7 +18,7 @@ class GenerateAdaptiveContentJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 600; // 10 minutes max for Ollama
+    public $timeout = 3600; // 1 hour max for Ollama
 
     protected AiGenerationJob $jobRecord;
     protected array $params;
