@@ -216,10 +216,10 @@ class AdaptiveContentController extends Controller
 
         $validated = $request->validate([
             'questions' => 'nullable|array',
-            'questions.*.text' => 'required|string',
+            'questions.*.question_text' => 'required|string',
             'questions.*.options' => 'required|array|min:2',
             'questions.*.options.*' => 'required|string',
-            'questions.*.correct_index' => 'required|integer|min:0',
+            'questions.*.correct_answer_index' => 'required|integer|min:0',
             'questions.*.explanation' => 'nullable|string',
         ]);
 

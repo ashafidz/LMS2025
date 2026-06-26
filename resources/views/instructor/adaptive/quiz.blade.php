@@ -94,9 +94,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let questions = {!! json_encode(old('questions', $lesson->quiz_data ?? [])) !!};
     if (!Array.isArray(questions) || questions.length === 0) {
         questions = [{
-            text: '',
+            question_text: '',
             options: ['', '', '', ''],
-            correct_index: 0,
+            correct_answer_index: 0,
             explanation: ''
         }];
     }
@@ -117,13 +117,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             q.options.forEach((opt, optIndex) => {
                 const label = labels[optIndex] || (optIndex + 1);
-                const isChecked = parseInt(q.correct_index) === optIndex ? 'checked' : '';
+                const isChecked = parseInt(q.correct_answer_index) === optIndex ? 'checked' : '';
                 
                 optionsHtml += `
                     <div class="input-group mb-2 align-items-center">
                         <div class="input-group-prepend">
                             <div class="input-group-text bg-light">
-                                <input type="radio" name="questions[${qIndex}][correct_index]" value="${optIndex}" ${isChecked} required title="Pilih sebagai jawaban benar">
+                                <input type="radio" name="questions[${qIndex}][correct_answer_index]" value="${optIndex}" ${isChecked} required title="Pilih sebagai jawaban benar">
                                 <span class="ml-2 font-weight-bold">${label}</span>
                             </div>
                         </div>
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="card-body p-3">
                     <div class="form-group">
                         <label class="font-weight-bold">Pertanyaan <span class="text-danger">*</span></label>
-                        <textarea name="questions[${qIndex}][text]" class="form-control" rows="3" required placeholder="Tuliskan pertanyaan di sini...">${escapeHtml(q.text)}</textarea>
+                        <textarea name="questions[${qIndex}][question_text]" class="form-control" rows="3" required placeholder="Tuliskan pertanyaan di sini...">${escapeHtml(q.question_text)}</textarea>
                     </div>
                     
                     <div class="form-group mt-3">
@@ -174,9 +174,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     btnAdd.addEventListener('click', function() {
         questions.push({
-            text: '',
+            question_text: '',
             options: ['', '', '', ''],
-            correct_index: 0,
+            correct_answer_index: 0,
             explanation: ''
         });
         renderQuestions();
