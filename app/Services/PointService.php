@@ -197,4 +197,32 @@ class PointService
             });
         }
     }
+
+    /**
+     * Menambahkan poin secara manual oleh instruktur untuk pelajaran tipe 'lessonpoin' di Adaptive Course.
+     */
+    public static function addManualPointsForAdaptive(User $user, Course $course, \App\Models\AdaptiveLesson $lesson, int $pointsToAdd)
+    {
+        if ($pointsToAdd > 0) {
+            $description = "Menerima poin dari sesi adaptif: " . $lesson->title;
+            DB::transaction(function () use ($user, $course, $lesson, $pointsToAdd, $description) {
+                CourseUser::updateOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'course_id' => $course->id
+                    ],
+                    [
+                        'points_earned' => DB::raw('points_earned + ' . $pointsToAdd)
+                    ]
+                );
+
+                $user->pointHistories()->create([
+                    'course_id' => $course->id,
+                    'adaptive_lesson_id' => $lesson->id,
+                    'points' => $pointsToAdd,
+                    'description' => $description,
+                ]);
+            });
+        }
+    }
 }

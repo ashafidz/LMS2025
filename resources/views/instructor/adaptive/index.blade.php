@@ -175,6 +175,10 @@
                                                                 <a href="{{ route('instructor.adaptive.lessons.quiz', [$course, $lesson]) }}" class="btn btn-xs btn-outline-success mr-1">
                                                                     <i class="fa fa-list-ol"></i> Kelola Soal
                                                                 </a>
+                                                            @elseif($lesson->lesson_type === 'lessonpoin')
+                                                                <a href="{{ route('instructor.adaptive.lessons.points.manage', [$course, $lesson]) }}" class="btn btn-xs btn-outline-warning mr-1">
+                                                                    <i class="fa fa-star"></i> Kelola Poin
+                                                                </a>
                                                             @endif
                                                             <button class="btn btn-xs btn-outline-primary mr-1"
                                                                     data-toggle="modal"

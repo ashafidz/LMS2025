@@ -15,6 +15,7 @@ class PointHistory extends Model
         'user_id',
         'course_id',
         'lesson_id',
+        'adaptive_lesson_id',
         'points',
         'description',
     ];
@@ -36,5 +37,10 @@ class PointHistory extends Model
     public function lesson()
     {
         return $this->belongsTo(Lesson::class);
+    }
+
+    public function adaptiveLesson()
+    {
+        return $this->belongsTo(AdaptiveLesson::class, 'adaptive_lesson_id');
     }
 }

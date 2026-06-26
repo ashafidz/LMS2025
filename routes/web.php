@@ -410,6 +410,10 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
             Route::get('/lessons/{lesson}/quiz', [\App\Http\Controllers\Instructor\AdaptiveContentController::class, 'manageQuiz'])->name('lessons.quiz');
             Route::put('/lessons/{lesson}/quiz', [\App\Http\Controllers\Instructor\AdaptiveContentController::class, 'updateQuiz'])->name('lessons.quiz.update');
 
+            // Kelola Poin (Adaptive Lesson Poin)
+            Route::get('/lessons/{lesson}/points', [\App\Http\Controllers\Instructor\AdaptiveLessonPointController::class, 'index'])->name('lessons.points.manage');
+            Route::post('/lessons/{lesson}/points', [\App\Http\Controllers\Instructor\AdaptiveLessonPointController::class, 'award'])->name('lessons.points.award');
+
             // AI Co-Pilot Endpoints (Form & RAG)
             Route::post('/ai/generate-full', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'generateFull'])->name('ai.generate-full');
             Route::post('/ai/generate-modules', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'generateModules'])->name('ai.generate-modules');
