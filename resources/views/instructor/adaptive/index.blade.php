@@ -263,7 +263,7 @@
                                                                                     @php
                                                                                         $embedUrl = null;
                                                                                         if (str_contains($lesson->video_url, 'youtube.com/watch')) {
-                                                                                            parse_str(parse_url($lesson->video_url, PHP_URL_QUERY), $vars);
+                                                                                            parse_str((string) parse_url($lesson->video_url, PHP_URL_QUERY), $vars);
                                                                                             if (isset($vars['v'])) $embedUrl = 'https://www.youtube.com/embed/' . $vars['v'];
                                                                                         } elseif (str_contains($lesson->video_url, 'youtu.be/')) {
                                                                                             $embedUrl = 'https://www.youtube.com/embed' . parse_url($lesson->video_url, PHP_URL_PATH);
