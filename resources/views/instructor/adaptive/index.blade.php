@@ -280,11 +280,21 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label>Tipe Lesson <span class="text-danger">*</span></label>
-                                                                            <select name="lesson_type" class="form-control">
+                                                                            <select name="lesson_type" class="form-control" onchange="toggleAssignmentFields(this)">
                                                                                 <option value="article" {{ $lesson->lesson_type === 'article' ? 'selected' : '' }}>Artikel</option>
                                                                                 <option value="assignment" {{ $lesson->lesson_type === 'assignment' ? 'selected' : '' }}>Penugasan</option>
                                                                                 <option value="quiz" {{ $lesson->lesson_type === 'quiz' ? 'selected' : '' }}>Quiz</option>
                                                                             </select>
+                                                                        </div>
+                                                                        <div class="assignment-fields" style="display: {{ $lesson->lesson_type === 'assignment' ? 'block' : 'none' }};">
+                                                                            <div class="form-group">
+                                                                                <label>Skor Maksimal <span class="text-danger">*</span></label>
+                                                                                <input type="number" name="assignment_max_score" class="form-control" value="{{ old('assignment_max_score', $lesson->assignment_max_score ?? 100) }}" min="1" max="1000">
+                                                                            </div>
+                                                                            <div class="form-group">
+                                                                                <label>Instruksi Penugasan</label>
+                                                                                <textarea name="assignment_instructions" class="form-control tinymce-editor" rows="5">{!! old('assignment_instructions', $lesson->assignment_instructions) !!}</textarea>
+                                                                            </div>
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label>Konten / Instruksi</label>
@@ -374,11 +384,21 @@
                                                             </div>
                                                             <div class="form-group">
                                                                 <label>Tipe Lesson <span class="text-danger">*</span></label>
-                                                                <select name="lesson_type" class="form-control">
+                                                                <select name="lesson_type" class="form-control" onchange="toggleAssignmentFields(this)">
                                                                     <option value="article">Artikel</option>
                                                                     <option value="assignment">Penugasan</option>
                                                                     <option value="quiz">Quiz</option>
                                                                 </select>
+                                                            </div>
+                                                            <div class="assignment-fields" style="display: none;">
+                                                                <div class="form-group">
+                                                                    <label>Skor Maksimal <span class="text-danger">*</span></label>
+                                                                    <input type="number" name="assignment_max_score" class="form-control" value="100" min="1" max="1000">
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <label>Instruksi Penugasan</label>
+                                                                    <textarea name="assignment_instructions" class="form-control tinymce-editor" rows="5"></textarea>
+                                                                </div>
                                                             </div>
                                                             <div class="form-group">
                                                                 <label>Konten / Instruksi</label>
@@ -939,5 +959,16 @@
                 startPolling();
             }
         });
+        
+        function toggleAssignmentFields(selectElem) {
+            const assignmentFields = selectElem.closest('.modal-body').querySelector('.assignment-fields');
+            if (assignmentFields) {
+                if (selectElem.value === 'assignment') {
+                    assignmentFields.style.display = 'block';
+                } else {
+                    assignmentFields.style.display = 'none';
+                }
+            }
+        }
     </script>
 @endpush

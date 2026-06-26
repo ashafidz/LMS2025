@@ -151,6 +151,8 @@ class AdaptiveContentController extends Controller
             'lesson_type' => 'required|in:article,assignment,quiz',
             'title'       => 'required|string|max:255',
             'content'     => 'nullable|string',
+            'assignment_max_score' => 'nullable|integer|min:1',
+            'assignment_instructions' => 'nullable|string',
         ]);
 
         $lastOrder = AdaptiveLesson::where('adaptive_module_id', $module->id)->max('order') ?? -1;
@@ -175,6 +177,8 @@ class AdaptiveContentController extends Controller
             'lesson_type' => 'required|in:article,assignment,quiz',
             'title'       => 'required|string|max:255',
             'content'     => 'nullable|string',
+            'assignment_max_score' => 'nullable|integer|min:1',
+            'assignment_instructions' => 'nullable|string',
         ]);
 
         $lesson->update($validated);
