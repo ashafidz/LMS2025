@@ -162,6 +162,10 @@
                                                                 <span class="badge badge-primary ml-1" title="Dokumen">
                                                                     <i class="fa fa-file-pdf-o"></i> Dokumen
                                                                 </span>
+                                                            @elseif($lesson->lesson_type === 'link')
+                                                                <span class="badge badge-dark ml-1" title="Kumpulan Link">
+                                                                    <i class="fa fa-link"></i> Link
+                                                                </span>
                                                             @endif
                                                             @if($lesson->ai_generated)
                                                                 <span class="badge badge-warning ml-1" title="Dibuat oleh AI">
@@ -216,6 +220,8 @@
                                                                             <i class="fa fa-list"></i> Poin: {{ $lesson->title }}
                                                                         @elseif($lesson->lesson_type === 'document')
                                                                             <i class="fa fa-file-pdf-o"></i> Dokumen: {{ $lesson->title }}
+                                                                        @elseif($lesson->lesson_type === 'link')
+                                                                            <i class="fa fa-link"></i> Link: {{ $lesson->title }}
                                                                         @else
                                                                             <i class="fa fa-eye"></i> Preview: {{ $lesson->title }}
                                                                         @endif
@@ -338,6 +344,30 @@
                                                                             </div>
                                                                         </div>
                                                                         @endif
+                                                                    @elseif($lesson->lesson_type === 'link')
+                                                                        <div class="mb-3">
+                                                                            <h6 class="text-muted text-uppercase small font-weight-bold">Kumpulan Tautan</h6>
+                                                                            <div class="list-group">
+                                                                                @if(!empty($lesson->link_data))
+                                                                                    @foreach($lesson->link_data as $link)
+                                                                                        <a href="{{ $link['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer" class="list-group-item list-group-item-action">
+                                                                                            <i class="fa fa-link mr-2 text-primary"></i> <strong>{{ $link['title'] ?? 'Tautan' }}</strong>
+                                                                                            <div class="small text-muted mt-1 text-break">{{ $link['url'] ?? '' }}</div>
+                                                                                        </a>
+                                                                                    @endforeach
+                                                                                @else
+                                                                                    <div class="list-group-item text-muted"><i>Tidak ada tautan.</i></div>
+                                                                                @endif
+                                                                            </div>
+                                                                        </div>
+                                                                        @if($lesson->content)
+                                                                        <div class="mb-3">
+                                                                            <h6 class="text-muted text-uppercase small font-weight-bold">Konten Tambahan</h6>
+                                                                            <div class="p-3 bg-light border rounded" style="max-height: 50vh; overflow-y: auto;">
+                                                                                {!! $lesson->content !!}
+                                                                            </div>
+                                                                        </div>
+                                                                        @endif
                                                                     @else
                                                                         <div style="max-height: 60vh; overflow-y: auto;" class="p-3 bg-light border rounded">
                                                                             {!! $lesson->content ?? '<p class="text-muted"><i>Tidak ada konten artikel.</i></p>' !!}
@@ -376,6 +406,7 @@
                                                                                 <option value="video" {{ $lesson->lesson_type === 'video' ? 'selected' : '' }}>Video</option>
                                                                                 <option value="lessonpoin" {{ $lesson->lesson_type === 'lessonpoin' ? 'selected' : '' }}>Lesson Poin</option>
                                                                                 <option value="document" {{ $lesson->lesson_type === 'document' ? 'selected' : '' }}>Dokumen (PDF/Word)</option>
+                                                                                <option value="link" {{ $lesson->lesson_type === 'link' ? 'selected' : '' }}>Kumpulan Link</option>
                                                                             </select>
                                                                         </div>
                                                                         <div class="video-fields" style="display: {{ $lesson->lesson_type === 'video' ? 'block' : 'none' }};">
@@ -404,6 +435,41 @@
                                                                             <div class="form-group">
                                                                                 <label>Deskripsi Lesson Poin</label>
                                                                                 <textarea name="lessonpoin_description" class="form-control" rows="4">{{ old('lessonpoin_description', $lesson->lessonpoin_description) }}</textarea>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="link-fields" style="display: {{ $lesson->lesson_type === 'link' ? 'block' : 'none' }};">
+                                                                            <div class="form-group">
+                                                                                <label>Daftar Tautan <span class="text-danger">*</span></label>
+                                                                                <div class="links-container">
+                                                                                    @if(!empty($lesson->link_data))
+                                                                                        @foreach($lesson->link_data as $index => $link)
+                                                                                            <div class="row mb-2 link-row">
+                                                                                                <div class="col-sm-5">
+                                                                                                    <input type="text" name="links[{{ $index }}][title]" class="form-control" value="{{ $link['title'] ?? '' }}" placeholder="Judul Tautan">
+                                                                                                </div>
+                                                                                                <div class="col-sm-5">
+                                                                                                    <input type="url" name="links[{{ $index }}][url]" class="form-control" value="{{ $link['url'] ?? '' }}" placeholder="URL (https://...)">
+                                                                                                </div>
+                                                                                                <div class="col-sm-2">
+                                                                                                    <button type="button" class="btn btn-danger btn-block" onclick="this.closest('.link-row').remove()"><i class="fa fa-trash"></i></button>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        @endforeach
+                                                                                    @else
+                                                                                        <div class="row mb-2 link-row">
+                                                                                            <div class="col-sm-5">
+                                                                                                <input type="text" name="links[0][title]" class="form-control" placeholder="Judul Tautan">
+                                                                                            </div>
+                                                                                            <div class="col-sm-5">
+                                                                                                <input type="url" name="links[0][url]" class="form-control" placeholder="URL (https://...)">
+                                                                                            </div>
+                                                                                            <div class="col-sm-2">
+                                                                                                <button type="button" class="btn btn-danger btn-block" onclick="this.closest('.link-row').remove()"><i class="fa fa-trash"></i></button>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    @endif
+                                                                                </div>
+                                                                                <button type="button" class="btn btn-sm btn-success mt-2 add-link-btn"><i class="fa fa-plus"></i> Tambah Tautan</button>
                                                                             </div>
                                                                         </div>
                                                                         <div class="assignment-fields" style="display: {{ $lesson->lesson_type === 'assignment' ? 'block' : 'none' }};">
@@ -511,6 +577,7 @@
                                                                     <option value="video">Video</option>
                                                                     <option value="lessonpoin">Lesson Poin</option>
                                                                     <option value="document">Dokumen (PDF/Word)</option>
+                                                                    <option value="link">Kumpulan Link</option>
                                                                 </select>
                                                             </div>
                                                             <div class="video-fields" style="display: none;">
@@ -534,6 +601,25 @@
                                                                 <div class="form-group">
                                                                     <label>Deskripsi Lesson Poin</label>
                                                                     <textarea name="lessonpoin_description" class="form-control" rows="4"></textarea>
+                                                                </div>
+                                                            </div>
+                                                            <div class="link-fields" style="display: none;">
+                                                                <div class="form-group">
+                                                                    <label>Daftar Tautan <span class="text-danger">*</span></label>
+                                                                    <div class="links-container">
+                                                                        <div class="row mb-2 link-row">
+                                                                            <div class="col-sm-5">
+                                                                                <input type="text" name="links[0][title]" class="form-control" placeholder="Judul Tautan">
+                                                                            </div>
+                                                                            <div class="col-sm-5">
+                                                                                <input type="url" name="links[0][url]" class="form-control" placeholder="URL (https://...)">
+                                                                            </div>
+                                                                            <div class="col-sm-2">
+                                                                                <button type="button" class="btn btn-danger btn-block" onclick="this.closest('.link-row').remove()"><i class="fa fa-trash"></i></button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <button type="button" class="btn btn-sm btn-success mt-2 add-link-btn"><i class="fa fa-plus"></i> Tambah Tautan</button>
                                                                 </div>
                                                             </div>
                                                             <div class="assignment-fields" style="display: none;">
@@ -1115,12 +1201,14 @@
             const assignmentFields = modalBody.querySelector('.assignment-fields');
             const lessonPoinFields = modalBody.querySelector('.lessonpoin-fields');
             const documentFields = modalBody.querySelector('.document-fields');
+            const linkFields = modalBody.querySelector('.link-fields');
 
             // Sembunyikan semua dulu
             if (videoFields) videoFields.style.display = 'none';
             if (assignmentFields) assignmentFields.style.display = 'none';
             if (lessonPoinFields) lessonPoinFields.style.display = 'none';
             if (documentFields) documentFields.style.display = 'none';
+            if (linkFields) linkFields.style.display = 'none';
 
             // Tampilkan yang relevan
             if (lessonType === 'video' && videoFields) {
@@ -1131,7 +1219,34 @@
                 lessonPoinFields.style.display = 'block';
             } else if (lessonType === 'document' && documentFields) {
                 documentFields.style.display = 'block';
+            } else if (lessonType === 'link' && linkFields) {
+                linkFields.style.display = 'block';
             }
         }
+
+        // JS untuk Add Link Dinamis
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.add-link-btn')) {
+                const btn = e.target.closest('.add-link-btn');
+                const container = btn.parentElement.querySelector('.links-container');
+                if (container) {
+                    const newIndex = Date.now();
+                    const html = `
+                        <div class="row mb-2 link-row">
+                            <div class="col-sm-5">
+                                <input type="text" name="links[${newIndex}][title]" class="form-control" placeholder="Judul Tautan">
+                            </div>
+                            <div class="col-sm-5">
+                                <input type="url" name="links[${newIndex}][url]" class="form-control" placeholder="URL (https://...)">
+                            </div>
+                            <div class="col-sm-2">
+                                <button type="button" class="btn btn-danger btn-block" onclick="this.closest('.link-row').remove()"><i class="fa fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', html);
+                }
+            }
+        });
     </script>
 @endpush

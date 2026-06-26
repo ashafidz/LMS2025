@@ -12,9 +12,10 @@ class AdaptiveLesson extends Model
     protected $fillable = [
         'adaptive_module_id',
         'title',
-        'lesson_type',          // 'article' | 'assignment' | 'video' | 'quiz' | 'lessonpoin' | 'document'
+        'lesson_type',          // 'article' | 'assignment' | 'video' | 'quiz' | 'lessonpoin' | 'document' | 'link'
         'video_url',
         'document_path',
+        'link_data',
         'lessonpoin_title',
         'lessonpoin_description',
         'content',
@@ -30,6 +31,7 @@ class AdaptiveLesson extends Model
         'ai_generated'         => 'boolean',
         'assignment_max_score' => 'integer',
         'quiz_data'            => 'array',
+        'link_data'            => 'array',
     ];
 
     // ─── Relationships ────────────────────────────────────────

@@ -148,7 +148,7 @@ class AdaptiveContentController extends Controller
         abort_if($module->course_id !== $course->id, 403);
 
         $validated = $request->validate([
-            'lesson_type' => 'required|in:article,assignment,quiz,video,lessonpoin,document',
+            'lesson_type' => 'required|in:article,assignment,quiz,video,lessonpoin,document,link',
             'video_url'   => 'nullable|url|max:500',
             'lessonpoin_title' => 'nullable|string|max:255',
             'lessonpoin_description' => 'nullable|string',
@@ -157,13 +157,20 @@ class AdaptiveContentController extends Controller
             'assignment_max_score' => 'nullable|integer|min:1',
             'assignment_instructions' => 'nullable|string',
             'document_file' => 'nullable|file|mimes:pdf,doc,docx,ppt,pptx|max:20480',
+            'links'       => 'nullable|array|min:1',
+            'links.*.title' => 'required_with:links|string|max:255',
+            'links.*.url' => 'required_with:links|url',
         ]);
 
         $lessonData = $validated;
-        unset($lessonData['document_file']);
+        unset($lessonData['document_file'], $lessonData['links']);
 
         if ($request->hasFile('document_file') && $validated['lesson_type'] === 'document') {
             $lessonData['document_path'] = $request->file('document_file')->store('lesson_documents', 'public');
+        }
+
+        if ($validated['lesson_type'] === 'link' && !empty($validated['links'])) {
+            $lessonData['link_data'] = array_values(array_filter($validated['links'], function($l) { return !empty($l['title']) && !empty($l['url']); }));
         }
 
         $lastOrder = AdaptiveLesson::where('adaptive_module_id', $module->id)->max('order') ?? -1;
@@ -185,7 +192,7 @@ class AdaptiveContentController extends Controller
         abort_if($lesson->module->course_id !== $course->id, 403);
 
         $validated = $request->validate([
-            'lesson_type' => 'required|in:article,assignment,quiz,video,lessonpoin,document',
+            'lesson_type' => 'required|in:article,assignment,quiz,video,lessonpoin,document,link',
             'video_url'   => 'nullable|url|max:500',
             'lessonpoin_title' => 'nullable|string|max:255',
             'lessonpoin_description' => 'nullable|string',
@@ -194,13 +201,20 @@ class AdaptiveContentController extends Controller
             'assignment_max_score' => 'nullable|integer|min:1',
             'assignment_instructions' => 'nullable|string',
             'document_file' => 'nullable|file|mimes:pdf,doc,docx,ppt,pptx|max:20480',
+            'links'       => 'nullable|array|min:1',
+            'links.*.title' => 'required_with:links|string|max:255',
+            'links.*.url' => 'required_with:links|url',
         ]);
 
         $lessonData = $validated;
-        unset($lessonData['document_file']);
+        unset($lessonData['document_file'], $lessonData['links']);
 
         if ($request->hasFile('document_file') && $validated['lesson_type'] === 'document') {
             $lessonData['document_path'] = $request->file('document_file')->store('lesson_documents', 'public');
+        }
+
+        if ($validated['lesson_type'] === 'link' && !empty($validated['links'])) {
+            $lessonData['link_data'] = array_values(array_filter($validated['links'], function($l) { return !empty($l['title']) && !empty($l['url']); }));
         }
 
         $lesson->update($lessonData);
