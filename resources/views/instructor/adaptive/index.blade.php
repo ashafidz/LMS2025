@@ -158,6 +158,10 @@
                                                                 <span class="badge badge-secondary ml-1" title="Lesson Poin">
                                                                     <i class="fa fa-list"></i> Poin
                                                                 </span>
+                                                            @elseif($lesson->lesson_type === 'document')
+                                                                <span class="badge badge-primary ml-1" title="Dokumen">
+                                                                    <i class="fa fa-file-pdf-o"></i> Dokumen
+                                                                </span>
                                                             @endif
                                                             @if($lesson->ai_generated)
                                                                 <span class="badge badge-warning ml-1" title="Dibuat oleh AI">
@@ -331,7 +335,7 @@
                                                                     <h5 class="modal-title">Edit Lesson</h5>
                                                                     <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                                                                 </div>
-                                                                <form action="{{ route('instructor.adaptive.lessons.update', [$course, $lesson]) }}" method="POST">
+                                                                <form action="{{ route('instructor.adaptive.lessons.update', [$course, $lesson]) }}" method="POST" enctype="multipart/form-data">
                                                                     @csrf @method('PUT')
                                                                     <div class="modal-body">
                                                                         <div class="form-group">
@@ -347,12 +351,25 @@
                                                                                 <option value="quiz" {{ $lesson->lesson_type === 'quiz' ? 'selected' : '' }}>Quiz</option>
                                                                                 <option value="video" {{ $lesson->lesson_type === 'video' ? 'selected' : '' }}>Video</option>
                                                                                 <option value="lessonpoin" {{ $lesson->lesson_type === 'lessonpoin' ? 'selected' : '' }}>Lesson Poin</option>
+                                                                                <option value="document" {{ $lesson->lesson_type === 'document' ? 'selected' : '' }}>Dokumen (PDF/Word)</option>
                                                                             </select>
                                                                         </div>
                                                                         <div class="video-fields" style="display: {{ $lesson->lesson_type === 'video' ? 'block' : 'none' }};">
                                                                             <div class="form-group">
                                                                                 <label>URL Video <span class="text-muted">(opsional)</span></label>
                                                                                 <input type="url" name="video_url" class="form-control" value="{{ old('video_url', $lesson->video_url) }}" placeholder="https://youtube.com/...">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="document-fields" style="display: {{ $lesson->lesson_type === 'document' ? 'block' : 'none' }};">
+                                                                            <div class="form-group">
+                                                                                <label>File Dokumen <span class="text-muted">(Biarkan kosong jika tidak ingin mengubah)</span></label>
+                                                                                <input type="file" name="document_file" class="form-control" accept=".pdf,.doc,.docx,.ppt,.pptx">
+                                                                                <small class="form-text text-muted">Maksimal ukuran file: 20MB. Format yang didukung: PDF, Word, PowerPoint.</small>
+                                                                                @if($lesson->document_path)
+                                                                                    <div class="mt-2">
+                                                                                        <a href="{{ Storage::url($lesson->document_path) }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fa fa-download"></i> Lihat Dokumen Saat Ini</a>
+                                                                                    </div>
+                                                                                @endif
                                                                             </div>
                                                                         </div>
                                                                         <div class="lessonpoin-fields" style="display: {{ $lesson->lesson_type === 'lessonpoin' ? 'block' : 'none' }};">
@@ -453,7 +470,7 @@
                                                         </h5>
                                                         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                                                     </div>
-                                                    <form action="{{ route('instructor.adaptive.lessons.store', [$course, $module]) }}" method="POST">
+                                                    <form action="{{ route('instructor.adaptive.lessons.store', [$course, $module]) }}" method="POST" enctype="multipart/form-data">
                                                         @csrf
                                                         <div class="modal-body">
                                                             <div class="form-group">
@@ -469,12 +486,20 @@
                                                                     <option value="quiz">Quiz</option>
                                                                     <option value="video">Video</option>
                                                                     <option value="lessonpoin">Lesson Poin</option>
+                                                                    <option value="document">Dokumen (PDF/Word)</option>
                                                                 </select>
                                                             </div>
                                                             <div class="video-fields" style="display: none;">
                                                                 <div class="form-group">
                                                                     <label>URL Video <span class="text-muted">(opsional)</span></label>
                                                                     <input type="url" name="video_url" class="form-control" placeholder="https://youtube.com/...">
+                                                                </div>
+                                                            </div>
+                                                            <div class="document-fields" style="display: none;">
+                                                                <div class="form-group">
+                                                                    <label>File Dokumen <span class="text-danger">*</span></label>
+                                                                    <input type="file" name="document_file" class="form-control" accept=".pdf,.doc,.docx,.ppt,.pptx">
+                                                                    <small class="form-text text-muted">Maksimal ukuran file: 20MB. Format yang didukung: PDF, Word, PowerPoint.</small>
                                                                 </div>
                                                             </div>
                                                             <div class="lessonpoin-fields" style="display: none;">
@@ -1057,20 +1082,31 @@
             }
         });
         
-        function toggleLessonTypeFields(selectElem) {
-            const modalBody = selectElem.closest('.modal-body');
-            const assignmentFields = modalBody.querySelector('.assignment-fields');
+        function toggleLessonTypeFields(selectElement) {
+            const modalBody = selectElement.closest('.modal-body');
+            const lessonType = selectElement.value;
+
+            // Semua container
             const videoFields = modalBody.querySelector('.video-fields');
-            const lessonpoinFields = modalBody.querySelector('.lessonpoin-fields');
-            
-            if (assignmentFields) {
-                assignmentFields.style.display = selectElem.value === 'assignment' ? 'block' : 'none';
-            }
-            if (videoFields) {
-                videoFields.style.display = selectElem.value === 'video' ? 'block' : 'none';
-            }
-            if (lessonpoinFields) {
-                lessonpoinFields.style.display = selectElem.value === 'lessonpoin' ? 'block' : 'none';
+            const assignmentFields = modalBody.querySelector('.assignment-fields');
+            const lessonPoinFields = modalBody.querySelector('.lessonpoin-fields');
+            const documentFields = modalBody.querySelector('.document-fields');
+
+            // Sembunyikan semua dulu
+            if (videoFields) videoFields.style.display = 'none';
+            if (assignmentFields) assignmentFields.style.display = 'none';
+            if (lessonPoinFields) lessonPoinFields.style.display = 'none';
+            if (documentFields) documentFields.style.display = 'none';
+
+            // Tampilkan yang relevan
+            if (lessonType === 'video' && videoFields) {
+                videoFields.style.display = 'block';
+            } else if (lessonType === 'assignment' && assignmentFields) {
+                assignmentFields.style.display = 'block';
+            } else if (lessonType === 'lessonpoin' && lessonPoinFields) {
+                lessonPoinFields.style.display = 'block';
+            } else if (lessonType === 'document' && documentFields) {
+                documentFields.style.display = 'block';
             }
         }
     </script>

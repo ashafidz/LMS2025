@@ -148,7 +148,7 @@ class AdaptiveContentController extends Controller
         abort_if($module->course_id !== $course->id, 403);
 
         $validated = $request->validate([
-            'lesson_type' => 'required|in:article,assignment,quiz,video,lessonpoin',
+            'lesson_type' => 'required|in:article,assignment,quiz,video,lessonpoin,document',
             'video_url'   => 'nullable|url|max:500',
             'lessonpoin_title' => 'nullable|string|max:255',
             'lessonpoin_description' => 'nullable|string',
@@ -156,12 +156,20 @@ class AdaptiveContentController extends Controller
             'content'     => 'nullable|string',
             'assignment_max_score' => 'nullable|integer|min:1',
             'assignment_instructions' => 'nullable|string',
+            'document_file' => 'nullable|file|mimes:pdf,doc,docx,ppt,pptx|max:20480',
         ]);
+
+        $lessonData = $validated;
+        unset($lessonData['document_file']);
+
+        if ($request->hasFile('document_file') && $validated['lesson_type'] === 'document') {
+            $lessonData['document_path'] = $request->file('document_file')->store('lesson_documents', 'public');
+        }
 
         $lastOrder = AdaptiveLesson::where('adaptive_module_id', $module->id)->max('order') ?? -1;
 
         $module->lessons()->create([
-            ...$validated,
+            ...$lessonData,
             'order'        => $lastOrder + 1,
             'ai_generated' => false,
         ]);
@@ -177,7 +185,7 @@ class AdaptiveContentController extends Controller
         abort_if($lesson->module->course_id !== $course->id, 403);
 
         $validated = $request->validate([
-            'lesson_type' => 'required|in:article,assignment,quiz,video,lessonpoin',
+            'lesson_type' => 'required|in:article,assignment,quiz,video,lessonpoin,document',
             'video_url'   => 'nullable|url|max:500',
             'lessonpoin_title' => 'nullable|string|max:255',
             'lessonpoin_description' => 'nullable|string',
@@ -185,9 +193,17 @@ class AdaptiveContentController extends Controller
             'content'     => 'nullable|string',
             'assignment_max_score' => 'nullable|integer|min:1',
             'assignment_instructions' => 'nullable|string',
+            'document_file' => 'nullable|file|mimes:pdf,doc,docx,ppt,pptx|max:20480',
         ]);
 
-        $lesson->update($validated);
+        $lessonData = $validated;
+        unset($lessonData['document_file']);
+
+        if ($request->hasFile('document_file') && $validated['lesson_type'] === 'document') {
+            $lessonData['document_path'] = $request->file('document_file')->store('lesson_documents', 'public');
+        }
+
+        $lesson->update($lessonData);
 
         return redirect()
             ->route('instructor.adaptive.index', [$course, 'archetype' => $lesson->module->archetype_name])
