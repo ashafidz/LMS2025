@@ -214,6 +214,8 @@
                                                                             <i class="fa fa-play-circle"></i> Video: {{ $lesson->title }}
                                                                         @elseif($lesson->lesson_type === 'lessonpoin')
                                                                             <i class="fa fa-list"></i> Poin: {{ $lesson->title }}
+                                                                        @elseif($lesson->lesson_type === 'document')
+                                                                            <i class="fa fa-file-pdf-o"></i> Dokumen: {{ $lesson->title }}
                                                                         @else
                                                                             <i class="fa fa-eye"></i> Preview: {{ $lesson->title }}
                                                                         @endif
@@ -314,6 +316,28 @@
                                                                                 {!! nl2br(e($lesson->lessonpoin_description)) !!}
                                                                             </div>
                                                                         </div>
+                                                                    @elseif($lesson->lesson_type === 'document')
+                                                                        <div class="mb-3">
+                                                                            <h6 class="text-muted text-uppercase small font-weight-bold">File Dokumen</h6>
+                                                                            <div class="p-3 bg-light border rounded">
+                                                                                @if($lesson->document_path)
+                                                                                    <iframe src="{{ Storage::url($lesson->document_path) }}" width="100%" height="500px" style="border: none;"></iframe>
+                                                                                    <div class="mt-2 text-right">
+                                                                                        <a href="{{ Storage::url($lesson->document_path) }}" target="_blank" class="btn btn-sm btn-primary"><i class="fa fa-external-link"></i> Buka di Tab Baru</a>
+                                                                                    </div>
+                                                                                @else
+                                                                                    <span class="text-muted"><i>Tidak ada dokumen yang dilampirkan.</i></span>
+                                                                                @endif
+                                                                            </div>
+                                                                        </div>
+                                                                        @if($lesson->content)
+                                                                        <div class="mb-3">
+                                                                            <h6 class="text-muted text-uppercase small font-weight-bold">Konten / Instruksi Tambahan</h6>
+                                                                            <div class="p-3 bg-light border rounded" style="max-height: 50vh; overflow-y: auto;">
+                                                                                {!! $lesson->content !!}
+                                                                            </div>
+                                                                        </div>
+                                                                        @endif
                                                                     @else
                                                                         <div style="max-height: 60vh; overflow-y: auto;" class="p-3 bg-light border rounded">
                                                                             {!! $lesson->content ?? '<p class="text-muted"><i>Tidak ada konten artikel.</i></p>' !!}
