@@ -407,6 +407,8 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
             Route::post('/modules/{module}/lessons', [\App\Http\Controllers\Instructor\AdaptiveContentController::class, 'storeLesson'])->name('lessons.store');
             Route::put('/lessons/{lesson}', [\App\Http\Controllers\Instructor\AdaptiveContentController::class, 'updateLesson'])->name('lessons.update');
             Route::delete('/lessons/{lesson}', [\App\Http\Controllers\Instructor\AdaptiveContentController::class, 'destroyLesson'])->name('lessons.destroy');
+            Route::get('/lessons/{lesson}/quiz', [\App\Http\Controllers\Instructor\AdaptiveContentController::class, 'manageQuiz'])->name('lessons.quiz');
+            Route::put('/lessons/{lesson}/quiz', [\App\Http\Controllers\Instructor\AdaptiveContentController::class, 'updateQuiz'])->name('lessons.quiz.update');
 
             // AI Co-Pilot Endpoints (Form & RAG)
             Route::post('/ai/generate-full', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'generateFull'])->name('ai.generate-full');

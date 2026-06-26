@@ -148,8 +148,9 @@ class AdaptiveContentController extends Controller
         abort_if($module->course_id !== $course->id, 403);
 
         $validated = $request->validate([
-            'title'   => 'required|string|max:255',
-            'content' => 'nullable|string',
+            'lesson_type' => 'required|in:article,assignment,quiz',
+            'title'       => 'required|string|max:255',
+            'content'     => 'nullable|string',
         ]);
 
         $lastOrder = AdaptiveLesson::where('adaptive_module_id', $module->id)->max('order') ?? -1;
@@ -171,8 +172,9 @@ class AdaptiveContentController extends Controller
         abort_if($lesson->module->course_id !== $course->id, 403);
 
         $validated = $request->validate([
-            'title'   => 'required|string|max:255',
-            'content' => 'nullable|string',
+            'lesson_type' => 'required|in:article,assignment,quiz',
+            'title'       => 'required|string|max:255',
+            'content'     => 'nullable|string',
         ]);
 
         $lesson->update($validated);
@@ -193,5 +195,40 @@ class AdaptiveContentController extends Controller
         return redirect()
             ->route('instructor.adaptive.index', [$course, 'archetype' => $archetype])
             ->with('success', 'Lesson berhasil dihapus.');
+    }
+
+    // ─── QUIZ MANAGEMENT ─────────────────────────────────────
+
+    public function manageQuiz(Course $course, AdaptiveLesson $lesson)
+    {
+        $this->authorizeAdaptiveCourse($course);
+        abort_if($lesson->module->course_id !== $course->id, 403);
+        abort_if($lesson->lesson_type !== 'quiz', 400, 'Lesson ini bukan bertipe Quiz.');
+
+        return view('instructor.adaptive.quiz', compact('course', 'lesson'));
+    }
+
+    public function updateQuiz(Course $course, AdaptiveLesson $lesson, Request $request)
+    {
+        $this->authorizeAdaptiveCourse($course);
+        abort_if($lesson->module->course_id !== $course->id, 403);
+        abort_if($lesson->lesson_type !== 'quiz', 400, 'Lesson ini bukan bertipe Quiz.');
+
+        $validated = $request->validate([
+            'questions' => 'nullable|array',
+            'questions.*.text' => 'required|string',
+            'questions.*.options' => 'required|array|min:2',
+            'questions.*.options.*' => 'required|string',
+            'questions.*.correct_index' => 'required|integer|min:0',
+            'questions.*.explanation' => 'nullable|string',
+        ]);
+
+        $lesson->update([
+            'quiz_data' => $validated['questions'] ?? [],
+        ]);
+
+        return redirect()
+            ->route('instructor.adaptive.index', [$course, 'archetype' => $lesson->module->archetype_name])
+            ->with('success', 'Soal Quiz berhasil diperbarui.');
     }
 }

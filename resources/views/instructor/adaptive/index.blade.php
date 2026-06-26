@@ -163,6 +163,11 @@
                                                                     data-target="#modal-preview-lesson-{{ $lesson->id }}">
                                                                 <i class="fa fa-eye"></i> Preview
                                                             </button>
+                                                            @if($lesson->lesson_type === 'quiz')
+                                                                <a href="{{ route('instructor.adaptive.lessons.quiz', [$course, $lesson]) }}" class="btn btn-xs btn-outline-success mr-1">
+                                                                    <i class="fa fa-list-ol"></i> Kelola Soal
+                                                                </a>
+                                                            @endif
                                                             <button class="btn btn-xs btn-outline-primary mr-1"
                                                                     data-toggle="modal"
                                                                     data-target="#modal-edit-lesson-{{ $lesson->id }}">
@@ -274,7 +279,15 @@
                                                                                    value="{{ old('title', $lesson->title) }}" required>
                                                                         </div>
                                                                         <div class="form-group">
-                                                                            <label>Konten Artikel</label>
+                                                                            <label>Tipe Lesson <span class="text-danger">*</span></label>
+                                                                            <select name="lesson_type" class="form-control">
+                                                                                <option value="article" {{ $lesson->lesson_type === 'article' ? 'selected' : '' }}>Artikel</option>
+                                                                                <option value="assignment" {{ $lesson->lesson_type === 'assignment' ? 'selected' : '' }}>Penugasan</option>
+                                                                                <option value="quiz" {{ $lesson->lesson_type === 'quiz' ? 'selected' : '' }}>Quiz</option>
+                                                                            </select>
+                                                                        </div>
+                                                                        <div class="form-group">
+                                                                            <label>Konten / Instruksi</label>
                                                                             <textarea id="edit-lesson-content-{{ $lesson->id }}"
                                                                                       name="content" class="form-control tinymce-editor"
                                                                                       rows="15">{!! old('content', $lesson->content) !!}</textarea>
@@ -360,7 +373,15 @@
                                                                        placeholder="Masukkan judul lesson..." required>
                                                             </div>
                                                             <div class="form-group">
-                                                                <label>Konten Artikel</label>
+                                                                <label>Tipe Lesson <span class="text-danger">*</span></label>
+                                                                <select name="lesson_type" class="form-control">
+                                                                    <option value="article">Artikel</option>
+                                                                    <option value="assignment">Penugasan</option>
+                                                                    <option value="quiz">Quiz</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>Konten / Instruksi</label>
                                                                 <textarea id="new-lesson-content-{{ $module->id }}"
                                                                           name="content" class="form-control tinymce-editor"
                                                                           rows="15" placeholder="Isi konten lesson..."></textarea>
