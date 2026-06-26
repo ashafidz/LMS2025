@@ -260,8 +260,24 @@
                                                                             <h6 class="text-muted text-uppercase small font-weight-bold">URL Video</h6>
                                                                             <div class="p-3 bg-light border rounded">
                                                                                 @if($lesson->video_url)
-                                                                                    <a href="{{ $lesson->video_url }}" target="_blank" class="btn btn-sm btn-danger"><i class="fa fa-youtube-play"></i> Tonton Video</a>
-                                                                                    <div class="mt-2 text-muted small">{{ $lesson->video_url }}</div>
+                                                                                    @php
+                                                                                        $embedUrl = null;
+                                                                                        if (str_contains($lesson->video_url, 'youtube.com/watch')) {
+                                                                                            parse_str(parse_url($lesson->video_url, PHP_URL_QUERY), $vars);
+                                                                                            if (isset($vars['v'])) $embedUrl = 'https://www.youtube.com/embed/' . $vars['v'];
+                                                                                        } elseif (str_contains($lesson->video_url, 'youtu.be/')) {
+                                                                                            $embedUrl = 'https://www.youtube.com/embed' . parse_url($lesson->video_url, PHP_URL_PATH);
+                                                                                        }
+                                                                                    @endphp
+                                                                                    
+                                                                                    @if($embedUrl)
+                                                                                        <div class="embed-responsive embed-responsive-16by9 mb-3">
+                                                                                            <iframe class="embed-responsive-item" src="{{ $embedUrl }}" allowfullscreen></iframe>
+                                                                                        </div>
+                                                                                    @else
+                                                                                        <a href="{{ $lesson->video_url }}" target="_blank" class="btn btn-sm btn-danger"><i class="fa fa-youtube-play"></i> Tonton Video</a>
+                                                                                        <div class="mt-2 text-muted small">{{ $lesson->video_url }}</div>
+                                                                                    @endif
                                                                                 @else
                                                                                     <span class="text-muted"><i>Tidak ada URL video yang dilampirkan.</i></span>
                                                                                 @endif
