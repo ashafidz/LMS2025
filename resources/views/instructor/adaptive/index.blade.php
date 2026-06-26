@@ -702,9 +702,9 @@
                                                         <div class="form-group">
                                                             <label class="small font-weight-bold">Tipe Generasi</label>
                                                             <select class="form-control form-control-sm" id="gen-type" name="type">
-                                                                <option value="full">Full Curriculum (Modul &amp; Lesson)</option>
-                                                                <option value="modules">Hanya Modul (Tanpa Lesson)</option>
-                                                                <option value="lessons">Tambah Lesson ke Modul yang Ada</option>
+                                                                <option value="full">Full Curriculum (Modul, Artikel, Quiz, & Penugasan)</option>
+                                                                <option value="modules">Hanya Modul (Tanpa Konten)</option>
+                                                                <option value="lessons">Tambah Article ke Modul yang Ada</option>
                                                                 <option value="assignments">Tambah Penugasan ke Modul yang Ada</option>
                                                                 <option value="quizzes">Tambah Quiz ke Modul yang Ada</option>
                                                             </select>
@@ -754,7 +754,7 @@
                                                     </form>
                                                     <hr>
                                                     <div class="text-center">
-                                                        <small class="text-muted"><i class="fa fa-info-circle"></i> AI akan merancang silabus berdasarkan pengaturan di atas dan dokumen RAG yang Anda unggah.</small>
+                                                        <small class="text-muted" id="ai-info-text"><i class="fa fa-info-circle"></i> AI akan merancang silabus lengkap berupa Modul, Artikel bacaan, Quiz, Penugasan, secara komprehensif.</small>
                                                     </div>
                                                 </div>
 
@@ -960,22 +960,33 @@
             // Toggle fields based on generation type
             genType.addEventListener('change', function() {
                 const val = this.value;
+                const infoText = document.getElementById('ai-info-text');
+                
                 if (val === 'modules') {
                     moduleSelectGroup.classList.add('d-none');
                     moduleCountGroup.classList.remove('d-none');
                     lessonOnlyCountGroup.classList.add('d-none');
                     lessonGroup.style.display = 'none';
                     document.getElementById('gen-modules').value = 3;
+                    if(infoText) infoText.innerHTML = '<i class="fa fa-info-circle"></i> AI akan membuat kerangka Modul baru tanpa konten di dalamnya.';
                 } else if (val === 'lessons' || val === 'assignments' || val === 'quizzes') {
                     moduleSelectGroup.classList.remove('d-none');
                     moduleCountGroup.classList.add('d-none');
                     lessonOnlyCountGroup.classList.remove('d-none');
+                    if (val === 'lessons' && infoText) {
+                        infoText.innerHTML = '<i class="fa fa-info-circle"></i> AI akan menambahkan Artikel bacaan baru ke modul yang Anda pilih.';
+                    } else if (val === 'assignments' && infoText) {
+                        infoText.innerHTML = '<i class="fa fa-info-circle"></i> AI akan menambahkan Penugasan (Assignment) ke modul yang Anda pilih.';
+                    } else if (val === 'quizzes' && infoText) {
+                        infoText.innerHTML = '<i class="fa fa-info-circle"></i> AI akan menambahkan Quiz beserta soal-soalnya ke modul yang Anda pilih.';
+                    }
                 } else { // full
                     moduleSelectGroup.classList.add('d-none');
                     moduleCountGroup.classList.remove('d-none');
                     lessonOnlyCountGroup.classList.add('d-none');
                     lessonGroup.style.display = 'block';
                     document.getElementById('gen-lessons').value = 2;
+                    if(infoText) infoText.innerHTML = '<i class="fa fa-info-circle"></i> AI akan merancang silabus lengkap berupa Modul, Artikel bacaan, Quiz, Penugasan, dan elemen Gamifikasi (Poin) secara komprehensif berdasarkan RAG.';
                 }
             });
 
