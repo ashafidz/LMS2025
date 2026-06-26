@@ -91,9 +91,15 @@
                                                                 <i class="bi bi-eye me-1"></i> Pratinjau
                                                             </a>
                                                             {{-- Tombol-tombol Aksi yang Sudah Dipisah --}}
-                                                            <a href="{{ route('instructor.courses.modules.index', $course) }}" class="btn btn-success btn-sm" title="Kelola Modul">
-                                                                <i class="fa fa-list-ul"></i> Modul
-                                                            </a>
+                                                            @if($course->isAdaptive())
+                                                                <a href="{{ route('instructor.adaptive.index', $course) }}" class="btn btn-success btn-sm" title="Kelola Konten">
+                                                                    <i class="fa fa-sitemap"></i> Kelola Konten
+                                                                </a>
+                                                            @else
+                                                                <a href="{{ route('instructor.courses.modules.index', $course) }}" class="btn btn-success btn-sm" title="Kelola Modul">
+                                                                    <i class="fa fa-list-ul"></i> Modul
+                                                                </a>
+                                                            @endif
                                                             <a href="{{ route('instructor.recap.index', $course) }}" class="btn btn-success btn-sm" title="Rekap">
                                                                 <i class="fa fa-list-ul"></i> Rekap
                                                             </a>
@@ -139,11 +145,7 @@
                                                                 <i class="fa fa-pencil"></i>
                                                             </a>
 
-                                                            @if($course->type === 'adaptive')
-                                                                <a href="{{ route('instructor.adaptive.index', $course) }}" class="btn btn-success btn-sm" title="Kelola Konten Adaptif (AI)">
-                                                                    <i class="fa fa-sitemap"></i>
-                                                                </a>
-                                                            @endif
+
                                                             
                                                                                                                         {{-- TOMBOL BARU UNTUK CLONE --}}
                                                             <form action="{{ route('instructor.courses.clone', $course) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin meng-clone kursus ini?');">
