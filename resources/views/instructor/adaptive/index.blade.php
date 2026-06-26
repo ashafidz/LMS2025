@@ -665,12 +665,12 @@
                                         <div class="modal-content">
                                             <div class="modal-header bg-primary text-white d-flex justify-content-between align-items-center p-3">
                                                 <h5 class="modal-title m-0"><i class="fa fa-magic"></i> AI Generator Co-Pilot</h5>
-                                                <div>
-                                                    <button class="btn btn-sm btn-light text-primary mr-2" data-toggle="modal" data-target="#modal-ai-references">
+                                                <div class="d-flex align-items-center">
+                                                    <button type="button" class="btn btn-sm btn-light text-primary mr-3" data-toggle="modal" data-target="#modal-ai-references">
                                                         <i class="fa fa-paperclip"></i> RAG Referensi
                                                     </button>
-                                                    <button type="button" class="close text-white d-inline-block" data-dismiss="modal" aria-label="Close" style="margin: -1rem -1rem -1rem auto; float: none;">
-                                                        <span aria-hidden="true">&times;</span>
+                                                    <button type="button" class="close text-white m-0 p-0" data-dismiss="modal" aria-label="Close" style="opacity: 0.8;">
+                                                        <span aria-hidden="true" style="font-size: 1.5rem;">&times;</span>
                                                     </button>
                                                 </div>
                                             </div>
