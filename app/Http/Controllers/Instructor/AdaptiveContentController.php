@@ -148,8 +148,10 @@ class AdaptiveContentController extends Controller
         abort_if($module->course_id !== $course->id, 403);
 
         $validated = $request->validate([
-            'lesson_type' => 'required|in:article,assignment,quiz,video',
+            'lesson_type' => 'required|in:article,assignment,quiz,video,lessonpoin',
             'video_url'   => 'nullable|url|max:500',
+            'lessonpoin_title' => 'nullable|string|max:255',
+            'lessonpoin_description' => 'nullable|string',
             'title'       => 'required|string|max:255',
             'content'     => 'nullable|string',
             'assignment_max_score' => 'nullable|integer|min:1',
@@ -175,8 +177,10 @@ class AdaptiveContentController extends Controller
         abort_if($lesson->module->course_id !== $course->id, 403);
 
         $validated = $request->validate([
-            'lesson_type' => 'required|in:article,assignment,quiz,video',
+            'lesson_type' => 'required|in:article,assignment,quiz,video,lessonpoin',
             'video_url'   => 'nullable|url|max:500',
+            'lessonpoin_title' => 'nullable|string|max:255',
+            'lessonpoin_description' => 'nullable|string',
             'title'       => 'required|string|max:255',
             'content'     => 'nullable|string',
             'assignment_max_score' => 'nullable|integer|min:1',

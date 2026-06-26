@@ -12,8 +12,10 @@ class AdaptiveLesson extends Model
     protected $fillable = [
         'adaptive_module_id',
         'title',
-        'lesson_type',          // 'article' | 'assignment' | 'video' | 'quiz'
+        'lesson_type',          // 'article' | 'assignment' | 'video' | 'quiz' | 'lessonpoin'
         'video_url',
+        'lessonpoin_title',
+        'lessonpoin_description',
         'content',
         'assignment_instructions',
         'assignment_max_score',
