@@ -150,6 +150,10 @@
                                                                 <span class="badge badge-success ml-1" title="Quiz">
                                                                     <i class="fa fa-check-square-o"></i> Quiz
                                                                 </span>
+                                                            @elseif($lesson->lesson_type === 'video')
+                                                                <span class="badge badge-info ml-1" title="Video">
+                                                                    <i class="fa fa-play-circle"></i> Video
+                                                                </span>
                                                             @endif
                                                             @if($lesson->ai_generated)
                                                                 <span class="badge badge-warning ml-1" title="Dibuat oleh AI">
@@ -194,6 +198,8 @@
                                                                             <i class="fa fa-tasks"></i> Penugasan: {{ $lesson->title }}
                                                                         @elseif($lesson->lesson_type === 'quiz')
                                                                             <i class="fa fa-check-square-o"></i> Quiz: {{ $lesson->title }}
+                                                                        @elseif($lesson->lesson_type === 'video')
+                                                                            <i class="fa fa-play-circle"></i> Video: {{ $lesson->title }}
                                                                         @else
                                                                             <i class="fa fa-eye"></i> Preview: {{ $lesson->title }}
                                                                         @endif
@@ -249,9 +255,27 @@
                                                                                 @endif
                                                                             </div>
                                                                         </div>
+                                                                    @elseif($lesson->lesson_type === 'video')
+                                                                        <div class="mb-3">
+                                                                            <h6 class="text-muted text-uppercase small font-weight-bold">URL Video</h6>
+                                                                            <div class="p-3 bg-light border rounded">
+                                                                                @if($lesson->video_url)
+                                                                                    <a href="{{ $lesson->video_url }}" target="_blank" class="btn btn-sm btn-danger"><i class="fa fa-youtube-play"></i> Tonton Video</a>
+                                                                                    <div class="mt-2 text-muted small">{{ $lesson->video_url }}</div>
+                                                                                @else
+                                                                                    <span class="text-muted"><i>Tidak ada URL video yang dilampirkan.</i></span>
+                                                                                @endif
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <h6 class="text-muted text-uppercase small font-weight-bold">Konten / Instruksi</h6>
+                                                                            <div class="p-3 bg-light border rounded" style="max-height: 50vh; overflow-y: auto;">
+                                                                                {!! $lesson->content ?? '<p class="text-muted"><i>Tidak ada konten.</i></p>' !!}
+                                                                            </div>
+                                                                        </div>
                                                                     @else
-                                                                        <div class="p-3 bg-light border rounded" style="max-height: 60vh; overflow-y: auto;">
-                                                                            {!! $lesson->content !!}
+                                                                        <div style="max-height: 60vh; overflow-y: auto;" class="p-3 bg-light border rounded">
+                                                                            {!! $lesson->content ?? '<p class="text-muted"><i>Tidak ada konten artikel.</i></p>' !!}
                                                                         </div>
                                                                     @endif
                                                                 </div>
@@ -280,11 +304,18 @@
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label>Tipe Lesson <span class="text-danger">*</span></label>
-                                                                            <select name="lesson_type" class="form-control" onchange="toggleAssignmentFields(this)">
+                                                                            <select name="lesson_type" class="form-control" onchange="toggleLessonTypeFields(this)">
                                                                                 <option value="article" {{ $lesson->lesson_type === 'article' ? 'selected' : '' }}>Artikel</option>
                                                                                 <option value="assignment" {{ $lesson->lesson_type === 'assignment' ? 'selected' : '' }}>Penugasan</option>
                                                                                 <option value="quiz" {{ $lesson->lesson_type === 'quiz' ? 'selected' : '' }}>Quiz</option>
+                                                                                <option value="video" {{ $lesson->lesson_type === 'video' ? 'selected' : '' }}>Video</option>
                                                                             </select>
+                                                                        </div>
+                                                                        <div class="video-fields" style="display: {{ $lesson->lesson_type === 'video' ? 'block' : 'none' }};">
+                                                                            <div class="form-group">
+                                                                                <label>URL Video <span class="text-muted">(opsional)</span></label>
+                                                                                <input type="url" name="video_url" class="form-control" value="{{ old('video_url', $lesson->video_url) }}" placeholder="https://youtube.com/...">
+                                                                            </div>
                                                                         </div>
                                                                         <div class="assignment-fields" style="display: {{ $lesson->lesson_type === 'assignment' ? 'block' : 'none' }};">
                                                                             <div class="form-group">
@@ -384,11 +415,18 @@
                                                             </div>
                                                             <div class="form-group">
                                                                 <label>Tipe Lesson <span class="text-danger">*</span></label>
-                                                                <select name="lesson_type" class="form-control" onchange="toggleAssignmentFields(this)">
+                                                                <select name="lesson_type" class="form-control" onchange="toggleLessonTypeFields(this)">
                                                                     <option value="article">Artikel</option>
                                                                     <option value="assignment">Penugasan</option>
                                                                     <option value="quiz">Quiz</option>
+                                                                    <option value="video">Video</option>
                                                                 </select>
+                                                            </div>
+                                                            <div class="video-fields" style="display: none;">
+                                                                <div class="form-group">
+                                                                    <label>URL Video <span class="text-muted">(opsional)</span></label>
+                                                                    <input type="url" name="video_url" class="form-control" placeholder="https://youtube.com/...">
+                                                                </div>
                                                             </div>
                                                             <div class="assignment-fields" style="display: none;">
                                                                 <div class="form-group">
@@ -960,14 +998,16 @@
             }
         });
         
-        function toggleAssignmentFields(selectElem) {
-            const assignmentFields = selectElem.closest('.modal-body').querySelector('.assignment-fields');
+        function toggleLessonTypeFields(selectElem) {
+            const modalBody = selectElem.closest('.modal-body');
+            const assignmentFields = modalBody.querySelector('.assignment-fields');
+            const videoFields = modalBody.querySelector('.video-fields');
+            
             if (assignmentFields) {
-                if (selectElem.value === 'assignment') {
-                    assignmentFields.style.display = 'block';
-                } else {
-                    assignmentFields.style.display = 'none';
-                }
+                assignmentFields.style.display = selectElem.value === 'assignment' ? 'block' : 'none';
+            }
+            if (videoFields) {
+                videoFields.style.display = selectElem.value === 'video' ? 'block' : 'none';
             }
         }
     </script>
