@@ -296,8 +296,19 @@
 
                     {{-- Monitoring Logs --}}
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <h5><i class="fa fa-list"></i> Timeline Pelanggaran Logs ({{ $attempt->monitoringLogs->count() }} events)</h5>
+                            <div class="form-group mb-0" style="width: 250px;">
+                                <select id="violationFilter" class="form-control form-control-sm">
+                                    <option value="all">Semua Tipe Pelanggaran</option>
+                                    <option value="tab_switch">Tab Switch</option>
+                                    <option value="face_not_detected">Wajah Tidak Terdeteksi</option>
+                                    <option value="look_left">Pandang Kiri</option>
+                                    <option value="look_right">Pandang Kanan</option>
+                                    <option value="look_down">Pandang Bawah</option>
+                                    <option value="look_up">Pandang Atas</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="card-block">
                             @if($attempt->monitoringLogs->count() > 0)
@@ -315,7 +326,7 @@
                                     </thead>
                                     <tbody>
                                         @foreach($attempt->monitoringLogs as $index => $log)
-                                        <tr>
+                                        <tr class="violation-row" data-type="{{ $log->violation_type }}">
                                             <td>{{ $index + 1 }}</td>
                                             <td>
                                                 <small>{{ $log->violation_timestamp->format('d M Y H:i:s') }}</small>
@@ -390,4 +401,21 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#violationFilter').on('change', function() {
+            var selectedType = $(this).val();
+            
+            if (selectedType === 'all') {
+                $('.violation-row').show();
+            } else {
+                $('.violation-row').hide();
+                $('.violation-row[data-type="' + selectedType + '"]').show();
+            }
+        });
+    });
+</script>
+@endpush
 @endsection
