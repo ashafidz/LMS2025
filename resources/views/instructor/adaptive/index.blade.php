@@ -102,7 +102,7 @@
                                                                 <input type="hidden" name="title" value="{{ $module->title }}">
                                                                 <input type="hidden" name="description" value="{{ $module->description }}">
                                                                 <h6 class="dropdown-header px-0 mb-2 font-weight-bold text-dark">Assign Profil ke Modul Ini</h6>
-                                                                <div class="btn-group-toggle d-flex flex-column" data-toggle="buttons">
+                                                                <div class="btn-group-toggle d-flex flex-column" data-toggle="buttons" style="max-height: 250px; overflow-y: auto;">
                                                                     @php $currentArchetypes = $module->target_archetypes ?? []; @endphp
                                                                     @foreach($archetypes as $arch => $desc)
                                                                         <label class="btn btn-outline-primary btn-sm mb-2 text-left {{ in_array($arch, $currentArchetypes) ? 'active' : '' }}" style="border-radius: 20px; cursor: pointer;">
