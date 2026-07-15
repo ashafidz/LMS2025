@@ -517,13 +517,13 @@
                                                             </div>
                                                             <div class="form-group mt-3">
                                                                 <label>Assign ke Profil (Archetype)</label>
-                                                                <div class="border rounded p-3 bg-light">
+                                                                <div class="btn-group-toggle d-flex flex-wrap" data-toggle="buttons">
                                                                     @php $currentArchetypes = $module->target_archetypes ?? []; @endphp
                                                                     @foreach($archetypes as $arch => $desc)
-                                                                        <div class="custom-control custom-checkbox mb-2">
-                                                                            <input type="checkbox" class="custom-control-input" id="arch_{{ $module->id }}_{{ $loop->index }}" name="target_archetypes[]" value="{{ $arch }}" {{ in_array($arch, $currentArchetypes) ? 'checked' : '' }}>
-                                                                            <label class="custom-control-label" for="arch_{{ $module->id }}_{{ $loop->index }}">{{ $arch }}</label>
-                                                                        </div>
+                                                                        <label class="btn btn-outline-primary btn-sm mb-2 mr-2 {{ in_array($arch, $currentArchetypes) ? 'active' : '' }}" style="border-radius: 20px; cursor: pointer;" title="{{ $desc }}">
+                                                                            <input type="checkbox" name="target_archetypes[]" value="{{ $arch }}" {{ in_array($arch, $currentArchetypes) ? 'checked' : '' }}>
+                                                                            <i class="fa fa-user-circle-o mr-1"></i> {{ $arch }}
+                                                                        </label>
                                                                     @endforeach
                                                                 </div>
                                                                 <small class="text-muted">Centang profil mana saja yang akan mendapatkan modul ini.</small>
@@ -842,12 +842,12 @@
                     </div>
                     <div class="form-group mt-3">
                         <label>Assign ke Profil (Archetype)</label>
-                        <div class="border rounded p-3 bg-light">
+                        <div class="btn-group-toggle d-flex flex-wrap" data-toggle="buttons">
                             @foreach($archetypes as $arch => $desc)
-                                <div class="custom-control custom-checkbox mb-2">
-                                    <input type="checkbox" class="custom-control-input" id="new_arch_{{ $loop->index }}" name="target_archetypes[]" value="{{ $arch }}">
-                                    <label class="custom-control-label" for="new_arch_{{ $loop->index }}">{{ $arch }}</label>
-                                </div>
+                                <label class="btn btn-outline-primary btn-sm mb-2 mr-2" style="border-radius: 20px; cursor: pointer;" title="{{ $desc }}">
+                                    <input type="checkbox" name="target_archetypes[]" value="{{ $arch }}">
+                                    <i class="fa fa-user-circle-o mr-1"></i> {{ $arch }}
+                                </label>
                             @endforeach
                         </div>
                         <small class="text-muted">Opsional. Anda bisa assign modul ini nanti.</small>
