@@ -137,13 +137,13 @@ Buat repository baru (contoh: `LMS2025-v2`) melalui UI GitHub.
 ### B. Push Kode dari Lokal ke Repo Baru
 ```bash
 # Di direktori project lokal (LMS2025)
-git remote add new https://github.com/akhmadgibran/LMS2025-v2.git
+git remote add new https://github.com/wahanamediadigital/edugames-v2.git
 git push new main
 ```
 
 ### C. Clone ke Direktori Baru (Opsional)
 ```bash
-git clone https://github.com/akhmadgibran/LMS2025-v2.git LMS2025-v2
+git clone https://github.com/wahanamediadigital/edugames-v2.git LMS2025-v2
 ```
 
 ---
@@ -248,7 +248,7 @@ mkdir -p /opt/services
 cd /opt/services
 
 # Clone dengan Personal Access Token
-git clone https://USERNAME:GITHUB_TOKEN@github.com/akhmadgibran/LMS2025-v2.git lms2025
+git clone https://USERNAME:GITHUB_TOKEN@github.com/wahanamediadigital/edugames-v2.git lms2025
 
 cd lms2025
 
@@ -416,7 +416,7 @@ tar xzf ./actions-runner-linux-x64.tar.gz
 
 ### C. Dapatkan Token Registrasi
 
-Buka: `https://github.com/akhmadgibran/LMS2025-v2/settings/actions/runners/new`
+Buka: `https://github.com/wahanamediadigital/edugames-v2/settings/actions/runners/new`
 
 Pilih **Linux** > **x64**, salin token dari baris `--token XXXXXX`.
 
@@ -424,7 +424,7 @@ Pilih **Linux** > **x64**, salin token dari baris `--token XXXXXX`.
 
 ```bash
 ./config.sh \
-  --url https://github.com/akhmadgibran/LMS2025-v2 \
+  --url https://github.com/wahanamediadigital/edugames-v2 \
   --token TOKEN_DARI_GITHUB \
   --name "nuc-lab-runner" \
   --labels "self-hosted,linux,x64,nuc-lab" \
@@ -588,7 +588,7 @@ docker compose ps
 docker compose logs -f app
 
 # Log CI/CD Runner
-sudo journalctl -u actions.runner.akhmadgibran-LMS2025-v2.nuc-lab-runner -f
+sudo journalctl -u actions.runner.wahanamediadigital-edugames-v2.nuc-lab.service -f
 ```
 
 ### Maintenance Mode
@@ -612,8 +612,8 @@ docker compose up -d --build
 ### Restart Runner CI/CD
 
 ```bash
-sudo systemctl restart actions.runner.akhmadgibran-LMS2025-v2.nuc-lab-runner
-sudo systemctl status actions.runner.akhmadgibran-LMS2025-v2.nuc-lab-runner
+sudo systemctl restart actions.runner.wahanamediadigital-edugames-v2.nuc-lab.service
+sudo systemctl status actions.runner.wahanamediadigital-edugames-v2.nuc-lab.service
 ```
 
 ---

@@ -57,7 +57,7 @@ mkdir -p /opt/services
 cd /opt/services
 
 # Ganti dengan URL repo proyek baru
-git clone https://github.com/akhmadgibran/PROYEK_BARU.git proyekbaru
+git clone https://github.com/wahanamediadigital/PROYEK_BARU.git proyekbaru
 cd proyekbaru
 ```
 
@@ -130,7 +130,7 @@ tar xzf ./actions-runner-linux-x64.tar.gz
 
 # Registrasi (Ganti TOKEN_BARU)
 ./config.sh \
-  --url https://github.com/akhmadgibran/PROYEK_BARU \
+  --url https://github.com/wahanamediadigital/PROYEK_BARU \
   --token TOKEN_BARU \
   --name "nuc-lab-proyekbaru" \
   --labels "self-hosted,linux,nuc-lab-proyekbaru" \
