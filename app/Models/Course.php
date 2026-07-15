@@ -166,6 +166,6 @@ class Course extends Model
      */
     public function adaptiveModulesFor(string $archetype)
     {
-        return $this->adaptiveModules()->where('archetype_name', $archetype);
+        return $this->adaptiveModules()->whereJsonContains('target_archetypes', $archetype);
     }
 }

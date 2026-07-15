@@ -11,7 +11,7 @@ class AdaptiveModule extends Model
 
     protected $fillable = [
         'course_id',
-        'archetype_name',
+        'target_archetypes',
         'title',
         'description',
         'order',
@@ -20,7 +20,8 @@ class AdaptiveModule extends Model
     ];
 
     protected $casts = [
-        'ai_generated' => 'boolean',
+        'ai_generated'      => 'boolean',
+        'target_archetypes' => 'array',
     ];
 
     // ─── Relationships ────────────────────────────────────────

@@ -38,14 +38,9 @@ class GenerateAdaptiveContentJob implements ShouldQueue
         ]);
 
         $course = $this->jobRecord->course;
-        $archetype = $this->jobRecord->archetype_name;
 
-        // Fetch References for this course and archetype
-        $references = AiReference::where('course_id', $course->id)
-            ->where(function($q) use ($archetype) {
-                $q->where('archetype_name', $archetype)
-                  ->orWhereNull('archetype_name');
-            })->get();
+        // Fetch References for this course
+        $references = AiReference::where('course_id', $course->id)->get();
 
         $ragContexts = [];
         foreach ($references as $ref) {
@@ -64,8 +59,7 @@ class GenerateAdaptiveContentJob implements ShouldQueue
         Log::info("Starting AI Generation Job", [
             'job_id' => $this->jobRecord->id,
             'type'   => $this->jobRecord->type,
-            'course' => $course->id,
-            'archetype' => $archetype
+            'course' => $course->id
         ]);
 
         // ─── LESSONS-ONLY MODE ───────────────────────────────────
@@ -73,7 +67,7 @@ class GenerateAdaptiveContentJob implements ShouldQueue
             $module = AdaptiveModule::findOrFail($this->params['module_id']);
 
             $result = $aiService->generateLessonsForModule(
-                $course, $archetype, $module, $lessonCount, $extraTopics, $ragContexts
+                $course, $module, $lessonCount, $extraTopics, $ragContexts
             );
 
             if (!$result || !isset($result['lessons'])) {
@@ -106,7 +100,7 @@ class GenerateAdaptiveContentJob implements ShouldQueue
             $module = AdaptiveModule::findOrFail($this->params['module_id']);
 
             $result = $aiService->generateAssignmentLessons(
-                $course, $archetype, $module, $lessonCount, $extraTopics, $ragContexts
+                $course, $module, $lessonCount, $extraTopics, $ragContexts
             );
 
             if (!$result || !isset($result['assignments'])) {
@@ -141,7 +135,7 @@ class GenerateAdaptiveContentJob implements ShouldQueue
             $module = AdaptiveModule::findOrFail($this->params['module_id']);
 
             $result = $aiService->generateQuizLessons(
-                $course, $archetype, $module, $lessonCount, $extraTopics, $ragContexts
+                $course, $module, $lessonCount, $extraTopics, $ragContexts
             );
 
             if (!$result || !isset($result['quizzes'])) {
@@ -178,7 +172,6 @@ class GenerateAdaptiveContentJob implements ShouldQueue
         // 1. Generate Modules only
         $result = $aiService->generateModules(
             $course, 
-            $archetype, 
             $moduleCount, 
             $extraTopics,
             $ragContexts
@@ -201,18 +194,17 @@ class GenerateAdaptiveContentJob implements ShouldQueue
 
         // Save Modules to Database
         $lastOrderMod = AdaptiveModule::where('course_id', $course->id)
-                                      ->where('archetype_name', $archetype)
                                       ->max('order') ?? -1;
 
         $createdModules = [];
         foreach ($result['modules'] as $modData) {
             $lastOrderMod++;
             $module = $course->adaptiveModules()->create([
-                'archetype_name' => $archetype,
-                'title'          => $modData['title'],
-                'description'    => $modData['description'] ?? null,
-                'order'          => $lastOrderMod,
-                'ai_generated'   => true,
+                'title'             => $modData['title'],
+                'description'       => $modData['description'] ?? null,
+                'target_archetypes' => [], // Unassigned by default
+                'order'             => $lastOrderMod,
+                'ai_generated'      => true,
             ]);
             $createdModules[] = $module;
         }
@@ -232,7 +224,7 @@ class GenerateAdaptiveContentJob implements ShouldQueue
                 if ($this->jobRecord->fresh()->status === 'failed') return;
                 
                 // Generate Articles
-                $articleRes = $aiService->generateLessonsForModule($course, $archetype, $module, $lessonCount, $extraTopics, $ragContexts);
+                $articleRes = $aiService->generateLessonsForModule($course, $module, $lessonCount, $extraTopics, $ragContexts);
                 $lastOrderLes = \App\Models\AdaptiveLesson::where('adaptive_module_id', $module->id)->max('order') ?? -1;
                 
                 if ($articleRes && isset($articleRes['lessons'])) {
@@ -251,7 +243,7 @@ class GenerateAdaptiveContentJob implements ShouldQueue
                 // Generate Quiz (1 Quiz per module by default)
                 if ($this->jobRecord->fresh()->status === 'failed') return;
                 $this->jobRecord->update(['message' => 'Menghasilkan Quiz untuk Modul ' . ($index + 1) . '...']);
-                $quizRes = $aiService->generateQuizLessons($course, $archetype, $module, 1, $extraTopics, $ragContexts);
+                $quizRes = $aiService->generateQuizLessons($course, $module, 1, $extraTopics, $ragContexts);
                 if ($quizRes && isset($quizRes['quizzes'])) {
                     foreach ($quizRes['quizzes'] as $quizData) {
                         $lastOrderLes++;
@@ -269,7 +261,7 @@ class GenerateAdaptiveContentJob implements ShouldQueue
                 // Generate Assignment (1 Assignment per module by default)
                 if ($this->jobRecord->fresh()->status === 'failed') return;
                 $this->jobRecord->update(['message' => 'Menghasilkan Penugasan untuk Modul ' . ($index + 1) . '...']);
-                $asgRes = $aiService->generateAssignmentLessons($course, $archetype, $module, 1, $extraTopics, $ragContexts);
+                $asgRes = $aiService->generateAssignmentLessons($course, $module, 1, $extraTopics, $ragContexts);
                 if ($asgRes && isset($asgRes['assignments'])) {
                     foreach ($asgRes['assignments'] as $asgData) {
                         $lastOrderLes++;

@@ -19,7 +19,6 @@ class AdaptiveAiController extends Controller
     public function generateFull(Course $course, Request $request)
     {
         $request->validate([
-            'archetype_name' => 'required|string',
             'module_count' => 'required|integer|min:1|max:5',
             'lesson_count' => 'required|integer|min:1|max:5',
             'extra_topics' => 'nullable|string'
@@ -27,7 +26,6 @@ class AdaptiveAiController extends Controller
 
         $jobRecord = AiGenerationJob::create([
             'course_id' => $course->id,
-            'archetype_name' => $request->archetype_name,
             'type' => 'full',
             'status' => 'queued',
             'progress' => 0,
@@ -52,14 +50,12 @@ class AdaptiveAiController extends Controller
     public function generateModules(Course $course, Request $request)
     {
         $request->validate([
-            'archetype_name' => 'required|string',
             'count' => 'required|integer|min:1|max:10',
             'extra_topics' => 'nullable|string'
         ]);
 
         $jobRecord = AiGenerationJob::create([
             'course_id' => $course->id,
-            'archetype_name' => $request->archetype_name,
             'type' => 'modules',
             'status' => 'queued',
             'progress' => 0,
@@ -98,7 +94,6 @@ class AdaptiveAiController extends Controller
     public function generateLessons(Course $course, Request $request)
     {
         $request->validate([
-            'archetype_name' => 'required|string',
             'module_id'      => 'required|integer|exists:adaptive_modules,id',
             'lesson_count'   => 'required|integer|min:1|max:10',
             'extra_topics'   => 'nullable|string'
@@ -106,7 +101,7 @@ class AdaptiveAiController extends Controller
 
         $jobRecord = AiGenerationJob::create([
             'course_id'      => $course->id,
-            'archetype_name' => $request->archetype_name,
+            'module_id'      => $request->module_id,
             'type'           => 'lessons',
             'status'         => 'queued',
             'progress'       => 0,
@@ -131,7 +126,6 @@ class AdaptiveAiController extends Controller
     public function generateAssignments(Course $course, Request $request)
     {
         $request->validate([
-            'archetype_name' => 'required|string',
             'module_id'      => 'required|integer|exists:adaptive_modules,id',
             'lesson_count'   => 'required|integer|min:1|max:10',
             'extra_topics'   => 'nullable|string'
@@ -139,7 +133,7 @@ class AdaptiveAiController extends Controller
 
         $jobRecord = AiGenerationJob::create([
             'course_id'      => $course->id,
-            'archetype_name' => $request->archetype_name,
+            'module_id'      => $request->module_id,
             'type'           => 'assignments',
             'status'         => 'queued',
             'progress'       => 0,
@@ -164,7 +158,6 @@ class AdaptiveAiController extends Controller
     public function generateQuizzes(Course $course, Request $request)
     {
         $request->validate([
-            'archetype_name' => 'required|string',
             'module_id'      => 'required|integer|exists:adaptive_modules,id',
             'lesson_count'   => 'required|integer|min:1|max:10', // Usually just 1 quiz per module, but we can allow more
             'extra_topics'   => 'nullable|string'
@@ -172,7 +165,7 @@ class AdaptiveAiController extends Controller
 
         $jobRecord = AiGenerationJob::create([
             'course_id'      => $course->id,
-            'archetype_name' => $request->archetype_name,
+            'module_id'      => $request->module_id,
             'type'           => 'quizzes',
             'status'         => 'queued',
             'progress'       => 0,
@@ -198,7 +191,6 @@ class AdaptiveAiController extends Controller
     {
         $request->validate([
             'file' => 'required|file|mimes:pdf,txt,md|max:10240', // 10MB max
-            'archetype' => 'required|string'
         ]);
 
         $file = $request->file('file');
@@ -227,7 +219,6 @@ class AdaptiveAiController extends Controller
         // Save to Database
         $reference = AiReference::create([
             'course_id' => $course->id,
-            'archetype_name' => $request->archetype,
             'file_path' => $path,
             'original_filename' => $originalName,
             'extracted_text' => $extractedText,

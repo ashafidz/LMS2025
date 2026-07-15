@@ -36,43 +36,29 @@ class AdaptiveContentController extends Controller
     /**
      * Halaman utama: pilih archetype & kelola modul/lesson-nya.
      */
-    public function index(Course $course, Request $request)
+    public function index(Course $course)
     {
         $this->authorizeAdaptiveCourse($course);
 
-        $activeArchetype = $request->get('archetype', array_key_first(self::ARCHETYPES));
-
-        // Pastikan archetype yang diminta valid
-        if (!array_key_exists($activeArchetype, self::ARCHETYPES)) {
-            $activeArchetype = array_key_first(self::ARCHETYPES);
-        }
-
-        $modules = $course->adaptiveModulesFor($activeArchetype)
+        $modules = $course->adaptiveModules()
                           ->with('lessons')
                           ->orderBy('order')
                           ->get();
 
         $activeJob = \App\Models\AiGenerationJob::where('course_id', $course->id)
-            ->where('archetype_name', $activeArchetype)
             ->whereIn('status', ['queued', 'processing'])
             ->first();
 
         $jobHistory = \App\Models\AiGenerationJob::where('course_id', $course->id)
-            ->where('archetype_name', $activeArchetype)
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
 
-        $references = \App\Models\AiReference::where('course_id', $course->id)
-            ->where(function($q) use ($activeArchetype) {
-                $q->where('archetype_name', $activeArchetype)
-                  ->orWhereNull('archetype_name');
-            })->get();
+        $references = \App\Models\AiReference::where('course_id', $course->id)->get();
 
         return view('instructor.adaptive.index', [
             'course'          => $course,
             'archetypes'      => self::ARCHETYPES,
-            'activeArchetype' => $activeArchetype,
             'modules'         => $modules,
             'activeJob'       => $activeJob,
             'jobHistory'      => $jobHistory,
@@ -87,26 +73,24 @@ class AdaptiveContentController extends Controller
         $this->authorizeAdaptiveCourse($course);
 
         $validated = $request->validate([
-            'archetype_name' => ['required', 'string', function ($attr, $value, $fail) {
-                if (!array_key_exists($value, self::ARCHETYPES)) $fail('Archetype tidak valid.');
-            }],
-            'title'          => 'required|string|max:255',
-            'description'    => 'nullable|string',
+            'title'             => 'required|string|max:255',
+            'description'       => 'nullable|string',
+            'target_archetypes' => 'nullable|array',
+            'target_archetypes.*' => 'string'
         ]);
 
-        // Tentukan order: setelah modul terakhir untuk archetype ini
-        $lastOrder = AdaptiveModule::where('course_id', $course->id)
-                                   ->where('archetype_name', $validated['archetype_name'])
-                                   ->max('order') ?? -1;
+        $lastOrder = AdaptiveModule::where('course_id', $course->id)->max('order') ?? -1;
 
         $course->adaptiveModules()->create([
-            ...$validated,
-            'order'        => $lastOrder + 1,
-            'ai_generated' => false,
+            'title'             => $validated['title'],
+            'description'       => $validated['description'] ?? null,
+            'target_archetypes' => $validated['target_archetypes'] ?? [],
+            'order'             => $lastOrder + 1,
+            'ai_generated'      => false,
         ]);
 
         return redirect()
-            ->route('instructor.adaptive.index', [$course, 'archetype' => $validated['archetype_name']])
+            ->route('instructor.adaptive.index', $course)
             ->with('success', 'Modul berhasil ditambahkan.');
     }
 
@@ -116,14 +100,20 @@ class AdaptiveContentController extends Controller
         abort_if($module->course_id !== $course->id, 403);
 
         $validated = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'title'             => 'required|string|max:255',
+            'description'       => 'nullable|string',
+            'target_archetypes' => 'nullable|array',
+            'target_archetypes.*' => 'string'
         ]);
 
-        $module->update($validated);
+        $module->update([
+            'title'             => $validated['title'],
+            'description'       => $validated['description'] ?? null,
+            'target_archetypes' => $validated['target_archetypes'] ?? [],
+        ]);
 
         return redirect()
-            ->route('instructor.adaptive.index', [$course, 'archetype' => $module->archetype_name])
+            ->route('instructor.adaptive.index', $course)
             ->with('success', 'Modul berhasil diperbarui.');
     }
 
@@ -132,11 +122,10 @@ class AdaptiveContentController extends Controller
         $this->authorizeAdaptiveCourse($course);
         abort_if($module->course_id !== $course->id, 403);
 
-        $archetype = $module->archetype_name;
         $module->delete(); // cascade → lessons ikut terhapus
 
         return redirect()
-            ->route('instructor.adaptive.index', [$course, 'archetype' => $archetype])
+            ->route('instructor.adaptive.index', $course)
             ->with('success', 'Modul dan semua lesson-nya berhasil dihapus.');
     }
 
@@ -187,7 +176,7 @@ class AdaptiveContentController extends Controller
         ]);
 
         return redirect()
-            ->route('instructor.adaptive.index', [$course, 'archetype' => $module->archetype_name])
+            ->route('instructor.adaptive.index', $course)
             ->with('success', 'Lesson berhasil ditambahkan.');
     }
 
@@ -230,7 +219,7 @@ class AdaptiveContentController extends Controller
         $lesson->update($lessonData);
 
         return redirect()
-            ->route('instructor.adaptive.index', [$course, 'archetype' => $lesson->module->archetype_name])
+            ->route('instructor.adaptive.index', $course)
             ->with('success', 'Lesson berhasil diperbarui.');
     }
 
@@ -239,11 +228,10 @@ class AdaptiveContentController extends Controller
         $this->authorizeAdaptiveCourse($course);
         abort_if($lesson->module->course_id !== $course->id, 403);
 
-        $archetype = $lesson->module->archetype_name;
         $lesson->delete();
 
         return redirect()
-            ->route('instructor.adaptive.index', [$course, 'archetype' => $archetype])
+            ->route('instructor.adaptive.index', $course)
             ->with('success', 'Lesson berhasil dihapus.');
     }
 
@@ -278,7 +266,7 @@ class AdaptiveContentController extends Controller
         ]);
 
         return redirect()
-            ->route('instructor.adaptive.index', [$course, 'archetype' => $lesson->module->archetype_name])
+            ->route('instructor.adaptive.index', $course)
             ->with('success', 'Soal Quiz berhasil diperbarui.');
     }
 }

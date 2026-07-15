@@ -33,18 +33,14 @@ class AdaptiveAiService
      */
     public function generateModules(
         Course $course, 
-        string $archetype, 
         int $moduleCount, 
         ?string $extraTopics = null,
         array $ragContexts = []
     ): ?array {
-        $desc = self::ARCHETYPE_DESCRIPTIONS[$archetype] ?? '';
-
         $systemPrompt = "Kamu adalah instruktur ahli yang membuat kurikulum adaptif. Output WAJIB dalam format JSON murni.\n"
             . "Kursus: '{$course->title}'\n"
             . "Deskripsi kursus: " . strip_tags($course->description) . "\n\n"
-            . "Target kelompok belajar (Archetype): '{$archetype}'\n"
-            . "Profil kelompok: {$desc}\n";
+            . "Buatlah struktur modul 'Master' yang nantinya bisa di-assign ke berbagai kelompok belajar.\n";
 
         if (!empty($ragContexts)) {
             $systemPrompt .= "\n--- REFERENSI MATERI (RAG) ---\nInstruktur mengunggah referensi berikut. Ekstrak informasi relevan untuk membantu membentuk struktur kurikulum:\n\n";
@@ -99,20 +95,15 @@ class AdaptiveAiService
      */
     public function generateLessonsForModule(
         Course $course,
-        string $archetype,
         \App\Models\AdaptiveModule $module,
         int $lessonCount,
         ?string $extraTopics = null,
         array $ragContexts = []
     ): ?array {
-        $desc = self::ARCHETYPE_DESCRIPTIONS[$archetype] ?? '';
-
         $systemPrompt = "Kamu adalah instruktur ahli yang membuat materi pelajaran (lesson). Output WAJIB dalam format JSON murni.\n"
             . "Kursus: '{$course->title}'\n"
             . "Modul target: '{$module->title}'\n"
             . "Deskripsi modul: " . ($module->description ?? 'Tidak ada deskripsi') . "\n"
-            . "Target kelompok belajar (Archetype): '{$archetype}'\n"
-            . "Profil kelompok: {$desc}\n"
             . "PENTING: Konten setiap lesson HARUS sangat detail dan komprehensif. Minimal 4-5 paragraf. "
             . "Berikan penjelasan mendalam, contoh konkret, dan langkah-langkah praktis.\n";
 
@@ -161,20 +152,15 @@ class AdaptiveAiService
      */
     public function generateAssignmentLessons(
         Course $course,
-        string $archetype,
         \App\Models\AdaptiveModule $module,
         int $lessonCount,
         ?string $extraTopics = null,
         array $ragContexts = []
     ): ?array {
-        $desc = self::ARCHETYPE_DESCRIPTIONS[$archetype] ?? '';
-
         $systemPrompt = "Kamu adalah instruktur ahli yang merancang tugas/penugasan (assignment) untuk kursus. Output WAJIB dalam format JSON murni.\n"
             . "Kursus: '{$course->title}'\n"
             . "Modul target: '{$module->title}'\n"
             . "Deskripsi modul: " . ($module->description ?? 'Tidak ada deskripsi') . "\n"
-            . "Target kelompok belajar (Archetype): '{$archetype}'\n"
-            . "Profil kelompok: {$desc}\n"
             . "Kamu harus merancang tugas yang:\n"
             . "- Relevan dengan topik modul\n"
             . "- Memiliki instruksi yang SANGAT JELAS dan DETAIL (langkah-langkah pengerjaan, format pengumpulan, dll)\n"
@@ -231,20 +217,15 @@ class AdaptiveAiService
      */
     public function generateQuizLessons(
         Course $course,
-        string $archetype,
         \App\Models\AdaptiveModule $module,
         int $lessonCount, // For quizzes, this is usually 1, but we support multiple
         ?string $extraTopics = null,
         array $ragContexts = []
     ): ?array {
-        $desc = self::ARCHETYPE_DESCRIPTIONS[$archetype] ?? '';
-
         $systemPrompt = "Kamu adalah instruktur ahli yang merancang soal Quiz untuk kursus. Output WAJIB dalam format JSON murni.\n"
             . "Kursus: '{$course->title}'\n"
             . "Modul target: '{$module->title}'\n"
             . "Deskripsi modul: " . ($module->description ?? 'Tidak ada deskripsi') . "\n"
-            . "Target kelompok belajar (Archetype): '{$archetype}'\n"
-            . "Profil kelompok: {$desc}\n"
             . "Kamu harus merancang quiz berupa pilihan ganda (Multiple Choice) yang:\n"
             . "- Menguji pemahaman konsep-konsep kunci pada modul tersebut\n"
             . "- Disesuaikan tingkat kesulitannya dengan kelompok belajar\n"

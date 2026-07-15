@@ -45,41 +45,14 @@
                     @endif
 
                     {{-- ====================================================
-                         ARCHETYPE TABS
+                         MASTER MODULES
                     ===================================================== --}}
                     <div class="card">
                         <div class="card-header">
-                            <h5>Pilih Kluster Archetype</h5>
-                            <span>Kelola modul dan lesson spesifik untuk setiap archetype.</span>
+                            <h5>Master Modul Kursus</h5>
+                            <span>Kelola master modul yang nantinya akan di-assign ke profil (archetype) tertentu.</span>
                         </div>
                         <div class="card-block">
-                            <ul class="nav nav-tabs md-tabs" role="tablist">
-                                @foreach($archetypes as $name => $description)
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ $activeArchetype === $name ? 'active' : '' }}" 
-                                           href="{{ route('instructor.adaptive.index', [$course, 'archetype' => $name]) }}" 
-                                           role="tab">
-                                            <i class="fa fa-users mr-1"></i> {{ $name }}
-                                        </a>
-                                        <div class="slide"></div>
-                                    </li>
-                                @endforeach
-                            </ul>
-                            
-                            <div class="tab-content card-block">
-
-                            {{-- Archetype Info Banner --}}
-                            <div class="alert alert-info d-flex align-items-start mb-4" style="border-left: 4px solid #1abc9c;">
-                                <i class="fa fa-info-circle fa-lg mr-3 mt-1 text-info"></i>
-                                <div>
-                                    <strong>{{ $activeArchetype }}</strong><br>
-                                    <small class="text-muted">{{ $archetypes[$activeArchetype] }}</small>
-                                </div>
-                            </div>
-
-                            {{-- ================================================
-                                 SPLIT LAYOUT: LEFT (MODULES), RIGHT (AI CHAT)
-                            ================================================= --}}
                             <div class="row">
                                 <div class="col-12">
                                     {{-- ACTION BAR --}}
@@ -119,6 +92,11 @@
                                                     @endif
                                                 </div>
                                                 <div class="d-flex align-items-center">
+                                                    <button class="btn btn-xs btn-outline-info mr-1"
+                                                            data-toggle="modal"
+                                                            data-target="#modal-ai-lesson-{{ $module->id }}">
+                                                        <i class="fa fa-magic"></i> AI Lesson
+                                                    </button>
                                                     <button class="btn btn-xs btn-outline-primary mr-1"
                                                             data-toggle="modal"
                                                             data-target="#modal-edit-module-{{ $module->id }}">
@@ -518,12 +496,11 @@
                                             </div>
                                         </div>
 
-                                        {{-- Modal Edit Module --}}
                                         <div class="modal fade" id="modal-edit-module-{{ $module->id }}" tabindex="-1">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h5 class="modal-title">Edit Modul</h5>
+                                                        <h5 class="modal-title">Edit Modul Master</h5>
                                                         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                                                     </div>
                                                     <form action="{{ route('instructor.adaptive.modules.update', [$course, $module]) }}" method="POST">
@@ -538,6 +515,19 @@
                                                                 <label>Deskripsi</label>
                                                                 <textarea name="description" class="form-control" rows="3">{{ old('description', $module->description) }}</textarea>
                                                             </div>
+                                                            <div class="form-group mt-3">
+                                                                <label>Assign ke Profil (Archetype)</label>
+                                                                <div class="border rounded p-3 bg-light">
+                                                                    @php $currentArchetypes = $module->target_archetypes ?? []; @endphp
+                                                                    @foreach($archetypes as $arch => $desc)
+                                                                        <div class="custom-control custom-checkbox mb-2">
+                                                                            <input type="checkbox" class="custom-control-input" id="arch_{{ $module->id }}_{{ $loop->index }}" name="target_archetypes[]" value="{{ $arch }}" {{ in_array($arch, $currentArchetypes) ? 'checked' : '' }}>
+                                                                            <label class="custom-control-label" for="arch_{{ $module->id }}_{{ $loop->index }}">{{ $arch }}</label>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                                <small class="text-muted">Centang profil mana saja yang akan mendapatkan modul ini.</small>
+                                                            </div>
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
@@ -546,6 +536,42 @@
                                                             </button>
                                                         </div>
                                                     </form>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {{-- Modal AI Lesson Per Module --}}
+                                        <div class="modal fade" id="modal-ai-lesson-{{ $module->id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-info text-white">
+                                                        <h5 class="modal-title"><i class="fa fa-magic"></i> AI Generate Lesson</h5>
+                                                        <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                                                    </div>
+                                                    <div class="modal-body bg-light">
+                                                        <form class="form-ai-lesson" data-module-id="{{ $module->id }}">
+                                                            <input type="hidden" name="module_id" value="{{ $module->id }}">
+                                                            <div class="form-group">
+                                                                <label class="small font-weight-bold">Apa yang ingin digenerate?</label>
+                                                                <select class="form-control form-control-sm" name="type">
+                                                                    <option value="lessons">Artikel Lesson</option>
+                                                                    <option value="quizzes">Soal Quiz</option>
+                                                                    <option value="assignments">Soal Penugasan</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="small font-weight-bold">Jumlah</label>
+                                                                <input type="number" class="form-control form-control-sm" name="lesson_count" min="1" max="10" value="2">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label class="small font-weight-bold">Topik Tambahan (Opsional)</label>
+                                                                <textarea class="form-control form-control-sm" name="extra_topics" rows="2" placeholder="Fokus pada..."></textarea>
+                                                            </div>
+                                                            <button type="submit" class="btn btn-info btn-block">
+                                                                <i class="fa fa-cogs"></i> Generate
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -652,7 +678,7 @@
                                     @empty
                                         <div class="text-center py-5">
                                             <i class="fa fa-folder-open-o fa-4x text-muted mb-3 d-block"></i>
-                                            <h6 class="text-muted">Belum ada modul untuk kluster <strong>{{ $activeArchetype }}</strong></h6>
+                                            <h6 class="text-muted">Belum ada modul</h6>
                                             <p class="text-muted small">Tambahkan modul secara manual atau minta AI Co-Pilot merancangnya.</p>
                                         </div>
                                     @endforelse
@@ -703,45 +729,11 @@
                                                             <label class="small font-weight-bold">Tipe Generasi</label>
                                                             <select class="form-control form-control-sm" id="gen-type" name="type">
                                                                 <option value="full">Full Curriculum (Modul, Artikel, Quiz, & Penugasan)</option>
-                                                                <option value="modules">Hanya Modul (Tanpa Konten)</option>
-                                                                <option value="lessons">Tambah Article ke Modul yang Ada</option>
-                                                                <option value="assignments">Tambah Penugasan ke Modul yang Ada</option>
-                                                                <option value="quizzes">Tambah Quiz ke Modul yang Ada</option>
+                                                                <option value="modules">Hanya Struktur Modul (Tanpa Konten)</option>
                                                             </select>
                                                         </div>
 
-                                                        {{-- Module selector (only for 'lessons' type) --}}
-                                                        <div class="form-group d-none" id="module-select-group">
-                                                            <label class="small font-weight-bold">Pilih Modul Target <span class="text-danger">*</span></label>
-                                                            <select class="form-control form-control-sm" id="gen-module-id" name="module_id">
-                                                                @forelse($modules as $mod)
-                                                                    <option value="{{ $mod->id }}">{{ $mod->title }}</option>
-                                                                @empty
-                                                                    <option value="" disabled>Belum ada modul. Buat modul dulu.</option>
-                                                                @endforelse
-                                                            </select>
-                                                        </div>
 
-                                                        <div class="row" id="module-count-group">
-                                                            <div class="col-6">
-                                                                <div class="form-group">
-                                                                    <label class="small font-weight-bold">Jumlah Modul</label>
-                                                                    <input type="number" class="form-control form-control-sm" id="gen-modules" name="module_count" min="1" max="10" value="3">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-6">
-                                                                <div class="form-group" id="lesson-group">
-                                                                    <label class="small font-weight-bold">Lesson per Modul</label>
-                                                                    <input type="number" class="form-control form-control-sm" id="gen-lessons" name="lesson_count" min="1" max="10" value="2">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        {{-- Lesson count for single-module mode --}}
-                                                        <div class="form-group d-none" id="lesson-only-count-group">
-                                                            <label class="small font-weight-bold">Jumlah Lesson yang dibuat</label>
-                                                            <input type="number" class="form-control form-control-sm" id="gen-lessons-only" min="1" max="10" value="3">
-                                                        </div>
 
                                                         <div class="form-group">
                                                             <label class="small font-weight-bold">Fokus / Topik Tambahan <span class="text-muted font-weight-normal">(Opsional)</span></label>
@@ -838,7 +830,6 @@
             </div>
             <form action="{{ route('instructor.adaptive.modules.store', $course) }}" method="POST">
                 @csrf
-                <input type="hidden" name="archetype_name" value="{{ $activeArchetype }}">
                 <div class="modal-body">
                     <div class="form-group">
                         <label>Judul Modul <span class="text-danger">*</span></label>
@@ -848,6 +839,18 @@
                     <div class="form-group">
                         <label>Deskripsi <small class="text-muted">(opsional)</small></label>
                         <textarea name="description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label>Assign ke Profil (Archetype)</label>
+                        <div class="border rounded p-3 bg-light">
+                            @foreach($archetypes as $arch => $desc)
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="new_arch_{{ $loop->index }}" name="target_archetypes[]" value="{{ $arch }}">
+                                    <label class="custom-control-label" for="new_arch_{{ $loop->index }}">{{ $arch }}</label>
+                                </div>
+                            @endforeach
+                        </div>
+                        <small class="text-muted">Opsional. Anda bisa assign modul ini nanti.</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -938,7 +941,6 @@
             // AI GENERATOR & POLLING LOGIC
             // ==========================================
             const courseId = '{{ $course->id }}';
-            const archetype = '{{ $activeArchetype }}';
             const csrfToken = '{{ csrf_token() }}';
             
             const formContainer = document.getElementById('ai-form-container');
@@ -963,27 +965,10 @@
                 const infoText = document.getElementById('ai-info-text');
                 
                 if (val === 'modules') {
-                    moduleSelectGroup.classList.add('d-none');
-                    moduleCountGroup.classList.remove('d-none');
-                    lessonOnlyCountGroup.classList.add('d-none');
                     lessonGroup.style.display = 'none';
                     document.getElementById('gen-modules').value = 3;
                     if(infoText) infoText.innerHTML = '<i class="fa fa-info-circle"></i> AI akan membuat kerangka Modul baru tanpa konten di dalamnya.';
-                } else if (val === 'lessons' || val === 'assignments' || val === 'quizzes') {
-                    moduleSelectGroup.classList.remove('d-none');
-                    moduleCountGroup.classList.add('d-none');
-                    lessonOnlyCountGroup.classList.remove('d-none');
-                    if (val === 'lessons' && infoText) {
-                        infoText.innerHTML = '<i class="fa fa-info-circle"></i> AI akan menambahkan Artikel bacaan baru ke modul yang Anda pilih.';
-                    } else if (val === 'assignments' && infoText) {
-                        infoText.innerHTML = '<i class="fa fa-info-circle"></i> AI akan menambahkan Penugasan (Assignment) ke modul yang Anda pilih.';
-                    } else if (val === 'quizzes' && infoText) {
-                        infoText.innerHTML = '<i class="fa fa-info-circle"></i> AI akan menambahkan Quiz beserta soal-soalnya ke modul yang Anda pilih.';
-                    }
                 } else { // full
-                    moduleSelectGroup.classList.add('d-none');
-                    moduleCountGroup.classList.remove('d-none');
-                    lessonOnlyCountGroup.classList.add('d-none');
                     lessonGroup.style.display = 'block';
                     document.getElementById('gen-lessons').value = 2;
                     if(infoText) infoText.innerHTML = '<i class="fa fa-info-circle"></i> AI akan merancang silabus lengkap berupa Modul, Artikel bacaan, Quiz, Penugasan, dan elemen Gamifikasi (Poin) secara komprehensif berdasarkan RAG.';
@@ -1013,26 +998,12 @@
 
                 const type = genType.value;
                 let endpoint;
-                let payload = { archetype_name: archetype, extra_topics: document.getElementById('gen-topics').value };
+                let payload = { extra_topics: document.getElementById('gen-topics').value };
 
                 if (type === 'full') {
                     endpoint = `/instructor/courses/${courseId}/adaptive/ai/generate-full`;
                     payload.module_count = document.getElementById('gen-modules').value;
                     payload.lesson_count = document.getElementById('gen-lessons').value;
-                } else if (type === 'lessons' || type === 'assignments' || type === 'quizzes') {
-                    const moduleId = document.getElementById('gen-module-id').value;
-                    if (!moduleId) {
-                        let what = 'lesson';
-                        if (type === 'assignments') what = 'penugasan';
-                        if (type === 'quizzes') what = 'quiz';
-                        alert(`Pilih modul yang ingin ditambahkan ${what}-nya.`);
-                        btnGenerate.disabled = false;
-                        btnGenerate.innerHTML = '<i class="fa fa-magic"></i> Mulai Generate';
-                        return;
-                    }
-                    endpoint = `/instructor/courses/${courseId}/adaptive/ai/generate-${type}`;
-                    payload.module_id = moduleId;
-                    payload.lesson_count = document.getElementById('gen-lessons-only').value;
                 } else { // modules only
                     endpoint = `/instructor/courses/${courseId}/adaptive/ai/generate-modules`;
                     payload.count = document.getElementById('gen-modules').value;
@@ -1100,6 +1071,59 @@
                     });
                 }, 3000); // poll every 3 seconds
             }
+
+            // Handle AI Lesson generation per module
+            document.querySelectorAll('.form-ai-lesson').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const btn = this.querySelector('button[type="submit"]');
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Memulai...';
+                    
+                    const type = this.querySelector('select[name="type"]').value;
+                    const moduleId = this.querySelector('input[name="module_id"]').value;
+                    const lessonCount = this.querySelector('input[name="lesson_count"]').value;
+                    const extraTopics = this.querySelector('textarea[name="extra_topics"]').value;
+                    
+                    const endpoint = `/instructor/courses/${courseId}/adaptive/ai/generate-${type}`;
+                    const payload = {
+                        module_id: moduleId,
+                        lesson_count: lessonCount,
+                        extra_topics: extraTopics
+                    };
+
+                    fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.job_id) {
+                            alert('Job AI berhasil dimasukkan ke antrean! Silakan buka Buka AI Generator untuk melihat status.');
+                            $(`#modal-ai-lesson-${moduleId}`).modal('hide');
+                            $('#modal-ai-generator').modal('show');
+                            activeJobId = data.job_id;
+                            formContainer.classList.add('d-none');
+                            jobTracker.classList.remove('d-none');
+                            startPolling();
+                        } else {
+                            alert('Gagal memulai proses AI.');
+                        }
+                    })
+                    .catch(err => {
+                        alert('Terjadi kesalahan.');
+                    })
+                    .finally(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa fa-cogs"></i> Generate';
+                    });
+                });
+            });
 
             const btnCancelJob = document.getElementById('btn-cancel-job');
             if (btnCancelJob) {
