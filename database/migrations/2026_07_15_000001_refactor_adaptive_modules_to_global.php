@@ -24,10 +24,14 @@ return new class extends Migration
             }
         }
 
-        // Drop kolom archetype_name dan index lama
+        // Drop kolom archetype_name dan index lama (sementara hapus FK dulu)
         Schema::table('adaptive_modules', function (Blueprint $table) {
+            $table->dropForeign(['course_id']);
             $table->dropIndex(['course_id', 'archetype_name']);
             $table->dropColumn('archetype_name');
+            
+            // Re-add foreign key constraint
+            $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
         });
 
         // 2. ai_generation_jobs: drop archetype_name, add module_id
@@ -46,7 +50,11 @@ return new class extends Migration
     {
         Schema::table('adaptive_modules', function (Blueprint $table) {
             $table->string('archetype_name', 100)->nullable();
+            
+            // Drop FK to add composite index
+            $table->dropForeign(['course_id']);
             $table->index(['course_id', 'archetype_name']);
+            $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
         });
 
         // Kembalikan archetype_name pertama dari array target_archetypes (jika ada)
