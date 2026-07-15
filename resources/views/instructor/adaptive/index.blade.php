@@ -92,6 +92,31 @@
                                                     @endif
                                                 </div>
                                                 <div class="d-flex align-items-center">
+                                                    <div class="dropdown d-inline-block">
+                                                        <button class="btn btn-xs btn-outline-success mr-1 dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Assign ke Profil">
+                                                            <i class="fa fa-users"></i> Assign
+                                                        </button>
+                                                        <div class="dropdown-menu dropdown-menu-right p-3 shadow-sm" style="width: 280px; z-index: 1050;">
+                                                            <form action="{{ route('instructor.adaptive.modules.update', [$course, $module]) }}" method="POST">
+                                                                @csrf @method('PUT')
+                                                                <input type="hidden" name="title" value="{{ $module->title }}">
+                                                                <input type="hidden" name="description" value="{{ $module->description }}">
+                                                                <h6 class="dropdown-header px-0 mb-2 font-weight-bold text-dark">Assign Profil ke Modul Ini</h6>
+                                                                <div class="btn-group-toggle d-flex flex-column" data-toggle="buttons">
+                                                                    @php $currentArchetypes = $module->target_archetypes ?? []; @endphp
+                                                                    @foreach($archetypes as $arch => $desc)
+                                                                        <label class="btn btn-outline-primary btn-sm mb-2 text-left {{ in_array($arch, $currentArchetypes) ? 'active' : '' }}" style="border-radius: 20px; cursor: pointer;">
+                                                                            <input type="checkbox" name="target_archetypes[]" value="{{ $arch }}" {{ in_array($arch, $currentArchetypes) ? 'checked' : '' }}>
+                                                                            <i class="fa fa-user-circle-o mr-1"></i> {{ $arch }}
+                                                                        </label>
+                                                                    @endforeach
+                                                                </div>
+                                                                <button type="submit" class="btn btn-primary btn-sm btn-block mt-2">
+                                                                    <i class="fa fa-save"></i> Simpan
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
                                                     <button class="btn btn-xs btn-outline-info mr-1"
                                                             data-toggle="modal"
                                                             data-target="#modal-ai-lesson-{{ $module->id }}">
