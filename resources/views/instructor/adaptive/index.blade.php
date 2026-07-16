@@ -1133,17 +1133,20 @@
                         $('#modal-ai-status').modal('show');
                         document.getElementById('ai-status-empty').classList.add('d-none');
                         jobTracker.classList.remove('d-none');
+                        disableAllAiButtons();
                         startPolling();
                     } else {
                         alert('Gagal memulai proses AI.');
                         btnGenerate.disabled = false;
                         btnGenerate.innerHTML = '<i class="fa fa-magic"></i> Mulai Generate';
+                        enableAllAiButtons();
                     }
                 })
                 .catch(err => {
                     alert('Terjadi kesalahan.');
                     btnGenerate.disabled = false;
                     btnGenerate.innerHTML = '<i class="fa fa-magic"></i> Mulai Generate';
+                    enableAllAiButtons();
                 });
             });
 
@@ -1176,6 +1179,7 @@
                                 jobTracker.classList.add('d-none');
                                 btnGenerate.disabled = false;
                                 btnGenerate.innerHTML = '<i class="fa fa-magic"></i> Mulai Generate';
+                                enableAllAiButtons();
                             }, 5000);
                         }
                     });
@@ -1220,13 +1224,16 @@
                             activeJobId = data.job_id;
                             document.getElementById('ai-status-empty').classList.add('d-none');
                             jobTracker.classList.remove('d-none');
+                            disableAllAiButtons();
                             startPolling();
                         } else {
                             alert('Gagal memulai proses AI.');
+                            enableAllAiButtons();
                         }
                     })
                     .catch(err => {
                         alert('Terjadi kesalahan.');
+                        enableAllAiButtons();
                     })
                     .finally(() => {
                         btn.disabled = false;
@@ -1335,6 +1342,27 @@
                 $('#modal-ai-status').modal('show');
                 document.getElementById('ai-status-empty').classList.add('d-none');
                 startPolling();
+            }
+
+            function disableAllAiButtons() {
+                document.querySelectorAll('button[data-target="#modal-ai-generator"]').forEach(btn => {
+                    btn.disabled = true;
+                    btn.title = "Terdapat antrean AI";
+                });
+                document.querySelectorAll('button[data-target^="#modal-ai-lesson"]').forEach(btn => {
+                    btn.disabled = true;
+                    btn.title = "Terdapat antrean AI";
+                });
+            }
+            function enableAllAiButtons() {
+                document.querySelectorAll('button[data-target="#modal-ai-generator"]').forEach(btn => {
+                    btn.disabled = false;
+                    btn.title = "";
+                });
+                document.querySelectorAll('button[data-target^="#modal-ai-lesson"]').forEach(btn => {
+                    btn.disabled = false;
+                    btn.title = "";
+                });
             }
         });
         
