@@ -795,16 +795,11 @@
                                                 {{-- FORM GENERATION --}}
                                                 <div id="ai-form-container" class="{{ isset($activeJob) ? 'd-none' : '' }}">
                                                     <form id="ai-generate-form">
+                                                        <input type="hidden" name="type" id="gen-type" value="modules">
                                                         <div class="form-group">
-                                                            <label class="small font-weight-bold">Tipe Generasi</label>
-                                                            <select class="form-control form-control-sm" id="gen-type" name="type">
-                                                                <option value="full">Full Curriculum (Modul, Artikel, Quiz, & Penugasan)</option>
-                                                                <option value="modules">Hanya Struktur Modul (Tanpa Konten)</option>
-                                                            </select>
+                                                            <label class="small font-weight-bold">Jumlah Modul yang Ingin Dibuat</label>
+                                                            <input type="number" class="form-control form-control-sm" id="gen-modules" name="count" min="1" max="10" value="3" required>
                                                         </div>
-
-
-
                                                         <div class="form-group">
                                                             <label class="small font-weight-bold">Fokus / Topik Tambahan <span class="text-muted font-weight-normal">(Opsional)</span></label>
                                                             <textarea class="form-control form-control-sm" id="gen-topics" name="extra_topics" rows="2" placeholder="Contoh: Fokus pada studi kasus industri..."></textarea>
@@ -816,7 +811,7 @@
                                                     </form>
                                                     <hr>
                                                     <div class="text-center">
-                                                        <small class="text-muted" id="ai-info-text"><i class="fa fa-info-circle"></i> AI akan merancang silabus lengkap berupa Modul, Artikel bacaan, Quiz, Penugasan, secara komprehensif.</small>
+                                                        <small class="text-muted" id="ai-info-text"><i class="fa fa-info-circle"></i> AI akan merancang struktur Modul Master berdasarkan dokumen referensi yang Anda unggah.</small>
                                                     </div>
                                                 </div>
 
@@ -1069,21 +1064,7 @@
             const moduleCountGroup = document.getElementById('module-count-group');
             const lessonOnlyCountGroup = document.getElementById('lesson-only-count-group');
 
-            // Toggle fields based on generation type
-            genType.addEventListener('change', function() {
-                const val = this.value;
-                const infoText = document.getElementById('ai-info-text');
-                
-                if (val === 'modules') {
-                    lessonGroup.style.display = 'none';
-                    document.getElementById('gen-modules').value = 3;
-                    if(infoText) infoText.innerHTML = '<i class="fa fa-info-circle"></i> AI akan membuat kerangka Modul baru tanpa konten di dalamnya.';
-                } else { // full
-                    lessonGroup.style.display = 'block';
-                    document.getElementById('gen-lessons').value = 2;
-                    if(infoText) infoText.innerHTML = '<i class="fa fa-info-circle"></i> AI akan merancang silabus lengkap berupa Modul, Artikel bacaan, Quiz, Penugasan, dan elemen Gamifikasi (Poin) secara komprehensif berdasarkan RAG.';
-                }
-            });
+
 
             // Initialize delete reference buttons
             document.querySelectorAll('.btn-delete-ref').forEach(btn => {
@@ -1106,18 +1087,11 @@
                 btnGenerate.disabled = true;
                 btnGenerate.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Memulai...';
 
-                const type = genType.value;
-                let endpoint;
-                let payload = { extra_topics: document.getElementById('gen-topics').value };
-
-                if (type === 'full') {
-                    endpoint = `/instructor/courses/${courseId}/adaptive/ai/generate-full`;
-                    payload.module_count = document.getElementById('gen-modules').value;
-                    payload.lesson_count = document.getElementById('gen-lessons').value;
-                } else { // modules only
-                    endpoint = `/instructor/courses/${courseId}/adaptive/ai/generate-modules`;
-                    payload.count = document.getElementById('gen-modules').value;
-                }
+                const endpoint = `/instructor/courses/${courseId}/adaptive/ai/generate-modules`;
+                let payload = { 
+                    extra_topics: document.getElementById('gen-topics').value,
+                    count: document.getElementById('gen-modules').value
+                };
 
                 fetch(endpoint, {
                     method: 'POST',
