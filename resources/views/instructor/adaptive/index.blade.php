@@ -777,9 +777,29 @@
                                                 </div>
                                             </div>
                                             <div class="modal-body bg-light" id="ai-panel-body">
+                                                {{-- FORM GENERATION --}}
+                                                <div id="ai-form-container">
+                                                    <form id="ai-generate-form">
+                                                        <input type="hidden" name="type" id="gen-type" value="modules">
+                                                        <div class="form-group">
+                                                            <label class="small font-weight-bold">Jumlah Modul yang Ingin Dibuat</label>
+                                                            <input type="number" class="form-control form-control-sm" id="gen-modules" name="count" min="1" max="10" value="3" required>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="small font-weight-bold">Fokus / Topik Tambahan <span class="text-muted font-weight-normal">(Opsional)</span></label>
+                                                            <textarea class="form-control form-control-sm" id="gen-topics" name="extra_topics" rows="2" placeholder="Contoh: Fokus pada studi kasus industri..."></textarea>
+                                                        </div>
+                                                        
+                                                        <button type="submit" class="btn btn-primary btn-block" id="btn-generate">
+                                                            <i class="fa fa-magic"></i> Mulai Generate
+                                                        </button>
+                                                    </form>
+                                                    <hr>
+                                                    <div class="text-center">
+                                                        <small class="text-muted" id="ai-info-text"><i class="fa fa-info-circle"></i> AI akan merancang struktur Modul Master berdasarkan dokumen referensi yang Anda unggah.</small>
+                                                    </div>
                                                 </div>
                                                 {{-- END FORM GENERATION --}}
-
                                             </div>
                                         </div>
                                     </div>
