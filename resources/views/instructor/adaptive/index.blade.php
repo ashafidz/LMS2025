@@ -62,6 +62,10 @@
                                             {{ $modules->count() }} Modul
                                         </h6>
                                         <div>
+                                            <button type="button" class="btn btn-info btn-sm mr-2"
+                                                    data-toggle="modal" data-target="#modal-panduan-profil">
+                                                <i class="fa fa-book"></i> Panduan Profil
+                                            </button>
                                             <button type="button" class="btn btn-success btn-sm"
                                                     data-toggle="modal" data-target="#modal-add-module">
                                                 <i class="fa fa-plus"></i> Tambah Modul
@@ -524,6 +528,21 @@
                                                                     </label>
                                                                 @endforeach
                                                             </div>
+                                                            </div>
+                                                            <div class="mt-3">
+                                                                <a class="small text-info text-decoration-none font-weight-bold" data-toggle="collapse" href="#collapseGuideAssign-{{ $module->id }}" role="button" aria-expanded="false">
+                                                                    <i class="fa fa-info-circle"></i> Lihat penjelasan masing-masing profil
+                                                                </a>
+                                                                <div class="collapse mt-2" id="collapseGuideAssign-{{ $module->id }}">
+                                                                    <div class="card card-body bg-light p-2 small border-0 mb-0">
+                                                                        <ul class="pl-3 mb-0 text-muted">
+                                                                            @foreach($archetypes as $arch => $desc)
+                                                                                <li class="mb-1"><strong>{{ $arch }}</strong>: {{ $desc }}</li>
+                                                                            @endforeach
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
@@ -566,7 +585,19 @@
                                                                         </label>
                                                                     @endforeach
                                                                 </div>
-                                                                <small class="text-muted">Centang profil mana saja yang akan mendapatkan modul ini.</small>
+                                                                <small class="text-muted d-block mb-2">Centang profil mana saja yang akan mendapatkan modul ini.</small>
+                                                                <a class="small text-info text-decoration-none font-weight-bold" data-toggle="collapse" href="#collapseGuideEdit-{{ $module->id }}" role="button" aria-expanded="false">
+                                                                    <i class="fa fa-info-circle"></i> Lihat penjelasan masing-masing profil
+                                                                </a>
+                                                                <div class="collapse mt-2" id="collapseGuideEdit-{{ $module->id }}">
+                                                                    <div class="card card-body bg-light p-2 small border-0 mb-0">
+                                                                        <ul class="pl-3 mb-0 text-muted">
+                                                                            @foreach($archetypes as $arch => $desc)
+                                                                                <li class="mb-1"><strong>{{ $arch }}</strong>: {{ $desc }}</li>
+                                                                            @endforeach
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         <div class="modal-footer">
@@ -853,6 +884,46 @@
                     </div>{{-- end card --}}
 
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ============================================================
+     MODAL: Panduan Profil Siswa
+============================================================= --}}
+<div class="modal fade" id="modal-panduan-profil" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title"><i class="fa fa-book"></i> Panduan Karakteristik Profil Siswa</h5>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Berikut adalah penjelasan lengkap dari masing-masing profil (archetype) siswa. Gunakan panduan ini untuk menentukan kesesuaian modul dan jenis materi yang tepat.</p>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead class="bg-light">
+                            <tr>
+                                <th style="width: 30%;">Nama Profil</th>
+                                <th>Karakteristik & Penjelasan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($archetypes as $arch => $desc)
+                            <tr>
+                                <td class="font-weight-bold align-middle">
+                                    <i class="fa fa-user-circle-o text-primary mr-1"></i> {{ $arch }}
+                                </td>
+                                <td>{{ $desc }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
