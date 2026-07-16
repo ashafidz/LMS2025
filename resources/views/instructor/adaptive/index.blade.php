@@ -528,7 +528,6 @@
                                                                     </label>
                                                                 @endforeach
                                                             </div>
-                                                            </div>
                                                             <div class="mt-3">
                                                                 <a class="small text-info text-decoration-none font-weight-bold" data-toggle="collapse" href="#collapseGuideAssign-{{ $module->id }}" role="button" aria-expanded="false">
                                                                     <i class="fa fa-info-circle"></i> Lihat penjelasan masing-masing profil
