@@ -70,9 +70,12 @@
                                                     data-toggle="modal" data-target="#modal-add-module">
                                                 <i class="fa fa-plus"></i> Tambah Modul
                                             </button>
-                                            <button type="button" class="btn btn-warning btn-sm ml-2"
+                                            <button type="button" class="btn btn-warning btn-sm ml-2 position-relative"
                                                     data-toggle="modal" data-target="#modal-ai-status">
                                                 <i class="fa fa-tasks"></i> Status AI & Riwayat
+                                                @if(isset($activeJob))
+                                                <span class="position-absolute" style="top: -5px; right: -5px; width: 12px; height: 12px; background-color: red; border-radius: 50%; border: 2px solid white;"></span>
+                                                @endif
                                             </button>
                                             <button type="button" class="btn btn-primary btn-sm ml-2"
                                                     data-toggle="modal" data-target="#modal-ai-generator"
@@ -1128,13 +1131,7 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.job_id) {
-                        activeJobId = data.job_id;
-                        $('#modal-ai-generator').modal('hide');
-                        $('#modal-ai-status').modal('show');
-                        document.getElementById('ai-status-empty').classList.add('d-none');
-                        jobTracker.classList.remove('d-none');
-                        disableAllAiButtons();
-                        startPolling();
+                        location.reload();
                     } else {
                         alert('Gagal memulai proses AI.');
                         btnGenerate.disabled = false;
@@ -1218,14 +1215,8 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data.job_id) {
-                            alert('Job AI berhasil dimasukkan ke antrean! Silakan buka Status & Riwayat AI untuk melihat progres.');
-                            $(`#modal-ai-lesson-${moduleId}`).modal('hide');
-                            $('#modal-ai-status').modal('show');
-                            activeJobId = data.job_id;
-                            document.getElementById('ai-status-empty').classList.add('d-none');
-                            jobTracker.classList.remove('d-none');
-                            disableAllAiButtons();
-                            startPolling();
+                            alert('Job AI berhasil dimasukkan ke antrean! Memuat ulang halaman...');
+                            location.reload();
                         } else {
                             alert('Gagal memulai proses AI.');
                             enableAllAiButtons();
