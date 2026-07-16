@@ -70,8 +70,13 @@
                                                     data-toggle="modal" data-target="#modal-add-module">
                                                 <i class="fa fa-plus"></i> Tambah Modul
                                             </button>
+                                            <button type="button" class="btn btn-warning btn-sm ml-2"
+                                                    data-toggle="modal" data-target="#modal-ai-status">
+                                                <i class="fa fa-tasks"></i> Status AI & Riwayat
+                                            </button>
                                             <button type="button" class="btn btn-primary btn-sm ml-2"
-                                                    data-toggle="modal" data-target="#modal-ai-generator">
+                                                    data-toggle="modal" data-target="#modal-ai-generator"
+                                                    {{ isset($activeJob) ? 'disabled title="Terdapat antrean AI"' : '' }}>
                                                 <i class="fa fa-magic"></i> Buka AI Generator
                                             </button>
                                         </div>
@@ -103,7 +108,8 @@
                                                     </button>
                                                     <button class="btn btn-xs btn-outline-info mr-1"
                                                             data-toggle="modal"
-                                                            data-target="#modal-ai-lesson-{{ $module->id }}">
+                                                            data-target="#modal-ai-lesson-{{ $module->id }}"
+                                                            {{ isset($activeJob) ? 'disabled title="Terdapat antrean AI"' : '' }}>
                                                         <i class="fa fa-magic"></i> AI Lesson
                                                     </button>
                                                     <button class="btn btn-xs btn-outline-primary mr-1"
@@ -771,107 +777,105 @@
                                                 </div>
                                             </div>
                                             <div class="modal-body bg-light" id="ai-panel-body">
-                                                
-                                                {{-- PROGRESS TRACKER (Hidden initially if no active job) --}}
-                                                <div id="job-tracker" class="{{ isset($activeJob) ? '' : 'd-none' }}">
-                                                    <div class="text-center mb-3">
-                                                        <i class="fa fa-cogs fa-3x text-primary fa-spin mb-2"></i>
-                                                        <h6 class="text-primary">AI Sedang Bekerja...</h6>
-                                                        <p class="small text-muted" id="job-message">{{ isset($activeJob) ? $activeJob->message : '' }}</p>
-                                                    </div>
-                                                    <div class="progress mb-2" style="height: 20px;">
-                                                        <div id="job-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: {{ isset($activeJob) ? $activeJob->progress : 0 }}%;" aria-valuenow="{{ isset($activeJob) ? $activeJob->progress : 0 }}" aria-valuemin="0" aria-valuemax="100">{{ isset($activeJob) ? $activeJob->progress : 0 }}%</div>
-                                                    </div>
-                                                    <div class="alert alert-warning small">
-                                                        <i class="fa fa-info-circle"></i> Proses ini memakan waktu beberapa menit. Anda boleh menutup modal ini, proses akan tetap berjalan di latar belakang.
-                                                    </div>
-                                                    <div class="text-center mt-2">
-                                                        <button type="button" class="btn btn-danger btn-sm" id="btn-cancel-job" data-job-id="{{ isset($activeJob) ? $activeJob->id : '' }}">
-                                                            <i class="fa fa-times-circle"></i> Batalkan Proses
-                                                        </button>
-                                                    </div>
                                                 </div>
-
-                                                {{-- FORM GENERATION --}}
-                                                <div id="ai-form-container" class="{{ isset($activeJob) ? 'd-none' : '' }}">
-                                                    <form id="ai-generate-form">
-                                                        <input type="hidden" name="type" id="gen-type" value="modules">
-                                                        <div class="form-group">
-                                                            <label class="small font-weight-bold">Jumlah Modul yang Ingin Dibuat</label>
-                                                            <input type="number" class="form-control form-control-sm" id="gen-modules" name="count" min="1" max="10" value="3" required>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label class="small font-weight-bold">Fokus / Topik Tambahan <span class="text-muted font-weight-normal">(Opsional)</span></label>
-                                                            <textarea class="form-control form-control-sm" id="gen-topics" name="extra_topics" rows="2" placeholder="Contoh: Fokus pada studi kasus industri..."></textarea>
-                                                        </div>
-                                                        
-                                                        <button type="submit" class="btn btn-primary btn-block" id="btn-generate">
-                                                            <i class="fa fa-magic"></i> Mulai Generate
-                                                        </button>
-                                                    </form>
-                                                    <hr>
-                                                    <div class="text-center">
-                                                        <small class="text-muted" id="ai-info-text"><i class="fa fa-info-circle"></i> AI akan merancang struktur Modul Master berdasarkan dokumen referensi yang Anda unggah.</small>
-                                                    </div>
-                                                </div>
-
-                                                {{-- RIWAYAT JOB --}}
-                                                <div class="card mt-4">
-                                                    <div class="card-header bg-white p-2 border-bottom">
-                                                        <h6 class="m-0 text-dark"><i class="fa fa-history mr-1"></i> Riwayat Job AI (Terbaru)</h6>
-                                                    </div>
-                                                    <div class="card-body p-0">
-                                                        <div class="table-responsive">
-                                                            <table class="table table-sm table-striped m-0" style="font-size: 0.85rem;">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>Waktu</th>
-                                                                        <th>Tipe</th>
-                                                                        <th>Status</th>
-                                                                        <th class="text-right">Aksi</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @forelse($jobHistory ?? [] as $history)
-                                                                        <tr id="job-row-{{ $history->id }}">
-                                                                            <td>{{ $history->created_at->format('d M H:i') }}</td>
-                                                                            <td>{{ ucfirst($history->type) }}</td>
-                                                                            <td>
-                                                                                @if(in_array($history->status, ['queued', 'processing']))
-                                                                                    <span class="badge badge-warning text-white"><i class="fa fa-spinner fa-spin"></i> {{ ucfirst($history->status) }}</span>
-                                                                                @elseif($history->status === 'completed')
-                                                                                    <span class="badge badge-success"><i class="fa fa-check"></i> Selesai</span>
-                                                                                @else
-                                                                                    <span class="badge badge-danger" title="{{ $history->error }}"><i class="fa fa-times"></i> Gagal</span>
-                                                                                @endif
-                                                                            </td>
-                                                                            <td class="text-right">
-                                                                                @if($history->status === 'failed')
-                                                                                    <button type="button" class="btn btn-xs btn-outline-danger btn-delete-job" data-job-id="{{ $history->id }}" title="Hapus Riwayat">
-                                                                                        <i class="fa fa-trash"></i>
-                                                                                    </button>
-                                                                                @endif
-                                                                            </td>
-                                                                        </tr>
-                                                                    @empty
-                                                                        <tr>
-                                                                            <td colspan="4" class="text-center text-muted">Belum ada riwayat job.</td>
-                                                                        </tr>
-                                                                    @endforelse
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {{-- END RIWAYAT JOB --}}
+                                                {{-- END FORM GENERATION --}}
 
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                {{-- END MODAL AI GENERATOR --}}
                             </div>
                             {{-- END SPLIT LAYOUT --}}
+
+                            {{-- MODAL AI STATUS & HISTORY --}}
+                            <div class="modal fade" id="modal-ai-status" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-warning">
+                                            <h5 class="modal-title"><i class="fa fa-tasks"></i> Status & Riwayat AI</h5>
+                                            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            {{-- PROGRESS TRACKER (Hidden initially if no active job) --}}
+                                            <div id="job-tracker" class="{{ isset($activeJob) ? '' : 'd-none' }}">
+                                                <div class="text-center mb-3">
+                                                    <i class="fa fa-cogs fa-3x text-primary fa-spin mb-2"></i>
+                                                    <h6 class="text-primary">AI Sedang Bekerja...</h6>
+                                                    <p class="small text-muted" id="job-message">{{ isset($activeJob) ? $activeJob->message : '' }}</p>
+                                                </div>
+                                                <div class="progress mb-2" style="height: 20px;">
+                                                    <div id="job-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: {{ isset($activeJob) ? $activeJob->progress : 0 }}%;" aria-valuenow="{{ isset($activeJob) ? $activeJob->progress : 0 }}" aria-valuemin="0" aria-valuemax="100">{{ isset($activeJob) ? $activeJob->progress : 0 }}%</div>
+                                                </div>
+                                                <div class="alert alert-warning small">
+                                                    <i class="fa fa-info-circle"></i> Proses ini memakan waktu beberapa menit. Anda boleh menutup modal ini, proses akan tetap berjalan di latar belakang.
+                                                </div>
+                                                <div class="text-center mt-2">
+                                                    <button type="button" class="btn btn-danger btn-sm" id="btn-cancel-job" data-job-id="{{ isset($activeJob) ? $activeJob->id : '' }}">
+                                                        <i class="fa fa-times-circle"></i> Batalkan Proses
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div id="ai-status-empty" class="{{ isset($activeJob) ? 'd-none' : '' }}">
+                                                <div class="alert alert-info small text-center mb-0">
+                                                    <i class="fa fa-check-circle"></i> Tidak ada proses AI yang sedang berjalan saat ini.
+                                                </div>
+                                            </div>
+
+                                            {{-- RIWAYAT JOB --}}
+                                            <div class="card mt-4 mb-0">
+                                                <div class="card-header bg-white p-2 border-bottom">
+                                                    <h6 class="m-0 text-dark"><i class="fa fa-history mr-1"></i> Riwayat Job AI (Terbaru)</h6>
+                                                </div>
+                                                <div class="card-body p-0">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-sm table-striped m-0" style="font-size: 0.85rem;">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Waktu</th>
+                                                                    <th>Tipe</th>
+                                                                    <th>Status</th>
+                                                                    <th class="text-right">Aksi</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @forelse($jobHistory ?? [] as $history)
+                                                                    <tr id="job-row-{{ $history->id }}">
+                                                                        <td>{{ $history->created_at->format('d M H:i') }}</td>
+                                                                        <td>{{ ucfirst($history->type) }}</td>
+                                                                        <td>
+                                                                            @if(in_array($history->status, ['queued', 'processing']))
+                                                                                <span class="badge badge-warning text-white"><i class="fa fa-spinner fa-spin"></i> {{ ucfirst($history->status) }}</span>
+                                                                            @elseif($history->status === 'completed')
+                                                                                <span class="badge badge-success"><i class="fa fa-check"></i> Selesai</span>
+                                                                            @else
+                                                                                <span class="badge badge-danger" title="{{ $history->error }}"><i class="fa fa-times"></i> Gagal</span>
+                                                                            @endif
+                                                                        </td>
+                                                                        <td class="text-right">
+                                                                            @if($history->status === 'failed')
+                                                                                <button type="button" class="btn btn-xs btn-outline-danger btn-delete-job" data-job-id="{{ $history->id }}" title="Hapus Riwayat">
+                                                                                    <i class="fa fa-trash"></i>
+                                                                                </button>
+                                                                            @endif
+                                                                        </td>
+                                                                    </tr>
+                                                                @empty
+                                                                    <tr>
+                                                                        <td colspan="4" class="text-center text-muted">Belum ada riwayat job.</td>
+                                                                    </tr>
+                                                                @endforelse
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- END RIWAYAT JOB --}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- END MODAL AI STATUS & HISTORY --}}
 
                             </div>{{-- end tab-content --}}
                         </div>{{-- end card-block --}}
@@ -1105,7 +1109,9 @@
                 .then(data => {
                     if (data.job_id) {
                         activeJobId = data.job_id;
-                        formContainer.classList.add('d-none');
+                        $('#modal-ai-generator').modal('hide');
+                        $('#modal-ai-status').modal('show');
+                        document.getElementById('ai-status-empty').classList.add('d-none');
                         jobTracker.classList.remove('d-none');
                         startPolling();
                     } else {
@@ -1146,7 +1152,7 @@
                             pb.classList.add('bg-danger');
                             msg.innerHTML = `<span class="text-danger"><i class="fa fa-times"></i> Gagal: ${data.error}</span>`;
                             setTimeout(() => {
-                                formContainer.classList.remove('d-none');
+                                document.getElementById('ai-status-empty').classList.remove('d-none');
                                 jobTracker.classList.add('d-none');
                                 btnGenerate.disabled = false;
                                 btnGenerate.innerHTML = '<i class="fa fa-magic"></i> Mulai Generate';
@@ -1188,11 +1194,11 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data.job_id) {
-                            alert('Job AI berhasil dimasukkan ke antrean! Silakan buka Buka AI Generator untuk melihat status.');
+                            alert('Job AI berhasil dimasukkan ke antrean! Silakan buka Status & Riwayat AI untuk melihat progres.');
                             $(`#modal-ai-lesson-${moduleId}`).modal('hide');
-                            $('#modal-ai-generator').modal('show');
+                            $('#modal-ai-status').modal('show');
                             activeJobId = data.job_id;
-                            formContainer.classList.add('d-none');
+                            document.getElementById('ai-status-empty').classList.add('d-none');
                             jobTracker.classList.remove('d-none');
                             startPolling();
                         } else {
@@ -1306,7 +1312,8 @@
 
             // If there's an active job on page load, start polling immediately
             if (activeJobId) {
-                $('#modal-ai-generator').modal('show');
+                $('#modal-ai-status').modal('show');
+                document.getElementById('ai-status-empty').classList.add('d-none');
                 startPolling();
             }
         });
