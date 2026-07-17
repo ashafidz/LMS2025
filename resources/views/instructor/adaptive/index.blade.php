@@ -62,6 +62,10 @@
                                             {{ $modules->count() }} Modul
                                         </h6>
                                         <div>
+                                            <button type="button" class="btn btn-secondary btn-sm mr-2"
+                                                    data-toggle="modal" data-target="#modal-ai-references">
+                                                <i class="fa fa-paperclip"></i> RAG Referensi
+                                            </button>
                                             <button type="button" class="btn btn-info btn-sm mr-2"
                                                     data-toggle="modal" data-target="#modal-panduan-profil">
                                                 <i class="fa fa-book"></i> Panduan Profil
@@ -782,9 +786,6 @@
                                             <div class="modal-header bg-primary text-white d-flex justify-content-between align-items-center p-3">
                                                 <h5 class="modal-title m-0"><i class="fa fa-magic"></i> AI Generator Co-Pilot</h5>
                                                 <div class="d-flex align-items-center">
-                                                    <button type="button" class="btn btn-sm btn-light text-primary mr-3" data-toggle="modal" data-target="#modal-ai-references">
-                                                        <i class="fa fa-paperclip"></i> RAG Referensi
-                                                    </button>
                                                     <button type="button" class="close text-white m-0 p-0" data-dismiss="modal" aria-label="Close" style="opacity: 0.8;">
                                                         <span aria-hidden="true" style="font-size: 1.5rem;">&times;</span>
                                                     </button>
