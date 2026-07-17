@@ -425,6 +425,7 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
             Route::delete('/ai/jobs/{jobId}', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'destroyJob'])->name('ai.jobs.destroy');
             Route::post('/ai/references', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'uploadReference'])->name('ai.references.upload');
             Route::delete('/ai/references/{reference}', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'deleteReference'])->name('ai.references.destroy');
+            Route::post('/ai/modules/{module}/recommend-archetypes', [\App\Http\Controllers\Instructor\AdaptiveAiController::class, 'recommendArchetypes'])->name('ai.modules.recommend-archetypes');
         });
 
 

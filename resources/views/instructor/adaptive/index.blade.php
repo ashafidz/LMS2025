@@ -527,8 +527,13 @@
                                                         <input type="hidden" name="title" value="{{ $module->title }}">
                                                         <input type="hidden" name="description" value="{{ $module->description }}">
                                                         <div class="modal-body">
-                                                            <p class="small text-muted mb-3">Centang profil mana saja yang akan mendapatkan modul <strong>{{ $module->title }}</strong> ini.</p>
-                                                            <div class="btn-group-toggle d-flex flex-wrap" data-toggle="buttons">
+                                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                <p class="small text-muted mb-0">Centang profil mana saja yang akan mendapatkan modul <strong>{{ $module->title }}</strong> ini.</p>
+                                                                <button type="button" class="btn btn-outline-info btn-sm btn-recommend-archetypes" data-module-id="{{ $module->id }}">
+                                                                    <i class="fa fa-magic"></i> Rekomendasi AI
+                                                                </button>
+                                                            </div>
+                                                            <div class="btn-group-toggle d-flex flex-wrap" id="archetypes-container-{{ $module->id }}" data-toggle="buttons">
                                                                 @php $currentArchetypes = $module->target_archetypes ?? []; @endphp
                                                                 @foreach($archetypes as $arch => $desc)
                                                                     <label class="btn btn-outline-primary btn-sm mb-2 mr-2 {{ in_array($arch, $currentArchetypes) ? 'active' : '' }}" style="border-radius: 20px; cursor: pointer;" title="{{ $desc }}">
@@ -1412,6 +1417,59 @@
                     container.insertAdjacentHTML('beforeend', html);
                 }
             }
+        });
+
+        // JS untuk Recommend Archetypes AI
+        document.querySelectorAll('.btn-recommend-archetypes').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const moduleId = this.getAttribute('data-module-id');
+                const courseId = '{{ $course->id }}';
+                
+                this.disabled = true;
+                const originalHtml = this.innerHTML;
+                this.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Menganalisis...';
+                
+                fetch(`/instructor/courses/${courseId}/adaptive/ai/modules/${moduleId}/recommend-archetypes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    this.disabled = false;
+                    this.innerHTML = originalHtml;
+                    
+                    if (data.success && data.recommended_archetypes) {
+                        const container = document.getElementById(`archetypes-container-${moduleId}`);
+                        // Uncheck all first
+                        container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                            cb.checked = false;
+                            cb.closest('label').classList.remove('active');
+                        });
+                        
+                        // Check recommended ones
+                        let checkedCount = 0;
+                        container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                            if (data.recommended_archetypes.includes(cb.value)) {
+                                cb.checked = true;
+                                cb.closest('label').classList.add('active');
+                                checkedCount++;
+                            }
+                        });
+                        
+                        alert(`Rekomendasi berhasil! ${checkedCount} profil terpilih berdasarkan analisis AI.`);
+                    } else {
+                        alert(data.message || 'Gagal mendapatkan rekomendasi.');
+                    }
+                })
+                .catch(err => {
+                    this.disabled = false;
+                    this.innerHTML = originalHtml;
+                    alert('Terjadi kesalahan jaringan.');
+                });
+            });
         });
     </script>
 @endpush

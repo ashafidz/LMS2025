@@ -278,4 +278,24 @@ class AdaptiveAiController extends Controller
 
         return response()->json(['message' => 'Hanya job yang gagal atau dibatalkan yang dapat dihapus.'], 400);
     }
+
+    /**
+     * AI Endpoint: Recommend Archetypes for a given module.
+     */
+    public function recommendArchetypes(Course $course, \App\Models\AdaptiveModule $module, \App\Services\AdaptiveAiService $aiService)
+    {
+        $recommendations = $aiService->recommendArchetypes($module);
+
+        if ($recommendations && isset($recommendations['recommended_archetypes'])) {
+            return response()->json([
+                'success' => true,
+                'recommended_archetypes' => $recommendations['recommended_archetypes']
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal mendapatkan rekomendasi AI.'
+        ], 500);
+    }
 }

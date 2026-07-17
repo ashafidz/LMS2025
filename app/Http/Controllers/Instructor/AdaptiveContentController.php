@@ -12,15 +12,17 @@ use Illuminate\Support\Facades\Auth;
 class AdaptiveContentController extends Controller
 {
     /**
-     * Daftar 6 archetype yang selalu ditampilkan (Opsi B: hardcoded, tidak tergantung K-Means run).
+     * Daftar 8 archetype berdasarkan Educational Theory.
      */
     public const ARCHETYPES = [
-        'Expert Innovator'       => 'Siswa Expert yang sangat committed ke semua fitur AI personalisasi. Semua preferensi AI bernilai sangat tinggi (>4.5).',
-        'Adaptive AI Explorer'   => 'Siswa Expert yang aktif menggunakan semua fitur AI. Preferensi AI secara keseluruhan High namun tidak sekuat Expert Innovator.',
-        'Guided Mastery Expert'  => 'Siswa Expert yang tetap suka dibimbing AI secara terstruktur. Guidance dan Adaptivity High, meski Transparency Medium.',
-        'Selective AI Partner'   => 'Siswa Expert yang selektif menggunakan AI hanya saat benar-benar butuh. Preferensi AI secara keseluruhan Medium.',
-        'Achievement Challenger' => 'Siswa berorientasi nilai dan kompetisi (Performance Goal > Mastery Goal). Menggunakan AI sebagai alat benchmark.',
-        'Guided Growth Learner'  => 'Siswa dengan prior knowledge rendah (<75%). Membutuhkan scaffolding dan bimbingan intensif.',
+        'Independent Mastery Explorer' => 'Pembelajar mandiri yang mencari penguasaan, butuh sedikit bimbingan.',
+        'Collaborative Mastery Builder' => 'Pembelajar yang mencari penguasaan melalui kolaborasi dan interaksi.',
+        'Achievement Challenger'       => 'Siswa berorientasi nilai dan kompetisi. Menggunakan AI sebagai alat benchmark.',
+        'Guided Growth Learner'        => 'Siswa dengan pengetahuan awal rendah yang butuh scaffolding dan bimbingan intensif.',
+        'Adaptive AI Explorer'         => 'Siswa yang aktif menggunakan fitur AI dan menyukai personalisasi.',
+        'Strategic Performer'          => 'Pembelajar yang mengoptimalkan strategi untuk hasil belajar maksimal.',
+        'Social AI Learner'            => 'Siswa yang menggabungkan interaksi sosial dan dukungan AI.',
+        'Expert Innovator'             => 'Siswa ahli yang menjadikan AI sebagai rekan berpikir kritis untuk inovasi.'
     ];
 
     // ─── Guard Helper ────────────────────────────────────────

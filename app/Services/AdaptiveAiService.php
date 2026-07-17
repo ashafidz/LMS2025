@@ -277,4 +277,54 @@ class AdaptiveAiService
             return null;
         }
     }
+
+    public function recommendArchetypes(\App\Models\AdaptiveModule $module): ?array
+    {
+        $systemPrompt = "Kamu adalah sistem pakar pendidikan AI. Tugasmu adalah menganalisis modul pembelajaran dan merekomendasikan profil siswa (archetype) mana yang paling cocok dengan modul tersebut.\n\n"
+            . "Daftar Archetype yang tersedia:\n";
+        
+        foreach (\App\Http\Controllers\Instructor\AdaptiveContentController::ARCHETYPES as $name => $desc) {
+            $systemPrompt .= "- {$name}: {$desc}\n";
+        }
+        
+        $systemPrompt .= "\nOutput WAJIB dalam format JSON berupa array nama archetype yang direkomendasikan.\n"
+            . 'Contoh: {"recommended_archetypes": ["Expert Innovator", "Adaptive AI Explorer"]}';
+
+        $userPrompt = "Judul Modul: {$module->title}\n"
+            . "Deskripsi Modul: {$module->description}\n\n"
+            . "Daftar Materi (Lessons) di dalam modul ini:\n";
+            
+        foreach ($module->lessons as $lesson) {
+            $userPrompt .= "- [{$lesson->lesson_type}] {$lesson->title}\n";
+            if (in_array($lesson->lesson_type, ['article', 'assignment'])) {
+                $contentLimit = substr(strip_tags($lesson->content), 0, 500); // Limit content to avoid massive prompts
+                $userPrompt .= "  Konten / Instruksi: " . $contentLimit . "...\n";
+            }
+        }
+
+        try {
+            $response = Http::timeout(120)->post($this->ollamaUrl, [
+                'model'    => $this->model,
+                'messages' => [
+                    ['role' => 'system', 'content' => $systemPrompt],
+                    ['role' => 'user',   'content' => $userPrompt]
+                ],
+                'stream'   => false,
+                'format'   => 'json'
+            ]);
+
+            if ($response->successful()) {
+                $content = preg_replace('/```json/i', '', $response->json('message.content'));
+                $content = trim(preg_replace('/```/', '', $content));
+                return json_decode($content, true);
+            }
+
+            Log::error('Ollama Recommend Archetypes Failed', ['status' => $response->status(), 'body' => $response->body()]);
+            return null;
+
+        } catch (\Exception $e) {
+            Log::error('Ollama Recommend Archetypes Error', ['message' => $e->getMessage()]);
+            return null;
+        }
+    }
 }
