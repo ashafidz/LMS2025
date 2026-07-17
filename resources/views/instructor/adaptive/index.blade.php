@@ -527,6 +527,11 @@
                                                         <input type="hidden" name="title" value="{{ $module->title }}">
                                                         <input type="hidden" name="description" value="{{ $module->description }}">
                                                         <div class="modal-body">
+                                                            <div class="alert alert-info py-2 px-3 small">
+                                                                <i class="fa fa-info-circle mr-1"></i>
+                                                                <strong>Bagaimana AI menganalisis?</strong><br>
+                                                                AI (Ollama) akan membaca <strong>Judul, Deskripsi, dan Isi Materi (Artikel & Tugas)</strong> pada modul ini untuk dicocokkan dengan 8 profil yang ada. Proses ini berjalan di latar belakang (antrean), dan hasilnya akan <strong>otomatis tersimpan</strong> (mencentang kotak) begitu selesai.
+                                                            </div>
                                                             <div class="d-flex justify-content-between align-items-center mb-3">
                                                                 <p class="small text-muted mb-0">Centang profil mana saja yang akan mendapatkan modul <strong>{{ $module->title }}</strong> ini.</p>
                                                                 <button type="button" class="btn btn-outline-info btn-sm btn-recommend-archetypes" data-module-id="{{ $module->id }}"
