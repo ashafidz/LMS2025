@@ -643,6 +643,11 @@
                                                         <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
                                                     </div>
                                                     <div class="modal-body bg-light">
+                                                        <div class="alert alert-info py-2 px-3 small">
+                                                            <i class="fa fa-info-circle mr-1"></i>
+                                                            <strong>Cara Kerja AI:</strong><br>
+                                                            AI akan merancang konten (Artikel, Quiz, atau Penugasan) secara spesifik berdasarkan <strong>Judul dan Deskripsi Modul</strong> ini, dipadukan dengan wawasan dari <strong>Dokumen Referensi (RAG)</strong> yang telah Anda unggah di awal.
+                                                        </div>
                                                         <form class="form-ai-lesson" data-module-id="{{ $module->id }}">
                                                             <input type="hidden" name="module_id" value="{{ $module->id }}">
                                                             <div class="form-group">
