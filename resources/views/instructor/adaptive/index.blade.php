@@ -529,7 +529,8 @@
                                                         <div class="modal-body">
                                                             <div class="d-flex justify-content-between align-items-center mb-3">
                                                                 <p class="small text-muted mb-0">Centang profil mana saja yang akan mendapatkan modul <strong>{{ $module->title }}</strong> ini.</p>
-                                                                <button type="button" class="btn btn-outline-info btn-sm btn-recommend-archetypes" data-module-id="{{ $module->id }}">
+                                                                <button type="button" class="btn btn-outline-info btn-sm btn-recommend-archetypes" data-module-id="{{ $module->id }}"
+                                                                    {{ isset($activeJob) ? 'disabled title="Terdapat antrean AI"' : '' }}>
                                                                     <i class="fa fa-magic"></i> Rekomendasi AI
                                                                 </button>
                                                             </div>
@@ -1355,6 +1356,10 @@
                     btn.disabled = true;
                     btn.title = "Terdapat antrean AI";
                 });
+                document.querySelectorAll('.btn-recommend-archetypes').forEach(btn => {
+                    btn.disabled = true;
+                    btn.title = "Terdapat antrean AI";
+                });
             }
             function enableAllAiButtons() {
                 document.querySelectorAll('button[data-target="#modal-ai-generator"]').forEach(btn => {
@@ -1362,6 +1367,10 @@
                     btn.title = "";
                 });
                 document.querySelectorAll('button[data-target^="#modal-ai-lesson"]').forEach(btn => {
+                    btn.disabled = false;
+                    btn.title = "";
+                });
+                document.querySelectorAll('.btn-recommend-archetypes').forEach(btn => {
                     btn.disabled = false;
                     btn.title = "";
                 });
