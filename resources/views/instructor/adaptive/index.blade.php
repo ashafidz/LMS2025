@@ -870,7 +870,13 @@
                                                                 @forelse($jobHistory ?? [] as $history)
                                                                     <tr id="job-row-{{ $history->id }}">
                                                                         <td>{{ $history->created_at->format('d M H:i') }}</td>
-                                                                        <td>{{ ucfirst($history->type) }}</td>
+                                                                        <td>
+                                                                            @if($history->type === 'recommend_archetypes')
+                                                                                Rekomendasi Profil
+                                                                            @else
+                                                                                {{ ucfirst($history->type) }}
+                                                                            @endif
+                                                                        </td>
                                                                         <td>
                                                                             @if(in_array($history->status, ['queued', 'processing']))
                                                                                 <span class="badge badge-warning text-white"><i class="fa fa-spinner fa-spin"></i> {{ ucfirst($history->status) }}</span>
@@ -1438,30 +1444,14 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    this.disabled = false;
-                    this.innerHTML = originalHtml;
-                    
-                    if (data.success && data.recommended_archetypes) {
-                        const container = document.getElementById(`archetypes-container-${moduleId}`);
-                        // Uncheck all first
-                        container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-                            cb.checked = false;
-                            cb.closest('label').classList.remove('active');
-                        });
-                        
-                        // Check recommended ones
-                        let checkedCount = 0;
-                        container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-                            if (data.recommended_archetypes.includes(cb.value)) {
-                                cb.checked = true;
-                                cb.closest('label').classList.add('active');
-                                checkedCount++;
-                            }
-                        });
-                        
-                        alert(`Rekomendasi berhasil! ${checkedCount} profil terpilih berdasarkan analisis AI.`);
+                    if (data.job_id) {
+                        alert('Permintaan rekomendasi AI dimasukkan ke antrean! Memuat ulang halaman...');
+                        location.reload();
                     } else {
-                        alert(data.message || 'Gagal mendapatkan rekomendasi.');
+                        this.disabled = false;
+                        this.innerHTML = originalHtml;
+                        alert(data.message || 'Gagal memulai proses AI.');
+                        enableAllAiButtons();
                     }
                 })
                 .catch(err => {

@@ -282,20 +282,21 @@ class AdaptiveAiController extends Controller
     /**
      * AI Endpoint: Recommend Archetypes for a given module.
      */
-    public function recommendArchetypes(Course $course, \App\Models\AdaptiveModule $module, \App\Services\AdaptiveAiService $aiService)
+    public function recommendArchetypes(Course $course, \App\Models\AdaptiveModule $module)
     {
-        $recommendations = $aiService->recommendArchetypes($module);
+        $jobRecord = AiGenerationJob::create([
+            'course_id' => $course->id,
+            'type' => 'recommend_archetypes',
+            'status' => 'queued',
+            'progress' => 0,
+            'message' => 'Masuk antrean rekomendasi...'
+        ]);
 
-        if ($recommendations && isset($recommendations['recommended_archetypes'])) {
-            return response()->json([
-                'success' => true,
-                'recommended_archetypes' => $recommendations['recommended_archetypes']
-            ]);
-        }
+        \App\Jobs\RecommendArchetypesJob::dispatch($jobRecord, $module);
 
         return response()->json([
-            'success' => false,
-            'message' => 'Gagal mendapatkan rekomendasi AI.'
-        ], 500);
+            'status' => 'queued',
+            'job_id' => $jobRecord->id
+        ]);
     }
 }
