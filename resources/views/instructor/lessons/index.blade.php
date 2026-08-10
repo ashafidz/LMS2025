@@ -143,6 +143,7 @@
                         <a href="{{ route('instructor.modules.lessons.create', ['module' => $module, 'type' => 'quiz']) }}" class="list-group-item list-group-item-action"><i class="bi bi-pencil-square"></i> <strong>Kuis</strong><br><small>Buat kuis untuk menguji pemahaman siswa.</small></a>
                         <a href="{{ route('instructor.modules.lessons.create', ['module' => $module, 'type' => 'assignment']) }}" class="list-group-item list-group-item-action"><i class="bi bi-clipboard2"></i> <strong>Tugas (Assignment)</strong><br><small>Berikan tugas yang memerlukan pengumpulan file.</small></a>
                         <a href="{{ route('instructor.modules.lessons.create', ['module' => $module, 'type' => 'lessonpoin']) }}" class="list-group-item list-group-item-action"><i class="bi bi-chat-left-quote"></i> <strong>LessonPoint</strong><br><small>Buat sesi LessonPoin baru.</small></a>
+                        <a href="{{ route('instructor.modules.lessons.create', ['module' => $module, 'type' => 'polling']) }}" class="list-group-item list-group-item-action"><i class="bi bi-bar-chart-fill"></i> <strong>Polling</strong><br><small>Buat polling interaktif untuk siswa.</small></a>
                     </div>
                 </div>
             </div>

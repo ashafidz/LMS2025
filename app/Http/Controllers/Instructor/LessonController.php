@@ -39,7 +39,7 @@ class LessonController extends Controller
     {
         $type = $request->query('type');
         // Diperbarui: Mengganti 'powerpoint' menjadi 'document'
-        $validTypes = ['article', 'video', 'quiz', 'assignment', 'document', 'link', 'lessonpoin'];
+        $validTypes = ['article', 'video', 'quiz', 'assignment', 'document', 'link', 'lessonpoin', 'polling'];
 
         if (!in_array($type, $validTypes)) {
             abort(404, 'Tipe pelajaran tidak valid.');
@@ -57,7 +57,7 @@ class LessonController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             // Diperbarui: Mengganti 'powerpoint' menjadi 'document'
-            'lesson_type' => 'required|in:article,video,quiz,assignment,document,link,lessonpoin',
+            'lesson_type' => 'required|in:article,video,quiz,assignment,document,link,lessonpoin,polling',
         ]);
 
         $lessonType = $request->input('lesson_type');
@@ -186,6 +186,45 @@ class LessonController extends Controller
                             'title' => $validated['lessonpoin_title'],
                             'description' => $validated['lessonpoin_description'],
                         ]);
+                        break;
+                    case 'polling':
+                        $validated = $request->validate([
+                            'polling_question' => 'required|string|max:255',
+                            'polling_description' => 'nullable|string',
+                            'polling_options' => 'required|array|min:2',
+                            'polling_options.*' => 'required|string|max:255',
+                            'is_active' => 'boolean',
+                            'start_time' => 'nullable|date',
+                            'end_time' => 'nullable|date|after_or_equal:start_time',
+                        ]);
+
+                        $isActive = $request->has('is_active');
+                        $startTime = null;
+                        $endTime = null;
+
+                        if (!empty($validated['start_time'])) {
+                            $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+                            $startTime = Carbon::parse($validated['start_time'], $instructorTimezone)->utc();
+                        }
+                        if (!empty($validated['end_time'])) {
+                            $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+                            $endTime = Carbon::parse($validated['end_time'], $instructorTimezone)->utc();
+                        }
+
+                        $lessonable = \App\Models\LessonPolling::create([
+                            'question' => $validated['polling_question'],
+                            'description' => $validated['polling_description'],
+                            'is_active' => $isActive,
+                            'start_time' => $startTime,
+                            'end_time' => $endTime,
+                        ]);
+
+                        foreach ($validated['polling_options'] as $index => $optionText) {
+                            $lessonable->options()->create([
+                                'text' => $optionText,
+                                'order' => $index,
+                            ]);
+                        }
                         break;
                 }
 
@@ -350,6 +389,46 @@ class LessonController extends Controller
                         'description' => $validated['lessonpoin_description'],
                     ]);
                     break;
+                case 'lessonpolling':
+                    $validated = $request->validate([
+                        'polling_question' => 'required|string|max:255',
+                        'polling_description' => 'nullable|string',
+                        'polling_options' => 'required|array|min:2',
+                        'polling_options.*' => 'required|string|max:255',
+                        'is_active' => 'boolean',
+                        'start_time' => 'nullable|date',
+                        'end_time' => 'nullable|date|after_or_equal:start_time',
+                    ]);
+
+                    $isActive = $request->has('is_active');
+                    $startTime = null;
+                    $endTime = null;
+
+                    if (!empty($validated['start_time'])) {
+                        $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+                        $startTime = Carbon::parse($validated['start_time'], $instructorTimezone)->utc();
+                    }
+                    if (!empty($validated['end_time'])) {
+                        $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+                        $endTime = Carbon::parse($validated['end_time'], $instructorTimezone)->utc();
+                    }
+
+                    $lessonable->update([
+                        'question' => $validated['polling_question'],
+                        'description' => $validated['polling_description'],
+                        'is_active' => $isActive,
+                        'start_time' => $startTime,
+                        'end_time' => $endTime,
+                    ]);
+
+                    $lessonable->options()->delete();
+                    foreach ($validated['polling_options'] as $index => $optionText) {
+                        $lessonable->options()->create([
+                            'text' => $optionText,
+                            'order' => $index,
+                        ]);
+                    }
+                    break;
             }
         });
 
@@ -395,5 +474,21 @@ class LessonController extends Controller
         }
 
         return response()->json(['status' => 'success', 'message' => 'Urutan pelajaran diperbarui.']);
+    }
+    public function pollingResults(Lesson $lesson)
+    {
+        if ($lesson->lessonable_type !== \App\Models\LessonPolling::class) {
+            abort(404);
+        }
+
+        $polling = $lesson->lessonable;
+        $options = $polling->options()->withCount('responses')->get();
+        $totalResponses = $polling->responses()->count();
+
+        // Siapkan data untuk Chart.js
+        $chartLabels = $options->pluck('text')->toArray();
+        $chartData = $options->pluck('responses_count')->toArray();
+
+        return view('instructor.lessons.polling-results', compact('lesson', 'polling', 'options', 'totalResponses', 'chartLabels', 'chartData'));
     }
 }

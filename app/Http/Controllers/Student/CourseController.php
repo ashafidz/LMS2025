@@ -421,4 +421,54 @@ class CourseController extends Controller
 
         return response()->json(['success' => true, 'html' => $html]);
     }
+
+    public function submitPolling(Request $request, Lesson $lesson)
+    {
+        $request->validate([
+            'polling_option_id' => 'required|exists:lesson_polling_options,id',
+        ]);
+
+        $polling = $lesson->lessonable;
+        
+        if (get_class($polling) !== 'App\Models\LessonPolling') {
+            return response()->json(['success' => false, 'message' => 'Tipe pelajaran tidak valid.']);
+        }
+
+        // Check if already voted
+        $exists = $polling->responses()->where('user_id', auth()->id())->exists();
+        if ($exists) {
+            return response()->json(['success' => false, 'message' => 'Anda sudah mengisi polling ini.']);
+        }
+
+        // Check active / time
+        $now = \Carbon\Carbon::now();
+        $isActive = $polling->is_active;
+        if ($polling->start_time && $now->isBefore($polling->start_time)) {
+            $isActive = false;
+        }
+        if ($polling->end_time && $now->isAfter($polling->end_time)) {
+            $isActive = false;
+        }
+
+        if (!$isActive) {
+            return response()->json(['success' => false, 'message' => 'Polling ini tidak aktif atau sudah ditutup.']);
+        }
+
+        $polling->responses()->create([
+            'user_id' => auth()->id(),
+            'lesson_polling_option_id' => $request->polling_option_id,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function ajaxPollingResults(Lesson $lesson)
+    {
+        $polling = $lesson->lessonable;
+        if (get_class($polling) !== 'App\Models\LessonPolling') {
+            abort(404);
+        }
+
+        return view('instructor.lessons.previews._lessonpolling_results', compact('polling'));
+    }
 }

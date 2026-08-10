@@ -1,0 +1,25 @@
+services:
+  mysql-db:
+    image: mysql:latest
+    container_name: mysql_edugames
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: edugamesrootpassword
+      MYSQL_DATABASE: edugamesdatabase
+      MYSQL_USER: edugamesuser
+      MYSQL_PASSWORD: edugamespassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: mailhog_edugames
+    restart: always
+    ports:
+      - "1025:1025" # SMTP server
+      - "8025:8025" # Web UI
+
+volumes:
+  mysql_data:
