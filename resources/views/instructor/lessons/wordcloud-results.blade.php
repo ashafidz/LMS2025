@@ -4,11 +4,16 @@
     <div class="page-header">
         <div class="page-block">
             <div class="row align-items-center">
-                <div class="col-md-12">
+                <div class="col-md-8">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Hasil Word Cloud</h5>
                         <p class="m-b-0">{{ $wordcloud->question }}</p>
                     </div>
+                </div>
+                <div class="col-md-4 text-right">
+                    <a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}" class="btn btn-secondary btn-sm">
+                        <i class="fa fa-arrow-left"></i> Kembali ke Modul
+                    </a>
                 </div>
                 <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
@@ -81,12 +86,6 @@
                                     @endif
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}" class="btn btn-secondary">Kembali ke Modul</a>
                         </div>
                     </div>
 
