@@ -140,15 +140,19 @@ class PointService
         if ($pointsToAdd > 0) {
             DB::transaction(function () use ($user, $course, $lesson, $pointsToAdd, $description) {
                 // 1. Buat atau update total poin di tabel pivot course_user
-                CourseUser::updateOrCreate(
-                    [
+                $courseUser = CourseUser::where('user_id', $user->id)
+                                        ->where('course_id', $course->id)
+                                        ->first();
+                
+                if ($courseUser) {
+                    $courseUser->increment('points_earned', $pointsToAdd);
+                } else {
+                    CourseUser::create([
                         'user_id' => $user->id,
-                        'course_id' => $course->id
-                    ],
-                    [
-                        'points_earned' => DB::raw('points_earned + ' . $pointsToAdd)
-                    ]
-                );
+                        'course_id' => $course->id,
+                        'points_earned' => $pointsToAdd
+                    ]);
+                }
 
                 // 2. Buat catatan di riwayat poin
                 $user->pointHistories()->create([

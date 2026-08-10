@@ -39,7 +39,7 @@ class LessonController extends Controller
     {
         $type = $request->query('type');
         // Diperbarui: Mengganti 'powerpoint' menjadi 'document'
-        $validTypes = ['article', 'video', 'quiz', 'assignment', 'document', 'link', 'lessonpoin', 'polling'];
+        $validTypes = ['article', 'video', 'quiz', 'assignment', 'document', 'link', 'lessonpoin', 'polling', 'wordcloud'];
 
         if (!in_array($type, $validTypes)) {
             abort(404, 'Tipe pelajaran tidak valid.');
@@ -57,7 +57,7 @@ class LessonController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             // Diperbarui: Mengganti 'powerpoint' menjadi 'document'
-            'lesson_type' => 'required|in:article,video,quiz,assignment,document,link,lessonpoin,polling',
+            'lesson_type' => 'required|in:article,video,quiz,assignment,document,link,lessonpoin,polling,wordcloud',
         ]);
 
         $lessonType = $request->input('lesson_type');
