@@ -90,7 +90,49 @@
                 }
             </style>
             
-            <form id="form-polling-{{ $lesson->id }}" action="{{ route('student.lessons.polling.submit', $lesson->id) }}" data-results-url="{{ route('student.lessons.polling.results.ajax', $lesson->id) }}" onsubmit="submitPolling(event, {{ $lesson->id }})">
+            <form id="form-polling-{{ $lesson->id }}" action="{{ route('student.lessons.polling.submit', $lesson->id) }}" data-results-url="{{ route('student.lessons.polling.results.ajax', $lesson->id) }}" method="POST" onsubmit="
+                event.preventDefault();
+                var form = this;
+                var btn = form.querySelector('button[type=submit]');
+                var lessonId = {{ $lesson->id }};
+                var originalBtnHtml = btn.innerHTML;
+                
+                btn.disabled = true;
+                btn.innerHTML = '<span class=\'spinner-border spinner-border-sm\' role=\'status\' aria-hidden=\'true\'></span> Mengirim...';
+                
+                fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        var container = document.getElementById('polling-container-' + lessonId);
+                        var resultsUrl = form.getAttribute('data-results-url');
+                        container.innerHTML = '<div class=\'alert alert-success\'>Berhasil mengirim jawaban! Memuat hasil...</div><div id=\'polling-results-'+lessonId+'\'></div>';
+                        
+                        fetch(resultsUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(function(r) { return r.text(); })
+                        .then(function(html) {
+                            var resDiv = document.getElementById('polling-results-' + lessonId);
+                            resDiv.innerHTML = html;
+                            var scripts = resDiv.getElementsByTagName('script');
+                            for(var i=0; i<scripts.length; i++) eval(scripts[i].innerText);
+                        });
+                    } else {
+                        alert(data.message || 'Terjadi kesalahan');
+                        btn.disabled = false;
+                        btn.innerHTML = originalBtnHtml;
+                    }
+                })
+                .catch(function(err) {
+                    console.error(err);
+                    alert('Terjadi kesalahan jaringan.');
+                    btn.disabled = false;
+                    btn.innerHTML = originalBtnHtml;
+                });
+            ">
                 @csrf
                 <div class="form-group mb-4">
                     @foreach($polling->options as $option)
@@ -120,78 +162,19 @@
                     </div>
                     <p>Memuat hasil...</p>
                 </div>
+                <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" onload="
+                    var resDiv = this.parentElement;
+                    var lessonId = {{ $lesson->id }};
+                    var resultsUrl = resDiv.getAttribute('data-results-url');
+                    fetch(resultsUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(function(r) { return r.text(); })
+                    .then(function(html) {
+                        resDiv.innerHTML = html;
+                        var scripts = resDiv.getElementsByTagName('script');
+                        for(var i=0; i<scripts.length; i++) eval(scripts[i].innerText);
+                    });
+                " style="display:none;">
             </div>
-            
-            <script>
-                // Load hasil otomatis jika sudah vote
-                document.addEventListener('DOMContentLoaded', function() {
-                    loadPollingResults({{ $lesson->id }});
-                });
-            </script>
         @endif
     </div>
 </div>
-
-<script>
-    if (typeof window.submitPolling !== 'function') {
-        window.submitPolling = function(e, lessonId) {
-            e.preventDefault();
-            const form = document.getElementById('form-polling-' + lessonId);
-            const formData = new FormData(form);
-            const btn = document.getElementById('btn-submit-polling-' + lessonId);
-            const submitUrl = form.getAttribute('action');
-            
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...';
-
-            fetch(submitUrl, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.success) {
-                    const container = document.getElementById('polling-container-' + lessonId);
-                    const resultsUrl = form.getAttribute('data-results-url');
-                    container.innerHTML = '<div class="alert alert-success">Berhasil mengirim jawaban! Memuat hasil...</div><div id="polling-results-'+lessonId+'" data-results-url="'+resultsUrl+'"></div>';
-                    window.loadPollingResults(lessonId);
-                } else {
-                    alert(data.message || 'Terjadi kesalahan');
-                    btn.disabled = false;
-                    btn.innerHTML = 'Kirim Jawaban';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan jaringan.');
-                btn.disabled = false;
-                btn.innerHTML = 'Kirim Jawaban';
-            });
-        };
-
-        window.loadPollingResults = function(lessonId) {
-            const resultsDiv = document.getElementById('polling-results-' + lessonId);
-            if(!resultsDiv) return;
-            
-            const resultsUrl = resultsDiv.getAttribute('data-results-url');
-            
-            fetch(resultsUrl, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.text())
-            .then(html => {
-                resultsDiv.innerHTML = html;
-                
-                const scriptTags = resultsDiv.getElementsByTagName('script');
-                for (let i = 0; i < scriptTags.length; i++) {
-                    eval(scriptTags[i].innerText);
-                }
-            });
-        };
-    }
-</script>
