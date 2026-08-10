@@ -579,11 +579,11 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
         Route::get('/my-courses', [StudentDashboardController::class, 'myCourses'])->name('student.my_courses');
         Route::post('/lessons/{lesson}/complete', [StudentCourseController::class, 'markAsComplete'])->name('student.lessons.complete');
         Route::post('/assignments/{assignment}/submit', [StudentAssignmentController::class, 'submit'])->name('student.assignment.submit');
-        Route::post('/lessons/{lesson}/polling/submit', [\App\Http\Controllers\Student\CourseController::class, 'submitPolling'])->name('student.lessons.polling.submit');
-        Route::get('/lessons/{lesson}/polling/results', [\App\Http\Controllers\Student\CourseController::class, 'ajaxPollingResults'])->name('student.lessons.polling.results.ajax');
+        Route::post('/lessons/{lesson}/polling/submit', [StudentCourseController::class, 'submitPolling'])->name('student.lessons.polling.submit');
+        Route::get('/lessons/{lesson}/polling/results', [StudentCourseController::class, 'ajaxPollingResults'])->name('student.lessons.polling.results.ajax');
         
-        Route::post('/lessons/{lesson}/wordcloud/submit', [\App\Http\Controllers\Student\CourseController::class, 'submitWordcloud'])->name('student.lessons.wordcloud.submit');
-        Route::get('/lessons/{lesson}/wordcloud/results', [\App\Http\Controllers\Student\CourseController::class, 'ajaxWordcloudResults'])->name('student.lessons.wordcloud.results.ajax');
+        Route::post('/lessons/{lesson}/wordcloud/submit', [StudentCourseController::class, 'submitWordcloud'])->name('student.lessons.wordcloud.submit');
+        Route::get('/lessons/{lesson}/wordcloud/results', [StudentCourseController::class, 'ajaxWordcloudResults'])->name('student.lessons.wordcloud.results.ajax');
 
         // Rute untuk mengambil form ulasan via AJAX
         Route::get('/courses/{course}/review/create', [CourseReviewController::class, 'create'])->name('student.course.review.create');

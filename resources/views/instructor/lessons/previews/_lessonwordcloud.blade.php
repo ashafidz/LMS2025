@@ -107,45 +107,42 @@
             </form>
         @else
             <!-- Load results automatically if already voted -->
-            <div id="wordcloud-results-loader-{{ $lesson->id }}" class="text-center py-5">
+            <div id="wordcloud-results-loader-{{ $lesson->id }}" class="text-center py-5" data-results-url="{{ route('student.lessons.wordcloud.results.ajax', $lesson->id) }}">
                 <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
                     <span class="sr-only">Memuat hasil...</span>
                 </div>
                 <p class="mt-3 text-muted">Memuat hasil Word Cloud...</p>
-            </div>
-            <script>
-                // Self-executing function to load results
-                (function() {
-                    var containerId = 'wordcloud-container-{{ $lesson->id }}';
-                    var resultsUrl = '{{ route("student.lessons.wordcloud.results.ajax", $lesson->id) }}';
-                    
-                    fetch(resultsUrl)
-                    .then(response => response.text())
-                    .then(html => {
-                        var container = document.getElementById(containerId);
+                <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" onload="
+                    var resDiv = this.parentElement;
+                    var lessonId = {{ $lesson->id }};
+                    var resultsUrl = resDiv.getAttribute('data-results-url');
+                    fetch(resultsUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(function(r) { return r.text(); })
+                    .then(function(html) {
+                        var container = document.getElementById('wordcloud-container-' + lessonId);
                         if (container) {
                             container.innerHTML = html;
-                            
-                            // execute script tags
-                            const scripts = container.querySelectorAll('script');
-                            scripts.forEach(oldScript => {
-                                const newScript = document.createElement('script');
-                                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                                if (oldScript.src) {
-                                    newScript.src = oldScript.src;
+                            var scripts = container.getElementsByTagName('script');
+                            for(var i=0; i<scripts.length; i++) {
+                                if (scripts[i].src) {
+                                    var newScript = document.createElement('script');
+                                    newScript.src = scripts[i].src;
+                                    newScript.onload = function() {
+                                        if(typeof renderStudentWordCloud === 'function') renderStudentWordCloud();
+                                    };
+                                    document.head.appendChild(newScript);
                                 } else {
-                                    newScript.textContent = oldScript.textContent;
+                                    eval(scripts[i].innerText);
                                 }
-                                oldScript.parentNode.replaceChild(newScript, oldScript);
-                            });
+                            }
                         }
                     })
-                    .catch(error => {
-                        console.error("Error loading wordcloud results:", error);
-                        document.getElementById('wordcloud-results-loader-{{ $lesson->id }}').innerHTML = '<div class="alert alert-danger">Gagal memuat hasil.</div>';
+                    .catch(function(err) {
+                        console.error('Error loading wordcloud results:', err);
+                        resDiv.innerHTML = '<div class=\'alert alert-danger\'>Gagal memuat hasil.</div>';
                     });
-                })();
-            </script>
+                " style="display:none;">
+            </div>
         @endif
     </div>
 </div>
