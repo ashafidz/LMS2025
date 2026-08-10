@@ -242,6 +242,13 @@
                                                         required></div>
                                             </div>
                                             <div class="form-group row">
+                                                <label class="col-sm-3 col-form-label">Poin Menyelesaikan Word Cloud</label>
+                                                <div class="col-sm-9"><input type="number" name="points_for_wordcloud"
+                                                        class="form-control"
+                                                        value="{{ old('points_for_wordcloud', $settings->points_for_wordcloud) }}"
+                                                        required></div>
+                                            </div>
+                                            <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Rasio Konversi Poin ke
                                                     Diamond</label>
                                                 <div class="col-sm-9">

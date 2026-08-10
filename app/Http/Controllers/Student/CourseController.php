@@ -486,4 +486,80 @@ class CourseController extends Controller
 
         return view('instructor.lessons.previews._lessonpolling_results', compact('polling'));
     }
+    public function submitWordcloud(Request $request, Lesson $lesson)
+    {
+        $request->validate([
+            'word' => 'required|string|max:100',
+        ]);
+
+        $wordcloud = $lesson->lessonable;
+        
+        if (get_class($wordcloud) !== 'App\Models\LessonWordcloud') {
+            return response()->json(['success' => false, 'message' => 'Tipe pelajaran tidak valid.']);
+        }
+
+        // Check if already voted
+        $exists = $wordcloud->responses()->where('user_id', auth()->id())->exists();
+        if ($exists) {
+            return response()->json(['success' => false, 'message' => 'Anda sudah berpartisipasi dalam Word Cloud ini.']);
+        }
+
+        // Check active / time
+        $now = \Carbon\Carbon::now();
+        $isActive = $wordcloud->is_active;
+        if ($wordcloud->start_time && $now->isBefore($wordcloud->start_time)) {
+            $isActive = false;
+        }
+        if ($wordcloud->end_time && $now->isAfter($wordcloud->end_time)) {
+            $isActive = false;
+        }
+
+        if (!$isActive) {
+            return response()->json(['success' => false, 'message' => 'Word Cloud ini tidak aktif atau sudah ditutup.']);
+        }
+
+        $user = auth()->user();
+        
+        $wordcloud->responses()->create([
+            'user_id' => $user->id,
+            'word' => mb_strtolower(trim($request->word)),
+        ]);
+
+        $alreadyCompleted = $user->completedLessons()->where('lesson_id', $lesson->id)->exists();
+        $user->completedLessons()->syncWithoutDetaching($lesson->id);
+
+        if (!$alreadyCompleted) {
+            \App\Services\PointService::addPoints(
+                user: $user,
+                course: $lesson->module->course,
+                activity: 'complete_wordcloud', // Will fallback to default points if not defined, or we can use 5 points by adding it to gamification settings. Let's add it if needed, or use complete_polling logic.
+                lesson: $lesson,
+                description_meta: $lesson->title
+            );
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function ajaxWordcloudResults(Lesson $lesson)
+    {
+        $wordcloud = $lesson->lessonable;
+        if (get_class($wordcloud) !== 'App\Models\LessonWordcloud') {
+            abort(404);
+        }
+
+        $wordCounts = $wordcloud->responses()
+            ->select('word', DB::raw('count(*) as count'))
+            ->groupBy('word')
+            ->orderByDesc('count')
+            ->pluck('count', 'word')
+            ->toArray();
+            
+        $wordCloudList = [];
+        foreach ($wordCounts as $word => $count) {
+            $wordCloudList[] = [$word, $count];
+        }
+
+        return view('student.courses.partials._wordcloud_results_ajax', compact('wordcloud', 'wordCloudList', 'wordCounts'));
+    }
 }

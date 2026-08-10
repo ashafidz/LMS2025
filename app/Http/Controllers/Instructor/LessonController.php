@@ -226,6 +226,36 @@ class LessonController extends Controller
                             ]);
                         }
                         break;
+                    case 'wordcloud':
+                        $validated = $request->validate([
+                            'wordcloud_question' => 'required|string|max:255',
+                            'wordcloud_description' => 'nullable|string',
+                            'is_active' => 'boolean',
+                            'start_time' => 'nullable|date',
+                            'end_time' => 'nullable|date|after_or_equal:start_time',
+                        ]);
+
+                        $isActive = $request->has('is_active');
+                        $startTime = null;
+                        $endTime = null;
+
+                        if (!empty($validated['start_time'])) {
+                            $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+                            $startTime = Carbon::parse($validated['start_time'], $instructorTimezone)->utc();
+                        }
+                        if (!empty($validated['end_time'])) {
+                            $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+                            $endTime = Carbon::parse($validated['end_time'], $instructorTimezone)->utc();
+                        }
+
+                        $lessonable = \App\Models\LessonWordcloud::create([
+                            'question' => $validated['wordcloud_question'],
+                            'description' => $validated['wordcloud_description'],
+                            'is_active' => $isActive,
+                            'start_time' => $startTime,
+                            'end_time' => $endTime,
+                        ]);
+                        break;
                 }
 
                 $lastOrder = $module->lessons()->max('order') ?? 0;
@@ -429,6 +459,36 @@ class LessonController extends Controller
                         ]);
                     }
                     break;
+                    case 'lessonwordcloud':
+                        $validated = $request->validate([
+                            'wordcloud_question' => 'required|string|max:255',
+                            'wordcloud_description' => 'nullable|string',
+                            'is_active' => 'boolean',
+                            'start_time' => 'nullable|date',
+                            'end_time' => 'nullable|date|after_or_equal:start_time',
+                        ]);
+
+                        $isActive = $request->has('is_active');
+                        $startTime = null;
+                        $endTime = null;
+
+                        if (!empty($validated['start_time'])) {
+                            $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+                            $startTime = Carbon::parse($validated['start_time'], $instructorTimezone)->utc();
+                        }
+                        if (!empty($validated['end_time'])) {
+                            $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+                            $endTime = Carbon::parse($validated['end_time'], $instructorTimezone)->utc();
+                        }
+
+                        $lessonable->update([
+                            'question' => $validated['wordcloud_question'],
+                            'description' => $validated['wordcloud_description'],
+                            'is_active' => $isActive,
+                            'start_time' => $startTime,
+                            'end_time' => $endTime,
+                        ]);
+                        break;
             }
         });
 
@@ -477,18 +537,45 @@ class LessonController extends Controller
     }
     public function pollingResults(Lesson $lesson)
     {
-        if ($lesson->lessonable_type !== \App\Models\LessonPolling::class) {
+        $polling = $lesson->lessonable;
+        
+        if (get_class($polling) !== 'App\Models\LessonPolling') {
             abort(404);
         }
 
-        $polling = $lesson->lessonable;
         $options = $polling->options()->withCount('responses')->get();
         $totalResponses = $polling->responses()->count();
 
-        // Siapkan data untuk Chart.js
         $chartLabels = $options->pluck('text')->toArray();
         $chartData = $options->pluck('responses_count')->toArray();
 
         return view('instructor.lessons.polling-results', compact('lesson', 'polling', 'options', 'totalResponses', 'chartLabels', 'chartData'));
+    }
+
+    public function wordcloudResults(Lesson $lesson)
+    {
+        $wordcloud = $lesson->lessonable;
+        
+        if (get_class($wordcloud) !== 'App\Models\LessonWordcloud') {
+            abort(404);
+        }
+
+        // Get word frequencies
+        $wordCounts = $wordcloud->responses()
+            ->select('word', DB::raw('count(*) as count'))
+            ->groupBy('word')
+            ->orderByDesc('count')
+            ->pluck('count', 'word')
+            ->toArray();
+
+        $totalResponses = $wordcloud->responses()->count();
+
+        // Format for wordcloud2.js: [['word1', 12], ['word2', 8]]
+        $wordCloudList = [];
+        foreach ($wordCounts as $word => $count) {
+            $wordCloudList[] = [$word, $count];
+        }
+
+        return view('instructor.lessons.wordcloud-results', compact('lesson', 'wordcloud', 'wordCounts', 'totalResponses', 'wordCloudList'));
     }
 }

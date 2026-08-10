@@ -131,6 +131,10 @@ class PointService
                 $pointsToAdd = $settings->points_for_polling;
                 $description = 'Mengisi polling: ' . $description_meta;
                 break;
+            case 'complete_wordcloud':
+                $pointsToAdd = $settings->points_for_wordcloud;
+                $description = 'Mengisi word cloud: ' . $description_meta;
+                break;
         }
 
         if ($pointsToAdd > 0) {

@@ -100,6 +100,10 @@
                                                             @if ($lessonType === 'lessonpolling')
                                                                 <a href="{{ route('instructor.lessons.polling.results', $lesson) }}" class="btn btn-info btn-sm"><i class="fa fa-bar-chart"></i>Lihat Hasil</a>
                                                             @endif
+                                                            
+                                                            @if ($lessonType === 'lessonwordcloud')
+                                                                <a href="{{ route('instructor.lessons.wordcloud.results', $lesson) }}" class="btn btn-info btn-sm"><i class="fa fa-cloud"></i>Lihat Hasil</a>
+                                                            @endif
                                                         </div>
                                                         <div>
                                                             <a href="{{ route('instructor.lessons.edit', $lesson) }}" class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i>Edit</a>
@@ -148,6 +152,7 @@
                         <a href="{{ route('instructor.modules.lessons.create', ['module' => $module, 'type' => 'assignment']) }}" class="list-group-item list-group-item-action"><i class="bi bi-clipboard2"></i> <strong>Tugas (Assignment)</strong><br><small>Berikan tugas yang memerlukan pengumpulan file.</small></a>
                         <a href="{{ route('instructor.modules.lessons.create', ['module' => $module, 'type' => 'lessonpoin']) }}" class="list-group-item list-group-item-action"><i class="bi bi-chat-left-quote"></i> <strong>LessonPoint</strong><br><small>Buat sesi LessonPoin baru.</small></a>
                         <a href="{{ route('instructor.modules.lessons.create', ['module' => $module, 'type' => 'polling']) }}" class="list-group-item list-group-item-action"><i class="bi bi-bar-chart-fill"></i> <strong>Polling</strong><br><small>Buat polling interaktif untuk siswa.</small></a>
+                        <a href="{{ route('instructor.modules.lessons.create', ['module' => $module, 'type' => 'wordcloud']) }}" class="list-group-item list-group-item-action"><i class="bi bi-cloud-fill"></i> <strong>Word Cloud</strong><br><small>Kumpulkan kata-kata interaktif ke dalam Word Cloud.</small></a>
                     </div>
                 </div>
             </div>
