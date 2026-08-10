@@ -578,4 +578,34 @@ class LessonController extends Controller
 
         return view('instructor.lessons.wordcloud-results', compact('lesson', 'wordcloud', 'wordCounts', 'totalResponses', 'wordCloudList'));
     }
+
+    public function togglePollingStatus(Request $request, Lesson $lesson)
+    {
+        $polling = $lesson->lessonable;
+        
+        if (get_class($polling) !== 'App\Models\LessonPolling') {
+            abort(404);
+        }
+
+        $polling->is_active = !$polling->is_active;
+        $polling->save();
+
+        $status = $polling->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        return redirect()->back()->with('success', "Polling berhasil {$status}.");
+    }
+
+    public function toggleWordcloudStatus(Request $request, Lesson $lesson)
+    {
+        $wordcloud = $lesson->lessonable;
+        
+        if (get_class($wordcloud) !== 'App\Models\LessonWordcloud') {
+            abort(404);
+        }
+
+        $wordcloud->is_active = !$wordcloud->is_active;
+        $wordcloud->save();
+
+        $status = $wordcloud->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        return redirect()->back()->with('success', "Word Cloud berhasil {$status}.");
+    }
 }

@@ -35,12 +35,20 @@
                             <p class="text-muted">{{ $polling->description }}</p>
                             
                             <hr>
-                            <p><strong>Status:</strong> 
+                            <p class="d-flex align-items-center"><strong>Status:</strong> 
                                 @if($polling->is_active)
-                                    <span class="badge badge-success">Aktif</span>
+                                    <span class="badge badge-success ml-2">Aktif</span>
                                 @else
-                                    <span class="badge badge-danger">Ditutup</span>
+                                    <span class="badge badge-danger ml-2">Ditutup</span>
                                 @endif
+
+                                <form action="{{ route('instructor.lessons.polling.toggle_status', $lesson) }}" method="POST" class="ml-auto">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="btn btn-sm {{ $polling->is_active ? 'btn-danger' : 'btn-success' }}">
+                                        {{ $polling->is_active ? 'Nonaktifkan Polling' : 'Aktifkan Polling' }}
+                                    </button>
+                                </form>
                             </p>
                             <p><strong>Total Responden:</strong> {{ $totalResponses }}</p>
                             

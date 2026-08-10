@@ -402,7 +402,9 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         Route::get('/instructor/modules/{module}/lessons/create', [LessonController::class, 'create'])->name('instructor.modules.lessons.create');
         Route::post('/instructor/modules/{module}/lessons', [LessonController::class, 'store'])->name('instructor.modules.lessons.store');
         Route::get('/instructor/lessons/{lesson}/polling/results', [LessonController::class, 'pollingResults'])->name('instructor.lessons.polling.results');
+        Route::patch('/instructor/lessons/{lesson}/polling/toggle-status', [LessonController::class, 'togglePollingStatus'])->name('instructor.lessons.polling.toggle_status');
         Route::get('/instructor/lessons/{lesson}/wordcloud/results', [LessonController::class, 'wordcloudResults'])->name('instructor.lessons.wordcloud.results');
+        Route::patch('/instructor/lessons/{lesson}/wordcloud/toggle-status', [LessonController::class, 'toggleWordcloudStatus'])->name('instructor.lessons.wordcloud.toggle_status');
 
         // Mengedit (Edit), Memperbarui (Update), dan Menghapus (Destroy) pelajaran (rute dangkal/shallow)
         Route::get('/instructor/lessons/{lesson}/edit', [LessonController::class, 'edit'])->name('instructor.lessons.edit');

@@ -37,12 +37,20 @@
                                     <p class="text-muted">{{ $wordcloud->description }}</p>
                                     
                                     <hr>
-                                    <p><strong>Status:</strong> 
+                                    <p class="d-flex align-items-center"><strong>Status:</strong> 
                                         @if($wordcloud->is_active)
-                                            <span class="badge badge-success">Aktif</span>
+                                            <span class="badge badge-success ml-2">Aktif</span>
                                         @else
-                                            <span class="badge badge-danger">Ditutup</span>
+                                            <span class="badge badge-danger ml-2">Ditutup</span>
                                         @endif
+
+                                        <form action="{{ route('instructor.lessons.wordcloud.toggle_status', $lesson) }}" method="POST" class="ml-auto">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="btn btn-sm {{ $wordcloud->is_active ? 'btn-danger' : 'btn-success' }}">
+                                                {{ $wordcloud->is_active ? 'Nonaktifkan Word Cloud' : 'Aktifkan Word Cloud' }}
+                                            </button>
+                                        </form>
                                     </p>
                                     <p><strong>Total Responden:</strong> {{ $totalResponses }}</p>
                                     
