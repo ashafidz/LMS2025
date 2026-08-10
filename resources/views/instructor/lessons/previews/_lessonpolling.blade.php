@@ -30,17 +30,84 @@
                 Polling ini sedang tidak aktif atau sudah ditutup.
             </div>
         @elseif(!$hasVoted)
+            <style>
+                .poll-option-card {
+                    display: block;
+                    padding: 16px 20px;
+                    margin: 0;
+                    border: 2px solid #e9ecef;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    transition: all 0.2s ease-in-out;
+                    background-color: #ffffff;
+                }
+                .poll-option-card:hover {
+                    border-color: #b8daff;
+                    background-color: #f1f7fd;
+                }
+                .poll-radio-input:checked + .poll-option-card {
+                    border-color: #007bff;
+                    background-color: #eaf4ff;
+                    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+                }
+                .poll-radio-circle {
+                    width: 22px;
+                    height: 22px;
+                    border: 2px solid #adb5bd;
+                    border-radius: 50%;
+                    display: inline-block;
+                    position: relative;
+                    transition: all 0.2s ease-in-out;
+                }
+                .poll-radio-input:checked + .poll-option-card .poll-radio-circle {
+                    border-color: #007bff;
+                }
+                .poll-radio-input:checked + .poll-option-card .poll-radio-circle::after {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 12px;
+                    height: 12px;
+                    background-color: #007bff;
+                    border-radius: 50%;
+                }
+                .poll-option-text {
+                    font-size: 1.05rem;
+                    font-weight: 500;
+                    color: #495057;
+                    transition: color 0.2s;
+                }
+                .poll-radio-input:checked + .poll-option-card .poll-option-text {
+                    color: #0056b3;
+                }
+                .btn-poll-submit {
+                    border-radius: 8px;
+                    padding: 10px 24px;
+                    font-weight: 600;
+                    letter-spacing: 0.5px;
+                }
+            </style>
+            
             <form id="form-polling-{{ $lesson->id }}" action="{{ route('student.lessons.polling.submit', $lesson->id) }}" data-results-url="{{ route('student.lessons.polling.results.ajax', $lesson->id) }}" onsubmit="submitPolling(event, {{ $lesson->id }})">
                 @csrf
-                <div class="form-group">
+                <div class="form-group mb-4">
                     @foreach($polling->options as $option)
-                    <div class="custom-control custom-radio mb-2">
-                        <input type="radio" id="polling-option-{{ $option->id }}" name="polling_option_id" class="custom-control-input" value="{{ $option->id }}" required>
-                        <label class="custom-control-label" for="polling-option-{{ $option->id }}" style="cursor:pointer">{{ $option->text }}</label>
+                    <div class="mb-3">
+                        <input type="radio" id="polling-option-{{ $option->id }}" name="polling_option_id" class="poll-radio-input d-none" value="{{ $option->id }}" required>
+                        <label class="poll-option-card" for="polling-option-{{ $option->id }}">
+                            <div class="d-flex align-items-center">
+                                <div class="poll-radio-circle mr-3"></div>
+                                <span class="poll-option-text">{{ $option->text }}</span>
+                            </div>
+                        </label>
                     </div>
                     @endforeach
                 </div>
-                <button type="submit" class="btn btn-primary mt-3" id="btn-submit-polling-{{ $lesson->id }}">Kirim Jawaban</button>
+                <button type="submit" class="btn btn-primary btn-poll-submit shadow-sm" id="btn-submit-polling-{{ $lesson->id }}">
+                    <i class="bi bi-send-fill mr-1"></i> Kirim Jawaban
+                </button>
             </form>
         @else
             <!-- Hasil Polling setelah memilih (atau jika sudah memilih) -->
