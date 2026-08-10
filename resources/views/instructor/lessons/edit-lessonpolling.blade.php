@@ -26,9 +26,6 @@
                 <div class="card">
                     <div class="card-header">
                         <h5>Detail Polling</h5>
-                        <div class="card-header-right">
-                            <a href="{{ route('instructor.lessons.polling.results', $lesson->id) }}" class="btn btn-primary btn-sm"><i class="fa fa-bar-chart"></i> Lihat Hasil Polling</a>
-                        </div>
                     </div>
                     <div class="card-block">
                         <form action="{{ route('instructor.lessons.update', $lesson) }}" method="POST" data-lesson-submit="true">

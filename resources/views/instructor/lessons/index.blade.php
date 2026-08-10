@@ -96,6 +96,10 @@
                                                             @if ($lessonType === 'lessonpoint')
                                                                 <a href="{{ route('instructor.lesson_points.manage', $lesson) }}" class="btn btn-success btn-sm"><i class="bi bi-gear-fill"></i>Kelola LessonPoin</a>
                                                             @endif
+                                                            
+                                                            @if ($lessonType === 'lessonpolling')
+                                                                <a href="{{ route('instructor.lessons.polling.results', $lesson) }}" class="btn btn-info btn-sm"><i class="fa fa-bar-chart"></i>Lihat Hasil</a>
+                                                            @endif
                                                         </div>
                                                         <div>
                                                             <a href="{{ route('instructor.lessons.edit', $lesson) }}" class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i>Edit</a>
