@@ -127,6 +127,10 @@ class PointService
                 $pointsToAdd = $settings->points_for_assignment;
                 $description = 'Mengirimkan tugas: ' . $description_meta;
                 break;
+            case 'complete_polling':
+                $pointsToAdd = $settings->points_for_polling;
+                $description = 'Mengisi polling: ' . $description_meta;
+                break;
         }
 
         if ($pointsToAdd > 0) {

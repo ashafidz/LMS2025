@@ -32,6 +32,7 @@ class SiteSetting extends Model
         'points_for_document',
         'points_for_quiz',
         'points_for_assignment',
+        'points_for_polling',
         'point_to_diamond_rate',
     ];
 

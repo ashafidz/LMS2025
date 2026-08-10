@@ -454,10 +454,25 @@ class CourseController extends Controller
             return response()->json(['success' => false, 'message' => 'Polling ini tidak aktif atau sudah ditutup.']);
         }
 
+        $user = auth()->user();
+        
         $polling->responses()->create([
-            'user_id' => auth()->id(),
+            'user_id' => $user->id,
             'lesson_polling_option_id' => $request->polling_option_id,
         ]);
+
+        $alreadyCompleted = $user->completedLessons()->where('lesson_id', $lesson->id)->exists();
+        $user->completedLessons()->syncWithoutDetaching($lesson->id);
+
+        if (!$alreadyCompleted) {
+            \App\Services\PointService::addPoints(
+                user: $user,
+                course: $lesson->module->course,
+                activity: 'complete_polling',
+                lesson: $lesson,
+                description_meta: $lesson->title
+            );
+        }
 
         return response()->json(['success' => true]);
     }
