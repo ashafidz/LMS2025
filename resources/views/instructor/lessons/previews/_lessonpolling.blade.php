@@ -30,7 +30,7 @@
                 Polling ini sedang tidak aktif atau sudah ditutup.
             </div>
         @elseif(!$hasVoted)
-            <form id="form-polling-{{ $lesson->id }}" onsubmit="submitPolling(event, {{ $lesson->id }})">
+            <form id="form-polling-{{ $lesson->id }}" action="{{ route('student.lessons.polling.submit', $lesson->id) }}" data-results-url="{{ route('student.lessons.polling.results.ajax', $lesson->id) }}" onsubmit="submitPolling(event, {{ $lesson->id }})">
                 @csrf
                 <div class="form-group">
                     @foreach($polling->options as $option)
@@ -46,7 +46,7 @@
             <!-- Hasil Polling setelah memilih (atau jika sudah memilih) -->
             <div class="alert alert-success">Anda sudah memberikan suara pada polling ini. Berikut adalah hasil saat ini:</div>
             
-            <div id="polling-results-{{ $lesson->id }}">
+            <div id="polling-results-{{ $lesson->id }}" data-results-url="{{ route('student.lessons.polling.results.ajax', $lesson->id) }}">
                 <div class="text-center my-4">
                     <div class="spinner-border text-primary" role="status">
                         <span class="sr-only">Loading...</span>
@@ -66,61 +66,65 @@
 </div>
 
 <script>
-    function submitPolling(e, lessonId) {
-        e.preventDefault();
-        const form = document.getElementById('form-polling-' + lessonId);
-        const formData = new FormData(form);
-        const btn = document.getElementById('btn-submit-polling-' + lessonId);
-        
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...';
+    if (typeof window.submitPolling !== 'function') {
+        window.submitPolling = function(e, lessonId) {
+            e.preventDefault();
+            const form = document.getElementById('form-polling-' + lessonId);
+            const formData = new FormData(form);
+            const btn = document.getElementById('btn-submit-polling-' + lessonId);
+            const submitUrl = form.getAttribute('action');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...';
 
-        fetch("{{ route('student.lessons.polling.submit', '') }}/" + lessonId, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.success) {
-                const container = document.getElementById('polling-container-' + lessonId);
-                container.innerHTML = '<div class="alert alert-success">Berhasil mengirim jawaban! Memuat hasil...</div><div id="polling-results-'+lessonId+'"></div>';
-                loadPollingResults(lessonId);
-            } else {
-                alert(data.message || 'Terjadi kesalahan');
+            fetch(submitUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    const container = document.getElementById('polling-container-' + lessonId);
+                    const resultsUrl = form.getAttribute('data-results-url');
+                    container.innerHTML = '<div class="alert alert-success">Berhasil mengirim jawaban! Memuat hasil...</div><div id="polling-results-'+lessonId+'" data-results-url="'+resultsUrl+'"></div>';
+                    window.loadPollingResults(lessonId);
+                } else {
+                    alert(data.message || 'Terjadi kesalahan');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Kirim Jawaban';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan jaringan.');
                 btn.disabled = false;
                 btn.innerHTML = 'Kirim Jawaban';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan jaringan.');
-            btn.disabled = false;
-            btn.innerHTML = 'Kirim Jawaban';
-        });
-    }
+            });
+        };
 
-    function loadPollingResults(lessonId) {
-        fetch("{{ route('student.lessons.polling.results.ajax', '') }}/" + lessonId, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.text())
-        .then(html => {
+        window.loadPollingResults = function(lessonId) {
             const resultsDiv = document.getElementById('polling-results-' + lessonId);
-            if(resultsDiv) {
+            if(!resultsDiv) return;
+            
+            const resultsUrl = resultsDiv.getAttribute('data-results-url');
+            
+            fetch(resultsUrl, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
                 resultsDiv.innerHTML = html;
                 
-                // Jika script chart dikirim via HTML, kita perlu mengevaluasinya atau mengeksekusi chart secara manual.
-                // Pendekatan lebih baik: ekstrak data JSON dari respon jika memungkinkan, atau taruh script di view hasil.
                 const scriptTags = resultsDiv.getElementsByTagName('script');
                 for (let i = 0; i < scriptTags.length; i++) {
                     eval(scriptTags[i].innerText);
                 }
-            }
-        });
+            });
+        };
     }
 </script>
