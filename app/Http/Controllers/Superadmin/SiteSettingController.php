@@ -45,6 +45,7 @@ class SiteSettingController extends Controller
             'points_for_document' => 'required|integer|min:0',
             'points_for_quiz' => 'required|integer|min:0',
             'points_for_assignment' => 'required|integer|min:0',
+            'points_for_polling' => 'required|integer|min:0',
 
             // Validasi konversi poin ke diamond
             'point_to_diamond_rate' => 'required|numeric|min:0',
