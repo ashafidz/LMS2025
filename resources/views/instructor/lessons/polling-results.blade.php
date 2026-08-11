@@ -64,6 +64,11 @@
                                     {{ $option->text }}
                                     <span class="badge badge-primary badge-pill">{{ $option->responses_count }} ({{ $totalResponses > 0 ? round(($option->responses_count / $totalResponses) * 100) : 0 }}%)</span>
                                 </li>
+                                @if($option->responses_count > 0)
+                                <div class="px-3 py-2 mb-2 bg-light text-muted small border-left border-right border-bottom" style="margin-top: -1px;">
+                                    <strong>Pemilih:</strong> {{ implode(', ', $option->responses->map(function($r) { return $r->user->name ?? 'User'; })->toArray()) }}
+                                </div>
+                                @endif
                                 @endforeach
                             </ul>
                         </div>

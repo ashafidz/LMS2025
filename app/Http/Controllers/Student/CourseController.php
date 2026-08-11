@@ -484,6 +484,10 @@ class CourseController extends Controller
             abort(404);
         }
 
+        if (!$polling->show_results) {
+            abort(403, 'Hasil polling tidak ditampilkan.');
+        }
+
         return view('instructor.lessons.previews._lessonpolling_results', compact('polling'));
     }
     public function submitWordcloud(Request $request, Lesson $lesson)

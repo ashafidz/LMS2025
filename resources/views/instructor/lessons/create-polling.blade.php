@@ -87,6 +87,30 @@
                                 </div>
                             </div>
                             <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Tampilkan Pemilih</label>
+                                <div class="col-sm-10">
+                                    <div class="checkbox-fade fade-in-primary">
+                                        <label>
+                                            <input type="checkbox" name="show_voters" value="1">
+                                            <span class="cr"><i class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
+                                            <span class="text-inverse">Bisa melihat siapa saja yang polling di sisi student?</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Tampilkan Hasil</label>
+                                <div class="col-sm-10">
+                                    <div class="checkbox-fade fade-in-primary">
+                                        <label>
+                                            <input type="checkbox" name="show_results" value="1" checked>
+                                            <span class="cr"><i class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
+                                            <span class="text-inverse">Bisa melihat hasil polling di sisi student?</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <label class="col-sm-2 col-form-label">Waktu Mulai</label>
                                 <div class="col-sm-10">
                                     <input type="datetime-local" name="start_time" class="form-control">

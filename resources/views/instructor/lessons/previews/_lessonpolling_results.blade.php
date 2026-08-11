@@ -1,5 +1,11 @@
 @php
-    $options = $polling->options()->withCount('responses')->get();
+    $query = $polling->options()->withCount('responses');
+    if ($polling->show_voters) {
+        $query->with(['responses' => function($q) {
+            $q->with('user');
+        }]);
+    }
+    $options = $query->get();
     $totalResponses = $polling->responses()->count();
     
     $chartLabels = $options->pluck('text')->toArray();
@@ -21,6 +27,12 @@
                 <div class="progress" style="height: 10px;">
                     <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
+                @if($polling->show_voters && $option->responses_count > 0)
+                    <div class="mt-2 small text-muted">
+                        <strong>Pemilih:</strong>
+                        {{ implode(', ', $option->responses->map(function($r) { return $r->user->name ?? 'User'; })->toArray()) }}
+                    </div>
+                @endif
             </li>
             @endforeach
         </ul>

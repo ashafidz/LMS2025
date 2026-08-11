@@ -196,9 +196,13 @@ class LessonController extends Controller
                             'is_active' => 'boolean',
                             'start_time' => 'nullable|date',
                             'end_time' => 'nullable|date|after_or_equal:start_time',
+                            'show_voters' => 'boolean',
+                            'show_results' => 'boolean',
                         ]);
 
                         $isActive = $request->has('is_active');
+                        $showVoters = $request->has('show_voters');
+                        $showResults = $request->has('show_results');
                         $startTime = null;
                         $endTime = null;
 
@@ -217,6 +221,8 @@ class LessonController extends Controller
                             'is_active' => $isActive,
                             'start_time' => $startTime,
                             'end_time' => $endTime,
+                            'show_voters' => $showVoters,
+                            'show_results' => $showResults,
                         ]);
 
                         foreach ($validated['polling_options'] as $index => $optionText) {
@@ -428,9 +434,13 @@ class LessonController extends Controller
                         'is_active' => 'boolean',
                         'start_time' => 'nullable|date',
                         'end_time' => 'nullable|date|after_or_equal:start_time',
+                        'show_voters' => 'boolean',
+                        'show_results' => 'boolean',
                     ]);
 
                     $isActive = $request->has('is_active');
+                    $showVoters = $request->has('show_voters');
+                    $showResults = $request->has('show_results');
                     $startTime = null;
                     $endTime = null;
 
@@ -449,6 +459,8 @@ class LessonController extends Controller
                         'is_active' => $isActive,
                         'start_time' => $startTime,
                         'end_time' => $endTime,
+                        'show_voters' => $showVoters,
+                        'show_results' => $showResults,
                     ]);
 
                     $lessonable->options()->delete();
@@ -543,7 +555,7 @@ class LessonController extends Controller
             abort(404);
         }
 
-        $options = $polling->options()->withCount('responses')->get();
+        $options = $polling->options()->with(['responses.user'])->withCount('responses')->get();
         $totalResponses = $polling->responses()->count();
 
         $chartLabels = $options->pluck('text')->toArray();
