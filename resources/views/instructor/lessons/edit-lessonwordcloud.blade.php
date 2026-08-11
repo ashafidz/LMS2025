@@ -57,9 +57,12 @@
                                 <div class="form-group row mt-3">
                                     <label class="col-sm-2 col-form-label">Status Aktif</label>
                                     <div class="col-sm-10">
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="isActive" name="is_active" value="1" {{ $lesson->lessonable->is_active ? 'checked' : '' }}>
-                                            <label class="custom-control-label" for="isActive">Word Cloud dapat diisi oleh siswa</label>
+                                        <div class="checkbox-fade fade-in-primary">
+                                            <label>
+                                                <input type="checkbox" id="isActive" name="is_active" value="1" {{ optional($lesson->lessonable)->is_active ? 'checked' : '' }}>
+                                                <span class="cr"><i class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
+                                                <span class="text-inverse">Word Cloud dapat diisi oleh siswa</span>
+                                            </label>
                                         </div>
                                     </div>
                                 </div>

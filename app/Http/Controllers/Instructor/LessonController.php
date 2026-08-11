@@ -463,12 +463,17 @@ class LessonController extends Controller
                         'show_results' => $showResults,
                     ]);
 
-                    $lessonable->options()->delete();
-                    foreach ($validated['polling_options'] as $index => $optionText) {
-                        $lessonable->options()->create([
-                            'text' => $optionText,
-                            'order' => $index,
-                        ]);
+                    $existingOptions = $lessonable->options()->orderBy('order')->pluck('text')->toArray();
+                    $newOptions = $validated['polling_options'];
+                    
+                    if ($existingOptions !== $newOptions) {
+                        $lessonable->options()->delete();
+                        foreach ($newOptions as $index => $optionText) {
+                            $lessonable->options()->create([
+                                'text' => $optionText,
+                                'order' => $index,
+                            ]);
+                        }
                     }
                     break;
                     case 'lessonwordcloud':
