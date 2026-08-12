@@ -89,5 +89,41 @@
             plugins: 'code table lists image link',
             toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | code | table | image link'
         });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('form[action="{{ route('instructor.modules.lessons.store', $module) }}"]');
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    // Ambil konten dari TinyMCE
+                    var content = tinymce.get('article-content').getContent().trim();
+                    
+                    // Cek jika konten kosong atau hanya tag kosong
+                    if (content === '' || content === '<p>&nbsp;</p>' || content === '<p></p>') {
+                        e.preventDefault(); // Hentikan proses submit
+                        
+                        // Tampilkan SweetAlert2 peringatan
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Peringatan',
+                            text: 'Konten artikel tidak boleh kosong!',
+                            confirmButtonText: 'Tutup',
+                            allowOutsideClick: true
+                        });
+                        
+                        // Kembalikan tombol ke keadaan semula agar bisa diklik lagi
+                        const button = form.querySelector('.js-lesson-submit-btn');
+                        if (button) {
+                            setTimeout(() => {
+                                button.disabled = false;
+                                const spinner = button.querySelector('.js-lesson-submit-spinner');
+                                const text = button.querySelector('.js-lesson-submit-text');
+                                if (text) text.textContent = 'Simpan Pelajaran';
+                                if (spinner) spinner.classList.add('d-none');
+                            }, 10);
+                        }
+                    }
+                });
+            }
+        });
     </script>
 @endpush
