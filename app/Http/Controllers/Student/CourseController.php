@@ -458,6 +458,10 @@ class CourseController extends Controller
         
         $optionIds = is_array($request->polling_option_id) ? $request->polling_option_id : [$request->polling_option_id];
 
+        if ($polling->allow_multiple && $polling->max_choices && count($optionIds) > $polling->max_choices) {
+            return response()->json(['success' => false, 'message' => "Anda maksimal hanya boleh memilih {$polling->max_choices} opsi."]);
+        }
+
         foreach ($optionIds as $optionId) {
             $polling->responses()->create([
                 'user_id' => $user->id,

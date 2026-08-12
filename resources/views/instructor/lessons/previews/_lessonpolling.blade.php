@@ -24,6 +24,12 @@
         @if($polling->description)
             <p class="text-muted">{{ $polling->description }}</p>
         @endif
+        
+        @if($polling->allow_multiple && $polling->max_choices)
+            <div class="alert alert-info">Anda dapat memilih maksimal {{ $polling->max_choices }} opsi.</div>
+        @elseif($polling->allow_multiple)
+            <div class="alert alert-info">Anda dapat memilih lebih dari satu opsi.</div>
+        @endif
 
         @if(!$isActive && !$hasVoted)
             <div class="alert alert-warning">
@@ -114,8 +120,14 @@
                 var isMultiple = {{ $polling->allow_multiple ? 'true' : 'false' }};
                 if (isMultiple) {
                     var checkedCount = form.querySelectorAll('input[name="polling_option_id[]"]:checked').length;
+                    var maxChoices = {{ $polling->max_choices ?? 'null' }};
+                    
                     if (checkedCount === 0) {
                         alert('Silakan pilih minimal satu opsi.');
+                        return;
+                    }
+                    if (maxChoices !== null && checkedCount > maxChoices) {
+                        alert('Anda maksimal hanya boleh memilih ' + maxChoices + ' opsi.');
                         return;
                     }
                 }

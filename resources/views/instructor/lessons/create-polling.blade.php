@@ -91,11 +91,17 @@
                                 <div class="col-sm-10">
                                     <div class="checkbox-fade fade-in-primary">
                                         <label>
-                                            <input type="checkbox" name="allow_multiple" value="1">
+                                            <input type="checkbox" name="allow_multiple" id="allow_multiple" value="1">
                                             <span class="cr"><i class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
                                             <span class="text-inverse">Bisa pilih lebih dari 1 pilihan?</span>
                                         </label>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="form-group row" id="max_choices_container" style="display: none;">
+                                <label class="col-sm-2 col-form-label">Maksimal Pilihan</label>
+                                <div class="col-sm-10">
+                                    <input type="number" name="max_choices" class="form-control" min="2" placeholder="Biarkan kosong jika tidak ada batasan">
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -185,5 +191,9 @@
             row.querySelector('label').textContent = 'Opsi ' + (index + 1);
         });
     }
+
+    document.getElementById('allow_multiple').addEventListener('change', function() {
+        document.getElementById('max_choices_container').style.display = this.checked ? 'flex' : 'none';
+    });
 </script>
 @endpush

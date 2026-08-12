@@ -194,6 +194,7 @@ class LessonController extends Controller
                             'polling_options' => 'required|array|min:2',
                             'polling_options.*' => 'required|string|max:255',
                             'allow_multiple' => 'boolean',
+                            'max_choices' => 'nullable|integer|min:2',
                             'is_active' => 'boolean',
                             'start_time' => 'nullable|date',
                             'end_time' => 'nullable|date|after_or_equal:start_time',
@@ -202,6 +203,7 @@ class LessonController extends Controller
                         ]);
 
                         $allowMultiple = $request->has('allow_multiple');
+                        $maxChoices = $allowMultiple ? $request->input('max_choices') : null;
                         $isActive = $request->has('is_active');
                         $showVoters = $request->has('show_voters');
                         $showResults = $request->has('show_results');
@@ -221,6 +223,7 @@ class LessonController extends Controller
                             'question' => $validated['polling_question'],
                             'description' => $validated['polling_description'],
                             'allow_multiple' => $allowMultiple,
+                            'max_choices' => $maxChoices,
                             'is_active' => $isActive,
                             'start_time' => $startTime,
                             'end_time' => $endTime,
@@ -437,6 +440,7 @@ class LessonController extends Controller
                         'polling_options' => 'required|array|min:2',
                         'polling_options.*' => 'required|string|max:255',
                         'allow_multiple' => 'boolean',
+                        'max_choices' => 'nullable|integer|min:2',
                         'is_active' => 'boolean',
                         'start_time' => 'nullable|date',
                         'end_time' => 'nullable|date|after_or_equal:start_time',
@@ -445,6 +449,7 @@ class LessonController extends Controller
                     ]);
 
                     $allowMultiple = $request->has('allow_multiple');
+                    $maxChoices = $allowMultiple ? $request->input('max_choices') : null;
                     $isActive = $request->has('is_active');
                     $showVoters = $request->has('show_voters');
                     $showResults = $request->has('show_results');
@@ -464,6 +469,7 @@ class LessonController extends Controller
                         'question' => $validated['polling_question'],
                         'description' => $validated['polling_description'],
                         'allow_multiple' => $allowMultiple,
+                        'max_choices' => $maxChoices,
                         'is_active' => $isActive,
                         'start_time' => $startTime,
                         'end_time' => $endTime,
