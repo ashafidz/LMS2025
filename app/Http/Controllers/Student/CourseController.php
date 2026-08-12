@@ -502,6 +502,13 @@ class CourseController extends Controller
             return response()->json(['success' => false, 'message' => 'Tipe pelajaran tidak valid.']);
         }
 
+        $wordCount = count(preg_split('/\s+/', trim($request->word)));
+        $maxWords = $wordcloud->max_words ?? 1;
+        
+        if ($wordCount > $maxWords) {
+             return response()->json(['success' => false, 'message' => "Anda hanya boleh memasukkan maksimal {$maxWords} kata."]);
+        }
+
         // Check if already voted
         $exists = $wordcloud->responses()->where('user_id', auth()->id())->exists();
         if ($exists) {

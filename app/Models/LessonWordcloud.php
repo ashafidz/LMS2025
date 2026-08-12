@@ -12,6 +12,7 @@ class LessonWordcloud extends Model
     protected $fillable = [
         'question',
         'description',
+        'max_words',
         'is_active',
         'start_time',
         'end_time',

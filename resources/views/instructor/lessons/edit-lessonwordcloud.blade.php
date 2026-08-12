@@ -51,6 +51,17 @@
                                         <textarea name="wordcloud_description" class="form-control" rows="4">{{ $lesson->lessonable->description }}</textarea>
                                     </div>
                                 </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 col-form-label">Maksimal Kata</label>
+                                    <div class="col-sm-10">
+                                        <select name="max_words" class="form-control" required>
+                                            <option value="1" {{ optional($lesson->lessonable)->max_words == 1 ? 'selected' : '' }}>1 Kata</option>
+                                            <option value="2" {{ optional($lesson->lessonable)->max_words == 2 ? 'selected' : '' }}>2 Kata</option>
+                                            <option value="3" {{ optional($lesson->lessonable)->max_words == 3 ? 'selected' : '' }}>3 Kata</option>
+                                        </select>
+                                        <small class="text-muted">Berapa banyak kata maksimal yang dapat dikirimkan oleh siswa (1-3).</small>
+                                    </div>
+                                </div>
 
                                 <hr>
                                 <h5 class="mt-4">Pengaturan Waktu & Status (Opsional)</h5>

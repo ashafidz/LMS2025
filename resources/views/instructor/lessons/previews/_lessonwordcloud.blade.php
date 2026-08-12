@@ -40,6 +40,15 @@
                 var lessonId = {{ $lesson->id }};
                 var originalBtnHtml = btn.innerHTML;
                 
+                var wordInput = form.querySelector('input[name=word]').value.trim();
+                var wordCount = wordInput === '' ? 0 : wordInput.split(/\s+/).length;
+                var maxWords = {{ $wordcloud->max_words ?? 1 }};
+                
+                if (wordCount > maxWords) {
+                    alert('Anda hanya boleh memasukkan maksimal ' + maxWords + ' kata.');
+                    return;
+                }
+                
                 btn.disabled = true;
                 btn.innerHTML = '<i class=\'fa fa-spinner fa-spin mr-2\'></i>Mengirim...';
                 
@@ -102,7 +111,7 @@
                             <button class="btn btn-primary px-5" type="submit" style="font-weight: 600; letter-spacing: 1px; text-transform: uppercase;">Kirim</button>
                         </div>
                     </div>
-                    <small class="form-text text-muted mt-2 ml-3">Kirimkan 1 kata yang mewakili jawaban Anda.</small>
+                    <small class="form-text text-muted mt-2 ml-3">Kirimkan maksimal {{ $wordcloud->max_words ?? 1 }} kata yang mewakili jawaban Anda.</small>
                 </div>
             </form>
         @else

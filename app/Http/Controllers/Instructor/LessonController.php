@@ -236,6 +236,7 @@ class LessonController extends Controller
                         $validated = $request->validate([
                             'wordcloud_question' => 'required|string|max:255',
                             'wordcloud_description' => 'nullable|string',
+                            'max_words' => 'required|integer|min:1|max:3',
                             'is_active' => 'boolean',
                             'start_time' => 'nullable|date',
                             'end_time' => 'nullable|date|after_or_equal:start_time',
@@ -257,6 +258,7 @@ class LessonController extends Controller
                         $lessonable = \App\Models\LessonWordcloud::create([
                             'question' => $validated['wordcloud_question'],
                             'description' => $validated['wordcloud_description'],
+                            'max_words' => $validated['max_words'],
                             'is_active' => $isActive,
                             'start_time' => $startTime,
                             'end_time' => $endTime,
@@ -480,6 +482,7 @@ class LessonController extends Controller
                         $validated = $request->validate([
                             'wordcloud_question' => 'required|string|max:255',
                             'wordcloud_description' => 'nullable|string',
+                            'max_words' => 'required|integer|min:1|max:3',
                             'is_active' => 'boolean',
                             'start_time' => 'nullable|date',
                             'end_time' => 'nullable|date|after_or_equal:start_time',
@@ -501,6 +504,7 @@ class LessonController extends Controller
                         $lessonable->update([
                             'question' => $validated['wordcloud_question'],
                             'description' => $validated['wordcloud_description'],
+                            'max_words' => $validated['max_words'],
                             'is_active' => $isActive,
                             'start_time' => $startTime,
                             'end_time' => $endTime,
