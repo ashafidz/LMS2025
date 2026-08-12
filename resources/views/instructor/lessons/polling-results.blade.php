@@ -55,14 +55,16 @@
                                     </button>
                                 </form>
                             </p>
-                            <p><strong>Total Responden:</strong> {{ $totalResponses }}</p>
+                            <p><strong>Total Responden:</strong> {{ $totalVoters }} 
+                                <span class="text-muted small">({{ $totalResponses }} total pilihan)</span>
+                            </p>
                             
                             <h6 class="mt-4">Rincian Jawaban:</h6>
                             <ul class="list-group">
                                 @foreach($options as $option)
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     {{ $option->text }}
-                                    <span class="badge badge-primary badge-pill">{{ $option->responses_count }} ({{ $totalResponses > 0 ? round(($option->responses_count / $totalResponses) * 100) : 0 }}%)</span>
+                                    <span class="badge badge-primary badge-pill">{{ $option->responses_count }} ({{ $totalVoters > 0 ? round(($option->responses_count / $totalVoters) * 100) : 0 }}%)</span>
                                 </li>
                                 @if($option->responses_count > 0)
                                 <div class="px-3 py-2 mb-2 bg-light text-muted small border-left border-right border-bottom" style="margin-top: -1px;">

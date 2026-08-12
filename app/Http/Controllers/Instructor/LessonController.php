@@ -193,6 +193,7 @@ class LessonController extends Controller
                             'polling_description' => 'nullable|string',
                             'polling_options' => 'required|array|min:2',
                             'polling_options.*' => 'required|string|max:255',
+                            'allow_multiple' => 'boolean',
                             'is_active' => 'boolean',
                             'start_time' => 'nullable|date',
                             'end_time' => 'nullable|date|after_or_equal:start_time',
@@ -200,6 +201,7 @@ class LessonController extends Controller
                             'show_results' => 'boolean',
                         ]);
 
+                        $allowMultiple = $request->has('allow_multiple');
                         $isActive = $request->has('is_active');
                         $showVoters = $request->has('show_voters');
                         $showResults = $request->has('show_results');
@@ -218,6 +220,7 @@ class LessonController extends Controller
                         $lessonable = \App\Models\LessonPolling::create([
                             'question' => $validated['polling_question'],
                             'description' => $validated['polling_description'],
+                            'allow_multiple' => $allowMultiple,
                             'is_active' => $isActive,
                             'start_time' => $startTime,
                             'end_time' => $endTime,
@@ -433,6 +436,7 @@ class LessonController extends Controller
                         'polling_description' => 'nullable|string',
                         'polling_options' => 'required|array|min:2',
                         'polling_options.*' => 'required|string|max:255',
+                        'allow_multiple' => 'boolean',
                         'is_active' => 'boolean',
                         'start_time' => 'nullable|date',
                         'end_time' => 'nullable|date|after_or_equal:start_time',
@@ -440,6 +444,7 @@ class LessonController extends Controller
                         'show_results' => 'boolean',
                     ]);
 
+                    $allowMultiple = $request->has('allow_multiple');
                     $isActive = $request->has('is_active');
                     $showVoters = $request->has('show_voters');
                     $showResults = $request->has('show_results');
@@ -458,6 +463,7 @@ class LessonController extends Controller
                     $lessonable->update([
                         'question' => $validated['polling_question'],
                         'description' => $validated['polling_description'],
+                        'allow_multiple' => $allowMultiple,
                         'is_active' => $isActive,
                         'start_time' => $startTime,
                         'end_time' => $endTime,
@@ -566,11 +572,12 @@ class LessonController extends Controller
 
         $options = $polling->options()->with(['responses.user'])->withCount('responses')->get();
         $totalResponses = $polling->responses()->count();
+        $totalVoters = $polling->responses()->distinct('user_id')->count('user_id');
 
         $chartLabels = $options->pluck('text')->toArray();
         $chartData = $options->pluck('responses_count')->toArray();
 
-        return view('instructor.lessons.polling-results', compact('lesson', 'polling', 'options', 'totalResponses', 'chartLabels', 'chartData'));
+        return view('instructor.lessons.polling-results', compact('lesson', 'polling', 'options', 'totalResponses', 'totalVoters', 'chartLabels', 'chartData'));
     }
 
     public function wordcloudResults(Lesson $lesson)

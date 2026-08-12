@@ -89,6 +89,18 @@
                                 </div>
                             </div>
                             <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Izinkan Memilih Banyak</label>
+                                <div class="col-sm-10">
+                                    <div class="checkbox-fade fade-in-primary">
+                                        <label>
+                                            <input type="checkbox" name="allow_multiple" value="1" {{ optional($lesson->lessonable)->allow_multiple ? 'checked' : '' }}>
+                                            <span class="cr"><i class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
+                                            <span class="text-inverse">Bisa pilih lebih dari 1 pilihan?</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <label class="col-sm-2 col-form-label">Tampilkan Pemilih</label>
                                 <div class="col-sm-10">
                                     <div class="checkbox-fade fade-in-primary">

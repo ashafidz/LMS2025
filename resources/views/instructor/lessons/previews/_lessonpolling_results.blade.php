@@ -6,6 +6,9 @@
         }]);
     }
     $options = $query->get();
+    
+    // Count distinct users who voted, not total responses
+    $totalVoters = $polling->responses()->distinct('user_id')->count('user_id');
     $totalResponses = $polling->responses()->count();
     
     $chartLabels = $options->pluck('text')->toArray();
@@ -17,7 +20,7 @@
         <ul class="list-group mb-4">
             @foreach($options as $option)
             @php
-                $percentage = $totalResponses > 0 ? round(($option->responses_count / $totalResponses) * 100) : 0;
+                $percentage = $totalVoters > 0 ? round(($option->responses_count / $totalVoters) * 100) : 0;
             @endphp
             <li class="list-group-item">
                 <div class="d-flex justify-content-between mb-1">

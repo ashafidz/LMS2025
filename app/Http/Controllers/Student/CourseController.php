@@ -425,7 +425,7 @@ class CourseController extends Controller
     public function submitPolling(Request $request, Lesson $lesson)
     {
         $request->validate([
-            'polling_option_id' => 'required|exists:lesson_polling_options,id',
+            'polling_option_id' => 'required',
         ]);
 
         $polling = $lesson->lessonable;
@@ -456,10 +456,14 @@ class CourseController extends Controller
 
         $user = auth()->user();
         
-        $polling->responses()->create([
-            'user_id' => $user->id,
-            'lesson_polling_option_id' => $request->polling_option_id,
-        ]);
+        $optionIds = is_array($request->polling_option_id) ? $request->polling_option_id : [$request->polling_option_id];
+
+        foreach ($optionIds as $optionId) {
+            $polling->responses()->create([
+                'user_id' => $user->id,
+                'lesson_polling_option_id' => $optionId,
+            ]);
+        }
 
         $alreadyCompleted = $user->completedLessons()->where('lesson_id', $lesson->id)->exists();
         $user->completedLessons()->syncWithoutDetaching($lesson->id);

@@ -62,7 +62,10 @@
                 .poll-radio-input:checked + .poll-option-card .poll-radio-circle {
                     border-color: #007bff;
                 }
-                .poll-radio-input:checked + .poll-option-card .poll-radio-circle::after {
+                .poll-radio-input[type="checkbox"] + .poll-option-card .poll-radio-circle {
+                    border-radius: 4px; /* Square for checkbox */
+                }
+                .poll-radio-input[type="radio"]:checked + .poll-option-card .poll-radio-circle::after {
                     content: '';
                     position: absolute;
                     top: 50%;
@@ -72,6 +75,17 @@
                     height: 12px;
                     background-color: #007bff;
                     border-radius: 50%;
+                }
+                .poll-radio-input[type="checkbox"]:checked + .poll-option-card .poll-radio-circle::after {
+                    content: '✓';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: #007bff;
+                    font-size: 16px;
+                    font-weight: bold;
+                    background-color: transparent;
                 }
                 .poll-option-text {
                     font-size: 1.05rem;
@@ -96,6 +110,15 @@
                 var btn = form.querySelector('button[type=submit]');
                 var lessonId = {{ $lesson->id }};
                 var originalBtnHtml = btn.innerHTML;
+                
+                var isMultiple = {{ $polling->allow_multiple ? 'true' : 'false' }};
+                if (isMultiple) {
+                    var checkedCount = form.querySelectorAll('input[name="polling_option_id[]"]:checked').length;
+                    if (checkedCount === 0) {
+                        alert('Silakan pilih minimal satu opsi.');
+                        return;
+                    }
+                }
                 
                 btn.disabled = true;
                 btn.innerHTML = '<span class=\'spinner-border spinner-border-sm\' role=\'status\' aria-hidden=\'true\'></span> Mengirim...';
@@ -143,7 +166,11 @@
                 <div class="form-group mb-4">
                     @foreach($polling->options as $option)
                     <div class="mb-3">
-                        <input type="radio" id="polling-option-{{ $option->id }}" name="polling_option_id" class="poll-radio-input d-none" value="{{ $option->id }}" required>
+                        @if($polling->allow_multiple)
+                            <input type="checkbox" id="polling-option-{{ $option->id }}" name="polling_option_id[]" class="poll-radio-input d-none" value="{{ $option->id }}">
+                        @else
+                            <input type="radio" id="polling-option-{{ $option->id }}" name="polling_option_id" class="poll-radio-input d-none" value="{{ $option->id }}" required>
+                        @endif
                         <label class="poll-option-card" for="polling-option-{{ $option->id }}">
                             <div class="d-flex align-items-center">
                                 <div class="poll-radio-circle mr-3"></div>

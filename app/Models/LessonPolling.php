@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class LessonPolling extends Model
 {
-    protected $fillable = ['question', 'description', 'is_active', 'start_time', 'end_time', 'show_voters', 'show_results'];
+    protected $fillable = ['question', 'description', 'allow_multiple', 'is_active', 'start_time', 'end_time', 'show_voters', 'show_results'];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'allow_multiple' => 'boolean',
         'start_time' => 'datetime',
         'end_time' => 'datetime',
         'show_voters' => 'boolean',
