@@ -110,70 +110,7 @@
                 }
             </style>
             
-            <form id="form-polling-{{ $lesson->id }}" action="{{ route('student.lessons.polling.submit', $lesson->id) }}" data-results-url="{{ route('student.lessons.polling.results.ajax', $lesson->id) }}" method="POST" onsubmit="
-                event.preventDefault();
-                var form = this;
-                var btn = form.querySelector('button[type=submit]');
-                var lessonId = {{ $lesson->id }};
-                var originalBtnHtml = btn.innerHTML;
-                
-                var isMultiple = {{ $polling->allow_multiple ? 'true' : 'false' }};
-                if (isMultiple) {
-                    var checkedCount = form.querySelectorAll('input[name="polling_option_id[]"]:checked').length;
-                    var maxChoices = {{ $polling->max_choices ?? 'null' }};
-                    
-                    if (checkedCount === 0) {
-                        alert('Silakan pilih minimal satu opsi.');
-                        return;
-                    }
-                    if (maxChoices !== null && checkedCount > maxChoices) {
-                        alert('Anda maksimal hanya boleh memilih ' + maxChoices + ' opsi.');
-                        return;
-                    }
-                }
-                
-                btn.disabled = true;
-                btn.innerHTML = '<span class=\'spinner-border spinner-border-sm\' role=\'status\' aria-hidden=\'true\'></span> Mengirim...';
-                
-                fetch(form.action, {
-                    method: 'POST',
-                    body: new FormData(form),
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                })
-                .then(function(res) { return res.json(); })
-                .then(function(data) {
-                    if (data.success) {
-                        var container = document.getElementById('polling-container-' + lessonId);
-                        var resultsUrl = form.getAttribute('data-results-url');
-                        var showResults = {{ $polling->show_results ? 'true' : 'false' }};
-                        
-                        if (showResults) {
-                            container.innerHTML = '<div class=\'alert alert-success\'>Berhasil mengirim jawaban! Memuat hasil...</div><div id=\'polling-results-'+lessonId+'\'></div>';
-                            
-                            fetch(resultsUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                            .then(function(r) { return r.text(); })
-                            .then(function(html) {
-                                var resDiv = document.getElementById('polling-results-' + lessonId);
-                                resDiv.innerHTML = html;
-                                var scripts = resDiv.getElementsByTagName('script');
-                                for(var i=0; i<scripts.length; i++) eval(scripts[i].innerText);
-                            });
-                        } else {
-                            container.innerHTML = '<div class=\'alert alert-success\'>Berhasil mengirim jawaban! Terima kasih atas partisipasi Anda.</div>';
-                        }
-                    } else {
-                        alert(data.message || 'Terjadi kesalahan');
-                        btn.disabled = false;
-                        btn.innerHTML = originalBtnHtml;
-                    }
-                })
-                .catch(function(err) {
-                    console.error(err);
-                    alert('Terjadi kesalahan jaringan.');
-                    btn.disabled = false;
-                    btn.innerHTML = originalBtnHtml;
-                });
-            ">
+            <form id="form-polling-{{ $lesson->id }}" action="{{ route('student.lessons.polling.submit', $lesson->id) }}" data-results-url="{{ route('student.lessons.polling.results.ajax', $lesson->id) }}" method="POST">
                 @csrf
                 <div class="form-group mb-4">
                     @foreach($polling->options as $option)
@@ -196,6 +133,73 @@
                     <i class="bi bi-send-fill mr-1"></i> Kirim Jawaban
                 </button>
             </form>
+
+            <script>
+                document.getElementById('form-polling-{{ $lesson->id }}').addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    var form = this;
+                    var btn = form.querySelector('button[type=submit]');
+                    var lessonId = {{ $lesson->id }};
+                    var originalBtnHtml = btn.innerHTML;
+                    
+                    var isMultiple = {{ $polling->allow_multiple ? 'true' : 'false' }};
+                    if (isMultiple) {
+                        var checkedCount = form.querySelectorAll('input[name="polling_option_id[]"]:checked').length;
+                        var maxChoices = {{ $polling->max_choices ?? 'null' }};
+                        
+                        if (checkedCount === 0) {
+                            alert('Silakan pilih minimal satu opsi.');
+                            return;
+                        }
+                        if (maxChoices !== null && checkedCount > maxChoices) {
+                            alert('Anda maksimal hanya boleh memilih ' + maxChoices + ' opsi.');
+                            return;
+                        }
+                    }
+                    
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...';
+                    
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: new FormData(form),
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        if (data.success) {
+                            var container = document.getElementById('polling-container-' + lessonId);
+                            var resultsUrl = form.getAttribute('data-results-url');
+                            var showResults = {{ $polling->show_results ? 'true' : 'false' }};
+                            
+                            if (showResults) {
+                                container.innerHTML = '<div class="alert alert-success">Berhasil mengirim jawaban! Memuat hasil...</div><div id="polling-results-'+lessonId+'"></div>';
+                                
+                                fetch(resultsUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                                .then(function(r) { return r.text(); })
+                                .then(function(html) {
+                                    var resDiv = document.getElementById('polling-results-' + lessonId);
+                                    resDiv.innerHTML = html;
+                                    var scripts = resDiv.getElementsByTagName('script');
+                                    for(var i=0; i<scripts.length; i++) eval(scripts[i].innerText);
+                                });
+                            } else {
+                                container.innerHTML = '<div class="alert alert-success">Berhasil mengirim jawaban! Terima kasih atas partisipasi Anda.</div>';
+                            }
+                        } else {
+                            alert(data.message || 'Terjadi kesalahan');
+                            btn.disabled = false;
+                            btn.innerHTML = originalBtnHtml;
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error(err);
+                        alert('Terjadi kesalahan jaringan.');
+                        btn.disabled = false;
+                        btn.innerHTML = originalBtnHtml;
+                    });
+                });
+            </script>
         @else
             <!-- Hasil Polling setelah memilih (atau jika sudah memilih) -->
             <div class="alert alert-success">Anda sudah memberikan suara pada polling ini. @if($polling->show_results) Berikut adalah hasil saat ini: @endif</div>
