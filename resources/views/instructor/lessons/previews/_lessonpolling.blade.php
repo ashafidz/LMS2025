@@ -174,6 +174,28 @@
                     btn.innerHTML = originalBtnHtml;
                 });
             ">
+                @csrf
+                <div class="form-group mb-4">
+                    @foreach($polling->options as $option)
+                    <div class="mb-3">
+                        @if($polling->allow_multiple)
+                            <input type="checkbox" id="polling-option-{{ $option->id }}" name="polling_option_id[]" class="poll-radio-input d-none" value="{{ $option->id }}">
+                        @else
+                            <input type="radio" id="polling-option-{{ $option->id }}" name="polling_option_id" class="poll-radio-input d-none" value="{{ $option->id }}" required>
+                        @endif
+                        <label class="poll-option-card" for="polling-option-{{ $option->id }}">
+                            <div class="d-flex align-items-center">
+                                <div class="poll-radio-circle mr-3"></div>
+                                <span class="poll-option-text">{{ $option->text }}</span>
+                            </div>
+                        </label>
+                    </div>
+                    @endforeach
+                </div>
+                <button type="submit" class="btn btn-primary btn-poll-submit shadow-sm" id="btn-submit-polling-{{ $lesson->id }}">
+                    <i class="bi bi-send-fill mr-1"></i> Kirim Jawaban
+                </button>
+            </form>
         @else
             <!-- Hasil Polling setelah memilih (atau jika sudah memilih) -->
             <div class="alert alert-success">Anda sudah memberikan suara pada polling ini. @if($polling->show_results) Berikut adalah hasil saat ini: @endif</div>
