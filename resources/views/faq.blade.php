@@ -1,6 +1,6 @@
 @extends('layouts.home-layout')
 
-@section('title', 'Wahana Edukasi')
+@section('title', 'Ruang Studi')
 
 @section('content')
 <!-- Faq Section -->

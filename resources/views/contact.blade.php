@@ -1,6 +1,6 @@
 @extends('layouts.home-layout')
 
-@section('title', 'Wahana Edukasi')
+@section('title', 'Ruang Studi')
 
 @section('content')
 <!-- Contact Section -->
@@ -48,8 +48,8 @@
                 </div>
                 <div class="content">
                   <h4>Alamat Email</h4>
-                  <p>wahanaedukasi@example.com</p>
-                  <p>wahanaedukasi@example.com</p>
+                  <p>wahanamediadigital@gmail.com</p>
+                  <p>wahanamediadigital@gmail.com</p>
                 </div>
               </div>
             </div>
