@@ -21,6 +21,7 @@
         <table class="table table-hover">
             <thead>
                 <tr>
+                    <th>No</th>
                     <th class="text-center">NIM/NIP/NIDN</th>
                     <th>Nama Siswa</th>
                     <th>Email</th>
@@ -29,13 +30,14 @@
             <tbody>
                 @forelse ($enrolledStudents as $student)
                     <tr>
+                        <td>{{ $loop->iteration }}</td>
                         <td class="text-center">{{ $student->studentProfile->unique_id_number ?? '-' }}</td>
                         <td><a href="{{ route('profile.show', $student->id) }}">{{ $student->name }}</a></td>
                         <td>{{ $student->email }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="3" class="text-center">Belum ada siswa yang terdaftar di kursus ini.</td>
+                        <td colspan="4" class="text-center">Belum ada siswa yang terdaftar di kursus ini.</td>
                     </tr>
                 @endforelse
             </tbody>

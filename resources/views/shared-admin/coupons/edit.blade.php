@@ -112,13 +112,7 @@
 </div>
 
 
-                                        <hr>
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Batas Penggunaan</label>
-                                            <div class="col-sm-10">
-                                                <input type="number" name="max_uses" class="form-control" value="{{ old('max_uses', $coupon->max_uses) }}" placeholder="Kosongkan jika tidak terbatas">
-                                            </div>
-                                        </div>
+
                                         <div class="form-group row">
                                             <label class="col-sm-2 col-form-label">Masa Berlaku</label>
                                             <div class="col-sm-5">
