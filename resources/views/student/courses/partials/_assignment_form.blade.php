@@ -1,6 +1,6 @@
 {{-- resources/views/student/courses/partials/_assignment_form.blade.php --}}
 
-<form action="{{ route('student.assignment.submit', $assignment) }}" method="POST" enctype="multipart/form-data" id="assignment-submit-form" onsubmit="return validateAssignmentForm()">
+<form action="{{ route('student.assignment.submit', $assignment) }}" method="POST" enctype="multipart/form-data" id="assignment-submit-form" onsubmit="var f=document.getElementById('submission_file'); if(f && f.files.length>0 && f.files[0].size>20*1024*1024){ alert('Ukuran file melebihi 20MB!'); return false; } return true;">
     @csrf
     <div class="form-group mb-4">
         <label for="submission_file" class="font-weight-bold text-dark mb-2">Pilih File Tugas (PDF atau ZIP)</label>
@@ -8,7 +8,32 @@
         <div id="file-size-alert-container"></div>
         
         <div class="custom-file">
-            <input type="file" name="submission_file" class="custom-file-input" id="submission_file" required accept=".pdf,.zip" onchange="checkAssignmentFileSize(this)">
+            <input type="file" name="submission_file" class="custom-file-input" id="submission_file" required accept=".pdf,.zip" 
+            onchange="
+                var file = this.files[0];
+                var alertContainer = document.getElementById('file-size-alert-container');
+                var nextSibling = document.getElementById('submission_file_label');
+                var submitBtn = document.getElementById('submit-assignment-btn');
+                
+                if (!file) {
+                    nextSibling.innerText = 'Choose file...';
+                    alertContainer.innerHTML = '';
+                    submitBtn.disabled = false;
+                    return;
+                }
+                
+                nextSibling.innerText = file.name;
+                var maxSize = 20 * 1024 * 1024;
+                alertContainer.innerHTML = '';
+                submitBtn.disabled = false;
+                
+                if (file.size > maxSize) {
+                    alertContainer.innerHTML = '<div class=\'alert alert-danger alert-dismissible fade show\' role=\'alert\'><strong>Peringatan!</strong> Ukuran file melebihi batas maksimal 20MB. Silakan pilih file yang lebih kecil.<button type=\'button\' class=\'close\' data-dismiss=\'alert\' aria-label=\'Close\'><span aria-hidden=\'true\'>&times;</span></button></div>';
+                    this.value = '';
+                    nextSibling.innerText = 'Choose file...';
+                    submitBtn.disabled = true;
+                }
+            ">
             <label class="custom-file-label" id="submission_file_label" for="submission_file">Choose file...</label>
         </div>
         <small class="form-text text-muted mt-2"><i class="fa fa-info-circle mr-1"></i>Ukuran file maksimal: 20MB.</small>
