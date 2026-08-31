@@ -1,65 +1,49 @@
-## linux ubuntu development setup :
+# ruangstudi.id
 
-- menggunakan docker/podman untuk service database development
-- pakai php dan composer installed natively
-- nodejs via nvm
+ruangstudi.id is a comprehensive Learning Management System built with the Laravel framework, designed to handle courses, quizzes, assignments, and more in an interactive and user-friendly environment.
 
-### pastikan pakai php versi terbaru dan tools tools standard laravel
+## 🚀 Features
 
-```
-# 1. Tambahkan repository PHP jika belum ada
-sudo add-apt-repository ppa:ondrej/php -y
-sudo apt update
+- **Course Management:** Create, organize, and manage learning materials easily.
+- **Quizzes & Assignments:** Interactive quiz system and drag-and-drop assignment submissions with size validation.
+- **User Roles & Permissions:** Robust role management (Instructor, Student, Admin).
+- **Gamification:** Badges, leaderboards, and point system.
+- **Modern UI/UX:** Responsive design with smooth user interactions.
 
-# 2. Instal PHP 8.4 dan extension yang dibutuhkan Laravel
-sudo apt install php8.4 php8.4-cli php8.4-common php8.4-xml php8.4-mbstring php8.4-curl php8.4-zip php8.4-mysql php8.4-sqlite3 php8.4-gd php8.4-bcmath php8.4-intl -y
+## 📋 Requirements
 
-# 3. Ubah default CLI sistem ke PHP 8.4
-sudo update-alternatives --set php /usr/bin/php8.4
+To run this project, you will need:
+- PHP >= 8.3
+- Composer
+- Node.js >= 20 & NPM
+- Database (MySQL / SQLite / PostgreSQL)
+- Docker & Podman (Optional, for containerized development services)
 
-```
+## 🛠️ Installation & Setup
 
-### install composer
+We have prepared a comprehensive guide for setting up your development environment.
 
-```
-wget https://getcomposer.org/composer.phar
-sudo mv composer.phar /usr/local/bin/composer
-sudo chmod +x /usr/local/bin/composer
-composer --version
-```
+Please refer to the documentation:
+- [Ubuntu Development Setup](docs/ubuntu-development-setup.md)
 
-### install nodejs
+### Quick Start
+1. Clone the repository
+2. Copy `.env.example` to `.env` and configure your database
+3. Run `composer install`
+4. Run `npm install` and `npm run dev`
+5. Generate application key: `php artisan key:generate`
+6. Run migrations & seeders: `php artisan migrate --seed`
+7. Start the local server: `php artisan serve`
 
-```
-curl -o- https://github.com/nvm-sh/nvm | bash
-source ~/.bashrc
-nvm install 22
-nvm use 22
-nvm alias default 22
-```
+## 🔄 CI/CD & Branching Strategy
 
-### setup backend:
+This project follows an organized Branching Strategy (inspired by GitFlow) and uses GitHub Actions for CI/CD:
 
-```
-cd backend
-composer install
-php artisan key:generate
-cp .env.example .env // sesuakan cred db dengan docker-compose.yml
-docker compose up -d --force-recreate //ganti port apabila port sudah terpakai dan sesuaikan kembali .env
-php artisan migrate
-php artisan db:seed        # role (termasuk role AMI & RKK), master data, user default
-php artisan serve
-```
+- **`main`**: Production-ready code. Commits pushed here trigger automatic deployment to the Production Server.
+- **`develop`**: Main integration branch for all new features.
+- **`development-ai`**: A dedicated long-lived epic branch for continuous AI-feature development, deployed automatically to a separate VPS environment.
+- **Continuous Integration (CI)**: Any Pull Request to `main`, `develop`, or `development-ai` will automatically run Code Linting (Laravel Pint) and Unit Tests (PHPUnit) to ensure code stability.
 
-### setup frontend:
+## 📄 License
 
-```
-npm install
-npm run dev
-```
-
-### access default
-```
-http://localhost:8000/ project
-http://localhost:8025/ mailhog
-```
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT). This project inherits and complies with the necessary licensing.

@@ -15,3 +15,6 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Memperbaiki keseluruhan *User Experience* (UX) pada form pengumpulan tugas siswa agar lebih ramah pengguna (*user friendly*) dan interaktif.
+- Menerapkan arsitektur percabangan standar industri (GitFlow) dengan branch `develop` sebagai pusat integrasi.
+- Menambahkan pipeline CI otomatis (`.github/workflows/ci.yml`) untuk menjalankan Testing (PHPUnit) dan pengecekan standar penulisan kode (Laravel Pint) pada setiap Pull Request dan Push.
+- Merapikan `README.md` menjadi standar industri dan merelokasi panduan instalasi lokal ke `docs/ubuntu-development-setup.md`.
