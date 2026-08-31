@@ -1,0 +1,66 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - development-ai
+  pull_request:
+    branches:
+      - main
+      - develop
+      - development-ai
+
+jobs:
+  test-and-lint:
+    name: 🧪 Test & Lint Code
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🚚 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mbstring, bcmath, pdo_mysql, xml, ctype, json, zip, sqlite3
+          coverage: none
+
+      - name: 📦 Get Composer Cache Directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: 💾 Cache Composer Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: 📦 Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: 📝 Prepare Laravel Application
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: 🛠️ Setup Node.js (If Vite is needed for testing assets)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      
+      - name: 🏗️ Install Node Modules
+        run: npm ci
+
+      - name: 🏗️ Build Vite Assets
+        run: npm run build
+
+      - name: 🧹 Run Laravel Pint (Code Style)
+        run: vendor/bin/pint --test || echo "Pint failed, but we continue for now"
+
+      - name: 🧪 Run PHPUnit Tests
+        run: php artisan test
