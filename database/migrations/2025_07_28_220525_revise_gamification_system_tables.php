@@ -24,7 +24,9 @@ return new class extends Migration
             // Mengubah ENUM memerlukan DBAL, cara amannya adalah dengan mengubah ke string lalu kembali ke enum
             $table->string('payment_type')->default('money')->change();
         });
-        DB::statement("ALTER TABLE courses CHANGE payment_type payment_type ENUM('money', 'diamonds') DEFAULT 'money'");
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE courses CHANGE payment_type payment_type ENUM('money', 'diamonds') DEFAULT 'money'");
+        }
 
 
         // 3. Memperbarui tabel 'point_histories': Tambahkan course_id
@@ -73,7 +75,9 @@ return new class extends Migration
             $table->renameColumn('diamond_price', 'points_price');
             $table->string('payment_type')->default('money')->change();
         });
-        DB::statement("ALTER TABLE courses CHANGE payment_type payment_type ENUM('money', 'points') DEFAULT 'money'");
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE courses CHANGE payment_type payment_type ENUM('money', 'points') DEFAULT 'money'");
+        }
 
 
         Schema::table('users', function (Blueprint $table) {
