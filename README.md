@@ -37,12 +37,10 @@ Please refer to the documentation:
 
 ## 🔄 CI/CD & Branching Strategy
 
-This project follows an organized Branching Strategy (inspired by GitFlow) and uses GitHub Actions for CI/CD:
+This project follows an organized Branching Strategy (inspired by GitFlow) and uses GitHub Actions for CI/CD.
 
-- **`main`**: Production-ready code. Commits pushed here trigger automatic deployment to the Production Server.
-- **`develop`**: Main integration branch for all new features.
-- **`development-ai`**: A dedicated long-lived epic branch for continuous AI-feature development, deployed automatically to a separate VPS environment.
-- **Continuous Integration (CI)**: Any Pull Request to `main`, `develop`, or `development-ai` will automatically run Code Linting (Laravel Pint) and Unit Tests (PHPUnit) to ensure code stability.
+For a detailed explanation of our branching rules, environments, and workflows, please refer to the documentation:
+- [Branching Strategy & CI/CD Guide](docs/branching-strategy.md)
 
 ## 📄 License
 
