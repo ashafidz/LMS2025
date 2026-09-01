@@ -28,8 +28,8 @@ class DiamondService
         $pointsToConvert = $courseUser->pivot->points_earned;
 
         // LOGIKA BARU: Ambil rasio konversi dari pengaturan
-        $settings = cache()->remember('site_settings', now()->addMinutes(60), fn() => SiteSetting::firstOrFail());
-        $conversionRate = $settings->point_to_diamond_rate;
+        $settings = cache()->remember('site_settings', now()->addMinutes(60), fn() => SiteSetting::first());
+        $conversionRate = $settings?->point_to_diamond_rate ?? 0;
 
         // Hitung diamond yang didapat
         $diamondsEarned = floor($pointsToConvert * $conversionRate);

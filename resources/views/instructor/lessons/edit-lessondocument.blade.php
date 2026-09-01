@@ -72,8 +72,16 @@
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Unggah File Baru (Opsional)</label>
                                                 <div class="col-sm-10">
-                                                    <input type="file" name="document_file" class="form-control" accept=".pdf">
-                                                    <small class="form-text text-muted">Pilih file baru jika Anda ingin mengganti file saat ini. Format: PDF. Maks: 20MB.</small>
+                                                    <div class="border rounded p-4 text-center" style="border: 2px dashed #cccccc !important; background-color: #f8f9fa;">
+                                                        <i class="fa fa-upload text-primary mb-2" style="font-size: 3rem;"></i>
+                                                        <h6 class="font-weight-bold">Ganti File PDF</h6>
+                                                        <p class="text-muted small mb-3">Pilih file baru jika Anda ingin mengganti dokumen yang saat ini sudah diunggah</p>
+                                                        <input type="file" name="document_file" class="form-control-file mx-auto d-block" style="max-width: 250px;" accept=".pdf">
+                                                        <div class="mt-3">
+                                                            <span class="badge badge-info p-2 mr-1"><i class="fa fa-file-pdf-o"></i> Format PDF</span>
+                                                            <span class="badge badge-warning p-2"><i class="fa fa-hdd-o"></i> Maks 20MB</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
 

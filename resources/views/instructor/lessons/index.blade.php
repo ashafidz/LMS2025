@@ -33,13 +33,18 @@
                                 <div class="card-header">
                                     <h5>Daftar Pelajaran</h5>
                                     <span>Seret dan lepas pelajaran untuk mengubah urutan.</span>
-                                    <div class="card-header-right">
+                                    <div class="card-header-right d-none d-md-block">
                                         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#selectLessonTypeModal">
                                             <i class="bi bi-plus-lg text-white"></i> Buat Pelajaran Baru
                                         </button>
                                     </div>
                                 </div>
                                 <div class="card-block">
+                                    <div class="d-block d-md-none mb-3">
+                                        <button type="button" class="btn btn-primary w-100" data-toggle="modal" data-target="#selectLessonTypeModal">
+                                            <i class="bi bi-plus-lg text-white me-1"></i> Buat Pelajaran Baru
+                                        </button>
+                                    </div>
                                     @if (session('success'))
                                         <div class="alert alert-success">{{ session('success') }}</div>
                                     @endif
@@ -48,74 +53,67 @@
                                         @forelse ($lessons as $lesson)
                                             <div class="card" data-id="{{ $lesson->id }}">
                                                 <div class="card-body d-flex justify-content-between align-items-center p-3">
-                                                    <div>
-                                                        <i class="fa fa-bars handle text-muted mr-3" style="cursor: move;"></i>
-                                                        <span class="badge badge-info ml-2">{{ ucfirst(str_replace('lesson', '', strtolower(class_basename($lesson->lessonable_type)))) }}</span>
-                                                        <strong>{{ $lesson->title }}</strong>
+                                                    <div class="d-flex align-items-center overflow-hidden me-2">
+                                                        <i class="fa fa-bars handle text-muted mr-3 flex-shrink-0" style="cursor: move;"></i>
+                                                        <div class="text-truncate">
+                                                            <strong class="d-block mb-1 text-truncate">{{ $lesson->title }}</strong>
+                                                            <span class="badge badge-info">{{ ucfirst(str_replace('lesson', '', strtolower(class_basename($lesson->lessonable_type)))) }}</span>
+                                                        </div>
                                                     </div>
-
-                                                    <div class="text-right">
-                                                        <div class="mb-2">
-                                                            @php
-                                                                $lessonType = strtolower(class_basename($lesson->lessonable_type));
-                                                            @endphp
-    
-                                                            @if ($lessonType === 'quiz')
-                                                                <a href="{{ route('student.quiz.start', ['quiz' => $lesson->lessonable, 'preview' => 'true']) }}" target="_blank" class="btn btn-warning btn-sm text-dark" title="Pratinjau Kuis di Tab Baru">
-                                                                    <i class="bi bi-eye me-1"></i>Pratinjau
-                                                                </a>
-                                                            @else
-                                                                <button type="button" class="btn btn-warning btn-sm text-dark" data-toggle="modal" data-target="#previewModal-{{ $lesson->id }}"><i class="bi bi-eye me-1"></i>
-                                                                    Pratinjau
-                                                                </button>
-                                                            @endif
-                                                            @if ($lessonType === 'quiz')
-                                                                <!-- Button Pengaturan Keamanan -->
-                                                                <a href="{{ route('instructor.quiz.security.edit', $lesson->lessonable) }}" 
-                                                                class="btn btn-secondary btn-sm" 
-                                                                title="Pengaturan Keamanan Kuis">
-                                                                    <i class="fa fa-shield me-1"></i>Opsi Keamanan Kuis
-                                                                </a>
-
-                                                                <!-- Button Review Monitoring -->
-                                                                <a href="{{ route('instructor.quiz.monitoring.review', $lesson->lessonable) }}" 
-                                                                class="btn btn-warning btn-sm text-dark" 
-                                                                title="Review Monitoring & Integritas">
-                                                                    <i class="fa fa-eye me-1"></i>Hasil Pelanggaran Quiz
-                                                                </a>
+                                                    
+                                                    @php $lessonType = strtolower(class_basename($lesson->lessonable_type)); @endphp
+                                                    
+                                                    <div class="d-flex align-items-center flex-shrink-0" style="gap: 5px;">
+                                                        @if ($lessonType === 'quiz')
+                                                            <a href="{{ route('instructor.quizzes.manage_questions', $lesson->lessonable) }}" class="btn btn-primary btn-sm" title="Kelola Soal">
+                                                                <i class="fa fa-pencil-square"></i> <span class="d-none d-md-inline ms-1">Kelola Soal</span>
+                                                            </a>
+                                                        @else
+                                                            <a href="{{ route('instructor.lessons.edit', $lesson) }}" class="btn btn-primary btn-sm" title="Edit Pelajaran">
+                                                                <i class="fa fa-pencil"></i> <span class="d-none d-md-inline ms-1">Edit</span>
+                                                            </a>
+                                                        @endif
+                                                        
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false" title="Aksi Lainnya" data-boundary="window">
+                                                                <i class="fa fa-cog"></i>
+                                                            </button>
+                                                            <div class="dropdown-menu dropdown-menu-right shadow">
+                                                                @if ($lessonType === 'quiz')
+                                                                    <a class="dropdown-item" href="{{ route('instructor.lessons.edit', $lesson) }}"><i class="fa fa-pencil text-info me-2"></i> Edit Judul Kuis</a>
+                                                                    <a class="dropdown-item" href="{{ route('student.quiz.start', ['quiz' => $lesson->lessonable, 'preview' => 'true']) }}" target="_blank"><i class="bi bi-eye text-primary me-2"></i> Pratinjau Kuis</a>
+                                                                    <div class="dropdown-divider"></div>
+                                                                    <h6 class="dropdown-header">Laporan & Pengaturan</h6>
+                                                                    <a class="dropdown-item" href="{{ route('instructor.quiz.results', $lesson->lessonable) }}"><i class="fa fa-calculator text-success me-2"></i> Lihat Nilai Siswa</a>
+                                                                    <a class="dropdown-item" href="{{ route('instructor.quiz.security.edit', $lesson->lessonable) }}"><i class="fa fa-shield text-info me-2"></i> Opsi Keamanan Kuis</a>
+                                                                    <a class="dropdown-item" href="{{ route('instructor.quiz.monitoring.review', $lesson->lessonable) }}"><i class="fa fa-eye text-warning me-2"></i> Hasil Pelanggaran</a>
+                                                                @else
+                                                                    <button class="dropdown-item" type="button" data-toggle="modal" data-target="#previewModal-{{ $lesson->id }}">
+                                                                        <i class="bi bi-eye text-primary me-2"></i> Pratinjau
+                                                                    </button>
+                                                                    @if ($lessonType === 'lessonassignment')
+                                                                        <a class="dropdown-item" href="{{ route('instructor.assignment.submissions', $lesson->lessonable) }}"><i class="fas fa-file-alt text-success me-2"></i> Lihat Pengumpulan</a>
+                                                                    @endif
+                                                                    @if ($lessonType === 'lessonpoint')
+                                                                        <a class="dropdown-item" href="{{ route('instructor.lesson_points.manage', $lesson) }}"><i class="bi bi-gear-fill text-info me-2"></i> Kelola LessonPoin</a>
+                                                                    @endif
+                                                                    @if ($lessonType === 'lessonpolling')
+                                                                        <a class="dropdown-item" href="{{ route('instructor.lessons.polling.results', $lesson) }}"><i class="fa fa-bar-chart text-success me-2"></i> Lihat Hasil Polling</a>
+                                                                    @endif
+                                                                    @if ($lessonType === 'lessonwordcloud')
+                                                                        <a class="dropdown-item" href="{{ route('instructor.lessons.wordcloud.results', $lesson) }}"><i class="fa fa-cloud text-info me-2"></i> Lihat Hasil Word Cloud</a>
+                                                                    @endif
+                                                                @endif
                                                                 
-                                                                <a href="{{ route('instructor.quiz.results', $lesson->lessonable) }}" class="btn btn-info btn-sm"><i class="fa fa-calculator me-1"></i>Lihat Nilai</a>
-                                                                <a href="{{ route('instructor.quizzes.manage_questions', $lesson->lessonable) }}" class="btn btn-success btn-sm"><i class="fa fa-pencil-square me-1"></i>Kelola Soal</a>
-                                                            @endif
-                                                            
-                                                            {{-- TOMBOL BARU UNTUK TUGAS (ASSIGNMENT) --}}
-                                                            @if ($lessonType === 'lessonassignment')
-                                                                <a href="{{ route('instructor.assignment.submissions', $lesson->lessonable) }}" class="btn btn-success btn-sm"><i class="fas fa-file-alt"></i>Lihat Pengumpulan</a>
-                                                            @endif
-    
-                                                            @if ($lessonType === 'lessonpoint')
-                                                                <a href="{{ route('instructor.lesson_points.manage', $lesson) }}" class="btn btn-success btn-sm"><i class="bi bi-gear-fill"></i>Kelola LessonPoin</a>
-                                                            @endif
-                                                            
-                                                            @if ($lessonType === 'lessonpolling')
-                                                                <a href="{{ route('instructor.lessons.polling.results', $lesson) }}" class="btn btn-info btn-sm"><i class="fa fa-bar-chart"></i>Lihat Hasil</a>
-                                                            @endif
-                                                            
-                                                            @if ($lessonType === 'lessonwordcloud')
-                                                                <a href="{{ route('instructor.lessons.wordcloud.results', $lesson) }}" class="btn btn-info btn-sm"><i class="fa fa-cloud"></i>Lihat Hasil</a>
-                                                            @endif
+                                                                <div class="dropdown-divider"></div>
+                                                                <form action="{{ route('instructor.lessons.destroy', $lesson) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pelajaran ini?');">
+                                                                    @csrf @method('DELETE')
+                                                                    <button type="submit" class="dropdown-item text-danger">
+                                                                        <i class="fa fa-trash text-danger me-2"></i> Hapus Pelajaran
+                                                                    </button>
+                                                                </form>
+                                                            </div>
                                                         </div>
-                                                        <div>
-                                                            <a href="{{ route('instructor.lessons.edit', $lesson) }}" class="btn btn-primary btn-sm"><i class="fa fa-pencil"></i>Edit</a>
-                                                        <form action="{{ route('instructor.lessons.destroy', $lesson) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pelajaran ini?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i>Hapus</button>
-                                                        </form>
-                                                        </div>
-
-
-
                                                     </div>
                                                 </div>
                                             </div>
@@ -187,6 +185,28 @@
 @endsection
 
 @push('scripts')
+    <style>
+        .sortable-ghost {
+            opacity: 0.4;
+            background-color: #f8f9fa;
+            border: 2px dashed #007bff !important;
+        }
+        .sortable-chosen {
+            background-color: #e9ecef;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+            transform: scale(1.02);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .handle {
+            cursor: grab !important;
+        }
+        .handle:active {
+            cursor: grabbing !important;
+        }
+        #lesson-list .card {
+            transition: transform 0.2s ease;
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -194,7 +214,10 @@
             if (el) {
                 const sortable = new Sortable(el, {
                     handle: '.handle',
-                    animation: 150,
+                    animation: 350,
+                    easing: "cubic-bezier(1, 0, 0, 1)",
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
                     onEnd: function (evt) {
                         const lessonIds = Array.from(el.children).map(child => child.dataset.id);
                         fetch('{{ route("instructor.modules.lessons.reorder", $module) }}', {
