@@ -73,7 +73,7 @@
                                                 @forelse ($courses as $course)
                                                     <tr>
                                                         <th scope="row" class="d-none d-md-table-cell align-middle">{{ $loop->iteration }}</th>
-                                                        <td class="align-middle">
+                                                        <td class="align-middle text-wrap" style="max-width: 150px; word-wrap: break-word;">
                                                             <strong>{{ $course->title }}</strong>
                                                             {{-- Info Status dan Kategori Khusus Mobile --}}
                                                             <div class="d-block d-md-none mt-1">
