@@ -93,7 +93,7 @@ class PointService
     {
         // Ambil pengaturan poin dari database (menggunakan cache untuk efisiensi)
         $settings = cache()->remember('site_settings', now()->addMinutes(60), function () {
-            return SiteSetting::firstOrFail();
+            return SiteSetting::first();
         });
 
         $pointsToAdd = 0;
@@ -104,35 +104,35 @@ class PointService
 
         switch ($activity) {
             case 'purchase':
-                $pointsToAdd = $settings->points_for_purchase;
+                $pointsToAdd = $settings?->points_for_purchase ?? 0;
                 $description = 'Membeli kursus: ' . $course->title;
                 break;
             case 'complete_article':
-                $pointsToAdd = $settings->points_for_article;
+                $pointsToAdd = $settings?->points_for_article ?? 0;
                 $description = 'Menyelesaikan artikel: ' . $description_meta;
                 break;
             case 'complete_video':
-                $pointsToAdd = $settings->points_for_video;
+                $pointsToAdd = $settings?->points_for_video ?? 0;
                 $description = 'Menyelesaikan video: ' . $description_meta;
                 break;
             case 'complete_document':
-                $pointsToAdd = $settings->points_for_document;
+                $pointsToAdd = $settings?->points_for_document ?? 0;
                 $description = 'Menyelesaikan dokumen: ' . $description_meta;
                 break;
             case 'pass_quiz':
-                $pointsToAdd = $settings->points_for_quiz;
+                $pointsToAdd = $settings?->points_for_quiz ?? 0;
                 $description = 'Lulus kuis: ' . $description_meta;
                 break;
             case 'pass_assignment':
-                $pointsToAdd = $settings->points_for_assignment;
+                $pointsToAdd = $settings?->points_for_assignment ?? 0;
                 $description = 'Mengirimkan tugas: ' . $description_meta;
                 break;
             case 'complete_polling':
-                $pointsToAdd = $settings->points_for_polling;
+                $pointsToAdd = $settings?->points_for_polling ?? 0;
                 $description = 'Mengisi polling: ' . $description_meta;
                 break;
             case 'complete_wordcloud':
-                $pointsToAdd = $settings->points_for_wordcloud;
+                $pointsToAdd = $settings?->points_for_wordcloud ?? 0;
                 $description = 'Mengisi word cloud: ' . $description_meta;
                 break;
         }

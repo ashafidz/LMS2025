@@ -34,12 +34,16 @@
                                 <div class="card-header">
                                     <h5>List Modul</h5>
                                     <span>Seret dan lepaskan modul untuk mengubah urutannya.</span>
-                                    <div class="card-header-right">
+                                    <div class="card-header-right d-none d-md-block">
                                         <a href="{{ route('instructor.courses.modules.create', $course) }}" class="btn btn-primary">
                                             <i class="bi bi-plus-lg text-white"></i> Buat Modul Baru</a>
                                     </div>
                                 </div>
                                 <div class="card-block">
+                                    <div class="d-block d-md-none mb-3">
+                                        <a href="{{ route('instructor.courses.modules.create', $course) }}" class="btn btn-primary w-100">
+                                            <i class="bi bi-plus-lg text-white me-1"></i> Buat Modul Baru</a>
+                                    </div>
                                     @if (session('success'))
                                         <div class="alert alert-success">
                                             {{ session('success') }}
@@ -49,25 +53,44 @@
                                         @forelse ($modules as $module)
                                             <div class="card" data-module-id="{{ $module->id }}">
                                                 <div class="card-body d-flex justify-content-between align-items-center p-3">
-                                                    <div>
-                                                        <i class="fa fa-bars text-muted mr-3" style="cursor: move;"></i>
-                                                        <strong>{{ $module->title }}</strong>
-                                                        <span class="badge badge-info ml-2">{{ $module->lessons->count() }} Lessons</span>
+                                                    <div class="d-flex align-items-center overflow-hidden me-2">
+                                                        <i class="fa fa-bars text-muted mr-3 flex-shrink-0" style="cursor: move;"></i>
+                                                        <div class="text-truncate">
+                                                            <strong class="d-block mb-1 text-truncate">{{ $module->title }}</strong>
+                                                            <span class="badge badge-info">{{ $module->lessons->count() }} Pelajaran</span>
+                                                        </div>
                                                     </div>
-                                                    <div class="">
-                                                        <div class="mb-2"><a href="{{ route('instructor.modules.lessons.index', $module) }}" class="btn btn-success btn-sm"><i class="bi bi-eye me-1"></i>View Lessons</a>
-                                                        {{-- TOMBOL BARU UNTUK LEADERBOARD MODUL --}}
-                                                        <button type="button" class="btn btn-warning btn-sm text-dark leaderboard-btn" data-url="{{ route('instructor.module.leaderboard', $module) }}">
-                                                            <i class="fa fa-bar-chart text-dark me-1"></i> Peringkat
-                                                        </button></div>
-                                                        <div><a href="{{ route('instructor.modules.edit', $module) }}" class="btn btn-info btn-sm"><i class="fa fa-pencil"></i></a>
-                                                        <form action="{{ route('instructor.modules.destroy', $module) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this module and all its lessons?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>
-                                                        </form></div>
+                                                    <div class="d-flex align-items-center flex-shrink-0" style="gap: 5px;">
+                                                        <a href="{{ route('instructor.modules.lessons.index', $module) }}" class="btn btn-primary btn-sm" title="Kelola Pelajaran">
+                                                            <i class="bi bi-journal-text"></i> <span class="d-none d-md-inline ms-1">Kelola Pelajaran</span>
+                                                        </a>
                                                         
-                                                        
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Aksi Lainnya" data-bs-boundary="window">
+                                                                <i class="fa fa-cog"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                                                <li>
+                                                                    <button class="dropdown-item leaderboard-btn" type="button" data-url="{{ route('instructor.module.leaderboard', $module) }}">
+                                                                        <i class="fa fa-bar-chart text-warning me-2"></i> Papan Peringkat
+                                                                    </button>
+                                                                </li>
+                                                                <li>
+                                                                    <a class="dropdown-item" href="{{ route('instructor.modules.edit', $module) }}">
+                                                                        <i class="fa fa-pencil text-info me-2"></i> Edit Modul
+                                                                    </a>
+                                                                </li>
+                                                                <li><hr class="dropdown-divider"></li>
+                                                                <li>
+                                                                    <form action="{{ route('instructor.modules.destroy', $module) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus modul ini beserta seluruh pelajarannya?');">
+                                                                        @csrf @method('DELETE')
+                                                                        <button type="submit" class="dropdown-item text-danger">
+                                                                            <i class="fa fa-trash text-danger me-2"></i> Hapus Modul
+                                                                        </button>
+                                                                    </form>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -111,33 +134,60 @@
 @endsection
 
 @push('scripts')
-{{-- We can use jquery-ui sortable which is already included in the layout --}}
+<style>
+    .sortable-ghost {
+        opacity: 0.4;
+        background-color: #f8f9fa;
+        border: 2px dashed #007bff !important;
+    }
+    .sortable-chosen {
+        background-color: #e9ecef;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+        transform: scale(1.02);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .fa-bars {
+        cursor: grab !important;
+    }
+    .fa-bars:active {
+        cursor: grabbing !important;
+    }
+    #module-list .card {
+        transition: transform 0.2s ease;
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
-    $(document).ready(function () {
-        $("#module-list").sortable({
-            handle: '.fa-bars',
-            update: function (event, ui) {
-                let moduleIds = $(this).children().map(function () {
-                    return $(this).data("module-id");
-                }).get();
-
-                $.ajax({
-                    url: "{{ route('instructor.courses.modules.reorder', $course) }}",
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        module_ids: moduleIds
-                    },
-                    success: function (response) {
-                        // You can add a success notification here if you want
-                        console.log(response.message);
-                    },
-                    error: function (xhr) {
-                        console.error('Error reordering modules.');
-                    }
-                });
-            }
-        });
+    document.addEventListener('DOMContentLoaded', function() {
+        const el = document.getElementById('module-list');
+        if (el) {
+            new Sortable(el, {
+                handle: '.fa-bars',
+                animation: 350,
+                easing: "cubic-bezier(1, 0, 0, 1)",
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                onEnd: function (evt) {
+                    const moduleIds = Array.from(el.children).map(child => child.dataset.moduleId);
+                    
+                    fetch('{{ route("instructor.courses.modules.reorder", $course) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ module_ids: moduleIds })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data.message || 'Reorder successful');
+                    })
+                    .catch(error => {
+                        console.error('Error reordering modules:', error);
+                    });
+                }
+            });
+        }
     });
 
 

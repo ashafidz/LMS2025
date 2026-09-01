@@ -21,7 +21,7 @@ class CheckoutController extends Controller
     {
         $user = Auth::user();
         $cartItems = $user->carts()->with('course')->get();
-        $settings = SiteSetting::firstOrFail();
+        $settings = SiteSetting::first();
 
         if ($cartItems->isEmpty()) {
             return redirect()->route('student.cart.index')->with('error', 'Keranjang Anda kosong.');
@@ -42,11 +42,11 @@ class CheckoutController extends Controller
         }
 
         $priceAfterDiscount = $subtotal - $discount;
-        $vatAmount = ($priceAfterDiscount * $settings->vat_percentage) / 100;
+        $vatPercentage = $settings?->vat_percentage ?? 0;
+        $vatAmount = ($priceAfterDiscount * $vatPercentage) / 100;
         $subtotalBeforeFee = $priceAfterDiscount + $vatAmount;
-        $transactionFee = $settings->transaction_fee_fixed + (($subtotalBeforeFee * $settings->transaction_fee_percentage) / 100);
+        $transactionFee = ($settings?->transaction_fee_fixed ?? 0) + (($subtotalBeforeFee * ($settings?->transaction_fee_percentage ?? 0)) / 100);
         $finalTotal = max(0, $subtotalBeforeFee + $transactionFee);
-        $vatPercentage = $settings->vat_percentage;
 
 
 

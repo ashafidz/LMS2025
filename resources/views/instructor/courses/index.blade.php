@@ -33,120 +33,157 @@
                                 <div class="card-header">
                                     <h5>Daftar Kursus</h5>
                                     <span>Daftar semua kursus yang telah Anda buat</span>
-                                    <div class="card-header-right">
+                                    <div class="card-header-right d-none d-md-block">
                                         <a href="{{ route('instructor.courses.create') }}" class="btn btn-primary">
-                                            <i class="bi bi-plus-lg text-white"></i> Buat Kursus Baru
-                                        </a>
+                                            <i class="bi bi-plus-lg text-white"></i> Buat Kursus Baru</a>
                                     </div>
                                 </div>
-                                <div class="card-block table-border-style">
+                                <div class="card-block">
+                                    <div class="d-block d-md-none mb-3">
+                                        <a href="{{ route('instructor.courses.create') }}" class="btn btn-primary w-100">
+                                            <i class="bi bi-plus-lg text-white me-1"></i> Buat Kursus Baru</a>
+                                    </div>
                                     @if (session('success'))
                                         <div class="alert alert-success">{{ session('success') }}</div>
                                     @endif
                                     @if (session('error'))
                                         <div class="alert alert-danger">{{ session('error') }}</div>
                                     @endif
-                                    <div class="table-responsive">
+                                    <div class="table-responsive" style="overflow: visible;">
+                                        @php
+                                            $statusClasses = [
+                                                'draft' => 'label-default',
+                                                'pending_review' => 'label-warning',
+                                                'published' => 'label-success',
+                                                'rejected' => 'label-danger',
+                                                'private' => 'label-inverse',
+                                            ];
+                                        @endphp
                                         <table class="table table-hover">
                                             <thead>
                                                 <tr>
-                                                    <th>#</th>
-                                                    <th>Judul</th>
-                                                    <th>Kategori</th>
-                                                    <th>Status</th>
-                                                    <th class="text-center">Kelola</th>
-                                                    <th class="text-center">Aksi</th>
+                                                    <th class="d-none d-md-table-cell" width="5%">#</th>
+                                                    <th width="35%">Info Kursus</th>
+                                                    <th class="d-none d-md-table-cell" width="20%">Kategori</th>
+                                                    <th class="d-none d-md-table-cell" width="15%">Status</th>
+                                                    <th class="text-center" width="25%">Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @forelse ($courses as $course)
                                                     <tr>
-                                                        <th scope="row">{{ $loop->iteration }}</th>
-                                                        <td>{{ $course->title }}</td>
-                                                        <td>{{ $course->category->name }}</td>
-                                                        <td>
-                                                            @php
-                                                                $statusClasses = [
-                                                                    'draft' => 'label-default',
-                                                                    'pending_review' => 'label-warning',
-                                                                    'published' => 'label-success',
-                                                                    'rejected' => 'label-danger',
-                                                                    'private' => 'label-inverse',
-                                                                ];
-                                                            @endphp
+                                                        <th scope="row" class="d-none d-md-table-cell align-middle">{{ $loop->iteration }}</th>
+                                                        <td class="align-middle">
+                                                            <strong>{{ $course->title }}</strong>
+                                                            {{-- Info Status dan Kategori Khusus Mobile --}}
+                                                            <div class="d-block d-md-none mt-1">
+                                                                <small class="text-muted d-block">{{ $course->category->name }}</small>
+                                                                <label class="label {{ $statusClasses[$course->status] ?? 'label-default' }} mt-1">
+                                                                    {{ ucfirst(str_replace('_', ' ', $course->status)) }}
+                                                                </label>
+                                                            </div>
+                                                        </td>
+                                                        <td class="d-none d-md-table-cell align-middle">{{ $course->category->name }}</td>
+                                                        <td class="d-none d-md-table-cell align-middle">
                                                             <label class="label {{ $statusClasses[$course->status] ?? 'label-default' }}">
                                                                 {{ ucfirst(str_replace('_', ' ', $course->status)) }}
                                                             </label>
                                                         </td>
-                                                        <td class="text-center">
-                                                            {{-- Tombol Pratinjau (akan kita fungsikan nanti) --}}
-                                                            <a href="{{ route('student.courses.show', ['course' => $course->slug, 'preview' => 'true']) }}"
-                                                               class="btn btn-inverse btn-sm"
-                                                               target="_blank">
-                                                                <i class="bi bi-eye me-1"></i> Pratinjau
-                                                            </a>
-                                                            {{-- Tombol-tombol Aksi yang Sudah Dipisah --}}
-                                                            <a href="{{ route('instructor.courses.modules.index', $course) }}" class="btn btn-success btn-sm" title="Kelola Modul">
-                                                                <i class="fa fa-list-ul"></i> Modul
-                                                            </a>
-                                                            <a href="{{ route('instructor.recap.index', $course) }}" class="btn btn-success btn-sm" title="Rekap">
-                                                                <i class="fa fa-list-ul"></i> Rekap
-                                                            </a>
-                                                            <a href="{{ route('instructor.course.monitoring.overview', $course) }}" class="btn btn-info btn-sm" title="Monitoring Kuis">
-                                                                <i class="fa fa-shield"></i> Laporan Pelanggaran
-                                                            </a>
-                                                            <button type="button" class="btn btn-warning btn-sm leaderboard-btn text-dark" data-url="{{ route('instructor.course.leaderboard', $course) }}" title="Lihat Papan Peringkat Kursus">
-                                                                <i class="fa fa-bar-chart text-dark"></i> Data Student
-                                                            </button>
-
-                                                            @if(in_array($course->status, ['draft', 'rejected']))
-                                                                <form action="{{ route('instructor.courses.submit_review', $course) }}" method="POST" class="d-inline" onsubmit="return confirm('Ajukan kursus ini untuk direview?');">
-                                                                    @csrf
-                                                                    @method('PATCH')
-                                                                    <button type="submit" class="btn btn-primary btn-sm" title="Ajukan untuk Review">
-                                                                        <i class="fa fa-paper-plane"></i> Ajukan
+                                                        <td class="text-center align-middle">
+                                                            <div class="d-flex justify-content-center align-items-center" style="gap: 5px;">
+                                                                {{-- Aksi Utama --}}
+                                                                <a href="{{ route('instructor.courses.modules.index', $course) }}" class="btn btn-primary btn-sm" title="Kelola Modul">
+                                                                    <i class="fa fa-list-ul"></i> Modul
+                                                                </a>
+                                                                
+                                                                {{-- Dropdown Aksi Lainnya --}}
+                                                                <div class="dropdown">
+                                                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Aksi Lainnya">
+                                                                        <i class="fa fa-cog"></i>
                                                                     </button>
-                                                                </form>
-                                                            @endif
+                                                                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                                                                        <li><h6 class="dropdown-header">Kelola</h6></li>
+                                                                        <li>
+                                                                            <a class="dropdown-item" href="{{ route('student.courses.show', ['course' => $course->slug, 'preview' => 'true']) }}" target="_blank">
+                                                                                <i class="bi bi-eye text-primary me-2"></i> Pratinjau
+                                                                            </a>
+                                                                        </li>
+                                                                        <li>
+                                                                            <a class="dropdown-item" href="{{ route('instructor.courses.edit', $course) }}">
+                                                                                <i class="fa fa-pencil text-info me-2"></i> Edit Kursus
+                                                                            </a>
+                                                                        </li>
+                                                                        <li>
+                                                                            <a class="dropdown-item" href="{{ route('instructor.recap.index', $course) }}">
+                                                                                <i class="fa fa-file-text-o text-success me-2"></i> Rekap Nilai
+                                                                            </a>
+                                                                        </li>
+                                                                        <li>
+                                                                            <a class="dropdown-item" href="{{ route('instructor.course.monitoring.overview', $course) }}">
+                                                                                <i class="fa fa-shield text-info me-2"></i> Lap. Pelanggaran
+                                                                            </a>
+                                                                        </li>
+                                                                        <li>
+                                                                            <button class="dropdown-item leaderboard-btn" type="button" data-url="{{ route('instructor.course.leaderboard', $course) }}">
+                                                                                <i class="fa fa-bar-chart text-warning me-2"></i> Data Student
+                                                                            </button>
+                                                                        </li>
+                                                                        
+                                                                        @if(in_array($course->status, ['draft', 'rejected']))
+                                                                        <li><hr class="dropdown-divider"></li>
+                                                                        <li><h6 class="dropdown-header">Status</h6></li>
+                                                                        <li>
+                                                                            <form action="{{ route('instructor.courses.submit_review', $course) }}" method="POST" onsubmit="return confirm('Ajukan kursus ini untuk direview?');">
+                                                                                @csrf @method('PATCH')
+                                                                                <button type="submit" class="dropdown-item">
+                                                                                    <i class="fa fa-paper-plane text-primary me-2"></i> Ajukan Review
+                                                                                </button>
+                                                                            </form>
+                                                                        </li>
+                                                                        @endif
 
-                                                            @if(in_array($course->status, ['draft', 'published']))
-                                                                <form action="{{ route('instructor.courses.make_private', $course) }}" method="POST" class="d-inline" onsubmit="return confirm('Jadikan kursus ini privat?');">
-                                                                    @csrf
-                                                                    @method('PATCH')
-                                                                    <button type="submit" class="btn btn-inverse btn-sm" title="Jadikan Privat">
-                                                                        <i class="fa fa-lock"></i> Privat
-                                                                    </button>
-                                                                </form>
-                                                            @endif
-
+                                                                        @if(in_array($course->status, ['draft', 'published']))
+                                                                        @if(!in_array($course->status, ['draft', 'rejected']))
+                                                                        <li><hr class="dropdown-divider"></li>
+                                                                        <li><h6 class="dropdown-header">Status</h6></li>
+                                                                        @endif
+                                                                        <li>
+                                                                            <form action="{{ route('instructor.courses.make_private', $course) }}" method="POST" onsubmit="return confirm('Jadikan kursus ini privat?');">
+                                                                                @csrf @method('PATCH')
+                                                                                <button type="submit" class="dropdown-item">
+                                                                                    <i class="fa fa-lock text-secondary me-2"></i> Jadikan Privat
+                                                                                </button>
+                                                                            </form>
+                                                                        </li>
+                                                                        @endif
+                                                                        
+                                                                        <li><hr class="dropdown-divider"></li>
+                                                                        <li><h6 class="dropdown-header">Lainnya</h6></li>
+                                                                        <li>
+                                                                            <form action="{{ route('instructor.courses.clone', $course) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin meng-clone kursus ini?');">
+                                                                                @csrf
+                                                                                <button type="submit" class="dropdown-item">
+                                                                                    <i class="fa fa-clone text-warning me-2"></i> Clone Kursus
+                                                                                </button>
+                                                                            </form>
+                                                                        </li>
+                                                                        
+                                                                        <li>
+                                                                            <form action="{{ route('instructor.courses.destroy', $course) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kursus ini?');">
+                                                                                @csrf @method('DELETE')
+                                                                                <button type="submit" class="dropdown-item text-danger">
+                                                                                    <i class="fa fa-trash text-danger me-2"></i> Hapus Kursus
+                                                                                </button>
+                                                                            </form>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
                                                         </td>
-                                                        <td class="text-center">
-                                                            <a href="{{ route('instructor.courses.edit', $course) }}" class="btn btn-info btn-sm" title="Edit Kursus">
-                                                                <i class="fa fa-pencil"></i>
-                                                            </a>
-                                                            
-                                                                                                                        {{-- TOMBOL BARU UNTUK CLONE --}}
-                                                            <form action="{{ route('instructor.courses.clone', $course) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin meng-clone kursus ini?');">
-                                                                @csrf
-                                                                <button type="submit" class="btn btn-warning btn-sm text-dark" title="Clone Kursus">
-                                                                    <i class="fa fa-clone"></i>
-                                                                </button>
-                                                            </form>
-                                                            
-                                                            <form action="{{ route('instructor.courses.destroy', $course) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kursus ini?');">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="btn btn-danger btn-sm" title="Hapus Kursus">
-                                                                    <i class="fa fa-trash"></i>
-                                                                </button>
-                                                            </form>
-
-                                                        </td>
-                                                        
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="5" class="text-center">Anda belum membuat kursus.</td>
+                                                        <td colspan="5" class="text-center py-4 text-muted">Anda belum membuat kursus.</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
