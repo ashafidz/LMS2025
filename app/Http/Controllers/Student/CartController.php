@@ -32,9 +32,9 @@ class CartController extends Controller
             }
         }
         $priceAfterDiscount = $subtotal - $discount;
-        $vatAmount = ($priceAfterDiscount * $settings->vat_percentage) / 100;
+        $vatAmount = ($priceAfterDiscount * ($settings?->vat_percentage ?? 0)) / 100;
         $subtotalBeforeFee = $priceAfterDiscount + $vatAmount;
-        $transactionFee = $settings->transaction_fee_fixed + (($subtotalBeforeFee * $settings->transaction_fee_percentage) / 100);
+        $transactionFee = ($settings?->transaction_fee_fixed ?? 0) + (($subtotalBeforeFee * ($settings?->transaction_fee_percentage ?? 0)) / 100);
         $finalTotal = max(0, $subtotalBeforeFee + $transactionFee);
 
         // --- LOGIKA BARU: Ambil Kupon Publik ---
