@@ -53,7 +53,7 @@
                                         @forelse ($lessons as $lesson)
                                             <div class="card" data-id="{{ $lesson->id }}">
                                                 <div class="card-body d-flex justify-content-between align-items-center p-3">
-                                                    <div class="d-flex align-items-center overflow-hidden me-2">
+                                                    <div class="d-flex align-items-center overflow-hidden me-2 flex-grow-1" style="min-width: 0;">
                                                         <i class="fa fa-bars handle text-muted mr-3 flex-shrink-0" style="cursor: move;"></i>
                                                         <div class="text-truncate">
                                                             <strong class="d-block mb-1 text-truncate">{{ $lesson->title }}</strong>
