@@ -95,31 +95,15 @@
                         @endif
 
                         <div class="row">
-                            {{-- Kolom Konten Pelajaran (Utama) --}}
-                            <div class="col-lg-8">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 id="lesson-title">Selamat Datang di Kursus!</h5>
-                                    </div>
-                                    <div class="card-block" id="lesson-content" style="min-height: 500px;">
-                                        <div class="text-center text-muted">
-                                            <p><i class="fa fa-arrow-left fa-2x"></i></p>
-                                            <h5>Pilih pelajaran dari daftar isi di sebelah kanan untuk memulai.</h5>
-                                            <hr>
-                                            <p class="mt-4"><strong>Deskripsi Kursus:</strong></p>
-                                            <div>{!! $course->description !!}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
                             {{-- Kolom Daftar Isi (Sidebar) --}}
-                            <div class="col-lg-4">
+                            <div class="col-lg-4 order-1 order-lg-2">
                                 <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="card-header-text">Daftar Isi Kursus</h5>
+                                    <div class="card-header d-flex justify-content-between align-items-center" data-toggle="collapse" data-target="#toc-collapse" style="cursor: pointer;">
+                                        <h5 class="card-header-text mb-0">Daftar Isi Kursus</h5>
+                                        <i class="fa fa-chevron-down d-lg-none"></i>
                                     </div>
-                                    <div class="card-block accordion-block">
+                                    <div class="collapse show" id="toc-collapse">
+                                        <div class="card-block accordion-block">
                                         <div class="custom-accordion" id="custom-accordion">
 
                                             @forelse ($course->modules as $module)
@@ -220,6 +204,25 @@
                                             @endif
                                         </div>
 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {{-- Kolom Konten Pelajaran (Utama) --}}
+                            <div class="col-lg-8 order-2 order-lg-1">
+                                <div class="card" id="main-content-card">
+                                    <div class="card-header">
+                                        <h5 id="lesson-title">Selamat Datang di Kursus!</h5>
+                                    </div>
+                                    <div class="card-block" id="lesson-content" style="min-height: 500px;">
+                                        <div class="text-center text-muted mt-5">
+                                            <p><i class="bi bi-journal-bookmark text-primary" style="font-size: 3rem;"></i></p>
+                                            <h5 class="mt-3">Pilih pelajaran dari daftar isi untuk memulai.</h5>
+                                            <hr class="mt-4 mb-4">
+                                            <p><strong>Deskripsi Kursus:</strong></p>
+                                            <div class="text-left mt-3">{!! $course->description !!}</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -335,10 +338,27 @@
             const reviewButton = document.getElementById('load-review-form');
             const totalLessons = {{ $course->lessons->count() }};
 
+            // Simpan info pelajaran untuk navigasi next/prev
+            const lessonsData = Array.from(lessonLinks).map(link => ({
+                id: link.dataset.lessonId,
+                title: link.innerText.trim()
+            }));
+
             // --- FUNGSI UNTUK MEMUAT KONTEN PELAJARAN ---
             function loadLessonContent(lessonId) {
                 lessonTitleEl.innerText = 'Memuat...';
                 lessonContentEl.innerHTML = '<div class="text-center p-5"><i class="fa fa-spinner fa-spin fa-3x"></i></div>';
+
+                if (window.innerWidth < 992) {
+                    const mainCard = document.getElementById('main-content-card');
+                    if (mainCard) {
+                        mainCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                    const tocCollapse = document.getElementById('toc-collapse');
+                    if (tocCollapse && tocCollapse.classList.contains('show')) {
+                        $(tocCollapse).collapse('hide');
+                    }
+                }
 
                 let url = `/student/lessons/${lessonId}/content`;
                 if (isPreview) {
@@ -365,7 +385,35 @@
                             }
                             
                             const discussionHtml = data.discussion_html || '';
-                            lessonContentEl.innerHTML = data.html + completeButtonHtml + discussionHtml;
+                            
+                            // Logika Tombol Navigasi Next/Prev
+                            const currentIndex = lessonsData.findIndex(l => l.id == lessonId);
+                            let navHtml = '<hr><div class="d-flex justify-content-between mt-4 mb-3">';
+                            
+                            if (currentIndex > 0) {
+                                const prevLesson = lessonsData[currentIndex - 1];
+                                navHtml += `<button class="btn btn-outline-secondary load-lesson-nav" data-lesson-id="${prevLesson.id}"><i class="fa fa-chevron-left mr-1"></i> Sebelumnya</button>`;
+                            } else {
+                                navHtml += `<div></div>`;
+                            }
+                            
+                            if (currentIndex !== -1 && currentIndex < lessonsData.length - 1) {
+                                const nextLesson = lessonsData[currentIndex + 1];
+                                navHtml += `<button class="btn btn-outline-secondary load-lesson-nav" data-lesson-id="${nextLesson.id}">Selanjutnya <i class="fa fa-chevron-right ml-1"></i></button>`;
+                            } else {
+                                navHtml += `<div></div>`;
+                            }
+                            navHtml += '</div>';
+
+                            lessonContentEl.innerHTML = data.html + completeButtonHtml + navHtml + discussionHtml;
+
+                            // Pasang event listener untuk navigasi baru
+                            lessonContentEl.querySelectorAll('.load-lesson-nav').forEach(btn => {
+                                btn.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    loadLessonContent(this.dataset.lessonId);
+                                });
+                            });
 
                         } else {
                             lessonTitleEl.innerText = 'Gagal Memuat';
@@ -576,6 +624,14 @@
                         });
                 });
             });
+
+            // Tutup TOC by default di mobile
+            if (window.innerWidth < 992) {
+                const tocCollapse = document.getElementById('toc-collapse');
+                if (tocCollapse) {
+                    tocCollapse.classList.remove('show');
+                }
+            }
 
         });
     </script>
