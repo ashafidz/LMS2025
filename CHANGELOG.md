@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - **Point Sync Access Control**: Memindahkan keseluruhan arsitektur fitur **Sinkronisasi Poin (Massal & Per-Student)** dari wewenang Instruktur ke **Superadmin dan Admin**. Hal ini bertujuan agar instruktur tidak bisa memanipulasi riwayat poin siswa. 
-- **Point Sync Management Console**: Membangun menu "Sinkronisasi Poin" sentral bagi Admin/Superadmin dengan alur berlapis: *Pilih Instruktur -> Pilih Kursus -> Pilih Siswa/Eksekusi Sinkronisasi Massal*.
+- **Point Sync Management Console**: Membangun menu "Sinkronisasi Poin" sentral bagi Admin/Superadmin dengan alur berlapis: *Pilih Instruktur -> Pilih Kursus -> Pilih Siswa/Eksekusi Sinkronisasi Massal*. Menu ini sekarang dapat diakses langsung melalui **Sidebar Navigasi** utama di bawah menu Kupon.
 - **Instructor Student Progress**: Mengubah halaman pemantauan *Student Progress* di sisi instruktur menjadi mode *read-only* (hanya baca). Tombol sinkron dan *modal* konfirmasi telah ditarik dari antarmuka instruktur, menyisakan panel indikator dan peringatan visual mutlak.
 
 ### Fixed
