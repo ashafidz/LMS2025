@@ -91,13 +91,13 @@
                                             <div class="list-group-item d-flex justify-content-between align-items-center py-3">
                                                 <div class="d-flex align-items-center">
                                                     @if($isCompleted)
-                                                        <span class="badge bg-success rounded-circle p-2 me-3 shadow-sm" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                                                            <i class="fa fa-check text-white m-0" style="font-size: 14px;"></i>
-                                                        </span>
+                                                        <div class="bg-success rounded-circle shadow-sm me-3 flex-shrink-0" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                            <i class="fa fa-check text-white m-0" style="font-size: 16px;"></i>
+                                                        </div>
                                                     @else
-                                                        <span class="badge bg-light text-muted border rounded-circle p-2 me-3" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                                                            <i class="fa fa-circle-o m-0" style="font-size: 14px;"></i>
-                                                        </span>
+                                                        <div class="bg-light border text-muted rounded-circle me-3 flex-shrink-0" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                            <i class="fa fa-circle-o m-0" style="font-size: 16px;"></i>
+                                                        </div>
                                                     @endif
                                                     
                                                     <div>
