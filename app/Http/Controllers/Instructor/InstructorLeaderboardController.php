@@ -53,6 +53,7 @@ class InstructorLeaderboardController extends Controller
 
         // Render partial view baru dan kirim sebagai respons
         $html = view('instructor.leaderboards._course_data_modal', compact(
+            'course',
             'leaderboardRanks',
             'enrolledStudents',        // Untuk tab "Daftar Siswa" (urut berdasarkan NIM)
             'enrolledStudentsByPoints', // Untuk tab "Peringkat" (urut berdasarkan poin)
