@@ -1,6 +1,24 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## [2026-09-02]
+### Added
+- **Instructor Student Progress**: Menambahkan fitur pemantauan *Student Checklist* bagi instruktur untuk melihat detail progres materi dan perolehan poin aktual per siswa secara langsung dari halaman Manajemen Kursus, lengkap dengan indikator potensi poin untuk materi yang belum diselesaikan.
+- **Gamification Clarity**: Menambahkan informasi "Isi Polling", "Isi Word Cloud", dan Rasio Konversi Poin ke Diamond pada panel informasi Poin & Diamond siswa agar transparan dan selaras dengan konfigurasi Superadmin.
+
+### Fixed
+- **Site Settings Bug**: Memperbaiki `Internal Server Error` (Attempt to read property on null) yang terjadi pada seluruh sistem (termasuk cetak PDF Invoice) saat tabel `site_settings` kosong, dengan mengimplementasikan `SiteSetting::firstOrNew()` secara global.
+- **Layout Stability**: Memperbaiki arsitektur layout halaman sertifikat yang hancur (CSS scope break) akibat penempatan komponen modal di luar tag `@section('content')`.
+- **Mobile Sidebar Scrolling**: Memperbaiki isu di mana sidebar navigasi versi ponsel (*mobile*) ikut tergulung bersamaan dengan konten utama, dengan menyuntikkan CSS fixed-position independen.
+- **Hamburger Menu Alignment**: Memperbaiki cacat keseimbangan simetris pada ikon menu hamburger beranda versi *mobile* akibat bentrokan antara *padding* kapsul dan *margin* bawaan dari template.
+
+### Changed
+- **Poin & Diamond UI/UX**: Mengoptimalkan layout dasbor poin siswa menjadi grid 4/8 di desktop dan menyembunyikan riwayat panjang ke dalam sistem navigasi *Tab* di versi ponsel untuk mengurangi *cognitive load*.
+- **Certificate Gallery**: Merombak total tampilan daftar sertifikat dari format tabel kaku menjadi format galeri kartu (*card grid*) yang jauh lebih elegan dan modern.
+- **Kelola Ulasan (Feedback)**: Merombak struktur halaman dari tumpukan kartu vertikal yang memanjang menjadi sistem navigasi tab vertikal (Vertical Pills) bergaya *floating pill* yang rapi.
+- **Riwayat Transaksi**: Mengganti format tabel biasa menjadi daftar kartu transaksi bergaya *e-commerce* premium, dilengkapi dengan garis warna indikator status (hijau/kuning/merah) yang responsif di segala layar.
+- **Mobile Action Menu**: Menyempurnakan desain menu *dropdown* ponsel di halaman beranda; mengubah tautan Login, Keranjang, Dashboard, dan Saldo Diamond dari barisan teks biasa menjadi deretan tombol blok (*full-width buttons*) dan kapsul informasi.
 ## [2026-09-01]
 ### Added
 - **SortableJS Integration**: Menambahkan animasi *drag-and-drop* yang lebih halus (smooth) dan efek visual saat menggeser posisi Modul dan Pelajaran di halaman instruktur.

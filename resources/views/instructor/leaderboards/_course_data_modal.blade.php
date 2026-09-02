@@ -25,6 +25,7 @@
                     <th class="text-center">NIM/NIP/NIDN</th>
                     <th>Nama Siswa</th>
                     <th>Email</th>
+                    <th class="text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -34,10 +35,15 @@
                         <td class="text-center">{{ $student->studentProfile->unique_id_number ?? '-' }}</td>
                         <td><a href="{{ route('profile.show', $student->id) }}">{{ $student->name }}</a></td>
                         <td>{{ $student->email }}</td>
+                        <td class="text-center">
+                            <a href="{{ route('instructor.courses.student_progress', [$course, $student]) }}" class="btn btn-sm btn-outline-primary btn-round" title="Cek Progres Checklist" target="_blank">
+                                <i class="fa fa-tasks"></i> Progres
+                            </a>
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="text-center">Belum ada siswa yang terdaftar di kursus ini.</td>
+                        <td colspan="5" class="text-center">Belum ada siswa yang terdaftar di kursus ini.</td>
                     </tr>
                 @endforelse
             </tbody>

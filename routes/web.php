@@ -447,6 +447,9 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
 
         // RUTE BARU UNTUK MENG-CLONE KURSUS
         Route::post('/instructor/courses/{course}/clone', [CourseController::class, 'clone'])->name('instructor.courses.clone');
+        
+        // Student Progress Route
+        Route::get('/instructor/courses/{course}/students/{student}/progress', [CourseController::class, 'studentProgress'])->name('instructor.courses.student_progress');
 
 
         // --- RUTE UNTUK REKAP NILAI ---
