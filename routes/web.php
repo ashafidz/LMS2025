@@ -59,6 +59,7 @@ use App\Http\Controllers\Instructor\InstructorLeaderboardController;
 use App\Http\Controllers\Student\CourseController as StudentCourseController;
 use App\Http\Controllers\Student\StudentCertificateController; // Tambahkan ini
 use App\Http\Controllers\Superadmin\AdminManagementController; // Tambahkan ini
+use App\Http\Controllers\Superadmin\PointSyncController;
 
 // Route::get('/neweditprofil', function () {
 //     return view('1edit-index');
@@ -250,6 +251,14 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     Route::resource('/superadmin/admins', AdminManagementController::class, [
         'as' => 'superadmin'
     ])->except(['show']);
+
+    // --- RUTE SINKRONISASI POIN ---
+    Route::get('/superadmin/point-sync', [PointSyncController::class, 'index'])->name('superadmin.point-sync.index');
+    Route::get('/superadmin/point-sync/instructor/{instructor}', [PointSyncController::class, 'showCourses'])->name('superadmin.point-sync.courses');
+    Route::get('/superadmin/point-sync/courses/{course}/mass-sync', [PointSyncController::class, 'massSyncPreview'])->name('superadmin.point-sync.mass-sync.preview');
+    Route::post('/superadmin/point-sync/courses/{course}/mass-sync', [PointSyncController::class, 'massSyncExecute'])->name('superadmin.point-sync.mass-sync.execute');
+    Route::get('/superadmin/point-sync/courses/{course}/students/{student}/progress', [PointSyncController::class, 'studentProgress'])->name('superadmin.point-sync.student-progress');
+    Route::post('/superadmin/point-sync/courses/{course}/students/{student}/sync', [PointSyncController::class, 'syncPoints'])->name('superadmin.point-sync.sync-points');
 });
 
 // * group route for admin
@@ -303,6 +312,14 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::resource('/admin/course-categories', CourseCategoryController::class, [
         'as' => 'admin'
     ])->except(['show']);
+
+    // --- RUTE SINKRONISASI POIN (ADMIN) ---
+    Route::get('/admin/point-sync', [PointSyncController::class, 'index'])->name('admin.point-sync.index');
+    Route::get('/admin/point-sync/instructor/{instructor}', [PointSyncController::class, 'showCourses'])->name('admin.point-sync.courses');
+    Route::get('/admin/point-sync/courses/{course}/mass-sync', [PointSyncController::class, 'massSyncPreview'])->name('admin.point-sync.mass-sync.preview');
+    Route::post('/admin/point-sync/courses/{course}/mass-sync', [PointSyncController::class, 'massSyncExecute'])->name('admin.point-sync.mass-sync.execute');
+    Route::get('/admin/point-sync/courses/{course}/students/{student}/progress', [PointSyncController::class, 'studentProgress'])->name('admin.point-sync.student-progress');
+    Route::post('/admin/point-sync/courses/{course}/students/{student}/sync', [PointSyncController::class, 'syncPoints'])->name('admin.point-sync.sync-points');
 });
 
 
@@ -448,13 +465,8 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         // RUTE BARU UNTUK MENG-CLONE KURSUS
         Route::post('/instructor/courses/{course}/clone', [CourseController::class, 'clone'])->name('instructor.courses.clone');
         
-        // Student Progress Route
+        // Student Progress Route (read-only for instructor)
         Route::get('/instructor/courses/{course}/students/{student}/progress', [CourseController::class, 'studentProgress'])->name('instructor.courses.student_progress');
-        Route::post('/instructor/courses/{course}/students/{student}/sync-points', [CourseController::class, 'syncPoints'])->name('instructor.courses.student.sync_points');
-        
-        // Mass Sync Points Route
-        Route::get('/instructor/courses/{course}/mass-sync-points', [CourseController::class, 'massSyncPreview'])->name('instructor.courses.mass_sync.preview');
-        Route::post('/instructor/courses/{course}/mass-sync-points', [CourseController::class, 'massSyncExecute'])->name('instructor.courses.mass_sync.execute');
         // --- RUTE UNTUK REKAP NILAI ---
         Route::get('/instructor/courses/{course}/recap', [InstructorRecapController::class, 'index'])->name('instructor.recap.index');
         Route::get('/instructor/modules/{module}/recap-data', [InstructorRecapController::class, 'getModuleRecapData'])->name('instructor.recap.module_data');
