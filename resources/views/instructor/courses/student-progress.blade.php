@@ -238,7 +238,7 @@
 </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <div class="modal fade" id="syncPointsModal" tabindex="-1" role="dialog" aria-labelledby="syncPointsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -289,4 +289,4 @@
         $('#syncPointsModal').modal('show');
     }
 </script>
-@endsection
+@endpush
