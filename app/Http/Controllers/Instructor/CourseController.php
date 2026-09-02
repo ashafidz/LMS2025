@@ -358,6 +358,8 @@ class CourseController extends Controller
         });
 
         return back()->with('success', 'Poin siswa berhasil disinkronkan.');
+    }
+
     /**
      * Preview mass sync anomalies for the whole course.
      */
