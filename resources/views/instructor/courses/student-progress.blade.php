@@ -252,11 +252,11 @@
         <div class="modal-content">
             <div class="modal-header bg-primary">
                 <h5 class="modal-title text-white" id="syncPointsModalLabel">Sinkronkan Poin Materi</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close text-white" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="{{ route('instructor.courses.student.sync_points', [$course->slug, $student->id]) }}" method="POST">
+            <form action="{{ route('instructor.courses.student.sync_points', [$course, $student]) }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <p>Sistem akan membuat atau menimpa rekaman riwayat poin siswa untuk materi ini agar sesuai dengan pengaturan bobot poin saat ini.</p>
@@ -275,7 +275,7 @@
                     <input type="hidden" name="description" id="syncDescriptionInput">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary"><i class="fa fa-refresh me-1"></i> Ya, Sinkronkan Poin</button>
                 </div>
             </form>
