@@ -14,8 +14,9 @@
                 </div>
                 <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.courses.index') }}">Kursus Saya</a></li>
+                        <li class="breadcrumb-item"><a href="{{ auth()->user()->hasRole('superadmin') ? route('superadmin.dashboard') : route('admin.dashboard') }}"><i class="fa fa-home"></i></a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('superadmin.point-sync.index') }}">Sinkronisasi Poin</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('superadmin.point-sync.courses', $course->instructor) }}">{{ $course->instructor->name ?? 'Instruktur' }}</a></li>
                         <li class="breadcrumb-item"><a href="#!">Progres Siswa</a></li>
                     </ul>
                 </div>
@@ -167,7 +168,13 @@
                                                                         <i class="fa fa-info-circle"></i> Berbeda dengan pengaturan saat ini ({{ $potentialPoints }} poin). Poin yang tercatat adalah berdasarkan waktu saat materi dikerjakan.
                                                                     @endif
                                                                 </small>
-
+                                                                <div class="mt-2 text-end">
+                                                                    <button type="button" class="btn btn-sm btn-outline-danger btn-round p-1 px-2 mt-1 ms-auto d-flex align-items-center justify-content-center" 
+                                                                        onclick="openSyncModal('{{ $lesson->id }}', '{{ addslashes($lesson->title) }}', {{ $actualPoints }}, {{ $potentialPoints }}, '{{ addslashes($syncDescription) }}')"
+                                                                        style="font-size: 10px; line-height: 1;">
+                                                                        <i class="fa fa-refresh me-1 m-0"></i> Sinkronkan Poin
+                                                                    </button>
+                                                                </div>
                                                             @else
                                                                 <small class="text-muted" style="font-size: 11px;">(Potensi saat ini: {{ $potentialPoints }} Poin)</small>
                                                             @endif
@@ -239,3 +246,56 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<div class="modal fade" id="syncPointsModal" tabindex="-1" role="dialog" aria-labelledby="syncPointsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-white" id="syncPointsModalLabel">Sinkronkan Poin Materi</h5>
+                <button type="button" class="close text-white" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{ route('superadmin.point-sync.sync-points', [$course, $student]) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <p>Sistem akan membuat atau menimpa rekaman riwayat poin siswa untuk materi ini agar sesuai dengan pengaturan bobot poin saat ini.</p>
+                    
+                    <div class="alert alert-info">
+                        <strong>Materi:</strong> <span id="syncLessonTitle"></span><br>
+                        <strong>Poin Saat Ini:</strong> <span id="syncActualPoints" class="text-danger font-weight-bold"></span> Poin<br>
+                        <strong>Poin Ekspektasi:</strong> <span id="syncPotentialPoints" class="text-success font-weight-bold"></span> Poin<br>
+                    </div>
+
+                    <p class="mb-1"><strong>Deskripsi Aktivitas yang akan dicatat:</strong></p>
+                    <code id="syncDescriptionDisplay" class="d-block p-2 bg-light text-dark rounded border"></code>
+
+                    <input type="hidden" name="lesson_id" id="syncLessonId">
+                    <input type="hidden" name="expected_points" id="syncExpectedPoints">
+                    <input type="hidden" name="description" id="syncDescriptionInput">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-refresh me-1"></i> Ya, Sinkronkan Poin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openSyncModal(lessonId, lessonTitle, actualPoints, potentialPoints, description) {
+        document.getElementById('syncLessonTitle').textContent = lessonTitle;
+        document.getElementById('syncActualPoints').textContent = actualPoints;
+        document.getElementById('syncPotentialPoints').textContent = potentialPoints;
+        document.getElementById('syncDescriptionDisplay').textContent = description;
+        
+        document.getElementById('syncLessonId').value = lessonId;
+        document.getElementById('syncExpectedPoints').value = potentialPoints;
+        document.getElementById('syncDescriptionInput').value = description;
+        
+        $('#syncPointsModal').modal('show');
+    }
+</script>
+@endpush
