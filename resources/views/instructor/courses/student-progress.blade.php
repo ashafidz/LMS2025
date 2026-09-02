@@ -77,7 +77,7 @@
                                                 } elseif ($typeStr == 'Quiz') {
                                                     $potentialPoints = $siteSettings->points_for_quiz;
                                                     $displayType = 'Kuis';
-                                                } elseif ($typeStr == 'Assignment') {
+                                                } elseif ($typeStr == 'LessonAssignment') {
                                                     $potentialPoints = $siteSettings->points_for_assignment;
                                                     $displayType = 'Tugas';
                                                 } elseif ($typeStr == 'LessonPolling') {
@@ -108,9 +108,18 @@
                                                 
                                                 <div class="text-end">
                                                     @if($isCompleted)
-                                                        <span class="badge badge-light-success text-success font-weight-bold p-2 px-3 shadow-sm" style="font-size: 13px;">
-                                                            <i class="fa fa-star text-warning me-1"></i> +{{ number_format($actualPoints, 0, ',', '.') }} Poin
-                                                        </span>
+                                                        <div class="d-flex flex-column align-items-end">
+                                                            <span class="badge badge-light-success text-success font-weight-bold p-2 px-3 mb-1 shadow-sm" style="font-size: 13px;">
+                                                                <i class="fa fa-star text-warning me-1"></i> +{{ number_format($actualPoints, 0, ',', '.') }} Poin Diterima
+                                                            </span>
+                                                            @if($actualPoints != $potentialPoints)
+                                                                <small class="text-danger mt-1" style="font-size: 11px; max-width: 250px; text-align: right; line-height: 1.2;">
+                                                                    <i class="fa fa-info-circle"></i> Berbeda dengan pengaturan saat ini ({{ $potentialPoints }} poin). Poin yang tercatat adalah berdasarkan waktu saat materi dikerjakan.
+                                                                </small>
+                                                            @else
+                                                                <small class="text-muted" style="font-size: 11px;">(Potensi saat ini: {{ $potentialPoints }} Poin)</small>
+                                                            @endif
+                                                        </div>
                                                     @else
                                                         <div class="d-flex flex-column align-items-end">
                                                             <span class="badge badge-light-secondary text-secondary font-weight-bold p-2 px-3 mb-1" style="font-size: 13px;">
