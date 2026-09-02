@@ -33,73 +33,79 @@
                                 <div class="card-header">
                                     <h5>Daftar Transaksi Anda</h5>
                                 </div>
-                                <div class="card-block table-border-style">
-                                    @if ($orders -> isEmpty())
-                                        <div class="col-sm-12">
-                                            <div class="card">
-                                                <div class="card-block text-center p-5">
-                                                    <i class="fa fa-book fa-3x text-muted mb-3"></i>
-                                                    <h4>Anda Belum Memiliki Riwayat Transaksi</h4>
-                                                    <p>Jelajahi katalog kami untuk menemukan kursus yang cocok untuk Anda.</p>
-                                                    <a href="{{ route('courses') }}" class="btn btn-primary mt-2">Lihat Katalog Kursus</a>
+                                <div class="card-block">
+                                    @if ($orders->isEmpty())
+                                        <div class="text-center py-5">
+                                            <div class="mb-4">
+                                                <div class="d-inline-flex align-items-center justify-content-center bg-light" style="width: 100px; height: 100px; border-radius: 50%;">
+                                                    <i class="fa fa-receipt text-muted f-40 opacity-50"></i>
                                                 </div>
                                             </div>
+                                            <h5 class="font-weight-bold text-muted mb-2">Belum Ada Transaksi</h5>
+                                            <p class="text-muted mb-4">Anda belum melakukan pembelian kursus apapun. Yuk, jelajahi kursus menarik sekarang!</p>
+                                            <a href="{{ route('courses') }}" class="btn btn-primary btn-round px-4 shadow-sm">
+                                                <i class="fa fa-search mr-1"></i> Jelajahi Kursus
+                                            </a>
                                         </div>
                                     @else
-                                        <div class="table-responsive">
-                                            <table class="table table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Kode Pesanan</th>
-                                                        <th>Tanggal</th>
-                                                        <th>Total Pembayaran</th>
-                                                        <th>Status</th>
-                                                        <th class="text-center">Aksi</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @forelse ($orders as $order)
-                                                        <tr>
-                                                            <td><strong>{{ $order->order_code }}</strong></td>
-                                                            <td>{{ $order->created_at->format('d F Y, H:i') }}</td>
-                                                            <td>Rp{{ number_format($order->final_amount, 0, ',', '.') }}</td>
-                                                            <td>
-                                                                @php
-                                                                    $statusClasses = [
-                                                                        'pending' => 'label-warning',
-                                                                        'paid' => 'label-success',
-                                                                        'failed' => 'label-danger',
-                                                                        'cancelled' => 'label-default',
-                                                                    ];
-                                                                @endphp
-                                                                <label class="label {{ $statusClasses[$order->status] ?? 'label-default' }}">
-                                                                    {{ ucfirst($order->status) }}
-                                                                </label>
-                                                            </td>
-                                                            <td class="text-center">
+                                        <div class="transaction-list">
+                                            @foreach ($orders as $order)
+                                                @php
+                                                    $statusColor = $order->status == 'paid' ? '#28a745' : ($order->status == 'pending' ? '#ffc107' : '#dc3545');
+                                                @endphp
+                                                <div class="card shadow-sm mb-3 border-0" style="border-radius: 12px; border-left: 4px solid {{ $statusColor }} !important;">
+                                                    <div class="card-body p-3 p-md-4">
+                                                        <div class="row align-items-center">
+                                                            <!-- Left Info (Order Code & Date) -->
+                                                            <div class="col-12 col-md-5 mb-3 mb-md-0">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="d-none d-md-flex align-items-center justify-content-center bg-light text-muted mr-3" style="width: 50px; height: 50px; border-radius: 50%;">
+                                                                        <i class="fa fa-shopping-bag f-20"></i>
+                                                                    </div>
+                                                                    <div>
+                                                                        <span class="text-uppercase text-muted font-weight-bold" style="font-size: 11px;">KODE PESANAN</span>
+                                                                        <h6 class="font-weight-bold mb-1">{{ $order->order_code }}</h6>
+                                                                        <span class="text-muted small"><i class="fa fa-clock-o mr-1"></i> {{ $order->created_at->format('d M Y, H:i') }}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Middle Info (Amount & Status) -->
+                                                            <div class="col-7 col-md-4">
+                                                                <div class="d-flex flex-column">
+                                                                    <span class="text-uppercase text-muted font-weight-bold" style="font-size: 11px;">TOTAL BELANJA</span>
+                                                                    <h6 class="font-weight-bold mb-1 text-primary">Rp{{ number_format($order->final_amount, 0, ',', '.') }}</h6>
+                                                                    <div>
+                                                                        @if($order->status == 'paid')
+                                                                            <span class="badge badge-success px-2 py-1"><i class="fa fa-check-circle mr-1"></i> LUNAS</span>
+                                                                        @elseif($order->status == 'pending')
+                                                                            <span class="badge badge-warning px-2 py-1"><i class="fa fa-clock-o mr-1"></i> PENDING</span>
+                                                                        @else
+                                                                            <span class="badge badge-danger px-2 py-1"><i class="fa fa-times-circle mr-1"></i> {{ strtoupper($order->status) }}</span>
+                                                                        @endif
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Right Action -->
+                                                            <div class="col-5 col-md-3 text-right">
                                                                 @if($order->status == 'pending')
-                                                                    <a href="{{ route('checkout.show', $order) }}" class="btn btn-primary btn-sm"><i class="fas fa-money-bill-wave"></i>Bayar Sekarang</a>
+                                                                    <a href="{{ route('checkout.show', $order) }}" class="btn btn-warning btn-sm btn-round shadow-sm w-100">
+                                                                        <i class="fas fa-money-bill-wave mr-1"></i> Bayar
+                                                                    </a>
                                                                 @else
-                                                                    <button type="button" class="btn btn-success  btn-sm" data-toggle="modal" data-target="#invoiceModal-{{ $order->id }}">
-                                                                    <i class="fa fa-refresh"></i>Lihat Invoice
-                                                                </button>
+                                                                    <button type="button" class="btn btn-outline-primary btn-sm btn-round w-100" data-toggle="modal" data-target="#invoiceModal-{{ $order->id }}">
+                                                                        <i class="fa fa-file-text-o mr-1"></i> Invoice
+                                                                    </button>
                                                                 @endif
-
-                                                            </td>
-                                                        </tr>
-                                                    @empty
-                                                        <tr>
-                                                            <td colspan="5" class="text-center">Anda belum memiliki riwayat transaksi.</td>
-                                                        </tr>
-                                                    @endforelse
-                                                </tbody>
-                                            </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
                                         </div>
-                                                                            <div class="d-flex justify-content-center">
-                                        {{ $orders->links() }}
-                                    </div>
+                                        <div class="d-flex justify-content-center mt-4">
+                                            {{ $orders->links() }}
+                                        </div>
                                     @endif
-
                                 </div>
                             </div>
                         </div>

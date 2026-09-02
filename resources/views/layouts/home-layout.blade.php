@@ -56,36 +56,28 @@
                     <li><a href="{{ route('courses') }}">Katalog</a></li>
                     <li><a href="{{ url('/faqs') }}">FAQ</a></li>
                     <li><a href="{{ url('/contact') }}">Kontak</a></li>
-                    <div class="d-flex flex-column d-xl-none">
+                    <li class="d-xl-none mt-3 pt-3 border-top px-3 pb-3">
                         @auth
                             @if (session('active_role') == 'student')
-                                <a href="{{ url('/cart') }}" class="btn-cart">
-                                    Keranjang
+                                <div class="d-flex align-items-center justify-content-center bg-light rounded-pill py-2 mb-3 shadow-sm" style="border: 1px solid #e9ecef;">
+                                    <i class="fa fa-diamond text-primary me-2"></i>
+                                    <span class="text-primary fw-bold">{{ number_format(Auth::user()->diamond_balance, 0, ',', '.') }} Diamond</span>
+                                </div>
+                                <a href="{{ url('/cart') }}" class="d-flex align-items-center justify-content-center w-100 mb-2 rounded-pill shadow-sm" style="padding: 12px; border: 2px solid #0d6efd; color: #0d6efd !important; text-decoration: none;">
+                                    <i class="bi bi-cart me-2" style="color: #0d6efd !important;"></i> Keranjang
                                 </a>
                             @endif
-                            @if (session('active_role') == 'superadmin')
-                                <a class="" href="{{ route('superadmin.dashboard') }}">Dashboard</a>
-                            @elseif (session('active_role') == 'admin')
-                                <a class="" href="{{ route('admin.dashboard') }}">Dashboard</a>
-                            @elseif (session('active_role') == 'instructor' && Auth::user()->instructorProfile?->application_status === 'approved')
-                                <a class="" href="{{ route('instructor.dashboard') }}">Dashboard</a>
-                            @elseif (session('active_role') == 'student')
-                                <a class="" href="{{ route('student.dashboard') }}">Dashboard</a>
-                            @endif
+                            <a href="{{ route(session('active_role').'.dashboard') }}" class="d-flex align-items-center justify-content-center w-100 rounded-pill shadow-sm" style="padding: 12px; background-color: #0d6efd; color: white !important; text-decoration: none;">
+                                <i class="bi bi-speedometer2 me-2" style="color: white !important;"></i> Dashboard
+                            </a>
+                        @else
+                            <a href="{{ url('/login') }}" class="d-flex align-items-center justify-content-center w-100 rounded-pill shadow-sm" style="padding: 12px; background-color: #0d6efd; color: white !important; text-decoration: none;">
+                                <i class="bi bi-box-arrow-in-right me-2" style="color: white !important;"></i> Login
+                            </a>
                         @endauth
-                        @if (session('active_role') == 'student')
-                            <div class="d-flex align-items-center gap-2 ms-3 py-2">
-                                <i class="fa fa-diamond text-primary d-block f-40"></i>
-                                <p class="mb-0 align-self-center text-primary">
-                                    {{ number_format(Auth::user()->diamond_balance, 0, ',', '.') }}</p>
-                            </div>
-                        @endif
-                        @guest
-                            <a class="" href="{{ url('/login') }}">Login</a>
-                        @endguest
-                    </div>
+                    </li>
                 </ul>
-                <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+                <i class="mobile-nav-toggle d-xl-none bi bi-list" style="margin-right: 10px; line-height: 1; display: flex; align-items: center; justify-content: center;"></i>
             </nav>
 
             <div class="d-flex align-items-center gap-2 d-none d-xl-flex">

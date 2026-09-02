@@ -25,164 +25,206 @@
         <div class="main-body">
             <div class="page-wrapper">
                 <div class="page-body">
-                    {{-- Bagian Atas: Poin Saya & Rincian Poin (2 kolom) --}}
                     <div class="row">
-                        {{-- KIRI: Poin Saya + Cara Mendapatkan Poin --}}
-                        <div class="col-md-4">
-                            {{-- Card: Total Poin --}}
-                            <div class="card widget-visitor-card mb-4">
-                                <div class="card-block-big text-center">
-                                    <i class="ti-medall-alt text-warning f-40"></i>
-                                    <h4 class="m-t-20"><span class="text-warning">{{ number_format($totalPoints, 0, ',', '.') }}</span> Poin</h4>
-                                    <p>Total Akumulasi Poin anda saat ini</p>
+                        {{-- KIRI: Summary & Info (col-lg-4) --}}
+                        <div class="col-lg-4">
+                            <div class="row">
+                                {{-- Card: Total Poin --}}
+                                <div class="col-12 col-md-6 col-lg-12">
+                                    <div class="card mb-4 shadow-sm border-0" style="border-radius: 12px;">
+                                        <div class="card-block text-center p-4">
+                                            <i class="ti-medall-alt text-warning f-50 mb-3"></i>
+                                            <h2 class="font-weight-bold text-warning mb-1">{{ number_format($totalPoints, 0, ',', '.') }} <small class="text-muted f-16">Poin</small></h2>
+                                            <p class="text-muted mb-0">Total Akumulasi Poin Anda</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Card: Saldo Diamond --}}
+                                <div class="col-12 col-md-6 col-lg-12">
+                                    <div class="card mb-4 shadow-sm border-0" style="border-radius: 12px;">
+                                        <div class="card-block text-center p-4">
+                                            <i class="fa fa-diamond text-c-blue d-block f-50 mb-3"></i>
+                                            <h2 class="font-weight-bold text-c-blue mb-1">{{ number_format($user->diamond_balance, 0, ',', '.') }} <small class="text-muted f-16">Diamond</small></h2>
+                                            <p class="text-muted mb-3">Saldo Diamond Anda Saat Ini</p>
+                                            <a href="{{ route('courses') }}" class="btn btn-primary btn-sm btn-round px-4 shadow-sm"><i class="fa fa-shopping-cart me-1"></i> Gunakan Diamond</a>
+                                            
+                                            <div class="mt-3 pt-3 border-top text-left">
+                                                <span class="text-muted" style="font-size: 12px;"><i class="fa fa-exchange mr-1"></i> Rasio Konversi Otomatis:</span><br>
+                                                <span class="font-weight-bold text-dark" style="font-size: 13px;">{{ $siteSettings->point_to_diamond_rate ? number_format($siteSettings->point_to_diamond_rate, 0, ',', '.') : '0' }} Poin = 1 Diamond</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            
-                        {{-- Card: Line Chart --}}
-                        <div class="col-sm-12">
-                            <div class="card shadow-sm mb-4">
-                                <div class="card-block">
-                                    <h6 class="font-weight-bold mb-1">Aktivitas Poin Anda</h6>
-                                    <p class="text-muted mb-4">
-                                        Grafik perolehan dan penggunaan poin Anda selama 12 bulan terakhir.
-                                    </p>
-                                    <canvas id="myLineChart" style="max-height:250px;"></canvas>
+
+                            {{-- Cara Mendapatkan Poin (Compact Badges) --}}
+                            <div class="card shadow-sm mb-4" style="border-radius: 12px;">
+                                <div class="card-header border-bottom-0 pb-0">
+                                    <h6 class="font-weight-bold"><i class="fa fa-info-circle text-info mr-1"></i> Cara Mendapat Poin</h6>
+                                </div>
+                                <div class="card-block pt-3">
+                                    <div class="d-flex flex-column gap-2" style="gap: 8px;">
+                                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+                                            <span class="text-muted" style="font-size: 13px;">Beli Kursus</span>
+                                            <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_purchase ? number_format($siteSettings->points_for_purchase, 0, ',', '.') : '0' }} Poin</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+                                            <span class="text-muted" style="font-size: 13px;">Baca Artikel</span>
+                                            <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_article ? number_format($siteSettings->points_for_article, 0, ',', '.') : '0' }} Poin</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+                                            <span class="text-muted" style="font-size: 13px;">Tonton Video</span>
+                                            <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_video ? number_format($siteSettings->points_for_video, 0, ',', '.') : '0' }} Poin</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+                                            <span class="text-muted" style="font-size: 13px;">Baca Dokumen</span>
+                                            <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_document ? number_format($siteSettings->points_for_document, 0, ',', '.') : '0' }} Poin</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+                                            <span class="text-muted" style="font-size: 13px;">Lulus Kuis</span>
+                                            <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_quiz ? number_format($siteSettings->points_for_quiz, 0, ',', '.') : '0' }} Poin</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+                                            <span class="text-muted" style="font-size: 13px;">Kumpul Tugas</span>
+                                            <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_assignment ? number_format($siteSettings->points_for_assignment, 0, ',', '.') : '0' }} Poin</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+                                            <span class="text-muted" style="font-size: 13px;">Isi Polling</span>
+                                            <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_polling ? number_format($siteSettings->points_for_polling, 0, ',', '.') : '0' }} Poin</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-muted" style="font-size: 13px;">Isi Word Cloud</span>
+                                            <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_wordcloud ? number_format($siteSettings->points_for_wordcloud, 0, ',', '.') : '0' }} Poin</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                    
-                            {{-- Card: Cara Mendapatkan Poin --}}
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>Cara Mendapatkan Poin</h5>
-                                </div>
+                        {{-- KANAN: Aktivitas & Riwayat (col-lg-8) --}}
+                        <div class="col-lg-8">
+                            {{-- Chart --}}
+                            <div class="card shadow-sm mb-4" style="border-radius: 12px;">
                                 <div class="card-block">
-                                    <ul class="list-group list-group-flush">
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Membeli Kursus Dengan Uang <span class="badge badge-success">{{ $siteSettings->points_for_purchase ? number_format($siteSettings->points_for_purchase, 0, ',', '.') : '0' }} Poin</span>
+                                    <h6 class="font-weight-bold mb-1">Aktivitas Poin Anda</h6>
+                                    <p class="text-muted mb-4" style="font-size: 13px;">Grafik perolehan dan penggunaan poin Anda selama 12 bulan terakhir.</p>
+                                    <div style="height: 250px;">
+                                        <canvas id="myLineChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Tabbed History (Riwayat Poin & Diamond) --}}
+                            <div class="card shadow-sm" style="border-radius: 12px;">
+                                <div class="card-header p-b-0 border-bottom-0">
+                                    <ul class="nav nav-tabs md-tabs" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active font-weight-bold" data-toggle="tab" href="#tab-riwayat-poin" role="tab"><i class="ti-medall-alt mr-1"></i> Riwayat Poin</a>
+                                            <div class="slide"></div>
                                         </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Menyelesaikan Lesson Tipe Article <span class="badge badge-success">{{ $siteSettings->points_for_article ? number_format($siteSettings->points_for_article, 0, ',', '.') : '0' }} Poin</span>
+                                        <li class="nav-item">
+                                            <a class="nav-link font-weight-bold" data-toggle="tab" href="#tab-riwayat-diamond" role="tab"><i class="fa fa-diamond mr-1"></i> Riwayat Diamond</a>
+                                            <div class="slide"></div>
                                         </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Menyelesaikan Lesson Tipe Video <span class="badge badge-success">{{ $siteSettings->points_for_video ? number_format($siteSettings->points_for_video, 0, ',', '.') : '0' }} Poin</span>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Menyelesaikan Lesson Tipe Dokumen <span class="badge badge-success">{{ $siteSettings->points_for_document ? number_format($siteSettings->points_for_document, 0, ',', '.') : '0' }} Poin</span>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Menyelesaikan Lesson Tipe Quiz <span class="badge badge-success">{{ $siteSettings->points_for_quiz ? number_format($siteSettings->points_for_quiz, 0, ',', '.') : '0' }} Poin</span>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Menyelesaikan Lesson Tipe Assignment <span class="badge badge-success">{{ $siteSettings->points_for_assignment ? number_format($siteSettings->points_for_assignment, 0, ',', '.') : '0' }} Poin</span>
-                                        </li>
-                                        {{-- <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            Menyelesaikan Lesson Tipe Video <span class="badge badge-success">+2</span>
-                                        </li> --}}
                                     </ul>
                                 </div>
-                            </div>
-                        </div>
-                    
-                        {{-- KANAN: Rincian Poin + Diamond Saya + Riwayat Diamond --}}
-                        <div class="col-md-8">
-                            {{-- Card: Rincian Poin --}}
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h5>Rincian Poin per Kursus</h5>
-                                </div>
-                                <div class="card-block table-border-style">
-                                    <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
-                                        <table class="table table-hover mb-0">
-                                            <thead>
-                                                <tr>
-                                                    <th>Nama Kursus</th>
-                                                    <th>Poin</th>
-                                                    <th>Status</th>
-                                                    <th class="text-center">Aksi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @forelse ($pointsPerCourse as $course)
+                                <div class="card-block tab-content p-t-20">
+                                    {{-- Tab 1: Poin --}}
+                                    <div class="tab-pane active" id="tab-riwayat-poin" role="tabpanel">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover mb-0">
+                                                <thead>
                                                     <tr>
-                                                        <td>{{ $course->title }}</td>
-                                                        <td><strong>{{ $course->pivot->points_earned }} Poin</strong></td>
-                                                        <td>
-                                                            @if($course->pivot->is_converted_to_diamond)
-                                                                <label class="label label-success">Sudah Dikonversi</label>
-                                                            @else
-                                                                <label class="label label-default">Belum Dikonversi</label>
-                                                            @endif
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#historyModal-{{ $course->id }}">
-                                                                <i class="fa fa-eye"></i> Lihat Riwayat
-                                                            </button>
-                                                        </td>
+                                                        <th>Nama Kursus</th>
+                                                        <th>Total Poin</th>
+                                                        <th class="d-none d-md-table-cell">Status Konversi</th>
+                                                        <th class="text-center">Aksi</th>
                                                     </tr>
-                                                @empty
-                                                    <tr>
-                                                        <td colspan="4" class="text-center">Anda belum mendapatkan poin dari kursus manapun.</td>
-                                                    </tr>
-                                                @endforelse
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                    @forelse ($pointsPerCourse as $course)
+                                                        <tr>
+                                                            <td class="align-middle">
+                                                                <div class="text-wrap" style="max-width: 200px; word-wrap: break-word;">
+                                                                    <strong>{{ $course->title }}</strong>
+                                                                    <div class="d-block d-md-none mt-1">
+                                                                        @if($course->pivot->is_converted_to_diamond)
+                                                                            <label class="label label-success mb-0">Dikonversi</label>
+                                                                        @else
+                                                                            <label class="label label-default mb-0">Belum</label>
+                                                                        @endif
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td class="align-middle"><strong><span class="text-warning">{{ $course->pivot->points_earned }}</span> Poin</strong></td>
+                                                            <td class="d-none d-md-table-cell align-middle">
+                                                                @if($course->pivot->is_converted_to_diamond)
+                                                                    <label class="label label-success mb-0">Sudah Dikonversi</label>
+                                                                @else
+                                                                    <label class="label label-default mb-0">Belum Dikonversi</label>
+                                                                @endif
+                                                            </td>
+                                                            <td class="text-center align-middle" style="width: 1%; white-space: nowrap;">
+                                                                <button class="btn btn-outline-primary btn-sm btn-round" data-toggle="modal" data-target="#historyModal-{{ $course->id }}">
+                                                                    <i class="fa fa-list mr-1"></i> Rincian
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="4" class="text-center text-muted py-4">
+                                                                <i class="ti-info-alt d-block f-24 mb-2"></i>
+                                                                Anda belum mendapatkan poin dari kursus manapun.
+                                                            </td>
+                                                        </tr>
+                                                    @endforelse
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="d-flex justify-content-center mt-3">
+                                            {{ $pointsPerCourse->links() }}
+                                        </div>
                                     </div>
-                                    <div class="d-flex justify-content-center mt-3">
-                                        {{ $pointsPerCourse->links() }}
-                                    </div>
-                                </div>
-                            </div>
-                    
-                            {{-- Saldo Diamond --}}
-                            <div class="card mb-4">
-                                <div class="card-block text-center">
-                                    <i class="fa fa-diamond text-c-blue d-block f-40"></i>
-                                        <h4 class="m-t-20"><span class="text-c-blue">{{ number_format($user->diamond_balance, 0, ',', '.') }}</span> Diamond</h4>
-                                    <p class="m-b-20">Saldo Diamond Anda Saat Ini</p>
-                                    <a href="{{ route('courses') }}" class="btn btn-primary btn-sm btn-round">Gunakan Diamond</a>
-                                </div>
-                            </div>
-                    
-                            {{-- Riwayat Diamond --}}
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>Riwayat Diamond</h5>
-                                </div>
-                                <div class="card-block table-border-style">
-                                    <div class="table-responsive" style="max-height: 220px; overflow-y: auto;">
-                                        <table class="table table-hover mb-0">
-                                            <thead>
-                                                <tr>
-                                                    <th>Tanggal</th>
-                                                    <th>Deskripsi</th>
-                                                    <th class="text-right">Jumlah</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @forelse ($diamondHistories as $history)
+
+                                    {{-- Tab 2: Diamond --}}
+                                    <div class="tab-pane" id="tab-riwayat-diamond" role="tabpanel">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover mb-0">
+                                                <thead>
                                                     <tr>
-                                                        <td>{{ $history->created_at->format('d M Y, H:i') }}</td>
-                                                        <td>{{ $history->description }}</td>
-                                                        <td class="text-right">
-                                                            @if($history->diamonds > 0)
-                                                                <span class="text-success font-weight-bold">+{{ $history->diamonds }}</span>
-                                                            @else
-                                                                <span class="text-danger font-weight-bold">{{ $history->diamonds }}</span>
-                                                            @endif
-                                                        </td>
+                                                        <th>Tanggal</th>
+                                                        <th>Deskripsi</th>
+                                                        <th class="text-right">Jumlah</th>
                                                     </tr>
-                                                @empty
-                                                    <tr>
-                                                        <td colspan="3" class="text-center">Anda belum memiliki riwayat diamond.</td>
-                                                    </tr>
-                                                @endforelse
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div class="d-flex justify-content-center mt-3">
-                                        {{ $diamondHistories->links() }}
+                                                </thead>
+                                                <tbody>
+                                                    @forelse ($diamondHistories as $history)
+                                                        <tr>
+                                                            <td class="align-middle text-muted" style="white-space: nowrap;">{{ $history->created_at->format('d M Y, H:i') }}</td>
+                                                            <td class="align-middle text-wrap" style="min-width: 150px;">{{ $history->description }}</td>
+                                                            <td class="text-right align-middle" style="white-space: nowrap;">
+                                                                @if($history->diamonds > 0)
+                                                                    <span class="text-success font-weight-bold" style="font-size: 16px;">+{{ $history->diamonds }}</span>
+                                                                @else
+                                                                    <span class="text-danger font-weight-bold" style="font-size: 16px;">{{ $history->diamonds }}</span>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="3" class="text-center text-muted py-4">
+                                                                <i class="fa fa-diamond d-block f-24 mb-2"></i>
+                                                                Anda belum memiliki riwayat diamond.
+                                                            </td>
+                                                        </tr>
+                                                    @endforelse
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="d-flex justify-content-center mt-3">
+                                            {{ $diamondHistories->links() }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
