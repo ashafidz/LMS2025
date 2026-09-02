@@ -276,6 +276,11 @@ class CourseController extends Controller
             ->get()
             ->keyBy('lesson_id');
 
+        // Ambil riwayat pengumpulan tugas (jika ada yang menunggu nilai atau revisi)
+        $assignmentSubmissions = \App\Models\AssignmentSubmission::where('user_id', $student->id)
+            ->get()
+            ->keyBy('assignment_id');
+
         // Ambil pengaturan situs untuk poin potensial
         $siteSettings = \App\Models\SiteSetting::firstOrNew();
 
@@ -284,6 +289,7 @@ class CourseController extends Controller
             'student', 
             'completedLessonIds', 
             'pointHistories', 
+            'assignmentSubmissions',
             'siteSettings'
         ));
     }

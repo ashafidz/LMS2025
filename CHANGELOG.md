@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [2026-09-02]
 ### Added
+- **Assignment Submission Status Tracking**: Menambahkan sistem pelacakan status penugasan (*Assignment*) secara *real-time* di halaman Student Progress instruktur. Jika tugas belum dinilai, statusnya akan berubah menjadi *badge* kuning **Menunggu Penilaian**, dan jika tidak lulus, berubah menjadi *badge* merah **Perlu Revisi** daripada sekadar berstatus 0 poin.
 - **Instructor Student Progress**: Menambahkan fitur pemantauan *Student Checklist* bagi instruktur untuk melihat detail progres materi dan perolehan poin aktual per siswa secara langsung dari halaman Manajemen Kursus, lengkap dengan indikator potensi poin untuk materi yang belum diselesaikan dan akumulasi **Total Perolehan Poin** khusus di kursus tersebut.
 - **Gamification Clarity**: Menambahkan informasi "Isi Polling", "Isi Word Cloud", dan Rasio Konversi Poin ke Diamond pada panel informasi Poin & Diamond siswa agar transparan dan selaras dengan konfigurasi Superadmin.
 
