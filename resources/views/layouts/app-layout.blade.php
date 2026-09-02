@@ -71,6 +71,16 @@
                 color: #facc15; /* kuning keemasan */
                 transform: scale(1.2);
             }
+
+            /* Fix Mobile Sidebar Scrolling */
+            @media only screen and (max-width: 991.98px) {
+                .pcoded .pcoded-navbar {
+                    position: fixed !important;
+                    height: 100vh !important;
+                    overflow-y: auto !important;
+                    -webkit-overflow-scrolling: touch;
+                }
+            }
         </style>
         @stack('styles')
 

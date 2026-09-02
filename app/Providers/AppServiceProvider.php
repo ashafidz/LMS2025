@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
         try {
             // Gunakan caching agar tidak query ke database setiap kali halaman dimuat
             $settings = Cache::rememberForever('site_settings', function () {
-                return SiteSetting::first();
+                return SiteSetting::firstOrNew();
             });
 
             // Kirim variabel $siteSettings ke semua view

@@ -14,8 +14,8 @@ class SiteSettingController extends Controller
      */
     public function edit()
     {
-        // Ambil baris pertama dari pengaturan (karena hanya ada satu)
-        $settings = SiteSetting::first();
+        // Ambil baris pertama dari pengaturan atau buat instance baru jika kosong
+        $settings = SiteSetting::firstOrNew();
 
         return view('superadmin.settings.edit', compact('settings'));
     }
@@ -25,7 +25,7 @@ class SiteSettingController extends Controller
      */
     public function update(Request $request)
     {
-        $settings = SiteSetting::first();
+        $settings = SiteSetting::firstOrNew();
 
         $validated = $request->validate([
             'site_name' => 'required|string|max:255',
@@ -68,8 +68,12 @@ class SiteSettingController extends Controller
             $validated['logo_path'] = $request->file('logo')->store('logos', 'public');
         }
 
-        // Perbarui pengaturan di database
-        $settings->update($validated);
+        // Perbarui atau simpan pengaturan di database
+        $settings->fill($validated);
+        $settings->save();
+
+        // Hapus cache agar pengaturan baru dimuat di seluruh aplikasi
+        \Illuminate\Support\Facades\Cache::forget('site_settings');
 
         return back()->with('success', 'Pengaturan situs berhasil diperbarui.');
     }
