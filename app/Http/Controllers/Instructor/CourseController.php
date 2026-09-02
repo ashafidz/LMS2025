@@ -246,4 +246,45 @@ class CourseController extends Controller
 
         return redirect()->route('instructor.courses.index')->with('success', 'Kursus berhasil di-clone.');
     }
+
+    /**
+     * Show student progress checklist for a specific course.
+     */
+    public function studentProgress(\App\Models\Course $course, \App\Models\User $student)
+    {
+        // Pastikan kursus milik instruktur yang sedang login
+        if ($course->instructor_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Pastikan siswa terdaftar di kursus ini
+        $isEnrolled = $course->students()->where('user_id', $student->id)->exists();
+        if (!$isEnrolled) {
+            abort(404, 'Siswa tidak terdaftar di kursus ini.');
+        }
+
+        // Eager load modul dan pelajaran
+        $course->load('modules.lessons');
+
+        // Ambil ID lesson yang sudah diselesaikan siswa
+        $completedLessonIds = $student->completedLessons()->pluck('lessons.id')->toArray();
+
+        // Ambil riwayat poin khusus untuk kursus dan siswa ini, index by lesson_id
+        $pointHistories = \App\Models\PointHistory::where('user_id', $student->id)
+            ->where('course_id', $course->id)
+            ->whereNotNull('lesson_id')
+            ->get()
+            ->keyBy('lesson_id');
+
+        // Ambil pengaturan situs untuk poin potensial
+        $siteSettings = \App\Models\SiteSetting::firstOrNew();
+
+        return view('instructor.courses.student-progress', compact(
+            'course', 
+            'student', 
+            'completedLessonIds', 
+            'pointHistories', 
+            'siteSettings'
+        ));
+    }
 }
