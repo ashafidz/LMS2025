@@ -148,7 +148,19 @@
                                                                     0 Poin
                                                                 </span>
                                                             @endif
-                                                            <small class="text-muted" style="font-size: 11px;">(Potensi: +{{ number_format($potentialPoints, 0, ',', '.') }})</small>
+
+                                                            @if($assignmentStatus == 'submitted' || $assignmentStatus == 'revision_required')
+                                                                <small class="text-success font-weight-bold mb-1" style="font-size: 12px;"><i class="fa fa-star me-1"></i> +{{ number_format($actualPoints, 0, ',', '.') }} Poin Diterima</small>
+                                                                @if($actualPoints != $potentialPoints)
+                                                                    <small class="text-danger mt-1" style="font-size: 11px; max-width: 250px; text-align: right; line-height: 1.2;">
+                                                                        <i class="fa fa-info-circle"></i> Berbeda dengan pengaturan saat ini ({{ $potentialPoints }} poin). Poin yang tercatat adalah berdasarkan waktu saat materi dikerjakan.
+                                                                    </small>
+                                                                @else
+                                                                    <small class="text-muted" style="font-size: 11px;">(Potensi saat ini: {{ $potentialPoints }} Poin)</small>
+                                                                @endif
+                                                            @else
+                                                                <small class="text-muted" style="font-size: 11px;">(Potensi saat ini: +{{ number_format($potentialPoints, 0, ',', '.') }})</small>
+                                                            @endif
                                                         </div>
                                                     @endif
                                                 </div>
