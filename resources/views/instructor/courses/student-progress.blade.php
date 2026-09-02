@@ -87,12 +87,25 @@
                                                     $potentialPoints = $siteSettings->points_for_wordcloud;
                                                     $displayType = 'Word Cloud';
                                                 }
+                                                // Check for assignment submission status if it's an assignment
+                                                $assignmentStatus = null;
+                                                if ($typeStr == 'LessonAssignment' && isset($assignmentSubmissions[$lesson->lessonable_id])) {
+                                                    $assignmentStatus = $assignmentSubmissions[$lesson->lessonable_id]->status;
+                                                }
                                             @endphp
                                             <div class="list-group-item d-flex justify-content-between align-items-center py-3">
                                                 <div class="d-flex align-items-center">
                                                     @if($isCompleted)
                                                         <div class="bg-success rounded-circle shadow-sm me-3 flex-shrink-0" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
                                                             <i class="fa fa-check text-white m-0" style="font-size: 16px;"></i>
+                                                        </div>
+                                                    @elseif($assignmentStatus == 'submitted')
+                                                        <div class="bg-warning rounded-circle shadow-sm me-3 flex-shrink-0" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                            <i class="fa fa-clock-o text-white m-0" style="font-size: 16px;"></i>
+                                                        </div>
+                                                    @elseif($assignmentStatus == 'revision_required')
+                                                        <div class="bg-danger rounded-circle shadow-sm me-3 flex-shrink-0" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                            <i class="fa fa-exclamation text-white m-0" style="font-size: 16px;"></i>
                                                         </div>
                                                     @else
                                                         <div class="bg-light border text-muted rounded-circle me-3 flex-shrink-0" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
@@ -122,9 +135,19 @@
                                                         </div>
                                                     @else
                                                         <div class="d-flex flex-column align-items-end">
-                                                            <span class="badge badge-light-secondary text-secondary font-weight-bold p-2 px-3 mb-1" style="font-size: 13px;">
-                                                                0 Poin
-                                                            </span>
+                                                            @if($assignmentStatus == 'submitted')
+                                                                <span class="badge badge-light-warning text-warning font-weight-bold p-2 px-3 mb-1" style="font-size: 13px;">
+                                                                    <i class="fa fa-clock-o me-1"></i> Menunggu Penilaian
+                                                                </span>
+                                                            @elseif($assignmentStatus == 'revision_required')
+                                                                <span class="badge badge-light-danger text-danger font-weight-bold p-2 px-3 mb-1" style="font-size: 13px;">
+                                                                    <i class="fa fa-exclamation-circle me-1"></i> Perlu Revisi
+                                                                </span>
+                                                            @else
+                                                                <span class="badge badge-light-secondary text-secondary font-weight-bold p-2 px-3 mb-1" style="font-size: 13px;">
+                                                                    0 Poin
+                                                                </span>
+                                                            @endif
                                                             <small class="text-muted" style="font-size: 11px;">(Potensi: +{{ number_format($potentialPoints, 0, ',', '.') }})</small>
                                                         </div>
                                                     @endif
