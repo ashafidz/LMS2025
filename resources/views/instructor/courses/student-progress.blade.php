@@ -31,10 +31,17 @@
                     
                     {{-- Header Card --}}
                     <div class="card mb-4 shadow-sm border-0" style="border-radius: 12px; background: linear-gradient(135deg, #1E88E5, #1565C0); color: white;">
-                        <div class="card-block p-4 d-flex align-items-center">
-                            <div>
+                        <div class="card-block p-4 d-flex align-items-center justify-content-between flex-wrap">
+                            <div class="d-flex align-items-center mb-2 mb-md-0">
                                 <h3 class="font-weight-bold mb-1"><i class="fa fa-user-circle me-2"></i> {{ $student->name }}</h3>
-                                <p class="mb-0 text-white-50"><i class="fa fa-envelope me-1"></i> {{ $student->email }} | NIM: {{ $student->studentProfile->unique_id_number ?? '-' }}</p>
+                                <div class="ms-3 ms-md-4">
+                                    <p class="mb-0 text-white-50" style="line-height: 1.2;"><i class="fa fa-envelope me-1"></i> {{ $student->email }}</p>
+                                    <p class="mb-0 text-white-50" style="line-height: 1.2;"><i class="fa fa-id-card me-1"></i> NIM: {{ $student->studentProfile->unique_id_number ?? '-' }}</p>
+                                </div>
+                            </div>
+                            <div class="text-md-end text-center p-3 rounded" style="background: rgba(255,255,255,0.1);">
+                                <h6 class="mb-1 text-white-50 text-uppercase" style="font-size: 11px; letter-spacing: 1px;">Total Perolehan Poin</h6>
+                                <h3 class="mb-0 font-weight-bold text-warning"><i class="fa fa-star me-1"></i> {{ number_format($pointHistories->sum('points'), 0, ',', '.') }}</h3>
                             </div>
                         </div>
                     </div>
@@ -57,11 +64,29 @@
                                                 // Hitung potensi poin berdasarkan tipe materi
                                                 $potentialPoints = 0;
                                                 $typeStr = class_basename($lesson->lessonable_type);
-                                                if ($typeStr == 'LessonArticle') $potentialPoints = $siteSettings->points_for_article;
-                                                elseif ($typeStr == 'LessonVideo') $potentialPoints = $siteSettings->points_for_video;
-                                                elseif ($typeStr == 'LessonDocument') $potentialPoints = $siteSettings->points_for_document;
-                                                elseif ($typeStr == 'Quiz') $potentialPoints = $siteSettings->points_for_quiz;
-                                                elseif ($typeStr == 'Assignment') $potentialPoints = $siteSettings->points_for_assignment;
+                                                $displayType = $typeStr;
+                                                if ($typeStr == 'LessonArticle') {
+                                                    $potentialPoints = $siteSettings->points_for_article;
+                                                    $displayType = 'Artikel';
+                                                } elseif ($typeStr == 'LessonVideo') {
+                                                    $potentialPoints = $siteSettings->points_for_video;
+                                                    $displayType = 'Video';
+                                                } elseif ($typeStr == 'LessonDocument') {
+                                                    $potentialPoints = $siteSettings->points_for_document;
+                                                    $displayType = 'Dokumen / Slide';
+                                                } elseif ($typeStr == 'Quiz') {
+                                                    $potentialPoints = $siteSettings->points_for_quiz;
+                                                    $displayType = 'Kuis';
+                                                } elseif ($typeStr == 'Assignment') {
+                                                    $potentialPoints = $siteSettings->points_for_assignment;
+                                                    $displayType = 'Tugas';
+                                                } elseif ($typeStr == 'LessonPolling') {
+                                                    $potentialPoints = $siteSettings->points_for_polling;
+                                                    $displayType = 'Polling';
+                                                } elseif ($typeStr == 'LessonWordcloud') {
+                                                    $potentialPoints = $siteSettings->points_for_wordcloud;
+                                                    $displayType = 'Word Cloud';
+                                                }
                                             @endphp
                                             <div class="list-group-item d-flex justify-content-between align-items-center py-3">
                                                 <div class="d-flex align-items-center">
@@ -77,7 +102,7 @@
                                                     
                                                     <div>
                                                         <h6 class="mb-1 {{ $isCompleted ? 'text-dark font-weight-bold' : 'text-muted' }}">{{ $lesson->title }}</h6>
-                                                        <small class="text-muted"><i class="fa fa-file-text-o me-1"></i> {{ $typeStr }}</small>
+                                                        <small class="text-muted"><i class="fa fa-file-text-o me-1"></i> {{ $displayType }}</small>
                                                     </div>
                                                 </div>
                                                 

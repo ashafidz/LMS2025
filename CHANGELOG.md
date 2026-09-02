@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [2026-09-02]
 ### Added
-- **Instructor Student Progress**: Menambahkan fitur pemantauan *Student Checklist* bagi instruktur untuk melihat detail progres materi dan perolehan poin aktual per siswa secara langsung dari halaman Manajemen Kursus, lengkap dengan indikator potensi poin untuk materi yang belum diselesaikan.
+- **Instructor Student Progress**: Menambahkan fitur pemantauan *Student Checklist* bagi instruktur untuk melihat detail progres materi dan perolehan poin aktual per siswa secara langsung dari halaman Manajemen Kursus, lengkap dengan indikator potensi poin untuk materi yang belum diselesaikan dan akumulasi **Total Perolehan Poin** khusus di kursus tersebut.
 - **Gamification Clarity**: Menambahkan informasi "Isi Polling", "Isi Word Cloud", dan Rasio Konversi Poin ke Diamond pada panel informasi Poin & Diamond siswa agar transparan dan selaras dengan konfigurasi Superadmin.
 
 ### Fixed
@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 - **Hamburger Menu Alignment**: Memperbaiki cacat keseimbangan simetris pada ikon menu hamburger beranda versi *mobile* akibat bentrokan antara *padding* kapsul dan *margin* bawaan dari template.
 
 ### Changed
+- **Student Progress UI**: Merapikan antarmuka fitur pemantauan *Student Checklist*, termasuk menerjemahkan nama *class* internal (misal: `LessonArticle`, `LessonWordcloud`) menjadi label bahasa Indonesia yang ramah pengguna (Artikel, Word Cloud, Dokumen / Slide, dll).
 - **Poin & Diamond UI/UX**: Mengoptimalkan layout dasbor poin siswa menjadi grid 4/8 di desktop dan menyembunyikan riwayat panjang ke dalam sistem navigasi *Tab* di versi ponsel untuk mengurangi *cognitive load*.
 - **Certificate Gallery**: Merombak total tampilan daftar sertifikat dari format tabel kaku menjadi format galeri kartu (*card grid*) yang jauh lebih elegan dan modern.
 - **Kelola Ulasan (Feedback)**: Merombak struktur halaman dari tumpukan kartu vertikal yang memanjang menjadi sistem navigasi tab vertikal (Vertical Pills) bergaya *floating pill* yang rapi.
