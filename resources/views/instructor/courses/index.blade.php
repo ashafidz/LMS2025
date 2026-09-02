@@ -130,6 +130,11 @@
                                                                                 <i class="fa fa-bar-chart text-warning me-2"></i> Data Student
                                                                             </button>
                                                                         </li>
+                                                                        <li>
+                                                                            <a class="dropdown-item" href="{{ route('instructor.courses.mass_sync.preview', $course) }}">
+                                                                                <i class="fa fa-magic text-danger me-2"></i> Sinkron Poin Massal
+                                                                            </a>
+                                                                        </li>
                                                                         
                                                                         @if(in_array($course->status, ['draft', 'rejected']))
                                                                         <li><hr class="dropdown-divider"></li>

@@ -358,5 +358,167 @@ class CourseController extends Controller
         });
 
         return back()->with('success', 'Poin siswa berhasil disinkronkan.');
+    /**
+     * Preview mass sync anomalies for the whole course.
+     */
+    public function massSyncPreview(\App\Models\Course $course)
+    {
+        if ($course->instructor_id != auth()->id()) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $anomalies = $this->getMassSyncAnomalies($course);
+
+        return view('instructor.courses.mass-sync-preview', compact('course', 'anomalies'));
+    }
+
+    /**
+     * Execute mass sync points for the whole course.
+     */
+    public function massSyncExecute(Request $request, \App\Models\Course $course)
+    {
+        if ($course->instructor_id != auth()->id()) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $anomalies = $this->getMassSyncAnomalies($course);
+
+        if (empty($anomalies)) {
+            return back()->with('info', 'Tidak ada data poin yang perlu disinkronkan.');
+        }
+
+        DB::transaction(function () use ($course, $anomalies) {
+            foreach ($anomalies as $anomaly) {
+                $student = $anomaly['student'];
+                $lesson = $anomaly['lesson'];
+                $expectedPoints = $anomaly['expected_points'];
+                $description = $anomaly['description'];
+                $actualPoints = $anomaly['actual_points'];
+
+                $pointDifference = $expectedPoints - $actualPoints;
+
+                // Create or update PointHistory
+                \App\Models\PointHistory::updateOrCreate(
+                    [
+                        'user_id' => $student->id,
+                        'course_id' => $course->id,
+                        'lesson_id' => $lesson->id,
+                    ],
+                    [
+                        'points' => $expectedPoints,
+                        'description' => $description
+                    ]
+                );
+
+                // Update total points_earned in CourseUser
+                if ($pointDifference != 0) {
+                    $courseUser = \App\Models\CourseUser::where('user_id', $student->id)
+                        ->where('course_id', $course->id)
+                        ->first();
+                        
+                    if ($courseUser) {
+                        $courseUser->increment('points_earned', $pointDifference);
+                    } else {
+                        \App\Models\CourseUser::create([
+                            'user_id' => $student->id,
+                            'course_id' => $course->id,
+                            'points_earned' => max(0, $pointDifference) // Prevent negative on create
+                        ]);
+                    }
+                }
+            }
+        });
+
+        return redirect()->route('instructor.courses.mass_sync.preview', $course)
+            ->with('success', 'Sinkronisasi massal berhasil dieksekusi. ' . count($anomalies) . ' riwayat poin telah diperbaiki.');
+    }
+
+    /**
+     * Get all point anomalies for a given course across all enrolled students.
+     */
+    private function getMassSyncAnomalies(\App\Models\Course $course)
+    {
+        $siteSettings = \App\Models\SiteSetting::firstOrNew();
+        $course->load('modules.lessons.lessonable');
+        $students = $course->students()->get();
+        
+        $anomalies = [];
+
+        foreach ($students as $student) {
+            $completedLessonIds = $student->completedLessons()->pluck('lessons.id')->toArray();
+            
+            $pointHistories = \App\Models\PointHistory::where('user_id', $student->id)
+                ->where('course_id', $course->id)
+                ->whereNotNull('lesson_id')
+                ->get()
+                ->keyBy('lesson_id');
+                
+            $assignmentSubmissions = \App\Models\AssignmentSubmission::where('user_id', $student->id)
+                ->get()
+                ->keyBy('assignment_id');
+
+            foreach ($course->modules as $module) {
+                foreach ($module->lessons as $lesson) {
+                    $typeStr = class_basename($lesson->lessonable_type);
+                    $potentialPoints = 0;
+                    $syncDescription = '';
+                    $displayType = '';
+
+                    if ($typeStr == 'LessonArticle') {
+                        $potentialPoints = $siteSettings->points_for_article;
+                        $displayType = 'Artikel';
+                        $syncDescription = 'Menyelesaikan artikel: ' . $lesson->title;
+                    } elseif ($typeStr == 'LessonVideo') {
+                        $potentialPoints = $siteSettings->points_for_video;
+                        $displayType = 'Video';
+                        $syncDescription = 'Menyelesaikan video: ' . $lesson->title;
+                    } elseif ($typeStr == 'LessonDocument') {
+                        $potentialPoints = $siteSettings->points_for_document;
+                        $displayType = 'Dokumen / Slide';
+                        $syncDescription = 'Menyelesaikan dokumen: ' . $lesson->title;
+                    } elseif ($typeStr == 'Quiz') {
+                        $potentialPoints = $siteSettings->points_for_quiz;
+                        $displayType = 'Kuis';
+                        $syncDescription = 'Lulus kuis: ' . $lesson->title;
+                    } elseif ($typeStr == 'LessonAssignment') {
+                        $potentialPoints = $siteSettings->points_for_assignment;
+                        $displayType = 'Tugas';
+                        $syncDescription = 'Mengirimkan tugas: ' . $lesson->title;
+                    } elseif ($typeStr == 'LessonPolling') {
+                        $potentialPoints = $siteSettings->points_for_polling;
+                        $displayType = 'Polling';
+                        $syncDescription = 'Mengisi polling: ' . $lesson->title;
+                    } elseif ($typeStr == 'LessonWordcloud') {
+                        $potentialPoints = $siteSettings->points_for_wordcloud;
+                        $displayType = 'Word Cloud';
+                        $syncDescription = 'Mengisi word cloud: ' . $lesson->title;
+                    }
+
+                    $isCompleted = in_array($lesson->id, $completedLessonIds);
+                    $assignmentStatus = null;
+                    if ($typeStr == 'LessonAssignment' && isset($assignmentSubmissions[$lesson->lessonable_id])) {
+                        $assignmentStatus = $assignmentSubmissions[$lesson->lessonable_id]->status;
+                    }
+
+                    $actualPoints = isset($pointHistories[$lesson->id]) ? $pointHistories[$lesson->id]->points : 0;
+
+                    if ($isCompleted || in_array($assignmentStatus, ['submitted', 'revision_required'])) {
+                        if ($actualPoints != $potentialPoints) {
+                            $anomalies[] = [
+                                'student' => $student,
+                                'lesson' => $lesson,
+                                'display_type' => $displayType,
+                                'actual_points' => $actualPoints,
+                                'expected_points' => $potentialPoints,
+                                'description' => $syncDescription,
+                                'is_missing' => !isset($pointHistories[$lesson->id])
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+        return collect($anomalies);
     }
 }
