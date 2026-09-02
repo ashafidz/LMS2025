@@ -161,7 +161,11 @@
                                                             </span>
                                                             @if($actualPoints != $potentialPoints)
                                                                 <small class="text-danger mt-1" style="font-size: 11px; max-width: 250px; text-align: right; line-height: 1.2;">
-                                                                    <i class="fa fa-info-circle"></i> Berbeda dengan pengaturan saat ini ({{ $potentialPoints }} poin). Poin yang tercatat adalah berdasarkan waktu saat materi dikerjakan.
+                                                                    @if(!isset($pointHistories[$lesson->id]))
+                                                                        <i class="fa fa-exclamation-triangle"></i> Data tidak ditemukan, kemungkinan terjadi error saat penyelesaian materi.
+                                                                    @else
+                                                                        <i class="fa fa-info-circle"></i> Berbeda dengan pengaturan saat ini ({{ $potentialPoints }} poin). Poin yang tercatat adalah berdasarkan waktu saat materi dikerjakan.
+                                                                    @endif
                                                                 </small>
                                                                 <div class="mt-2 text-end">
                                                                     <button type="button" class="btn btn-sm btn-outline-danger btn-round p-1 px-2 mt-1 ms-auto d-flex align-items-center justify-content-center" 
@@ -194,7 +198,11 @@
                                                                 <small class="text-success font-weight-bold mb-1" style="font-size: 12px;"><i class="fa fa-star me-1"></i> +{{ number_format($actualPoints, 0, ',', '.') }} Poin Diterima</small>
                                                                 @if($actualPoints != $potentialPoints)
                                                                     <small class="text-danger mt-1" style="font-size: 11px; max-width: 250px; text-align: right; line-height: 1.2;">
-                                                                        <i class="fa fa-info-circle"></i> Berbeda dengan pengaturan saat ini ({{ $potentialPoints }} poin). Poin yang tercatat adalah berdasarkan waktu saat materi dikerjakan.
+                                                                        @if(!isset($pointHistories[$lesson->id]))
+                                                                            <i class="fa fa-exclamation-triangle"></i> Data tidak ditemukan, kemungkinan terjadi error saat penyelesaian materi.
+                                                                        @else
+                                                                            <i class="fa fa-info-circle"></i> Berbeda dengan pengaturan saat ini ({{ $potentialPoints }} poin). Poin yang tercatat adalah berdasarkan waktu saat materi dikerjakan.
+                                                                        @endif
                                                                     </small>
                                                                     <div class="mt-2 text-end">
                                                                         <button type="button" class="btn btn-sm btn-outline-danger btn-round p-1 px-2 mt-1 ms-auto d-flex align-items-center justify-content-center" 

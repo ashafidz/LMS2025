@@ -11,6 +11,8 @@ All notable changes to this project will be documented in this file.
 - **Gamification Clarity**: Menambahkan informasi "Isi Polling", "Isi Word Cloud", dan Rasio Konversi Poin ke Diamond pada panel informasi Poin & Diamond siswa agar transparan dan selaras dengan konfigurasi Superadmin.
 
 ### Fixed
+- **Missing Point History Message**: Memperbaiki redaksi teks peringatan di halaman Student Progress agar memunculkan pesan spesifik ("Data tidak ditemukan") beserta ikon segitiga peringatan jika rekaman `PointHistory` benar-benar absen dari *database*, alih-alih menampilkan pesan keliru bahwa poin berubah akibat pengaturan.
+- **Sync Points Modal Bug**: Memperbaiki isu sintaksis *blade directive* (`@section` menjadi `@push`) pada halaman pelacakan progres yang sebelumnya menyebabkan tombol "Sinkronkan Poin" gagal memanggil fungsi *JavaScript* (`openSyncModal is not defined`).
 - **Student Progress Checklist Icon**: Memperbaiki masalah visual di mana ikon centang/lingkaran status materi tampak terhimpit menjadi "kotak tumpul" akibat konflik *padding* bawaan dari *class* Bootstrap `.badge`. Diganti dengan struktur bundar murni untuk memastikan presisi lingkaran yang simetris sempurna di segala ukuran layar.
 - **Student Progress Assignment Bug**: Memperbaiki isu di mana indikator potensi poin untuk tipe materi Tugas (*Assignment*) selalu bernilai 0 di halaman pemantauan instruktur, akibat ketidaksesuaian nama *class* (`Assignment` vs `LessonAssignment`).
 - **Site Settings Bug**: Memperbaiki `Internal Server Error` (Attempt to read property on null) yang terjadi pada seluruh sistem (termasuk cetak PDF Invoice) saat tabel `site_settings` kosong, dengan mengimplementasikan `SiteSetting::firstOrNew()` secara global.
