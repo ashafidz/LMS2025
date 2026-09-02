@@ -450,6 +450,7 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         
         // Student Progress Route
         Route::get('/instructor/courses/{course}/students/{student}/progress', [CourseController::class, 'studentProgress'])->name('instructor.courses.student_progress');
+        Route::post('/instructor/courses/{course}/students/{student}/sync-points', [CourseController::class, 'syncPoints'])->name('instructor.courses.student.sync_points');
 
 
         // --- RUTE UNTUK REKAP NILAI ---

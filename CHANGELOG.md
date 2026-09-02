@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [2026-09-02]
 ### Added
+- **Sync Missing Points**: Menambahkan fitur interaktif "Sinkronisasi Poin" bagi instruktur pada baris materi yang mengalami anomali (*bug*) poin. Menekan tombol akan memunculkan *modal* cerdas berisi ringkasan log data. Sistem backend menggunakan *Database Transaction* untuk merekonsiliasi poin di tabel `point_histories` dan merekapitulasi total poin siswa di tabel `course_user` secara *real-time*.
+- **Module Point Summary**: Menambahkan lencana kalkulasi otomatis (misal: "41 / 41 Poin") di sisi kanan atas setiap judul folder Modul pada halaman *Checklist* Siswa. Sistem akan menyapu seluruh materi di dalam modul dan mengkalkulasikan rasio Poin Aktual berbanding Poin Potensial secara *on-the-fly*.
 - **Assignment Submission Status Tracking**: Menambahkan sistem pelacakan status penugasan (*Assignment*) secara *real-time* di halaman Student Progress instruktur. Jika tugas belum dinilai, statusnya akan berubah menjadi *badge* kuning **Menunggu Penilaian**, dan jika tidak lulus, berubah menjadi *badge* merah **Perlu Revisi** daripada sekadar berstatus 0 poin.
 - **Instructor Student Progress**: Menambahkan fitur pemantauan *Student Checklist* bagi instruktur untuk melihat detail progres materi dan perolehan poin aktual per siswa secara langsung dari halaman Manajemen Kursus, lengkap dengan indikator potensi poin untuk materi yang belum diselesaikan dan akumulasi **Total Perolehan Poin** khusus di kursus tersebut.
 - **Gamification Clarity**: Menambahkan informasi "Isi Polling", "Isi Word Cloud", dan Rasio Konversi Poin ke Diamond pada panel informasi Poin & Diamond siswa agar transparan dan selaras dengan konfigurasi Superadmin.

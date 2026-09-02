@@ -293,4 +293,69 @@ class CourseController extends Controller
             'siteSettings'
         ));
     }
+
+    public function syncPoints(Request $request, Course $course, User $student)
+    {
+        // Otorisasi: Pastikan instruktur yang login adalah pembuat kursus
+        if ($course->instructor_id != auth()->id()) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $validated = $request->validate([
+            'lesson_id' => 'required|exists:lessons,id',
+            'expected_points' => 'required|integer|min:0',
+            'description' => 'required|string',
+        ]);
+
+        $lesson = \App\Models\Lesson::findOrFail($validated['lesson_id']);
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($course, $student, $lesson, $validated) {
+            $existingHistory = \App\Models\PointHistory::where('user_id', $student->id)
+                ->where('course_id', $course->id)
+                ->where('lesson_id', $lesson->id)
+                ->first();
+
+            $pointDifference = 0;
+
+            if ($existingHistory) {
+                // Hitung selisih untuk diupdate ke course_user
+                $pointDifference = $validated['expected_points'] - $existingHistory->points;
+                
+                // Update history
+                $existingHistory->update([
+                    'points' => $validated['expected_points'],
+                    'description' => $validated['description']
+                ]);
+            } else {
+                // Buat baru
+                $pointDifference = $validated['expected_points'];
+                
+                \App\Models\PointHistory::create([
+                    'user_id' => $student->id,
+                    'course_id' => $course->id,
+                    'lesson_id' => $lesson->id,
+                    'points' => $validated['expected_points'],
+                    'description' => $validated['description']
+                ]);
+            }
+
+            // Update total points_earned di tabel course_user
+            if ($pointDifference != 0) {
+                $courseUser = \App\Models\CourseUser::where('user_id', $student->id)
+                                                    ->where('course_id', $course->id)
+                                                    ->first();
+                if ($courseUser) {
+                    $courseUser->increment('points_earned', $pointDifference);
+                } else {
+                    \App\Models\CourseUser::create([
+                        'user_id' => $student->id,
+                        'course_id' => $course->id,
+                        'points_earned' => $pointDifference
+                    ]);
+                }
+            }
+        });
+
+        return back()->with('success', 'Poin siswa berhasil disinkronkan.');
+    }
 }

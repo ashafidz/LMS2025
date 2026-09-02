@@ -50,9 +50,34 @@
                     <div class="row">
                         <div class="col-12">
                             @forelse($course->modules as $module)
+                                @php
+                                    $modulePotential = 0;
+                                    $moduleActual = 0;
+                                    foreach($module->lessons as $l) {
+                                        // actual
+                                        if (isset($pointHistories[$l->id])) {
+                                            $moduleActual += $pointHistories[$l->id]->points;
+                                        }
+                                        
+                                        // potential
+                                        $t = class_basename($l->lessonable_type);
+                                        if ($t == 'LessonArticle') $modulePotential += $siteSettings->points_for_article;
+                                        elseif ($t == 'LessonVideo') $modulePotential += $siteSettings->points_for_video;
+                                        elseif ($t == 'LessonDocument') $modulePotential += $siteSettings->points_for_document;
+                                        elseif ($t == 'Quiz') $modulePotential += $siteSettings->points_for_quiz;
+                                        elseif ($t == 'LessonAssignment') $modulePotential += $siteSettings->points_for_assignment;
+                                        elseif ($t == 'LessonPolling') $modulePotential += $siteSettings->points_for_polling;
+                                        elseif ($t == 'LessonWordcloud') $modulePotential += $siteSettings->points_for_wordcloud;
+                                    }
+                                @endphp
                             <div class="card shadow-sm mb-4" style="border-radius: 12px;">
-                                <div class="card-header bg-white border-bottom pt-4 pb-3" style="border-radius: 12px 12px 0 0;">
+                                <div class="card-header bg-white border-bottom pt-4 pb-3 d-flex justify-content-between align-items-center" style="border-radius: 12px 12px 0 0;">
                                     <h5 class="font-weight-bold mb-0 text-dark"><i class="fa fa-folder-open text-warning me-2"></i> {{ $module->title }}</h5>
+                                    <div class="text-end">
+                                        <span class="badge badge-light-primary text-primary font-weight-bold px-3 py-2" style="font-size: 13px;">
+                                            <i class="fa fa-star text-warning me-1"></i> {{ number_format($moduleActual, 0, ',', '.') }} / {{ number_format($modulePotential, 0, ',', '.') }} Poin
+                                        </span>
+                                    </div>
                                 </div>
                                 <div class="card-block p-0">
                                     <div class="list-group list-group-flush">
@@ -87,6 +112,15 @@
                                                     $potentialPoints = $siteSettings->points_for_wordcloud;
                                                     $displayType = 'Word Cloud';
                                                 }
+                                                
+                                                $syncDescription = '';
+                                                if ($typeStr == 'LessonArticle') $syncDescription = 'Menyelesaikan artikel: ' . $lesson->title;
+                                                elseif ($typeStr == 'LessonVideo') $syncDescription = 'Menyelesaikan video: ' . $lesson->title;
+                                                elseif ($typeStr == 'LessonDocument') $syncDescription = 'Menyelesaikan dokumen: ' . $lesson->title;
+                                                elseif ($typeStr == 'Quiz') $syncDescription = 'Lulus kuis: ' . $lesson->title;
+                                                elseif ($typeStr == 'LessonAssignment') $syncDescription = 'Mengirimkan tugas: ' . $lesson->title;
+                                                elseif ($typeStr == 'LessonPolling') $syncDescription = 'Mengisi polling: ' . $lesson->title;
+                                                elseif ($typeStr == 'LessonWordcloud') $syncDescription = 'Mengisi word cloud: ' . $lesson->title;
                                                 // Check for assignment submission status if it's an assignment
                                                 $assignmentStatus = null;
                                                 if ($typeStr == 'LessonAssignment' && isset($assignmentSubmissions[$lesson->lessonable_id])) {
@@ -129,6 +163,13 @@
                                                                 <small class="text-danger mt-1" style="font-size: 11px; max-width: 250px; text-align: right; line-height: 1.2;">
                                                                     <i class="fa fa-info-circle"></i> Berbeda dengan pengaturan saat ini ({{ $potentialPoints }} poin). Poin yang tercatat adalah berdasarkan waktu saat materi dikerjakan.
                                                                 </small>
+                                                                <div class="mt-2 text-end">
+                                                                    <button type="button" class="btn btn-sm btn-outline-danger btn-round p-1 px-2 mt-1 ms-auto d-flex align-items-center justify-content-center" 
+                                                                        onclick="openSyncModal('{{ $lesson->id }}', '{{ addslashes($lesson->title) }}', {{ $actualPoints }}, {{ $potentialPoints }}, '{{ addslashes($syncDescription) }}')"
+                                                                        style="font-size: 10px; line-height: 1;">
+                                                                        <i class="fa fa-refresh me-1 m-0"></i> Sinkronkan Poin
+                                                                    </button>
+                                                                </div>
                                                             @else
                                                                 <small class="text-muted" style="font-size: 11px;">(Potensi saat ini: {{ $potentialPoints }} Poin)</small>
                                                             @endif
@@ -148,7 +189,26 @@
                                                                     0 Poin
                                                                 </span>
                                                             @endif
-                                                            <small class="text-muted" style="font-size: 11px;">(Potensi: +{{ number_format($potentialPoints, 0, ',', '.') }})</small>
+
+                                                            @if($assignmentStatus == 'submitted' || $assignmentStatus == 'revision_required')
+                                                                <small class="text-success font-weight-bold mb-1" style="font-size: 12px;"><i class="fa fa-star me-1"></i> +{{ number_format($actualPoints, 0, ',', '.') }} Poin Diterima</small>
+                                                                @if($actualPoints != $potentialPoints)
+                                                                    <small class="text-danger mt-1" style="font-size: 11px; max-width: 250px; text-align: right; line-height: 1.2;">
+                                                                        <i class="fa fa-info-circle"></i> Berbeda dengan pengaturan saat ini ({{ $potentialPoints }} poin). Poin yang tercatat adalah berdasarkan waktu saat materi dikerjakan.
+                                                                    </small>
+                                                                    <div class="mt-2 text-end">
+                                                                        <button type="button" class="btn btn-sm btn-outline-danger btn-round p-1 px-2 mt-1 ms-auto d-flex align-items-center justify-content-center" 
+                                                                            onclick="openSyncModal('{{ $lesson->id }}', '{{ addslashes($lesson->title) }}', {{ $actualPoints }}, {{ $potentialPoints }}, '{{ addslashes($syncDescription) }}')"
+                                                                            style="font-size: 10px; line-height: 1;">
+                                                                            <i class="fa fa-refresh me-1 m-0"></i> Sinkronkan Poin
+                                                                        </button>
+                                                                    </div>
+                                                                @else
+                                                                    <small class="text-muted" style="font-size: 11px;">(Potensi saat ini: {{ $potentialPoints }} Poin)</small>
+                                                                @endif
+                                                            @else
+                                                                <small class="text-muted" style="font-size: 11px;">(Potensi saat ini: +{{ number_format($potentialPoints, 0, ',', '.') }})</small>
+                                                            @endif
                                                         </div>
                                                     @endif
                                                 </div>
@@ -176,4 +236,57 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<div class="modal fade" id="syncPointsModal" tabindex="-1" role="dialog" aria-labelledby="syncPointsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-white" id="syncPointsModalLabel">Sinkronkan Poin Materi</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{ route('instructor.courses.student.sync_points', [$course->slug, $student->id]) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <p>Sistem akan membuat atau menimpa rekaman riwayat poin siswa untuk materi ini agar sesuai dengan pengaturan bobot poin saat ini.</p>
+                    
+                    <div class="alert alert-info">
+                        <strong>Materi:</strong> <span id="syncLessonTitle"></span><br>
+                        <strong>Poin Saat Ini:</strong> <span id="syncActualPoints" class="text-danger font-weight-bold"></span> Poin<br>
+                        <strong>Poin Ekspektasi:</strong> <span id="syncPotentialPoints" class="text-success font-weight-bold"></span> Poin<br>
+                    </div>
+
+                    <p class="mb-1"><strong>Deskripsi Aktivitas yang akan dicatat:</strong></p>
+                    <code id="syncDescriptionDisplay" class="d-block p-2 bg-light text-dark rounded border"></code>
+
+                    <input type="hidden" name="lesson_id" id="syncLessonId">
+                    <input type="hidden" name="expected_points" id="syncExpectedPoints">
+                    <input type="hidden" name="description" id="syncDescriptionInput">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-refresh me-1"></i> Ya, Sinkronkan Poin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openSyncModal(lessonId, lessonTitle, actualPoints, potentialPoints, description) {
+        document.getElementById('syncLessonTitle').textContent = lessonTitle;
+        document.getElementById('syncActualPoints').textContent = actualPoints;
+        document.getElementById('syncPotentialPoints').textContent = potentialPoints;
+        document.getElementById('syncDescriptionDisplay').textContent = description;
+        
+        document.getElementById('syncLessonId').value = lessonId;
+        document.getElementById('syncExpectedPoints').value = potentialPoints;
+        document.getElementById('syncDescriptionInput').value = description;
+        
+        $('#syncPointsModal').modal('show');
+    }
+</script>
 @endsection
