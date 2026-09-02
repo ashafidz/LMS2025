@@ -451,8 +451,10 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         // Student Progress Route
         Route::get('/instructor/courses/{course}/students/{student}/progress', [CourseController::class, 'studentProgress'])->name('instructor.courses.student_progress');
         Route::post('/instructor/courses/{course}/students/{student}/sync-points', [CourseController::class, 'syncPoints'])->name('instructor.courses.student.sync_points');
-
-
+        
+        // Mass Sync Points Route
+        Route::get('/instructor/courses/{course}/mass-sync-points', [CourseController::class, 'massSyncPreview'])->name('instructor.courses.mass_sync.preview');
+        Route::post('/instructor/courses/{course}/mass-sync-points', [CourseController::class, 'massSyncExecute'])->name('instructor.courses.mass_sync.execute');
         // --- RUTE UNTUK REKAP NILAI ---
         Route::get('/instructor/courses/{course}/recap', [InstructorRecapController::class, 'index'])->name('instructor.recap.index');
         Route::get('/instructor/modules/{module}/recap-data', [InstructorRecapController::class, 'getModuleRecapData'])->name('instructor.recap.module_data');
