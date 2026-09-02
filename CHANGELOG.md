@@ -8,13 +8,15 @@ All notable changes to this project will be documented in this file.
 - **Gamification Clarity**: Menambahkan informasi "Isi Polling", "Isi Word Cloud", dan Rasio Konversi Poin ke Diamond pada panel informasi Poin & Diamond siswa agar transparan dan selaras dengan konfigurasi Superadmin.
 
 ### Fixed
+- **Student Progress Checklist Icon**: Memperbaiki masalah visual di mana ikon centang/lingkaran status materi tampak terhimpit menjadi "kotak tumpul" akibat konflik *padding* bawaan dari *class* Bootstrap `.badge`. Diganti dengan struktur bundar murni untuk memastikan presisi lingkaran yang simetris sempurna di segala ukuran layar.
+- **Student Progress Assignment Bug**: Memperbaiki isu di mana indikator potensi poin untuk tipe materi Tugas (*Assignment*) selalu bernilai 0 di halaman pemantauan instruktur, akibat ketidaksesuaian nama *class* (`Assignment` vs `LessonAssignment`).
 - **Site Settings Bug**: Memperbaiki `Internal Server Error` (Attempt to read property on null) yang terjadi pada seluruh sistem (termasuk cetak PDF Invoice) saat tabel `site_settings` kosong, dengan mengimplementasikan `SiteSetting::firstOrNew()` secara global.
 - **Layout Stability**: Memperbaiki arsitektur layout halaman sertifikat yang hancur (CSS scope break) akibat penempatan komponen modal di luar tag `@section('content')`.
 - **Mobile Sidebar Scrolling**: Memperbaiki isu di mana sidebar navigasi versi ponsel (*mobile*) ikut tergulung bersamaan dengan konten utama, dengan menyuntikkan CSS fixed-position independen.
 - **Hamburger Menu Alignment**: Memperbaiki cacat keseimbangan simetris pada ikon menu hamburger beranda versi *mobile* akibat bentrokan antara *padding* kapsul dan *margin* bawaan dari template.
 
 ### Changed
-- **Student Progress UI**: Merapikan antarmuka fitur pemantauan *Student Checklist*, termasuk menerjemahkan nama *class* internal (misal: `LessonArticle`, `LessonWordcloud`) menjadi label bahasa Indonesia yang ramah pengguna (Artikel, Word Cloud, Dokumen / Slide, dll).
+- **Student Progress UI**: Merapikan antarmuka fitur pemantauan *Student Checklist*, menerjemahkan nama *class* internal menjadi label bahasa Indonesia (Artikel, Word Cloud, Dokumen / Slide, dll), serta menambahkan teks peringatan otomatis jika poin yang didapatkan saat penyelesaian materi (*Actual Points*) berbeda dengan nilai pengaturan saat ini (*Expected Points*).
 - **Poin & Diamond UI/UX**: Mengoptimalkan layout dasbor poin siswa menjadi grid 4/8 di desktop dan menyembunyikan riwayat panjang ke dalam sistem navigasi *Tab* di versi ponsel untuk mengurangi *cognitive load*.
 - **Certificate Gallery**: Merombak total tampilan daftar sertifikat dari format tabel kaku menjadi format galeri kartu (*card grid*) yang jauh lebih elegan dan modern.
 - **Kelola Ulasan (Feedback)**: Merombak struktur halaman dari tumpukan kartu vertikal yang memanjang menjadi sistem navigasi tab vertikal (Vertical Pills) bergaya *floating pill* yang rapi.
