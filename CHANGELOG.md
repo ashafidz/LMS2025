@@ -4,7 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [2026-09-03]
 ### Fixed
-- **Mobile Sidebar Scrolling Lock**: Menyempurnakan perbaikan sidebar mobile dengan mengimplementasikan *MutationObserver* via JavaScript murni. Pendekatan ini secara otomatis mengunci *scroll* halaman utama (`overflow: hidden`) ketika menu sidebar terbuka (`vertical-nav-type="expanded"`), sehingga posisi sidebar terjamin stabil di berbagai perangkat dan ukuran layar (termasuk saat menyembunyikan *address bar*) tanpa memblokir fungsi scroll pada elemen sidebar itu sendiri.
+- **Mobile Sidebar Scrolling Lock**: Menyempurnakan perbaikan sidebar mobile dengan mengimplementasikan *MutationObserver* via JavaScript murni. Pendekatan ini secara otomatis mengunci *scroll* halaman utama (`overflow: hidden`) ketika menu sidebar terbuka (`vertical-nav-type="expanded"`), sehingga posisi sidebar terjamin stabil di berbagai perangkat dan ukuran layar tanpa memblokir fungsi scroll pada elemen sidebar itu sendiri.
+- **CSRF Token Mismatch (Error 419)**: Memperbaiki isu kegagalan *login* (419 Page Expired) saat diakses melalui HTTP jaringan lokal (via IP) dengan menonaktifkan paksaan *secure cookie* (`SESSION_SECURE_COOKIE=false`) pada berkas `.env`.
+
+### Changed
+- **UI Performance Overhaul (Tahap 1-3)**: Melakukan optimasi drastis pada beban performa antarmuka (UI):
+  - **Tahap 1 (Pembersihan Kode Mati)**: Membuang inisialisasi ganda `slimScroll`, kode *Modernizr*, dan *excanvas* yang sudah usang dari *layout* utama, serta menambahkan metode `defer` pada SweetAlert2 agar tidak menghalangi laju *rendering* DOM.
+  - **Tahap 2 (Asset Pushing & Scrollbar)**: Mencabut deklarasi global library grafik raksasa (*Chart.js* dan *AmCharts*). Membuang plugin `mCustomScrollbar` dan menggantinya dengan gulir CSS bawaan (*Native CSS Scrollbar*).
+  - **Tahap 3 (Pembersihan Hutan Ikon)**: Melakukan migrasi massal dari puluhan pustaka ikon lawas (*Themify* dan *IcoFont*) ke *Font Awesome 6* yang jauh lebih seragam dan ringan, menyapu bersih penggunaan ikon usang pada 64+ *file* komponen *view*.
+  - **60FPS Hardware Acceleration & Loader**: Membuang *pre-loader* jQuery yang berat dan menggantinya dengan animasi berbasis CSS murni. Menyuntikkan trik *GPU acceleration* (`transform: translateZ(0)`) dan pergerakan transisi *Cubic Bezier* ala Material Design untuk seluruh interaksi statis, memastikan kelancaran sentuhan tanpa membebani CPU.
 
 
 ## [2026-09-02]
