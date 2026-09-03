@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 ## [2026-09-03]
+### Added
+- **Contact Form Backend**: Mengaktifkan sistem backend (Model `ContactMessage`, Controller, dan Migration) untuk menangani pengiriman pesan dari formulir kontak di halaman Landing Page publik secara utuh (MVP).
+- **Anti-Spam Contact Protection**: Menerapkan dua lapis keamanan anti-spam pada *endpoint* kontak, yakni *Rate Limiting* (`throttle:5,1`) dan pendeteksi bot otomatis **Google reCAPTCHA v3** yang aktif secara dinamis menyesuaikan variabel `.env`.
+- **Contact Message Dashboard**: Menambahkan menu "Pesan Kontak" di *sidebar* Superadmin dan Admin untuk mengelola, melihat riwayat, dan memantau status baca (`is_read`) pesan pengunjung website.
+- **Direct Email Reply System**: Menambahkan fitur "Balas Pesan" di dalam Dasbor Admin. Fitur ini dirancang untuk segera mengirimkan balasan langsung (*direct reply*) ke email pengunjung menggunakan *Markdown Mail Template* secara otomatis (*SMTP required*), lengkap dengan indikator anti pengiriman-ganda (`is_replied`).
+
 ### Fixed
 - **Mobile Sidebar Scrolling Lock**: Menyempurnakan perbaikan sidebar mobile dengan mengimplementasikan *MutationObserver* via JavaScript murni. Pendekatan ini secara otomatis mengunci *scroll* halaman utama (`overflow: hidden`) ketika menu sidebar terbuka (`vertical-nav-type="expanded"`), sehingga posisi sidebar terjamin stabil di berbagai perangkat dan ukuran layar tanpa memblokir fungsi scroll pada elemen sidebar itu sendiri.
 - **CSRF Token Mismatch (Error 419)**: Memperbaiki isu kegagalan *login* (419 Page Expired) saat diakses melalui HTTP jaringan lokal (via IP) dengan menonaktifkan paksaan *secure cookie* (`SESSION_SECURE_COOKIE=false`) pada berkas `.env`.
