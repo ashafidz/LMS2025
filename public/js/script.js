@@ -106,24 +106,16 @@ $(document).ready(function () {
     });
 
     // card js end
-    $.mCustomScrollbar.defaults.axis = "yx";
-    $("#styleSelector .style-cont").slimScroll({
-        setTop: "1px",
-        height: "calc(100vh - 520px)",
-    });
-    $(".main-menu").mCustomScrollbar({
-        setTop: "1px",
-        setHeight: "calc(100% - 56px)",
-    });
+    // mCustomScrollbar removed (Tahap 2)
     /*chatbar js start*/
     /*chat box scroll*/
     var a = $(window).height() - 80;
-    $(".main-friend-list").slimScroll({
-        height: a,
-        allowPageScroll: false,
-        wheelStep: 5,
-        color: "#1b8bf9",
-    });
+    // $(".main-friend-list").slimScroll({
+    //     height: a,
+    //     allowPageScroll: false,
+    //     wheelStep: 5,
+    //     color: "#1b8bf9",
+    // });
 
     // search
     $("#search-friends").on("keyup", function () {
@@ -214,17 +206,7 @@ $(document).ready(function () {
         "flat-buttons",
     ]);
 });
-$(document).ready(function () {
-    $(".theme-loader").animate(
-        {
-            opacity: "0",
-        },
-        1000
-    );
-    setTimeout(function () {
-        $(".theme-loader").remove();
-    }, 800);
-});
+    // theme-loader removed (Tahap 2)
 
 // toggle full screen
 function toggleFullScreen() {

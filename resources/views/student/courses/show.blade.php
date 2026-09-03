@@ -263,7 +263,7 @@
                             <ul class="list-group">
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     Total Poin di Kursus Ini
-                                    <span class="text-warning">{{ $pointsToConvert }} <i class="ti-medall-alt"></i></span>
+                                    <span class="text-warning">{{ $pointsToConvert }} <i class="fa fa-medal"></i></span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     Rasio Konversi

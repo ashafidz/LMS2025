@@ -19,7 +19,7 @@
         <div class="card-body">
             <p class="mb-2">Total Poin yang Anda Peroleh di Sesi Ini:</p>
             <h2 class="font-weight-bold text-warning d-flex justify-content-center align-items-center">
-                <i class="ti-medall-alt me-2"></i> {{ number_format($totalPointsFromThisLesson, 0, ',', '.') }}
+                <i class="fa fa-medal me-2"></i> {{ number_format($totalPointsFromThisLesson, 0, ',', '.') }}
             </h2>
         </div>
     </div>

@@ -19,20 +19,20 @@
                                     <div class="main-menu-content">
                                         <ul>
                                             <li class="more-details">
-                                                <a href="{{ route('home') }}"><i class="ti-home"></i>Home</a>
-                                                <a href="{{ route('user.profile.index') }}"><i class="ti-user"></i>
+                                                <a href="{{ route('home') }}"><i class="fa fa-home"></i>Home</a>
+                                                <a href="{{ route('user.profile.index') }}"><i class="fa fa-user"></i>
                                                     Profile</a>
                                                 @if (Auth::user()->hasRole('instructor') && session('active_role') == 'student')
                                                     <a href="{{ route('role.switch', 'instructor') }}">
                                                         🧑‍🏫 Switch Role Instruktur
                                                     </a>
                                                 @endif
-                                                <a href="{{ route('student.cart.index') }}"><i class="ti-shopping-cart"></i>
+                                                <a href="{{ route('student.cart.index') }}"><i class="fa fa-shopping-cart"></i>
                                                     Keranjang</a>
-                                                <a href="{{ route('student.badges.index') }}"><i class="ti-medall"></i>Badgeku</a>
+                                                <a href="{{ route('student.badges.index') }}"><i class="fa fa-medal"></i>Badgeku</a>
                                                 <a href="{{ route('logout') }}"
                                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i
-                                                        class="ti-layout-sidebar-left"></i>Logout</a>
+                                                        class="fa fa-sign-out"></i>Logout</a>
                                                 <form id="logout-form" action="{{ route('logout') }}" method="POST"
                                                     style="display: none;">
                                                     @csrf
@@ -48,21 +48,21 @@
                                 <ul class="pcoded-item pcoded-left-item">
                                     {{-- <li class="{{ Request::routeIs('student.dashboard') ? 'active' : '' }}">
                                         <a href="{{ route('student.dashboard') }}" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-home"></i><b>D</b></span>
+                                            <span class="pcoded-micon"><i class="fa fa-home"></i><b>D</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.dash.main">Dashboard</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li> --}}
                                     <li class="{{ Request::routeIs('student.my_courses') ? 'active' : '' }}">
                                         <a href="{{ route('student.my_courses') }}" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-agenda"></i><b>D</b></span>
+                                            <span class="pcoded-micon"><i class="fa fa-book"></i><b>D</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.dash.main">Kursus Saya</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>
                                     <li class="{{ Request::routeIs('student.points.index') ? 'active' : '' }}">
                                         <a href="{{ route('student.points.index') }}" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-crown"></i><b>D</b></span>
+                                            <span class="pcoded-micon"><i class="fa fa-gem"></i><b>D</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.dash.main">Poin & Diamond</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
@@ -76,21 +76,21 @@
                                     </li>
                                     {{-- <li class="{{ Request::routeIs('student.diamonds.index') ? 'active' : '' }}">
                                         <a href="{{ route('student.diamonds.index') }}" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-gift"></i><b>D</b></span>
+                                            <span class="pcoded-micon"><i class="fa fa-gift"></i><b>D</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.dash.main">Diamond Saya</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li> --}}
                                     <li class="{{ Request::routeIs('student.reviews.index') ? 'active' : '' }}">
                                         <a href="{{ route('student.reviews.index') }}" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-comment"></i><b>D</b></span>
+                                            <span class="pcoded-micon"><i class="fa fa-comment"></i><b>D</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.dash.main">Feedback</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>
                                     <li class="{{ Request::routeIs('student.transactions.index') ? 'active' : '' }}">
                                         <a href="{{ route('student.transactions.index') }}" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-receipt"></i><b>D</b></span>
+                                            <span class="pcoded-micon"><i class="fa fa-receipt"></i><b>D</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.dash.main">Riwayat Transaksi</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>

@@ -236,7 +236,7 @@
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     Total Poin di Kursus Ini
                                     <span class="text-warning">{{ $pointsToConvert }} <i
-                                            class="ti-medall-alt"></i></span>
+                                            class="fa fa-medal"></i></span>
 
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center">

@@ -80,7 +80,7 @@
                                     <div class="checkbox-fade fade-in-primary">
                                         <label>
                                             <input type="checkbox" name="is_active" value="1" checked>
-                                            <span class="cr"><i class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
+                                            <span class="cr"><i class="cr-icon fa fa-check txt-primary"></i></span>
                                             <span class="text-inverse">Apakah polling ini dapat diakses siswa?</span>
                                         </label>
                                     </div>
@@ -92,7 +92,7 @@
                                     <div class="checkbox-fade fade-in-primary">
                                         <label>
                                             <input type="checkbox" name="allow_multiple" id="allow_multiple" value="1">
-                                            <span class="cr"><i class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
+                                            <span class="cr"><i class="cr-icon fa fa-check txt-primary"></i></span>
                                             <span class="text-inverse">Bisa pilih lebih dari 1 pilihan?</span>
                                         </label>
                                     </div>
@@ -110,7 +110,7 @@
                                     <div class="checkbox-fade fade-in-primary">
                                         <label>
                                             <input type="checkbox" name="show_voters" value="1">
-                                            <span class="cr"><i class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
+                                            <span class="cr"><i class="cr-icon fa fa-check txt-primary"></i></span>
                                             <span class="text-inverse">Bisa melihat siapa saja yang polling di sisi student?</span>
                                         </label>
                                     </div>
@@ -122,7 +122,7 @@
                                     <div class="checkbox-fade fade-in-primary">
                                         <label>
                                             <input type="checkbox" name="show_results" value="1" checked>
-                                            <span class="cr"><i class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
+                                            <span class="cr"><i class="cr-icon fa fa-check txt-primary"></i></span>
                                             <span class="text-inverse">Bisa melihat hasil polling di sisi student?</span>
                                         </label>
                                     </div>

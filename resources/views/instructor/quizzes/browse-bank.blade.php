@@ -81,7 +81,7 @@
                                                                         <div class="checkbox-fade fade-in-primary">
                                                                             <label>
                                                                                 <input type="checkbox" name="question_ids[]" value="{{ $question->id }}">
-                                                                                <span class="cr"><i class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
+                                                                                <span class="cr"><i class="cr-icon fa fa-check txt-primary"></i></span>
                                                                             </label>
                                                                         </div>
                                                                     </td>

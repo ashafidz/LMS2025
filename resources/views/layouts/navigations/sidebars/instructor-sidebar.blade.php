@@ -19,8 +19,8 @@
                                     <div class="main-menu-content">
                                         <ul>
                                             <li class="more-details">
-                                                <a href="{{ route('home') }}"><i class="ti-home"></i>Home</a>
-                                                <a href="{{ route('user.profile.index') }}"><i class="ti-user"></i>
+                                                <a href="{{ route('home') }}"><i class="fa fa-home"></i>Home</a>
+                                                <a href="{{ route('user.profile.index') }}"><i class="fa fa-user"></i>
                                                     Profile</a>
                                                 @if (Auth::user()->hasRole('student') && session('active_role') == 'instructor')
                                                     <a href="{{ route('role.switch', 'student') }}">
@@ -29,7 +29,7 @@
                                                 @endif
                                                 <a href="{{ route('logout') }}"
                                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i
-                                                        class="ti-layout-sidebar-left"></i>Logout</a>
+                                                        class="fa fa-sign-out"></i>Logout</a>
                                                 <form id="logout-form" action="{{ route('logout') }}" method="POST"
                                                     style="display: none;">
                                                     @csrf
@@ -58,7 +58,7 @@
                                     <li class="{{ Request::routeIs('instructor.courses.index') ? 'active' : '' }}">
                                         <a href="{{ route('instructor.courses.index') }}"
                                             class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-desktop"></i><b>D</b></span>
+                                            <span class="pcoded-micon"><i class="fa fa-desktop"></i><b>D</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.dash.main">Manajemen Course</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
