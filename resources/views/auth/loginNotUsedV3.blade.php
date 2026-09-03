@@ -76,7 +76,7 @@
                                             <label for="remember_me">
                                                 <input type="checkbox" id="remember_me" name="remember">
                                                 <span class="cr"><i
-                                                        class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
+                                                        class="cr-icon fa fa-check txt-primary"></i></span>
                                                 <span class="text-inverse">Remember me</span>
                                             </label>
                                         </div> --}}
@@ -85,7 +85,7 @@
                                             <label>
                                                 <input type="checkbox" id="remember_me" name="remember">
                                                 <span class="cr">
-                                                    <i class="cr-icon icofont icofont-ui-check txt-primary"></i>
+                                                    <i class="cr-icon fa fa-check txt-primary"></i>
                                                 </span>
                                                 <span class="text-inverse">Remember me</span>
                                             </label>

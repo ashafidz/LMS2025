@@ -104,7 +104,7 @@
                                         <label>
                                             <input type="checkbox" name="remember">
                                             <span class="cr">
-                                                <i class="cr-icon icofont icofont-ui-check txt-primary"></i>
+                                                <i class="cr-icon fa fa-check txt-primary"></i>
                                             </span>
                                             <span class="text-inverse">Ingatkan Saya</span>
                                         </label>

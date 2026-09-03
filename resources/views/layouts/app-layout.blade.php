@@ -28,8 +28,7 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap/css/bootstrap.min.css') }}" />
     <!-- waves.css -->
     <link rel="stylesheet" href="{{ asset('pages/waves/css/waves.min.css') }}" type="text/css" media="all" />
-    <!-- themify icon -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('icon/themify-icons/themify-icons.css') }}" />
+    <!-- themify icon removed (Tahap 3) -->
             <link
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
@@ -41,13 +40,8 @@
         />
     <!-- Font Awesome -->
     <link rel="stylesheet" type="text/css" href="{{ asset('icon/font-awesome/css/font-awesome.min.css') }}" />
-    <!-- scrollbar.css -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/jquery.mCustomScrollbar.css') }}" />
-    <!-- am chart export.css -->
-    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css"
-        media="all" />
-            <!-- ico font -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('icon/icofont/css/icofont.css') }}">
+    <!-- css scrollbar and amchart css removed (Tahap 2) -->
+    <!-- ico font removed (Tahap 3) -->
     <!-- Style.css -->
     <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}" />
     {{-- =============================================== --}}
@@ -80,8 +74,139 @@
                     overflow-y: auto !important;
                     -webkit-overflow-scrolling: touch;
                 }
+                .pcoded .pcoded-navbar .pcoded-inner-navbar {
+                    min-height: 120vh !important;
+                    background-color: #fff !important;
+                }
             }
         </style>
+        
+        <script>
+            // Safely lock body scroll on mobile when the offcanvas sidebar is expanded
+            document.addEventListener('DOMContentLoaded', function () {
+                const pcoded = document.getElementById('pcoded');
+                if (pcoded) {
+                    const checkScrollLock = () => {
+                        const navType = pcoded.getAttribute('vertical-nav-type');
+                        const isMobile = window.innerWidth <= 991.98;
+                        // On mobile, the sidebar uses 'expanded' when open
+                        if (isMobile && navType === 'expanded') {
+                            document.body.style.setProperty('overflow', 'hidden', 'important');
+                        } else {
+                            document.body.style.overflow = '';
+                        }
+                    };
+
+                    // Observe attribute changes on the pcoded wrapper
+                    const observer = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            if (mutation.attributeName === 'vertical-nav-type') {
+                                checkScrollLock();
+                            }
+                        });
+                    });
+                    
+                    observer.observe(pcoded, { attributes: true });
+                    
+                    // Also check on window resize
+                    window.addEventListener('resize', checkScrollLock);
+                }
+            });
+        </script>
+        
+        <style>
+            /* Murni CSS Scrollbar (Tahap 2) */
+            ::-webkit-scrollbar {
+                width: 6px;
+                height: 6px;
+            }
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            ::-webkit-scrollbar-thumb {
+                background-color: rgba(0, 0, 0, 0.2);
+                border-radius: 10px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background-color: rgba(0, 0, 0, 0.4);
+            }
+            
+            /* ========================================================
+               60FPS Smooth UI & Hardware Acceleration (CSS Murni)
+               ======================================================== */
+            html {
+                scroll-behavior: smooth !important;
+            }
+            
+            /* Mengaktifkan GPU Acceleration untuk elemen berat ditiadakan karena merusak z-index overlay */
+
+            /* Transisi super mulus (Material Design Cubic Bezier) untuk tombol dan tautan */
+            a, button, .btn, .nav-link, .dropdown-item, .list-group-item, .pcoded-micon {
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+
+            /* Efek hover dinamis (Micro-animations) */
+            .card {
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                will-change: transform, box-shadow;
+            }
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
+            }
+
+            /* Hover pada menu sidebar agar terasa hidup */
+            .pcoded-navbar .pcoded-item > li > a:hover {
+                background: rgba(255,255,255,0.05) !important;
+                padding-left: 25px !important; /* Efek menjorok halus */
+            }
+            
+            /* ========================================================
+               60FPS Lightweight Loader (CSS Murni)
+               ======================================================== */
+            #smooth-loader {
+                position: fixed;
+                top: 0; left: 0;
+                width: 100vw; height: 100vh;
+                background-color: #f3f5f9; /* Sesuai warna background template umum */
+                z-index: 999999;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s;
+                will-change: opacity, visibility;
+            }
+            body.loaded #smooth-loader {
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+            }
+            #smooth-loader .spinner {
+                width: 45px;
+                height: 45px;
+                border: 4px solid rgba(68, 138, 255, 0.2); /* Warna biru muda transparan */
+                border-top-color: #448aff; /* Biru utama */
+                border-radius: 50%;
+                animation: smooth-spin 0.8s linear infinite;
+                will-change: transform;
+            }
+            @keyframes smooth-spin {
+                0% { transform: rotate(0deg) translateZ(0); }
+                100% { transform: rotate(360deg) translateZ(0); }
+            }
+        </style>
+        
+        <script>
+            // Hapus loader secara sangat ringan saat halaman selesai dirender
+            window.addEventListener('load', function() {
+                // Memberi jeda mikrosekon agar CSS sempat merender animasi akhir
+                setTimeout(() => {
+                    document.body.classList.add('loaded');
+                }, 100);
+            });
+        </script>
+        
         @stack('styles')
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
@@ -89,63 +214,11 @@
 
 <body>
 
-
-
-
-    <!-- Pre-loader start -->
-    <div class="theme-loader">
-        <div class="loader-track">
-            <div class="preloader-wrapper">
-                <div class="spinner-layer spinner-blue">
-                    <div class="circle-clipper left">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="gap-patch">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="circle-clipper right">
-                        <div class="circle"></div>
-                    </div>
-                </div>
-                <div class="spinner-layer spinner-red">
-                    <div class="circle-clipper left">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="gap-patch">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="circle-clipper right">
-                        <div class="circle"></div>
-                    </div>
-                </div>
-
-                <div class="spinner-layer spinner-yellow">
-                    <div class="circle-clipper left">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="gap-patch">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="circle-clipper right">
-                        <div class="circle"></div>
-                    </div>
-                </div>
-
-                <div class="spinner-layer spinner-green">
-                    <div class="circle-clipper left">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="gap-patch">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="circle-clipper right">
-                        <div class="circle"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- 60FPS Smooth Loader -->
+    <div id="smooth-loader">
+        <div class="spinner"></div>
     </div>
-    <!-- Pre-loader end -->
+    <!-- Pre-loader removed (Tahap 2) -->
     <div id="pcoded" class="pcoded">
         <div class="pcoded-overlay-box"></div>
         <div class="pcoded-container navbar-wrapper">
@@ -221,33 +294,23 @@
 
 
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
     <!-- Required Jquery -->
     <script type="text/javascript" src="{{ asset('js/jquery/jquery.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/jquery-ui/jquery-ui.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/popper.js/popper.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/bootstrap/js/bootstrap.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('pages/widget/excanvas.js') }}"></script>
+
     <!-- waves js -->
     <script src="{{ asset('pages/waves/js/waves.min.js') }}"></script>
-    <!-- jquery slimscroll js -->
-    <script type="text/javascript" src="{{ asset('js/jquery-slimscroll/jquery.slimscroll.js') }} "></script>
+    <!-- jquery slimscroll js removed -->
     <!-- CSRF protection -->
     <script type="text/javascript" src="{{ asset('js/csrf-refresh.js') }}"></script>
-    <!-- modernizr js -->
-    <script type="text/javascript" src="{{ asset('js/modernizr/modernizr.js') }} "></script>
+    <!-- modernizr js removed -->
     <!-- slimscroll js -->
     <script type="text/javascript" src="{{ asset('js/SmoothScroll.js') }}"></script>
-    <script src="{{ asset('js/jquery.mCustomScrollbar.concat.min.js') }} "></script>
-    <!-- Chart js -->
-    <script type="text/javascript" src="{{ asset('js/chart.js/Chart.js') }}"></script>
-    <!-- amchart js -->
-    <script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
-    <script src="{{ asset('pages/widget/amchart/gauge.js') }}"></script>
-    <script src="{{ asset('pages/widget/amchart/serial.js') }}"></script>
-    <script src="{{ asset('pages/widget/amchart/light.js') }}"></script>
-    <script src="{{ asset('pages/widget/amchart/pie.min.js') }}"></script>
-    <script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script>
+    <!-- mCustomScrollbar js removed -->
+    <!-- Chart js and amcharts removed (Tahap 2) -->
     <!-- menu js -->
     <script src="{{ asset('js/pcoded.min.js') }}"></script>
     <script src="{{ asset('js/vertical-layout.min.js') }} "></script>

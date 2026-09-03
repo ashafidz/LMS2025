@@ -32,7 +32,7 @@
                             {{-- Card: Total Poin --}}
                             <div class="card widget-visitor-card mb-4">
                                 <div class="card-block-big text-center">
-                                    <i class="ti-medall-alt text-warning f-40"></i>
+                                    <i class="fa fa-medal text-warning f-40"></i>
                                     <h4 class="m-t-20"><span class="text-warning">{{ number_format($totalPoints, 0, ',', '.') }}</span> Poin</h4>
                                     <p>Total Akumulasi Poin anda saat ini</p>
                                 </div>

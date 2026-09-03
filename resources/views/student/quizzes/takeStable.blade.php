@@ -69,7 +69,7 @@
                                                                 <label class="form-check-label" for="opt-{{ $option->id }}">
                                                                     <input class="form-check-input" type="checkbox" name="answers[{{ $question->id }}][]" id="opt-{{ $option->id }}" value="{{ $option->id }}">
                                                                     <span class="cr">
-                                                                        <i class="cr-icon icofont icofont-ui-check txt-primary"></i>
+                                                                        <i class="cr-icon fa fa-check txt-primary"></i>
                                                                     </span>
                                                                     <span class="text-inverse">{{ $option->option_text }}</span>
                                                                 </label>
