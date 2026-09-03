@@ -104,40 +104,52 @@ class PointService
 
         switch ($activity) {
             case 'purchase':
-                $pointsToAdd = $settings?->points_for_purchase ?? 0;
+                $pointsToAdd = (int) ($settings?->points_for_purchase ?? 0);
                 $description = 'Membeli kursus: ' . $course->title;
                 break;
             case 'complete_article':
-                $pointsToAdd = $settings?->points_for_article ?? 0;
+                $pointsToAdd = (int) ($settings?->points_for_article ?? 0);
                 $description = 'Menyelesaikan artikel: ' . $description_meta;
                 break;
             case 'complete_video':
-                $pointsToAdd = $settings?->points_for_video ?? 0;
+                $pointsToAdd = (int) ($settings?->points_for_video ?? 0);
                 $description = 'Menyelesaikan video: ' . $description_meta;
                 break;
             case 'complete_document':
-                $pointsToAdd = $settings?->points_for_document ?? 0;
+                $pointsToAdd = (int) ($settings?->points_for_document ?? 0);
                 $description = 'Menyelesaikan dokumen: ' . $description_meta;
                 break;
             case 'pass_quiz':
-                $pointsToAdd = $settings?->points_for_quiz ?? 0;
+                $pointsToAdd = (int) ($settings?->points_for_quiz ?? 0);
                 $description = 'Lulus kuis: ' . $description_meta;
                 break;
             case 'pass_assignment':
-                $pointsToAdd = $settings?->points_for_assignment ?? 0;
+                $pointsToAdd = (int) ($settings?->points_for_assignment ?? 0);
                 $description = 'Mengirimkan tugas: ' . $description_meta;
                 break;
             case 'complete_polling':
-                $pointsToAdd = $settings?->points_for_polling ?? 0;
+                $pointsToAdd = (int) ($settings?->points_for_polling ?? 0);
                 $description = 'Mengisi polling: ' . $description_meta;
                 break;
             case 'complete_wordcloud':
-                $pointsToAdd = $settings?->points_for_wordcloud ?? 0;
+                $pointsToAdd = (int) ($settings?->points_for_wordcloud ?? 0);
                 $description = 'Mengisi word cloud: ' . $description_meta;
                 break;
         }
 
+        // LOG: Catat ke storage/logs/laravel.log untuk keperluan debugging produksi
+        \Illuminate\Support\Facades\Log::info('[PointService] addPoints called', [
+            'user_id'      => $user->id,
+            'course_id'    => $course->id,
+            'lesson_id'    => $lesson?->id,
+            'activity'     => $activity,
+            'pointsToAdd'  => $pointsToAdd,
+            'settings_polling'   => $settings?->points_for_polling,
+            'settings_wordcloud' => $settings?->points_for_wordcloud,
+        ]);
+
         if ($pointsToAdd > 0) {
+
             DB::transaction(function () use ($user, $course, $lesson, $pointsToAdd, $description) {
                 // 1. Buat atau update total poin di tabel pivot course_user
                 $courseUser = CourseUser::where('user_id', $user->id)
