@@ -25,6 +25,7 @@ use App\Http\Controllers\Instructor\QuestionController;
 use App\Http\Controllers\Student\CertificateController;
 use App\Http\Controllers\Student\StudentQuizController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\Shared\StudentStatusController;
 use App\Http\Controllers\Student\CourseReviewController;
 use App\Http\Controllers\Student\GamificationController;
@@ -132,6 +133,10 @@ Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
+
+Route::post('/contact', [\App\Http\Controllers\ContactMessageController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('contact.store');
 Route::get('/faqs', function () {
     return view('faq');
 })->name('faqs');
@@ -181,6 +186,10 @@ Route::middleware(['auth'])->group(function () {
 
 // * group route for superadmin
 Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
+    Route::get('/superadmin/contact-messages', [AdminContactMessageController::class, 'index'])->name('superadmin.contact-messages.index');
+    Route::get('/superadmin/contact-messages/{contactMessage}', [AdminContactMessageController::class, 'show'])->name('superadmin.contact-messages.show');
+    Route::post('/superadmin/contact-messages/{contactMessage}/reply', [AdminContactMessageController::class, 'reply'])->name('superadmin.contact-messages.reply');
+
     Route::get('/dashboard', [SuperAdminDashboardController::class, 'index'])->name('superadmin.dashboard');
     Route::get('/dashboard/search/instructors', [SuperAdminDashboardController::class, 'searchInstructors'])->name('superadmin.dashboard.search.instructors');
     Route::get('/dashboard/search/categories', [SuperAdminDashboardController::class, 'searchCategories'])->name('superadmin.dashboard.search.categories');
@@ -263,6 +272,10 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
 
 // * group route for admin
 Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
+    Route::get('/admin/contact-messages', [AdminContactMessageController::class, 'index'])->name('admin.contact-messages.index');
+    Route::get('/admin/contact-messages/{contactMessage}', [AdminContactMessageController::class, 'show'])->name('admin.contact-messages.show');
+    Route::post('/admin/contact-messages/{contactMessage}/reply', [AdminContactMessageController::class, 'reply'])->name('admin.contact-messages.reply');
+
     // Route::view('/admin/dashboard', 'admin.dashboard')->name('admin.dashboard');
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/dashboard/search/instructors', [AdminDashboardController::class, 'searchInstructors'])->name('dashboard.search.instructors');

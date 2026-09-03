@@ -60,7 +60,8 @@
               <h3>Kirim Pesan</h3>
               <p>Isi form di bawah ini, dan kami akan segera menghubungi kamu kembali.</p>
 
-              <form action="forms/contact.php" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
+              <form action="{{ route('contact.store') }}" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200" data-recaptcha-site-key="{{ env('RECAPTCHA_SITE_KEY') }}">
+                @csrf
                 <div class="row gy-4">
 
                   <div class="col-md-6">
@@ -91,6 +92,11 @@
               </form>
 
             </div>
+            
+            <!-- Google reCAPTCHA v3 Script -->
+            @if(env('RECAPTCHA_SITE_KEY'))
+                <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
+            @endif
           </div>
 
         </div>

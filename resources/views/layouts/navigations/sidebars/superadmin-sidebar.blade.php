@@ -46,6 +46,13 @@
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>
+                                    <li class="{{ Request::routeIs('superadmin.contact-messages.*') ? 'active' : '' }}">
+                                        <a href="{{ route('superadmin.contact-messages.index') }}" class="waves-effect waves-dark">
+                                            <span class="pcoded-micon"><i class="fa fa-envelope"></i><b>PK</b></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Pesan Kontak</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
                                     <li class="{{ Request::routeIs('superadmin.publication.index') ? 'active' : '' }}">
                                         <a href="{{ route('superadmin.publication.index') }}" class="waves-effect waves-dark">
                                             <span class="pcoded-micon"><i class="fa fa-file"></i><b>D</b></span>
