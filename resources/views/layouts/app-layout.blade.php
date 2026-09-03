@@ -80,8 +80,46 @@
                     overflow-y: auto !important;
                     -webkit-overflow-scrolling: touch;
                 }
+                .pcoded .pcoded-navbar .pcoded-inner-navbar {
+                    min-height: 120vh !important;
+                    background-color: #fff !important;
+                }
             }
         </style>
+        
+        <script>
+            // Safely lock body scroll on mobile when the offcanvas sidebar is expanded
+            document.addEventListener('DOMContentLoaded', function () {
+                const pcoded = document.getElementById('pcoded');
+                if (pcoded) {
+                    const checkScrollLock = () => {
+                        const navType = pcoded.getAttribute('vertical-nav-type');
+                        const isMobile = window.innerWidth <= 991.98;
+                        // On mobile, the sidebar uses 'expanded' when open
+                        if (isMobile && navType === 'expanded') {
+                            document.body.style.setProperty('overflow', 'hidden', 'important');
+                        } else {
+                            document.body.style.overflow = '';
+                        }
+                    };
+
+                    // Observe attribute changes on the pcoded wrapper
+                    const observer = new MutationObserver(function(mutations) {
+                        mutations.forEach(function(mutation) {
+                            if (mutation.attributeName === 'vertical-nav-type') {
+                                checkScrollLock();
+                            }
+                        });
+                    });
+                    
+                    observer.observe(pcoded, { attributes: true });
+                    
+                    // Also check on window resize
+                    window.addEventListener('resize', checkScrollLock);
+                }
+            });
+        </script>
+        
         @stack('styles')
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-09-03]
+### Fixed
+- **Mobile Sidebar Scrolling Lock**: Menyempurnakan perbaikan sidebar mobile dengan mengimplementasikan *MutationObserver* via JavaScript murni. Pendekatan ini secara otomatis mengunci *scroll* halaman utama (`overflow: hidden`) ketika menu sidebar terbuka (`vertical-nav-type="expanded"`), sehingga posisi sidebar terjamin stabil di berbagai perangkat dan ukuran layar (termasuk saat menyembunyikan *address bar*) tanpa memblokir fungsi scroll pada elemen sidebar itu sendiri.
+
+
 ## [2026-09-02]
 ### Added
 - **Mass Sync Points**: Menambahkan fitur "Sinkronisasi Poin Massal" pada menu manajemen kursus instruktur. Fitur ini dirancang dengan algoritma pemindai (*scanner*) yang akan menyapu seluruh progres materi dan *database* perolehan poin dari seluruh murid di suatu kursus, lalu menampilkannya dalam tabel "Pratinjau Anomali". Setelah ditinjau, instruktur dapat mengeksekusi penyelesaian seluruh anomali poin siswa dalam satu klik secara aman (menggunakan *Database Transaction*).
