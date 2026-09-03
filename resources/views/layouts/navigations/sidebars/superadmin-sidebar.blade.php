@@ -60,6 +60,13 @@
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>
+                                    <li class="{{ Request::routeIs('superadmin.point-sync.*') ? 'active' : '' }}">
+                                        <a href="{{ route('superadmin.point-sync.index') }}" class="waves-effect waves-dark">
+                                            <span class="pcoded-micon"><i class="fa fa-refresh"></i><b>S</b></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Sinkronisasi Poin</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
                                 </ul>
 
                                 {{-- menu level managemen user --}}
