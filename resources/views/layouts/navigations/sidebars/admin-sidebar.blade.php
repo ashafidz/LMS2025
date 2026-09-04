@@ -19,13 +19,13 @@
                                     <div class="main-menu-content">
                                         <ul>
                                             <li class="more-details">
-                                                <a href="{{ route('home') }}"><i class="ti-home"></i>Home</a>
-                                                <a href="{{ route('user.profile.index') }}"><i class="ti-user"></i>
+                                                <a href="{{ route('home') }}"><i class="fa fa-home"></i>Home</a>
+                                                <a href="{{ route('user.profile.index') }}"><i class="fa fa-user"></i>
                                                     Profile</a>
-                                                <a href="#!"><i class="ti-settings"></i>Settings</a>
+                                                <a href="#!"><i class="fa fa-cog"></i>Settings</a>
                                                 <a href="{{ route('logout') }}"
                                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i
-                                                        class="ti-layout-sidebar-left"></i>Logout</a>
+                                                        class="fa fa-sign-out"></i>Logout</a>
                                                 <form id="logout-form" action="{{ route('logout') }}" method="POST"
                                                     style="display: none;">
                                                     @csrf
@@ -46,16 +46,23 @@
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>
+                                    <li class="{{ Request::routeIs('admin.contact-messages.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.contact-messages.index') }}" class="waves-effect waves-dark">
+                                            <span class="pcoded-micon"><i class="fa fa-envelope"></i><b>PK</b></span>
+                                            <span class="pcoded-mtext" data-i18n="nav.dash.main">Pesan Kontak</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
                                     <li class="{{ Request::routeIs('admin.publication.index') ? 'active' : '' }}">
                                         <a href="{{ route('admin.publication.index') }}" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-file"></i><b>FC</b></span>
+                                            <span class="pcoded-micon"><i class="fa fa-file"></i><b>FC</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.form-components.main">Publikasi</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>
                                     <li class="{{ Request::routeIs('admin.coupons.index') ? 'active' : '' }}">
                                         <a href="{{ route('admin.coupons.index') }}" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-ticket"></i><b>FC</b></span>
+                                            <span class="pcoded-micon"><i class="fa fa-ticket-alt"></i><b>FC</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.form-components.main">Kupon</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
@@ -73,7 +80,7 @@
                                 <ul class="pcoded-item pcoded-left-item">
                                     <li class="pcoded-hasmenu">
                                         <a href="javascript:void(0)" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-direction-alt"></i><b>M</b></span>
+                                            <span class="pcoded-micon"><i class="fa fa-location-arrow"></i><b>M</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.menu-levels.main">Manajemen User</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
@@ -82,7 +89,7 @@
                                             {{-- menu level manajemen user instructor --}}
                                             <li class="pcoded-hasmenu">
                                                 <a href="javascript:void(0)" class="waves-effect waves-dark">
-                                                    <span class="pcoded-micon"><i class="ti-id-badge"></i></span>
+                                                    <span class="pcoded-micon"><i class="fa fa-id-badge"></i></span>
                                                     <span class="pcoded-mtext"
                                                         data-i18n="nav.menu-levels.menu-level-22.main">User Instructor</span>
                                                     <span class="pcoded-mcaret"></span>
@@ -91,7 +98,7 @@
                                                     <li class="{{ Request::routeIs('admin.instructor-application.index') ? 'active' : '' }}">
                                                         <a href="{{ route('admin.instructor-application.index') }}" class="waves-effect waves-dark">
                                                             <span class="pcoded-micon"><i
-                                                                    class="ti-flag-alt"></i></span>
+                                                                    class="fa fa-flag"></i></span>
                                                             <span class="pcoded-mtext"
                                                                 data-i18n="nav.menu-levels.menu-level-22.menu-level-31">Status Instructor</span>
                                                             <span class="pcoded-mcaret"></span>
@@ -104,7 +111,7 @@
                                             {{-- menu level manajemen user student --}}
                                             <li class="pcoded-hasmenu">
                                                 <a href="javascript:void(0)" class="waves-effect waves-dark">
-                                                    <span class="pcoded-micon"><i class="ti-direction-alt"></i></span>
+                                                    <span class="pcoded-micon"><i class="fa fa-location-arrow"></i></span>
                                                     <span class="pcoded-mtext"
                                                         data-i18n="nav.menu-levels.menu-level-22.main">User Student</span>
                                                     <span class="pcoded-mcaret"></span>
@@ -113,7 +120,7 @@
                                                     <li class="">
                                                         <a href="{{ route('admin.manajemen-student.index') }}" class="waves-effect waves-dark">
                                                             <span class="pcoded-micon"><i
-                                                                    class="ti-angle-right"></i></span>
+                                                                    class="fa fa-angle-right"></i></span>
                                                             <span class="pcoded-mtext"
                                                                 data-i18n="nav.menu-levels.menu-level-22.menu-level-31">Status Student</span>
                                                             <span class="pcoded-mcaret"></span>
@@ -124,7 +131,7 @@
                                                     <li class="">
                                                         <a href="{{ route('admin.course-enrollments.index') }}" class="waves-effect waves-dark">
                                                             <span class="pcoded-micon"><i
-                                                                    class="ti-angle-right"></i></span>
+                                                                    class="fa fa-angle-right"></i></span>
                                                             <span class="pcoded-mtext"
                                                                 data-i18n="nav.menu-levels.menu-level-22.menu-level-31">Enrollments</span>
                                                             <span class="pcoded-mcaret"></span>
@@ -136,7 +143,7 @@
                                             
                                             <li class="">
                                                 <a href="javascript:void(0)" class="waves-effect waves-dark">
-                                                    <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
+                                                    <span class="pcoded-micon"><i class="fa fa-angle-right"></i></span>
                                                     <span class="pcoded-mtext"
                                                         data-i18n="nav.menu-levels.menu-level-23">Menu Level 2.3</span>
                                                     <span class="pcoded-mcaret"></span>
@@ -151,7 +158,7 @@
                                 <ul class="pcoded-item pcoded-left-item">
                                     <li class="pcoded-hasmenu">
                                         <a href="javascript:void(0)" class="waves-effect waves-dark">
-                                            <span class="pcoded-micon"><i class="ti-direction-alt"></i><b>M</b></span>
+                                            <span class="pcoded-micon"><i class="fa fa-location-arrow"></i><b>M</b></span>
                                             <span class="pcoded-mtext" data-i18n="nav.menu-levels.main">Manajemen Site</span>
                                             <span class="pcoded-mcaret"></span>
                                         </a>
@@ -159,7 +166,7 @@
                                             {{-- menu level manajemen Skala Likert --}}
                                             <li class="pcoded-hasmenu">
                                                 <a href="javascript:void(0)" class="waves-effect waves-dark">
-                                                    <span class="pcoded-micon"><i class="ti-direction-alt"></i></span>
+                                                    <span class="pcoded-micon"><i class="fa fa-location-arrow"></i></span>
                                                     <span class="pcoded-mtext"
                                                         data-i18n="nav.menu-levels.menu-level-22.main">Pertanyaan Ulasan</span>
                                                     <span class="pcoded-mcaret"></span>
@@ -168,7 +175,7 @@
                                                     <li class="{{ Request::routeIs('admin.likert-questions.index') ? 'active' : '' }}">
                                                         <a href="{{ route('admin.likert-questions.index') }}" class="waves-effect waves-dark">
                                                             <span class="pcoded-micon"><i
-                                                                    class="ti-angle-right"></i></span>
+                                                                    class="fa fa-angle-right"></i></span>
                                                             <span class="pcoded-mtext"
                                                                 data-i18n="nav.menu-levels.menu-level-22.menu-level-31">Setting</span>
                                                             <span class="pcoded-mcaret"></span>
@@ -181,7 +188,7 @@
                                             {{-- menu level manajemen user student --}}
                                             <li class="pcoded-hasmenu">
                                                 <a href="javascript:void(0)" class="waves-effect waves-dark">
-                                                    <span class="pcoded-micon"><i class="ti-direction-alt"></i></span>
+                                                    <span class="pcoded-micon"><i class="fa fa-location-arrow"></i></span>
                                                     <span class="pcoded-mtext"
                                                         data-i18n="nav.menu-levels.menu-level-22.main">Kursus</span>
                                                     <span class="pcoded-mcaret"></span>
@@ -190,7 +197,7 @@
                                                     <li class="">
                                                         <a href="{{ route('admin.course-categories.index') }}" class="waves-effect waves-dark">
                                                             <span class="pcoded-micon"><i
-                                                                    class="ti-angle-right"></i></span>
+                                                                    class="fa fa-angle-right"></i></span>
                                                             <span class="pcoded-mtext"
                                                                 data-i18n="nav.menu-levels.menu-level-22.menu-level-31">Kategori Kursus</span>
                                                             <span class="pcoded-mcaret"></span>

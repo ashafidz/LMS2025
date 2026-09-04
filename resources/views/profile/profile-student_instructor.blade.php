@@ -50,7 +50,7 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3 d-flex">
                                     <div style="width: 24px;">
-                                        <i class="ti ti-calendar text-lg"></i>
+                                        <i class="ti fa fa-calendar text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Tanggal Lahir</p>
@@ -59,7 +59,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
                                     <div style="width: 24px;">
-                                        <i class="ti ti-briefcase text-lg"></i>
+                                        <i class="ti fa fa-briefcase text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Pekerjaan / Profesi</p>
@@ -77,7 +77,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
                                     <div style="width: 24px;">
-                                        <i class="ti ti-id-badge text-lg"></i>
+                                        <i class="ti fa fa-id-badge text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Headline</p>
@@ -86,7 +86,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
                                     <div style="width: 24px;">
-                                        <i class="ti ti-location-pin text-lg"></i>
+                                        <i class="ti fa fa-map-marker-alt text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Alamat</p>
@@ -95,7 +95,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
                                     <div style="width: 24px;">
-                                        <i class="ti ti-world text-lg"></i>
+                                        <i class="ti fa fa-globe text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Website</p>
@@ -133,7 +133,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3 d-flex">
                                     <div style="width: 24px;">
-                                        <i class="ti ti-map-alt text-lg"></i>
+                                        <i class="ti fa fa-map text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Alamat Perusahaan</p>
@@ -175,7 +175,7 @@
                             <div class="mb-3">
                                 <div class="d-flex align-items-start">
                                     <div style="width: 24px;">
-                                        <i class="ti ti-email text-lg"></i>
+                                        <i class="ti fa fa-envelope text-lg"></i>
                                     </div>
                                     <div class="ml-3">
                                         <p class="mb-1 font-weight-bold">Email</p>

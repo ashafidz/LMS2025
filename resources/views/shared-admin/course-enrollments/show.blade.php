@@ -59,7 +59,7 @@
                                                             {{-- <div class="checkbox-fade fade-in-primary" >
                                                                 <label >
                                                                     <input type="checkbox" id="select-all">
-                                                                    <span class="cr"><i class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
+                                                                    <span class="cr"><i class="cr-icon fa fa-check txt-primary"></i></span>
                                                                 </label>
                                                             </div> --}}
                                                             <input type="checkbox" id="select-all">
@@ -78,7 +78,7 @@
                                                                 {{-- <div class="checkbox-fade fade-in-primary" >
                                                                     <label>
                                                                         <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox">
-                                                                        <span class="cr"><i class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
+                                                                        <span class="cr"><i class="cr-icon fa fa-check txt-primary"></i></span>
                                                                     </label>
                                                                 </div> --}}
                                                                 <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox">

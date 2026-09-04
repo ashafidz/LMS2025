@@ -171,7 +171,7 @@
                                       <a href="1edit-index.html" class="btn btn-outline-primary btn-sm w-100">Edit Profile</a>
                                     </div>
                                     <div class="col-6">
-                                      <a href="1ganti-pass.html" class="btn btn-outline-primary btn-sm w-100">Ganti Password</a>
+                                      <a href="1ganfa fa-ticket-alt.html" class="btn btn-outline-primary btn-sm w-100">Ganti Password</a>
                                     </div>
                                   </div>                                 
                             </div>

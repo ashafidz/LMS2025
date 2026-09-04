@@ -33,7 +33,7 @@
                                 <div class="col-12 col-md-6 col-lg-12">
                                     <div class="card mb-4 shadow-sm border-0" style="border-radius: 12px;">
                                         <div class="card-block text-center p-4">
-                                            <i class="ti-medall-alt text-warning f-50 mb-3"></i>
+                                            <i class="fa fa-medal text-warning f-50 mb-3"></i>
                                             <h2 class="font-weight-bold text-warning mb-1">{{ number_format($totalPoints, 0, ',', '.') }} <small class="text-muted f-16">Poin</small></h2>
                                             <p class="text-muted mb-0">Total Akumulasi Poin Anda</p>
                                         </div>
@@ -120,7 +120,7 @@
                                 <div class="card-header p-b-0 border-bottom-0">
                                     <ul class="nav nav-tabs md-tabs" role="tablist">
                                         <li class="nav-item">
-                                            <a class="nav-link active font-weight-bold" data-toggle="tab" href="#tab-riwayat-poin" role="tab"><i class="ti-medall-alt mr-1"></i> Riwayat Poin</a>
+                                            <a class="nav-link active font-weight-bold" data-toggle="tab" href="#tab-riwayat-poin" role="tab"><i class="fa fa-medal mr-1"></i> Riwayat Poin</a>
                                             <div class="slide"></div>
                                         </li>
                                         <li class="nav-item">
@@ -174,7 +174,7 @@
                                                     @empty
                                                         <tr>
                                                             <td colspan="4" class="text-center text-muted py-4">
-                                                                <i class="ti-info-alt d-block f-24 mb-2"></i>
+                                                                <i class="fa fa-info-circle d-block f-24 mb-2"></i>
                                                                 Anda belum mendapatkan poin dari kursus manapun.
                                                             </td>
                                                         </tr>

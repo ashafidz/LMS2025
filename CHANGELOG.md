@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-09-03]
+### Added
+- **Contact Form Backend**: Mengaktifkan sistem backend (Model `ContactMessage`, Controller, dan Migration) untuk menangani pengiriman pesan dari formulir kontak di halaman Landing Page publik secara utuh (MVP).
+- **Anti-Spam Contact Protection**: Menerapkan dua lapis keamanan anti-spam pada *endpoint* kontak, yakni *Rate Limiting* (`throttle:5,1`) dan pendeteksi bot otomatis **Google reCAPTCHA v3** yang aktif secara dinamis menyesuaikan variabel `.env`.
+- **Contact Message Dashboard**: Menambahkan menu "Pesan Kontak" di *sidebar* Superadmin dan Admin untuk mengelola, melihat riwayat, dan memantau status baca (`is_read`) pesan pengunjung website.
+- **Direct Email Reply System**: Menambahkan fitur "Balas Pesan" di dalam Dasbor Admin. Fitur ini dirancang untuk segera mengirimkan balasan langsung (*direct reply*) ke email pengunjung menggunakan *Markdown Mail Template* secara otomatis (*SMTP required*), lengkap dengan indikator anti pengiriman-ganda (`is_replied`).
+
+### Fixed
+- **Transaction History 500 Error (Production Bug)**: Memperbaiki *bug* fatal (Error 500) pada halaman "Riwayat Transaksi" siswa yang terjadi di lingkungan *production*. Bug ini muncul karena sistem gagal merender judul kursus (`$item->course->title`) apabila instruktur/admin telah menghapus kursus tersebut dari peredaran (karena model `Course` menggunakan `SoftDeletes`). Solusi: Menyuntikkan `withTrashed()` pada relasi `course()` di dalam model `OrderItem` sehingga riwayat resi siswa akan tetap menampilkan nama kursus walaupun kursus aslinya telah dihapus.
+- **Mobile Sidebar Scrolling Lock**: Menyempurnakan perbaikan sidebar mobile dengan mengimplementasikan *MutationObserver* via JavaScript murni. Pendekatan ini secara otomatis mengunci *scroll* halaman utama (`overflow: hidden`) ketika menu sidebar terbuka (`vertical-nav-type="expanded"`), sehingga posisi sidebar terjamin stabil di berbagai perangkat dan ukuran layar tanpa memblokir fungsi scroll pada elemen sidebar itu sendiri.
+- **CSRF Token Mismatch (Error 419)**: Memperbaiki isu kegagalan *login* (419 Page Expired) saat diakses melalui HTTP jaringan lokal (via IP) dengan menonaktifkan paksaan *secure cookie* (`SESSION_SECURE_COOKIE=false`) pada berkas `.env`.
+- **Polling & Wordcloud Points Not Awarded (Production Bug)**: Memperbaiki *bug* di *production* (cPanel) di mana siswa yang mengisi Polling atau Word Cloud **tidak mendapatkan poin sama sekali**, sementara tipe lesson lain berfungsi normal. Akar masalah: kolom `points_for_polling` dan `points_for_wordcloud` ditambahkan via migration baru, namun MySQL hanya menerapkan nilai `DEFAULT` pada row baru — row lama yang sudah ada tetap `NULL`. Nilai `NULL` menyebabkan `PointService` menghitung `$pointsToAdd = 0` dan melewati seluruh blok pemberian poin. **Solusi tiga lapis**: (1) Migration data fix-up untuk mengisi `NULL → 5` pada row yang sudah ada, (2) Cast `(int)` eksplisit pada semua nilai poin di `PointService`, (3) Logging diagnosis di `PointService` agar masalah serupa mudah dideteksi di log produksi.
+
+### Changed
+- **UI Performance Overhaul (Tahap 1-3)**: Melakukan optimasi drastis pada beban performa antarmuka (UI):
+  - **Tahap 1 (Pembersihan Kode Mati)**: Membuang inisialisasi ganda `slimScroll`, kode *Modernizr*, dan *excanvas* yang sudah usang dari *layout* utama, serta menambahkan metode `defer` pada SweetAlert2 agar tidak menghalangi laju *rendering* DOM.
+  - **Tahap 2 (Asset Pushing & Scrollbar)**: Mencabut deklarasi global library grafik raksasa (*Chart.js* dan *AmCharts*). Membuang plugin `mCustomScrollbar` dan menggantinya dengan gulir CSS bawaan (*Native CSS Scrollbar*).
+  - **Tahap 3 (Pembersihan Hutan Ikon)**: Melakukan migrasi massal dari puluhan pustaka ikon lawas (*Themify* dan *IcoFont*) ke *Font Awesome 6* yang jauh lebih seragam dan ringan, menyapu bersih penggunaan ikon usang pada 64+ *file* komponen *view*.
+  - **60FPS Hardware Acceleration & Loader**: Membuang *pre-loader* jQuery yang berat dan menggantinya dengan animasi berbasis CSS murni. Menyuntikkan trik *GPU acceleration* (`transform: translateZ(0)`) dan pergerakan transisi *Cubic Bezier* ala Material Design untuk seluruh interaksi statis, memastikan kelancaran sentuhan tanpa membebani CPU.
+
+
 ## [2026-09-02]
 ### Added
 - **Mass Sync Points**: Menambahkan fitur "Sinkronisasi Poin Massal" pada menu manajemen kursus instruktur. Fitur ini dirancang dengan algoritma pemindai (*scanner*) yang akan menyapu seluruh progres materi dan *database* perolehan poin dari seluruh murid di suatu kursus, lalu menampilkannya dalam tabel "Pratinjau Anomali". Setelah ditinjau, instruktur dapat mengeksekusi penyelesaian seluruh anomali poin siswa dalam satu klik secara aman (menggunakan *Database Transaction*).

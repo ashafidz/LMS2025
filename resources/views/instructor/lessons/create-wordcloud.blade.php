@@ -70,7 +70,7 @@
                                         <div class="checkbox-fade fade-in-primary">
                                             <label>
                                                 <input type="checkbox" id="isActive" name="is_active" value="1" checked>
-                                                <span class="cr"><i class="cr-icon icofont icofont-ui-check txt-primary"></i></span>
+                                                <span class="cr"><i class="cr-icon fa fa-check txt-primary"></i></span>
                                                 <span class="text-inverse">Word Cloud dapat diisi oleh siswa</span>
                                             </label>
                                         </div>

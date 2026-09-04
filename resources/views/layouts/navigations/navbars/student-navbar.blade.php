@@ -4,15 +4,15 @@
     <div class="navbar-wrapper">
         <div class="navbar-logo">
             <a class="mobile-menu waves-effect waves-light" id="mobile-collapse" href="#!">
-                <i class="ti-menu"></i>
+                <i class="fa fa-bars"></i>
             </a>
             <div class="mobile-search waves-effect waves-light">
                 <div class="header-search">
                     <div class="main-search morphsearch-search">
                         <div class="input-group">
-                            <span class="input-group-addon search-close"><i class="ti-close"></i></span>
+                            <span class="input-group-addon search-close"><i class="fa fa-times"></i></span>
                             <input type="text" class="form-control" placeholder="Enter Keyword" />
-                            <span class="input-group-addon search-btn"><i class="ti-search"></i></span>
+                            <span class="input-group-addon search-btn"><i class="fa fa-search"></i></span>
                         </div>
                     </div>
                 </div>
@@ -21,7 +21,7 @@
                 <img class="img-fluid" src="{{ $siteSettings->logo_path ? asset('storage/' . $siteSettings->logo_path) : 'https://placehold.co/100x40/EBF4FF/767676?text=LOGO' }}" alt="Logo {{ $siteSettings->name }}" />
             </a>
             <a class="mobile-options waves-effect waves-light">
-                <i class="ti-more"></i>
+                <i class="fa fa-ellipsis-v"></i>
             </a>
         </div>
 
@@ -29,29 +29,29 @@
             <ul class="nav-left">
                 <li>
                     <div class="sidebar_toggle">
-                        <a href="javascript:void(0)"><i class="ti-menu"></i></a>
+                        <a href="javascript:void(0)"><i class="fa fa-bars"></i></a>
                     </div>
                 </li>
                 {{-- <li class="header-search">
                     <div class="main-search morphsearch-search">
                         <div class="input-group">
-                            <span class="input-group-addon search-close"><i class="ti-close"></i></span>
+                            <span class="input-group-addon search-close"><i class="fa fa-times"></i></span>
                             <input type="text" class="form-control" />
-                            <span class="input-group-addon search-btn"><i class="ti-search"></i></span>
+                            <span class="input-group-addon search-btn"><i class="fa fa-search"></i></span>
                         </div>
                     </div>
                 </li> --}}
                 <li>
                     <a href="#!" onclick="javascript:toggleFullScreen()"
                         class="waves-effect waves-light">
-                        <i class="ti-fullscreen"></i>
+                        <i class="fa fa-arrows-alt"></i>
                     </a>
                 </li>
             </ul>
             <ul class="nav-right">
                 {{-- <li class="header-notification">
                     <a href="#!" class="waves-effect waves-light">
-                        <i class="ti-bell"></i>
+                        <i class="fa fa-bell"></i>
                         <span class="badge bg-c-red"></span>
                     </a>
                     <ul class="show-notification">
@@ -115,12 +115,12 @@
                         <img class="rounded-circle mr-4" style="width: 40px; height: 40px; border: 3px;"
                             src="{{ Auth::user()->profile_picture_url ? asset(Auth::user()->profile_picture_url ) :  'https://placehold.co/32x32/EBF4FF/767676?text=SA' }}" alt="{{ Auth::user()->name }}" />
                         <span>{{ Auth::user()->name }}</span>
-                        <i class="ti-angle-down"></i>
+                        <i class="fa fa-angle-down"></i>
                     </a>
                     <ul class="show-notification profile-notification">
                         <li class="waves-effect waves-light">
                             <a href="{{ route('home') }}">
-                                <i class="ti-home"></i>
+                                <i class="fa fa-home"></i>
                                 Home
                             </a>
                         </li>
@@ -133,19 +133,19 @@
                         @endif
                         <li class="waves-effect waves-light">
                             <a href="{{ route('user.profile.index') }}">
-                                <i class="ti-user"></i> Profile
+                                <i class="fa fa-user"></i> Profile
                             </a>
                         </li>
                         <li class="waves-effect waves-light">
                             <a href="{{ route('student.cart.index') }}">
-                                <i class="ti-shopping-cart"></i> Keranjang
+                                <i class="fa fa-shopping-cart"></i> Keranjang
                             </a>
                         </li>
                         <li class="waves-effect waves-light">
                             <a href="{{ route('logout') }}"
                             onclick="event.preventDefault();
                                         document.getElementById('logout-form').submit();">
-                                <i class="ti-layout-sidebar-left"></i> Logout
+                                <i class="fa fa-sign-out"></i> Logout
                             </a>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                 @csrf
