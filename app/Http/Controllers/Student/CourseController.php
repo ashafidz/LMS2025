@@ -261,12 +261,6 @@ class CourseController extends Controller
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
         }
 
-        // Prevent manual completion for types that auto-complete
-        $lessonType = strtolower(class_basename($lesson->lessonable_type));
-        if (in_array($lessonType, ['lessonpolling', 'lessonwordcloud'])) {
-            return response()->json(['success' => false, 'message' => 'Pelajaran ini akan otomatis ditandai selesai setelah Anda berpartisipasi.'], 403);
-        }
-
         // Cek apakah pelajaran ini sudah pernah diselesaikan untuk mencegah poin ganda
         $alreadyCompleted = $user->completedLessons()->where('lesson_id', $lesson->id)->exists();
 

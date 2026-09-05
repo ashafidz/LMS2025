@@ -151,8 +151,6 @@
                                                                     if ($type === 'lessonlinkcollection') $icon = 'bi bi-folder2-open';
                                                                     if ($type === 'lessonassignment') $icon = 'bi bi-clipboard2';
                                                                     if ($type === 'lessonpoint') $icon = 'bi bi-chat-left-quote';
-                                                                    if ($type === 'lessonpolling') $icon = 'bi bi-bar-chart-fill';
-                                                                    if ($type === 'lessonwordcloud') $icon = 'bi bi-cloud-text';
                                                                 @endphp
 
                                                                 <li class="list-group-item d-flex justify-content-between align-items-center {{ $isLocked ? 'bg-light' : '' }}" id="sidebar-lesson-{{ $lesson->id }}">
