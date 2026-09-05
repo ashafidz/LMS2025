@@ -90,6 +90,11 @@
                         if (typeof window.onLessonCompleted === 'function') {
                             window.onLessonCompleted(lessonId);
                         }
+                        
+                        // Reload the page after 1.5s to update points and sidebar checkmarks
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
                     } else {
                         alert(data.message || 'Terjadi kesalahan.');
                         btn.disabled = false;
