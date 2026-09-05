@@ -676,3 +676,4 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
         Route::post('/apply-instructor', [InstructorApplicationController::class, 'store'])->name('student.apply_instructor.store');
     });
 });
+
