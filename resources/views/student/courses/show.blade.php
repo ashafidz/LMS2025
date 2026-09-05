@@ -375,11 +375,14 @@
                             const sidebarItem = document.getElementById(`sidebar-lesson-${lessonId}`);
                             if (sidebarItem) {
                                 const lessonTypeIcon = sidebarItem.querySelector('a.load-lesson > i');
-                                const isQuizOrAssignment = lessonTypeIcon.classList.contains('bi-pencil-square') || lessonTypeIcon.classList.contains('bi-clipboard2');
+                                const isQuizOrAssignmentOrPoll = lessonTypeIcon.classList.contains('bi-pencil-square') || 
+                                                                 lessonTypeIcon.classList.contains('bi-clipboard2') || 
+                                                                 lessonTypeIcon.classList.contains('bi-bar-chart-fill') || 
+                                                                 lessonTypeIcon.classList.contains('bi-cloud-text');
                                 const isAlreadyCompleted = sidebarItem.querySelector('.fa-check-circle') !== null;
 
                                 // **FIX**: Added !data.is_locked to ensure the button never shows for locked lessons.
-                                if (!data.is_locked && !isQuizOrAssignment && !isPreview && !isAlreadyCompleted) {
+                                if (!data.is_locked && !isQuizOrAssignmentOrPoll && !isPreview && !isAlreadyCompleted) {
                                     completeButtonHtml = `<hr><div class="text-center mt-4"><button class="btn btn-primary mark-as-complete-btn" data-lesson-id="${lessonId}"><i class="fa fa-check"></i> Tandai Selesai</button></div>`;
                                 }
                             }
