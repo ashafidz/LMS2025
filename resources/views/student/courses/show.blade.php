@@ -151,6 +151,8 @@
                                                                     if ($type === 'lessonlinkcollection') $icon = 'bi bi-folder2-open';
                                                                     if ($type === 'lessonassignment') $icon = 'bi bi-clipboard2';
                                                                     if ($type === 'lessonpoint') $icon = 'bi bi-chat-left-quote';
+                                                                    if ($type === 'lessonpolling') $icon = 'bi bi-bar-chart-fill';
+                                                                    if ($type === 'lessonwordcloud') $icon = 'bi bi-cloud-text';
                                                                 @endphp
 
                                                                 <li class="list-group-item d-flex justify-content-between align-items-center {{ $isLocked ? 'bg-light' : '' }}" id="sidebar-lesson-{{ $lesson->id }}">
@@ -380,6 +382,8 @@
 
                                 // **FIX**: Added !data.is_locked to ensure the button never shows for locked lessons.
                                 if (!data.is_locked && !isQuizOrAssignment && !isPreview && !isAlreadyCompleted) {
+                                // Use the flag from backend to determine if we should show the manual complete button
+                                if (!data.is_locked && data.can_mark_complete_manually && !isPreview && !isAlreadyCompleted) {
                                     completeButtonHtml = `<hr><div class="text-center mt-4"><button class="btn btn-primary mark-as-complete-btn" data-lesson-id="${lessonId}"><i class="fa fa-check"></i> Tandai Selesai</button></div>`;
                                 }
                             }

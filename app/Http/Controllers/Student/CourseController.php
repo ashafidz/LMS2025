@@ -239,6 +239,8 @@ class CourseController extends Controller
 
         $htmlContent = view($viewName, $data)->render();
 
+        $canMarkCompleteManually = !in_array($lessonType, ['quiz', 'lessonassignment', 'lessonpolling', 'lessonwordcloud']);
+
         return response()->json([
             'success' => true,
             'title' => $lesson->title,
@@ -246,6 +248,7 @@ class CourseController extends Controller
             'is_preview' => $is_preview_for_view,
             'discussion_html' => $discussionHtml,
             'is_locked' => false,
+            'can_mark_complete_manually' => $canMarkCompleteManually,
         ]);
     }
 
@@ -259,6 +262,12 @@ class CourseController extends Controller
 
         if (!$is_enrolled) {
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+        }
+
+        // Prevent manual completion for types that auto-complete
+        $lessonType = strtolower(class_basename($lesson->lessonable_type));
+        if (in_array($lessonType, ['lessonpolling', 'lessonwordcloud'])) {
+            return response()->json(['success' => false, 'message' => 'Pelajaran ini akan otomatis ditandai selesai setelah Anda berpartisipasi.'], 403);
         }
 
         // Cek apakah pelajaran ini sudah pernah diselesaikan untuk mencegah poin ganda
