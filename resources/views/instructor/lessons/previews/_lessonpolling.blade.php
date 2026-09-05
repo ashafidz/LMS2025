@@ -161,6 +161,11 @@
                         } else {
                             container.innerHTML = '<div class=\'alert alert-success\'>Berhasil mengirim jawaban! Terima kasih atas partisipasi Anda.</div>';
                         }
+                        
+                        // Reload the page after 1.5s to update points and sidebar checkmarks
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
                     } else {
                         alert(data.message || 'Terjadi kesalahan');
                         btn.disabled = false;

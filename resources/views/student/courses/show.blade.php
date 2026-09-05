@@ -152,7 +152,7 @@
                                                                     if ($type === 'lessonassignment') $icon = 'bi bi-clipboard2';
                                                                     if ($type === 'lessonpoint') $icon = 'bi bi-chat-left-quote';
                                                                     if ($type === 'lessonpolling') $icon = 'bi bi-bar-chart-fill';
-                                                                    if ($type === 'lessonwordcloud') $icon = 'bi bi-cloud-text';
+                                                                    if ($type === 'lessonwordcloud') $icon = 'bi bi-cloud-fill';
                                                                 @endphp
 
                                                                 <li class="list-group-item d-flex justify-content-between align-items-center {{ $isLocked ? 'bg-light' : '' }}" id="sidebar-lesson-{{ $lesson->id }}">
@@ -380,7 +380,7 @@
                                 const isQuizOrAssignmentOrPoll = lessonTypeIcon.classList.contains('bi-pencil-square') || 
                                                                  lessonTypeIcon.classList.contains('bi-clipboard2') || 
                                                                  lessonTypeIcon.classList.contains('bi-bar-chart-fill') || 
-                                                                 lessonTypeIcon.classList.contains('bi-cloud-text');
+                                                                 lessonTypeIcon.classList.contains('bi-cloud-fill');
                                 const isAlreadyCompleted = sidebarItem.querySelector('.fa-check-circle') !== null;
 
                                 // **FIX**: Added !data.is_locked to ensure the button never shows for locked lessons.
