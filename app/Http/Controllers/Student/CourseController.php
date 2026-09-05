@@ -239,8 +239,6 @@ class CourseController extends Controller
 
         $htmlContent = view($viewName, $data)->render();
 
-        $canMarkCompleteManually = !in_array($lessonType, ['quiz', 'lessonassignment', 'lessonpolling', 'lessonwordcloud']);
-
         return response()->json([
             'success' => true,
             'title' => $lesson->title,
@@ -248,7 +246,6 @@ class CourseController extends Controller
             'is_preview' => $is_preview_for_view,
             'discussion_html' => $discussionHtml,
             'is_locked' => false,
-            'can_mark_complete_manually' => $canMarkCompleteManually,
         ]);
     }
 
