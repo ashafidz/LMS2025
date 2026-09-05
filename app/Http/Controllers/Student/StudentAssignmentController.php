@@ -77,6 +77,9 @@ class StudentAssignmentController extends Controller
             ]
         );
 
+        // Tandai lesson sebagai selesai saat submit (baik pertama kali maupun revisi)
+        $user->completedLessons()->syncWithoutDetaching($assignment->lesson->id);
+
         return back()->with('success', 'Tugas Anda berhasil dikumpulkan!');
     }
 }

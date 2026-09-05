@@ -118,7 +118,11 @@ class InstructorAssignmentController extends Controller
             $newStatus = 'passed';
 
             // Tandai pelajaran sebagai selesai
+            // Tandai pelajaran sebagai selesai (sudah ada sejak submit, tapi untuk pastinya)
             $student->completedLessons()->syncWithoutDetaching($lesson->id);
+        } else {
+            // Jika direvisi, cabut tanda selesainya
+            $student->completedLessons()->detach($lesson->id);
         }
 
         $submission->update([
