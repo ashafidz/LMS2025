@@ -421,6 +421,9 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         // Aksi untuk menyimpan nilai dan feedback
         Route::post('/submissions/{submission}/grade', [InstructorAssignmentController::class, 'grade'])->name('instructor.submission.grade');
 
+        // Aksi untuk meminta revisi masal
+        Route::post('/instructor/assignments/{assignment}/submissions/bulk-revision', [InstructorAssignmentController::class, 'bulkRevise'])->name('instructor.assignment.submissions.bulk_revision');
+
 
         // --- Routes untuk Mengelola Pelajaran (Lessons) dalam sebuah Modul ---
 

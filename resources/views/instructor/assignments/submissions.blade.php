@@ -63,15 +63,30 @@
                                     <div class="tab-content card-block">
                                         {{-- TAB: Menunggu Dinilai --}}
                                         <div class="tab-pane active" id="submitted" role="tabpanel">
-                                            @include('instructor.assignments.partials._submission_table', ['submissions' => $submittedSubmissions, 'showGrade' => false])
+                                            @include('instructor.assignments.partials._submission_table', [
+                                                'submissions' => $submittedSubmissions, 
+                                                'showGrade' => false,
+                                                'allowBulkRevision' => true,
+                                                'tabId' => 'submitted'
+                                            ])
                                         </div>
                                         {{-- TAB: Perlu Revisi --}}
                                         <div class="tab-pane" id="revision" role="tabpanel">
-                                            @include('instructor.assignments.partials._submission_table', ['submissions' => $revisionSubmissions, 'showGrade' => true])
+                                            @include('instructor.assignments.partials._submission_table', [
+                                                'submissions' => $revisionSubmissions, 
+                                                'showGrade' => true,
+                                                'allowBulkRevision' => false,
+                                                'tabId' => 'revision'
+                                            ])
                                         </div>
                                         {{-- TAB: Lulus --}}
                                         <div class="tab-pane" id="passed" role="tabpanel">
-                                            @include('instructor.assignments.partials._submission_table', ['submissions' => $passedSubmissions, 'showGrade' => true])
+                                            @include('instructor.assignments.partials._submission_table', [
+                                                'submissions' => $passedSubmissions, 
+                                                'showGrade' => true,
+                                                'allowBulkRevision' => true,
+                                                'tabId' => 'passed'
+                                            ])
                                         </div>
                                         {{-- TAB: Belum Mengumpulkan --}}
                                         <div class="tab-pane" id="not-submitted" role="tabpanel">
@@ -256,4 +271,100 @@
 
 
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    ['submitted', 'passed'].forEach(function (tabId) {
+        const selectAllCb = document.getElementById('select-all-' + tabId);
+        const bulkBtn = document.getElementById('btn-bulk-revise-' + tabId);
+        const countSpans = document.querySelectorAll('.selected-count-' + tabId);
+        const infoSpan = document.getElementById('selection-info-' + tabId);
+        const modal = document.getElementById('bulkReviseModal-' + tabId);
+        const form = document.getElementById('form-bulk-revise-' + tabId);
+        const submitBtn = document.getElementById('btn-submit-bulk-revise-' + tabId);
+
+        if (!bulkBtn) return;
+
+        function updateSelectionState() {
+            const checkedBoxes = document.querySelectorAll('.submission-checkbox-' + tabId + ':checked');
+            const totalBoxes = document.querySelectorAll('.submission-checkbox-' + tabId);
+            const count = checkedBoxes.length;
+
+            countSpans.forEach(function (span) {
+                span.textContent = count;
+            });
+
+            if (infoSpan) {
+                infoSpan.style.display = count > 0 ? 'inline' : 'none';
+            }
+
+            bulkBtn.disabled = count === 0;
+
+            if (selectAllCb && totalBoxes.length > 0) {
+                selectAllCb.checked = count === totalBoxes.length;
+                selectAllCb.indeterminate = count > 0 && count < totalBoxes.length;
+            }
+        }
+
+        if (selectAllCb) {
+            selectAllCb.addEventListener('change', function () {
+                const isChecked = this.checked;
+                const checkboxes = document.querySelectorAll('.submission-checkbox-' + tabId);
+                checkboxes.forEach(function (cb) {
+                    cb.checked = isChecked;
+                });
+                updateSelectionState();
+            });
+        }
+
+        const itemCbs = document.querySelectorAll('.submission-checkbox-' + tabId);
+        itemCbs.forEach(function (cb) {
+            cb.addEventListener('change', function () {
+                updateSelectionState();
+            });
+        });
+
+        // Event saat modal dibuka: masukkan hidden inputs submission_ids[] ke form modal
+        if (modal) {
+            $(modal).on('show.bs.modal', function () {
+                const checkedBoxes = document.querySelectorAll('.submission-checkbox-' + tabId + ':checked');
+                const modalCountSpan = modal.querySelector('.modal-selected-count-' + tabId);
+                const hiddenContainer = modal.querySelector('.hidden-submission-ids-container-' + tabId);
+
+                if (modalCountSpan) {
+                    modalCountSpan.textContent = checkedBoxes.length;
+                }
+
+                if (hiddenContainer) {
+                    hiddenContainer.innerHTML = '';
+                    checkedBoxes.forEach(function (cb) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'submission_ids[]';
+                        input.value = cb.value;
+                        hiddenContainer.appendChild(input);
+                    });
+                }
+            });
+        }
+
+        // Proteksi saat form dikirim
+        if (form && submitBtn) {
+            form.addEventListener('submit', function (e) {
+                const hiddenInputs = form.querySelectorAll('input[name="submission_ids[]"]');
+                if (hiddenInputs.length === 0) {
+                    e.preventDefault();
+                    alert('Silakan pilih setidaknya satu tugas siswa terlebih dahulu.');
+                    return false;
+                }
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Memproses...';
+            });
+        }
+    });
+});
+</script>
+@endpush
+
 
