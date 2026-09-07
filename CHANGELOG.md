@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2026-09-07]
+### Added
+- **Select All & Batch Assignment Revision (Instructor)**: Menambahkan fitur seleksi masal (*checkbox* per baris dan *Select All* di header tabel) pada halaman pengumpulan tugas instruktur. Instruktur dapat memilih beberapa atau seluruh siswa sekaligus untuk meminta revisi tugas (*batch revision*) dalam satu kali klik melalui tombol dinamis **"Minta Revisi Terpilih (N)"**.
+- **Batch Revision Confirmation Modal**: Menyediakan modal konfirmasi sebelum aksi revisi masal dieksekusi, lengkap dengan tinjauan jumlah siswa terpilih dan *textarea* catatan/umpan balik (*feedback*) revisi yang dapat disesuaikan (nilai bawaan: *"Tugas belum sesuai kriteria. Silakan perbaiki dan kumpulkan kembali."*).
+- **Batch Revision Backend & Transaction**: Menambahkan *endpoint* `POST /instructor/assignments/{assignment}/submissions/bulk-revision` dan *method* `bulkRevise()` pada `InstructorAssignmentController`. Sistem memperbarui status tugas menjadi `revision_required`, menyetel nilai ke `0`, mencabut status penyelesaian pelajaran siswa (`completedLessons()->detach()`) secara atomik dalam `DB::transaction`, serta otomatis mengirimkan email notifikasi revisi (`AssignmentRevisionRequired`) ke setiap siswa terpilih.
+
+### Fixed
+- **Modal Video Background Playback**: Memperbaiki isu di mana video (YouTube maupun video unggahan) tetap berputar dan mengeluarkan suara di latar belakang ketika pop-up/modal pratinjau materi pelajaran ditutup. Ditambahkan penangan global `hidden.bs.modal` pada `layouts/app-layout.blade.php` untuk otomatis menghentikan pemutaran `<iframe>` (YouTube/Vimeo) dan me-reset tag `<video>`/`<audio>` HTML5, serta menyematkan `?enablejsapi=1` pada embed YouTube di `_lessonvideo.blade.php`.
+- **Database Connection Environment Alignment**: Menyelaraskan kredensial database di berkas `.env` (`edugamesdatabase`, `edugamesuser`, `edugamespassword`) agar sesuai dengan konfigurasi kontainer MySQL di `docker-compose.yaml` untuk mencegah galat autentikasi migrasi database (`SQLSTATE[HY000] [1045] Access denied`).
+
 ## [2026-09-03]
 ### Added
 - **Contact Form Backend**: Mengaktifkan sistem backend (Model `ContactMessage`, Controller, dan Migration) untuk menangani pengiriman pesan dari formulir kontak di halaman Landing Page publik secara utuh (MVP).

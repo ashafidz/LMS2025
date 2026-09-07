@@ -8,6 +8,9 @@ use App\Models\LessonAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Services\PointService;
+use App\Services\HashIdService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AssignmentRevisionRequired;
 
@@ -143,4 +146,76 @@ class InstructorAssignmentController extends Controller
 
         return back()->with('success', 'Tugas berhasil dinilai.');
     }
+
+    /**
+     * Meminta revisi secara masal untuk beberapa tugas siswa yang dipilih.
+     */
+    public function bulkRevise(Request $request, LessonAssignment $assignment)
+    {
+        // Otorisasi: pastikan instruktur adalah pemilik kursus
+        if ($assignment->lesson->module->course->instructor_id != Auth::id()) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $validated = $request->validate([
+            'submission_ids' => 'required|array|min:1',
+            'submission_ids.*' => 'required',
+            'feedback' => 'nullable|string|max:1000',
+        ]);
+
+        // Decode IDs (mendukung format hash maupun integer)
+        $decodedIds = array_filter(array_map(function ($id) {
+            return HashIdService::decode($id) ?? (is_numeric($id) ? (int) $id : null);
+        }, $validated['submission_ids']));
+
+        if (empty($decodedIds)) {
+            return back()->with('error', 'Tidak ada data pengumpulan tugas yang valid.');
+        }
+
+        // Ambil data submissions milik assignment ini
+        $submissions = $assignment->submissions()
+            ->whereIn('id', $decodedIds)
+            ->with(['user', 'assignment.lesson.module.course'])
+            ->get();
+
+        if ($submissions->isEmpty()) {
+            return back()->with('error', 'Tidak ada data pengumpulan tugas yang ditemukan.');
+        }
+
+        $feedback = $validated['feedback'] ?? 'Tugas belum sesuai kriteria. Silakan perbaiki dan kumpulkan kembali.';
+        $lesson = $assignment->lesson;
+
+        DB::transaction(function () use ($submissions, $lesson, $feedback) {
+            foreach ($submissions as $submission) {
+                $student = $submission->user;
+
+                // Cabut tanda selesai pelajaran
+                if ($student) {
+                    $student->completedLessons()->detach($lesson->id);
+                }
+
+                $submission->update([
+                    'grade' => 0,
+                    'feedback' => $feedback,
+                    'status' => 'revision_required',
+                ]);
+            }
+        });
+
+        // Kirim email notifikasi revisi ke setiap siswa setelah transaksi commit
+        foreach ($submissions as $submission) {
+            $student = $submission->user;
+            if ($student && $student->email) {
+                try {
+                    Mail::to($student->email)->send(new AssignmentRevisionRequired($submission));
+                } catch (\Exception $e) {
+                    Log::error("Gagal mengirim email revisi masal ke {$student->email}: " . $e->getMessage());
+                }
+            }
+        }
+
+        $count = $submissions->count();
+        return back()->with('success', "{$count} tugas siswa berhasil diminta untuk direvisi.");
+    }
 }
+
