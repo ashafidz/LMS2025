@@ -205,11 +205,43 @@
         }
         #lesson-list .card {
             transition: transform 0.2s ease;
+            position: relative;
+            z-index: 1;
+        }
+        #lesson-list .card:has(.dropdown.show),
+        #lesson-list .card:has(.dropdown-menu.show),
+        #lesson-list .card.is-dropdown-open {
+            z-index: 1050 !important;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Pastikan z-index card yang membuka dropdown lebih tinggi agar menu tidak tertutup card di bawahnya
+            if (typeof jQuery !== 'undefined') {
+                $('#lesson-list').on('show.bs.dropdown', function (e) {
+                    $(e.target).closest('.card').addClass('is-dropdown-open').css('z-index', 1050);
+                });
+                $('#lesson-list').on('hidden.bs.dropdown', function (e) {
+                    $(e.target).closest('.card').removeClass('is-dropdown-open').css('z-index', '');
+                });
+            }
+
+            document.addEventListener('show.bs.dropdown', function (e) {
+                const card = e.target.closest('#lesson-list .card');
+                if (card) {
+                    card.classList.add('is-dropdown-open');
+                    card.style.zIndex = '1050';
+                }
+            });
+            document.addEventListener('hidden.bs.dropdown', function (e) {
+                const card = e.target.closest('#lesson-list .card');
+                if (card) {
+                    card.classList.remove('is-dropdown-open');
+                    card.style.zIndex = '';
+                }
+            });
+
             const el = document.getElementById('lesson-list');
             if (el) {
                 const sortable = new Sortable(el, {
