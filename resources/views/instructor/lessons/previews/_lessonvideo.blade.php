@@ -21,7 +21,7 @@
 
         @if($youtube_id)
             <div class="embed-responsive embed-responsive-16by9">
-                <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/{{ $youtube_id }}" allowfullscreen></iframe>
+                <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/{{ $youtube_id }}?enablejsapi=1" allowfullscreen></iframe>
             </div>
         @else
             <div class="alert alert-warning">

@@ -359,6 +359,53 @@
                 });
             });
         });
+
+        // Hentikan pemutaran video/audio saat modal Bootstrap ditutup
+        function stopMediaInModal(modal) {
+            if (!modal) return;
+
+            // 1. Pause dan reset tag <video>
+            modal.querySelectorAll('video').forEach(function (video) {
+                try {
+                    video.pause();
+                    video.currentTime = 0;
+                } catch (e) {}
+            });
+
+            // 2. Pause dan reset tag <audio>
+            modal.querySelectorAll('audio').forEach(function (audio) {
+                try {
+                    audio.pause();
+                    audio.currentTime = 0;
+                } catch (e) {}
+            });
+
+            // 3. Hentikan pemutaran <iframe> video (YouTube, Vimeo, embed-responsive)
+            modal.querySelectorAll('iframe').forEach(function (iframe) {
+                try {
+                    iframe.contentWindow.postMessage('{"event":"command","func":"stopVideo","args":""}', '*');
+                    iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                } catch (e) {}
+
+                var src = iframe.getAttribute('src');
+                if (src && (src.includes('youtube') || src.includes('youtu.be') || src.includes('vimeo') || iframe.closest('.embed-responsive'))) {
+                    iframe.setAttribute('src', '');
+                    iframe.setAttribute('src', src);
+                }
+            });
+        }
+
+        // Event listener via jQuery jika tersedia
+        if (typeof jQuery !== 'undefined') {
+            jQuery(document).on('hidden.bs.modal', '.modal', function () {
+                stopMediaInModal(this);
+            });
+        }
+
+        // Event listener native DOM
+        document.addEventListener('hidden.bs.modal', function (event) {
+            stopMediaInModal(event.target);
+        });
     </script>
 
     <!-- custom js -->
