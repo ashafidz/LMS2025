@@ -60,11 +60,16 @@
                                     <p><strong>Total Responden:</strong> {{ $totalResponses }}</p>
                                     
                                     <h6 class="mt-4">Daftar Kata (Frekuensi):</h6>
-                                    <ul class="list-group" style="max-height: 300px; overflow-y: auto;">
+                                    <ul class="list-group" style="max-height: 400px; overflow-y: auto;">
                                         @foreach($wordCounts as $word => $count)
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            {{ $word }}
-                                            <span class="badge badge-primary badge-pill">{{ $count }}x</span>
+                                            <div>
+                                                <strong>{{ $word }}</strong>
+                                            </div>
+                                            <div>
+                                                <span class="badge badge-primary badge-pill mr-2">{{ $count }}x</span>
+                                                <button class="btn btn-xs btn-outline-info" data-toggle="modal" data-target="#modalWord{{ md5($word) }}" title="Lihat Responden"><i class="fa fa-users"></i></button>
+                                            </div>
                                         </li>
                                         @endforeach
                                     </ul>
@@ -94,6 +99,53 @@
         </div>
     </div>
 </div>
+
+<!-- Modals dipindahkan ke root body agar tidak trapped di dalam card/overflow -->
+@foreach($wordCounts as $word => $count)
+<div class="modal fade" id="modalWord{{ md5($word) }}" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 1050;">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Responden untuk kata: <strong>"{{ $word }}"</strong></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0" style="max-height: 400px; overflow-y: auto;">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th class="text-center" width="50">No</th>
+                                <th>NRP / NIM</th>
+                                <th>Nama Lengkap</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(isset($responsesGrouped[$word]))
+                                @foreach($responsesGrouped[$word] as $idx => $response)
+                                <tr>
+                                    <td class="text-center">{{ $idx + 1 }}</td>
+                                    <td>{{ $response->user->studentProfile->unique_id_number ?? '-' }}</td>
+                                    <td>
+                                        {{ $response->user->name ?? 'Anonim' }}
+                                        <div class="text-muted small">{{ $response->user->email ?? '' }}</div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endforeach
+
 @endsection
 
 @push('scripts')
@@ -108,13 +160,23 @@
         // Define color palette matching rich aesthetics
         const colors = ['#007bff', '#28a745', '#17a2b8', '#ffc107', '#fd7e14', '#e83e8c', '#6f42c1'];
         
+        let maxCount = 1;
+        if (wordList.length > 0) {
+            maxCount = Math.max(...wordList.map(item => item[1]));
+        }
+
         WordCloud(canvas, {
             list: wordList,
             gridSize: Math.round(16 * document.getElementById('wordCloudCanvas').offsetWidth / 1024),
             weightFactor: function (size) {
-                // Skala font agar yang terbesar terlihat bagus tapi yang kecil juga terbaca
-                return Math.pow(size, 0.8) * 20; 
+                // Normalisasi proporsional berdasarkan kata terbanyak
+                const minSize = 20;
+                const maxSize = 120; // Max font size agar tetap muat di canvas
+                if (maxCount <= 1) return minSize;
+                return minSize + ((size - 1) / (maxCount - 1)) * (maxSize - minSize);
             },
+            shrinkToFit: true, // Pastikan jika max font masih kepanjangan, canvas akan otomatis mengecilkannya
+            drawOutOfBound: false,
             fontFamily: 'Inter, Roboto, sans-serif',
             color: function (word, weight) {
                 return colors[Math.floor(Math.random() * colors.length)];
