@@ -37,12 +37,22 @@
         if (canvas) {
             const colors = ['#007bff', '#28a745', '#17a2b8', '#ffc107', '#fd7e14', '#e83e8c', '#6f42c1'];
             
+            let maxCount = 1;
+            if (wordList.length > 0) {
+                maxCount = Math.max(...wordList.map(item => item[1]));
+            }
+
             WordCloud(canvas, {
                 list: wordList,
                 gridSize: Math.round(16 * canvas.offsetWidth / 1024),
                 weightFactor: function (size) {
-                    return Math.pow(size, 0.8) * 20; 
+                    const minSize = 16;
+                    const maxSize = 80; // Lebih kecil sedikit karena canvas student 600x300
+                    if (maxCount <= 1) return minSize;
+                    return minSize + ((size - 1) / (maxCount - 1)) * (maxSize - minSize);
                 },
+                shrinkToFit: true,
+                drawOutOfBound: false,
                 fontFamily: 'Inter, Roboto, sans-serif',
                 color: function (word, weight) {
                     return colors[Math.floor(Math.random() * colors.length)];
