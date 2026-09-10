@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2026-09-10
+
+### Changed
+- **Licensing & Copyright**: Mengubah lisensi repositori dari status terbuka (MIT) menjadi tertutup secara hukum (*Proprietary / All Rights Reserved*) melalui penambahan berkas `LICENSE` khusus untuk `ruangstudi.id`. Hal ini mengamankan hak kekayaan intelektual (HAKI) perusahaan dari penyalinan yang tidak sah.
+- **Documentation Cleanup**: Membersihkan duplikasi konten (teks dan *badge*) yang sempat berantakan di `README.md` dan memperbarui klausa lisensi di bagian paling bawah dokumen agar sejalan dengan status *Proprietary*.
+
 ## [1.1.0] - 2026-09-10
 
 ### Added
