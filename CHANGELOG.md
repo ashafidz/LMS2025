@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-09-14
+
+### Changed
+- **Lesson Editor UI**: Menambahkan informasi nama Kursus dan Modul secara dinamis pada *header* seluruh halaman pembuatan dan pengeditan pelajaran (Video, Artikel, Kuis, Polling, Word Cloud, dll) agar instruktur memiliki konteks navigasi yang jelas.
+- **Module List UI**: Mengeluarkan tombol "Papan Peringkat" dari menu *dropdown* dan meletakkannya di samping tombol "Kelola Pelajaran" (tampil adaptif berdasarkan ukuran layar *device*).
+- **Lesson List UI**: Merapikan tombol aksi pelajaran. Tombol "Edit" kini disembunyikan secara permanen ke dalam menu *dropdown* (gear), sementara tombol-tombol aksi sekunder (seperti Pratinjau, Kelola Soal, Hasil Polling) dikeluarkan agar lebih cepat diakses dari layar desktop.
+- **Student List UI**: Menghapus kolom "Email" dari tabel daftar siswa yang terdaftar di dalam menu Daftar Kursus untuk merampingkan antarmuka.
+- **Student Progress UI**: Memperbaiki tata letak (layout) *header* profil siswa sehingga Email dan NIM kini tersusun rapi di bawah Nama Siswa. Selain itu, ditambahkan ruang (margin) yang ideal antara ikon status kelulusan (centang hijau) dengan judul pelajaran.
+
 ## [1.1.1] - 2026-09-10
 
 ### Changed
