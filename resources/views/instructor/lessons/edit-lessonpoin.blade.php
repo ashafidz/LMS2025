@@ -6,9 +6,10 @@
             <div class="row align-items-center">
                 <div class="col-md-12">
                     <div class="page-header-title">
-                        <h5 class="m-b-10">Edit Pelajaran</h5>
-                        <p class="m-b-0">Tipe: Sesi Poin (Lesson Poin)</p>
-                    </div>
+                            <h5 class="m-b-10">Course: {{ $lesson->module->course->title }} | Modul: {{ $lesson->module->title }}</h5>
+                            <p class="m-b-10 fw-bolder" style="font-size: 2rem;">Edit Pelajaran</p>
+                            <p class="m-b-0">Tipe: Sesi Poin (Lesson Poin)</p>
+                        </div>
                 </div>
                 <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">

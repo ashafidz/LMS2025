@@ -32,11 +32,11 @@
                     {{-- Header Card --}}
                     <div class="card mb-4 shadow-sm border-0" style="border-radius: 12px; background: linear-gradient(135deg, #1E88E5, #1565C0); color: white;">
                         <div class="card-block p-4 d-flex align-items-center justify-content-between flex-wrap">
-                            <div class="d-flex align-items-center mb-2 mb-md-0">
-                                <h3 class="font-weight-bold mb-1"><i class="fa fa-user-circle me-2"></i> {{ $student->name }}</h3>
-                                <div class="ms-3 ms-md-4">
-                                    <p class="mb-0 text-white-50" style="line-height: 1.2;"><i class="fa fa-envelope me-1"></i> {{ $student->email }}</p>
-                                    <p class="mb-0 text-white-50" style="line-height: 1.2;"><i class="fa fa-id-card me-1"></i> NIM: {{ $student->studentProfile->unique_id_number ?? '-' }}</p>
+                            <div class="d-flex flex-column align-items-start mb-2 mb-md-0">
+                                <h3 class="font-weight-bold mb-1"><i class="fa fa-user-circle" style="margin-right: 10px;"></i>{{ $student->name }}</h3>
+                                <div class="mt-2">
+                                    <p class="mb-1 text-white-50" style="line-height: 1.2;"><i class="fa fa-envelope" style="margin-right: 8px;"></i>{{ $student->email }}</p>
+                                    <p class="mb-0 text-white-50" style="line-height: 1.2;"><i class="fa fa-id-card" style="margin-right: 8px;"></i>NIM: {{ $student->studentProfile->unique_id_number ?? '-' }}</p>
                                 </div>
                             </div>
                             <div class="text-md-end text-center p-3 rounded" style="background: rgba(255,255,255,0.1);">
@@ -130,19 +130,19 @@
                                             <div class="list-group-item d-flex justify-content-between align-items-center py-3">
                                                 <div class="d-flex align-items-center">
                                                     @if($isCompleted)
-                                                        <div class="bg-success rounded-circle shadow-sm me-3 flex-shrink-0" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                        <div class="bg-success rounded-circle shadow-sm flex-shrink-0" style="margin-right: 15px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
                                                             <i class="fa fa-check text-white m-0" style="font-size: 16px;"></i>
                                                         </div>
                                                     @elseif($assignmentStatus == 'submitted')
-                                                        <div class="bg-warning rounded-circle shadow-sm me-3 flex-shrink-0" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                        <div class="bg-warning rounded-circle shadow-sm flex-shrink-0" style="margin-right: 15px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
                                                             <i class="fa fa-clock-o text-white m-0" style="font-size: 16px;"></i>
                                                         </div>
                                                     @elseif($assignmentStatus == 'revision_required')
-                                                        <div class="bg-danger rounded-circle shadow-sm me-3 flex-shrink-0" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                        <div class="bg-danger rounded-circle shadow-sm flex-shrink-0" style="margin-right: 15px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
                                                             <i class="fa fa-exclamation text-white m-0" style="font-size: 16px;"></i>
                                                         </div>
                                                     @else
-                                                        <div class="bg-light border text-muted rounded-circle me-3 flex-shrink-0" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                                        <div class="bg-light border text-muted rounded-circle flex-shrink-0" style="margin-right: 15px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
                                                             <i class="fa fa-circle-o m-0" style="font-size: 16px;"></i>
                                                         </div>
                                                     @endif

@@ -61,6 +61,9 @@
                                                         </div>
                                                     </div>
                                                     <div class="d-flex align-items-center flex-shrink-0" style="gap: 5px;">
+                                                        <button class="btn btn-warning btn-sm leaderboard-btn d-none d-md-inline-block text-white" type="button" data-url="{{ route('instructor.module.leaderboard', $module) }}" title="Papan Peringkat">
+                                                            <i class="fa fa-bar-chart"></i> <span class="d-none d-lg-inline ms-1">Papan Peringkat</span>
+                                                        </button>
                                                         <a href="{{ route('instructor.modules.lessons.index', $module) }}" class="btn btn-primary btn-sm" title="Kelola Pelajaran">
                                                             <i class="bi bi-journal-text"></i> <span class="d-none d-md-inline ms-1">Kelola Pelajaran</span>
                                                         </a>
@@ -70,7 +73,7 @@
                                                                 <i class="fa fa-cog"></i>
                                                             </button>
                                                             <ul class="dropdown-menu dropdown-menu-end shadow">
-                                                                <li>
+                                                                <li class="d-md-none">
                                                                     <button class="dropdown-item leaderboard-btn" type="button" data-url="{{ route('instructor.module.leaderboard', $module) }}">
                                                                         <i class="fa fa-bar-chart text-warning me-2"></i> Papan Peringkat
                                                                     </button>

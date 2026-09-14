@@ -8,7 +8,8 @@
                 <div class="row align-items-center">
                     <div class="col-md-12">
                         <div class="page-header-title">
-                            <h5 class="m-b-10">Buat Pelajaran Baru</h5>
+                            <h5 class="m-b-10">Course: {{ $module->course->title }} | Modul: {{ $module->title }}</h5>
+                            <p class="m-b-10 fw-bolder" style="font-size: 2rem;">Buat Pelajaran Baru</p>
                             <p class="m-b-0">Tipe: Kumpulan Link</p>
                         </div>
                     </div>

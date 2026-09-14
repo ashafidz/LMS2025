@@ -6,9 +6,10 @@
             <div class="row align-items-center">
                 <div class="col-md-12">
                     <div class="page-header-title">
-                        <h5 class="m-b-10">Buat Pelajaran Polling Baru</h5>
-                        <p class="m-b-0">Buat polling untuk mendapatkan pendapat dari siswa Anda.</p>
-                    </div>
+                            <h5 class="m-b-10">Course: {{ $module->course->title }} | Modul: {{ $module->title }}</h5>
+                            <p class="m-b-10 fw-bolder" style="font-size: 2rem;">Buat Pelajaran Polling Baru</p>
+                            <p class="m-b-0">Buat polling untuk mendapatkan pendapat dari siswa Anda.</p>
+                        </div>
                 </div>
                 <div class="col-md-12 d-flex mt-3">
                     <ul class="breadcrumb-title">

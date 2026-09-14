@@ -2,11 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-09-14
+
+### Changed
+
+- **Lesson Editor UI**: Menambahkan informasi nama Kursus dan Modul secara dinamis pada _header_ seluruh halaman pembuatan dan pengeditan pelajaran (Video, Artikel, Kuis, Polling, Word Cloud, dll) agar instruktur memiliki konteks navigasi yang jelas.
+- **Module List UI**: Mengeluarkan tombol "Papan Peringkat" dari menu _dropdown_ dan meletakkannya di samping tombol "Kelola Pelajaran" (tampil adaptif berdasarkan ukuran layar _device_).
+- **Lesson List UI**: Merapikan tombol aksi pelajaran. Tombol "Edit" kini disembunyikan secara permanen ke dalam menu _dropdown_ (gear), sementara tombol-tombol aksi sekunder (seperti Pratinjau, Kelola Soal, Hasil Polling) dikeluarkan agar lebih cepat diakses dari layar desktop.
+- **Student List UI**: Menghapus kolom "Email" dari tabel daftar siswa yang terdaftar di dalam menu Daftar Kursus untuk merampingkan antarmuka.
+- **Student Progress UI**: Memperbaiki tata letak (layout) _header_ profil siswa sehingga Email dan NIM kini tersusun rapi di bawah Nama Siswa. Selain itu, ditambahkan ruang (margin) yang ideal antara ikon status kelulusan (centang hijau) dengan judul pelajaran.
+
 ## [1.1.1] - 2026-09-10
 
 ### Changed
-- **Licensing & Copyright**: Mengubah lisensi repositori dari status terbuka (MIT) menjadi tertutup secara hukum (*Proprietary / All Rights Reserved*) melalui penambahan berkas `LICENSE` khusus untuk `ruangstudi.id`. Hal ini mengamankan hak kekayaan intelektual (HAKI) perusahaan dari penyalinan yang tidak sah.
-- **Documentation Cleanup**: Membersihkan duplikasi konten (teks dan *badge*) yang sempat berantakan di `README.md` dan memperbarui klausa lisensi di bagian paling bawah dokumen agar sejalan dengan status *Proprietary*.
+
+- **Licensing & Copyright**: Mengubah lisensi repositori dari status terbuka (MIT) menjadi tertutup secara hukum (_Proprietary / All Rights Reserved_) melalui penambahan berkas `LICENSE` khusus untuk `ruangstudi.id`. Hal ini mengamankan hak kekayaan intelektual (HAKI) perusahaan dari penyalinan yang tidak sah.
+- **Documentation Cleanup**: Membersihkan duplikasi konten (teks dan _badge_) yang sempat berantakan di `README.md` dan memperbarui klausa lisensi di bagian paling bawah dokumen agar sejalan dengan status _Proprietary_.
 
 ## [1.1.0] - 2026-09-10
 
