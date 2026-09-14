@@ -24,7 +24,7 @@
                     <th>No</th>
                     <th class="text-center">NIM/NIP/NIDN</th>
                     <th>Nama Siswa</th>
-                    <th>Email</th>
+                    
                     <th class="text-center">Aksi</th>
                 </tr>
             </thead>
@@ -34,7 +34,7 @@
                         <td>{{ $loop->iteration }}</td>
                         <td class="text-center">{{ $student->studentProfile->unique_id_number ?? '-' }}</td>
                         <td><a href="{{ route('profile.show', $student->id) }}">{{ $student->name }}</a></td>
-                        <td>{{ $student->email }}</td>
+                        
                         <td class="text-center">
                             <a href="{{ route('instructor.courses.student_progress', [$course, $student]) }}" class="btn btn-sm btn-outline-primary btn-round" title="Cek Progres Checklist" target="_blank">
                                 <i class="fa fa-tasks"></i> Progres
