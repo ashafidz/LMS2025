@@ -62,30 +62,7 @@ use App\Http\Controllers\Student\StudentCertificateController; // Tambahkan ini
 use App\Http\Controllers\Superadmin\AdminManagementController; // Tambahkan ini
 use App\Http\Controllers\Superadmin\PointSyncController;
 
-// Route::get('/neweditprofil', function () {
-//     return view('1edit-index');
-// });
-// Route::get('/newprofil', function () {
-//     return view('1student');
-// });
 
-Route::get('/template-pdf', function () {
-    // --- FIX 1: PASS DATA TO THE VIEW ---
-    // You must provide the data that your view expects.
-    // Here, we create a simple object for demonstration.
-    // In your real application, you would fetch this from the database.
-    $course = (object)[
-        'title' => 'Digital Marketing Course'
-    ];
-
-    // It's better practice to get data in the route/controller
-    // and pass it to the view, rather than querying in the view itself.
-    $settings = SiteSetting::first();
-
-    // --- FIX 2: ADD THE 'return' KEYWORD ---
-    // You must return the view for it to be sent to the browser.
-    return view('template_certificate', compact('course', 'settings'));
-});
 
 Route::get('/testimonials', [TestimonialController::class, 'index'])->name('testimonials');
 
@@ -118,15 +95,9 @@ Route::post('/set-timezone', function (Request $request) {
 
 Route::get('/switch-role/{role}', [RoleSwitchController::class, 'switch'])->name('role.switch');
 
-// Route::get('/', function () {
-//     return view('home');
-// })->name('home');
 Route::get('/', [HomeController::class, 'index'])->name('home');
 // Add a route to refresh CSRF tokens
 Route::get('/csrf-refresh', [Controllers\CsrfController::class, 'refresh']);
-// Route::get('/courses', function () {
-//     return view('catalog');
-// })->name('courses');
 Route::get('/courses', [CatalogController::class, 'index'])->name('courses');
 Route::get('/courses/{course:slug}', [CatalogController::class, 'show'])->name('courses.show');
 Route::get('/about', [AboutController::class, 'index'])->name('about');
@@ -276,7 +247,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/admin/contact-messages/{contactMessage}', [AdminContactMessageController::class, 'show'])->name('admin.contact-messages.show');
     Route::post('/admin/contact-messages/{contactMessage}/reply', [AdminContactMessageController::class, 'reply'])->name('admin.contact-messages.reply');
 
-    // Route::view('/admin/dashboard', 'admin.dashboard')->name('admin.dashboard');
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/dashboard/search/instructors', [AdminDashboardController::class, 'searchInstructors'])->name('dashboard.search.instructors');
     Route::get('/admin/dashboard/search/categories', [AdminDashboardController::class, 'searchCategories'])->name('dashboard.search.categories');
@@ -348,7 +318,6 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
     // Routes for APPROVED instructors
     Route::middleware(['checkInstructorStatus'])->group(function () {
 
-        // Route::view('/instructor/dashboard', 'instructor.dashboard')->name('instructor.dashboard');
         // MENJADI rute ini:
         Route::get('/instructor/dashboard', [InstructorDashboardController::class, 'index'])->name('instructor.dashboard');
 
@@ -521,43 +490,6 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         ->name('instructor.quiz.attempt.revise_score');
 });
 
-// // * group route for instructor
-// Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
-
-//     Route::get('/instructor/pending', function () {
-//         return view('auth.pending-instructor');
-//     })->name('instructor.pending');
-
-//     Route::get('/instructor/deactive', function () {
-//         return view('auth.deactive-instructor');
-//     })->name('instructor.deactive');
-
-//     Route::get('/instructor/rejected', function () {
-//         return view('auth.rejected-instructor');
-//     })->name('instructor.rejected');
-
-//     //! This nested group IS protected by the status-checking middleware.
-//     Route::middleware(['checkInstructorStatus'])->group(function () {
-//         Route::view('/instructor/dashboard', 'instructor.dashboard')->name('instructor.dashboard');
-//         // Add any other instructor routes that require 'approved' status here.
-//         // For example: Route::get('/instructor/my-courses', ...);
-
-
-//         // Group for the Question Bank feature
-//         Route::prefix('instructor.question-bank')->name('instructor.question-bank.')->group(function () {
-
-//             // Resourceful route for managing Question Topics
-//             // This will create routes for index, create, store, show, edit, update, destroy
-//             Route::resource('topics', QuestionTopicController::class);
-
-//             // Nested resourceful route for managing Questions within a Topic
-//             // URL will be like: /instructor/question-bank/topics/{topic}/questions
-//             Route::resource('topics.questions', QuestionController::class)->shallow();
-//             // Using shallow() makes routes for specific questions simpler, e.g., /questions/{question}/edit
-//             // instead of /topics/{topic}/questions/{question}/edit
-//         });
-//     });
-// });
 
 
 
@@ -647,7 +579,6 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
         Route::put('/reviews/instructor/{review}', [StudentReviewController::class, 'updateInstructorReview'])->name('student.reviews.instructor.update');
 
         // RUTE BARU UNTUK HALAMAN KELOLA POIN
-        // Route::get('/my-points', [StudentPointController::class, 'index'])->name('student.points.index');
 
         Route::post('/courses/{course}/purchase-with-diamonds', [DiamondPurchaseController::class, 'purchase'])->name('student.courses.purchase_with_diamonds');
 

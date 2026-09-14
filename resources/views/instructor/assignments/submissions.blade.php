@@ -194,7 +194,83 @@
     @endforeach
 </div>
 
+<!-- Modal Konfirmasi Revisi Masal (Menunggu Dinilai) -->
+<div class="modal fade" id="bulkReviseModal-submitted" tabindex="-1" role="dialog" aria-labelledby="bulkReviseModalLabel-submitted" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form action="{{ route('instructor.assignment.submissions.bulk_revision', $assignment) }}" method="POST" id="form-bulk-revise-submitted">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bulkReviseModalLabel-submitted">
+                        <i class="fa fa-exclamation-triangle text-warning"></i> Konfirmasi Revisi Masal
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        Anda akan meminta revisi untuk <strong class="modal-selected-count-submitted">0</strong> tugas siswa terpilih.
+                    </div>
+                    <p class="text-muted small">
+                        Status tugas yang dipilih akan diubah menjadi <strong>Perlu Revisi</strong>, nilai diset ke <strong>0</strong>, tanda selesai pelajaran siswa akan dicabut, dan siswa akan menerima email notifikasi revisi.
+                    </p>
+                    <div class="form-group">
+                        <label for="bulk-feedback-submitted" class="font-weight-bold">Catatan / Umpan Balik Revisi:</label>
+                        <textarea name="feedback" id="bulk-feedback-submitted" class="form-control" rows="4" placeholder="Tuliskan catatan umpan balik revisi..." required>Tugas belum sesuai kriteria. Silakan perbaiki dan kumpulkan kembali.</textarea>
+                    </div>
+                    {{-- Container dinamis input hidden submission_ids[] --}}
+                    <div class="hidden-submission-ids-container-submitted"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-warning" id="btn-submit-bulk-revise-submitted">
+                        <i class="fa fa-undo"></i> Ya, Minta Revisi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
+<!-- Modal Konfirmasi Revisi Masal (Lulus) -->
+<div class="modal fade" id="bulkReviseModal-passed" tabindex="-1" role="dialog" aria-labelledby="bulkReviseModalLabel-passed" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form action="{{ route('instructor.assignment.submissions.bulk_revision', $assignment) }}" method="POST" id="form-bulk-revise-passed">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bulkReviseModalLabel-passed">
+                        <i class="fa fa-exclamation-triangle text-warning"></i> Konfirmasi Revisi Masal
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        Anda akan meminta revisi untuk <strong class="modal-selected-count-passed">0</strong> tugas siswa terpilih.
+                    </div>
+                    <p class="text-muted small">
+                        Status tugas yang dipilih akan diubah menjadi <strong>Perlu Revisi</strong>, nilai diset ke <strong>0</strong>, tanda selesai pelajaran siswa akan dicabut, dan siswa akan menerima email notifikasi revisi.
+                    </p>
+                    <div class="form-group">
+                        <label for="bulk-feedback-passed" class="font-weight-bold">Catatan / Umpan Balik Revisi:</label>
+                        <textarea name="feedback" id="bulk-feedback-passed" class="form-control" rows="4" placeholder="Tuliskan catatan umpan balik revisi..." required>Tugas belum sesuai kriteria. Silakan perbaiki dan kumpulkan kembali.</textarea>
+                    </div>
+                    {{-- Container dinamis input hidden submission_ids[] --}}
+                    <div class="hidden-submission-ids-container-passed"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-warning" id="btn-submit-bulk-revise-passed">
+                        <i class="fa fa-undo"></i> Ya, Minta Revisi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <style>
 .pdf-viewer-container {
@@ -224,57 +300,38 @@
     }
 }
 
-.pdf-viewer-container {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 100%;
-    
-    /* Desktop: Large and wide */
-    height: 85vh;
-    min-height: 600px;
-    max-height: 1200px;
-}
-
-/* Custom modal size for PDF viewing */
 .modal-pdf-viewer {
     max-width: 95%;
     margin: 1rem auto;
 }
 
-/* Tablet (medium screens) */
 @media (max-width: 768px) {
-    .pdf-viewer-container {
-        height: 70vh;
-        min-height: 500px;
-    }
-    
     .modal-pdf-viewer {
         max-width: 98%;
         margin: 0.5rem auto;
     }
 }
 
-/* Mobile (small screens) */
 @media (max-width: 576px) {
-    .pdf-viewer-container {
-        height: 60vh;
-        min-height: 400px;
-    }
-    
     .modal-pdf-viewer {
         max-width: 100%;
         margin: 0;
     }
 }
-
 </style>
-
 
 @endsection
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // Pindahkan semua modal ke direct child dari body agar tidak terkurung oleh stacking context / transform container
+    document.querySelectorAll('.modal').forEach(function (m) {
+        if (m.parentElement !== document.body) {
+            document.body.appendChild(m);
+        }
+    });
+
     ['submitted', 'passed'].forEach(function (tabId) {
         const selectAllCb = document.getElementById('select-all-' + tabId);
         const bulkBtn = document.getElementById('btn-bulk-revise-' + tabId);

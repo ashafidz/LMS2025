@@ -2,7 +2,7 @@
     $query = $polling->options()->withCount('responses');
     if ($polling->show_voters) {
         $query->with(['responses' => function($q) {
-            $q->with('user');
+            $q->with('user.studentProfile');
         }]);
     }
     $options = $query->get();
@@ -31,9 +31,9 @@
                     <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 @if($polling->show_voters && $option->responses_count > 0)
-                    <div class="mt-2 small text-muted">
-                        <strong>Pemilih:</strong>
-                        {{ implode(', ', $option->responses->map(function($r) { return $r->user->name ?? 'User'; })->toArray()) }}
+                    <div class="mt-2 d-flex justify-content-between align-items-center">
+                        <span class="small text-muted">Ada {{ $option->responses_count }} pemilih</span>
+                        <button class="btn btn-xs btn-outline-info" onclick="$('body').append($('#modalAjaxOption{{ $option->id }}')); $('#modalAjaxOption{{ $option->id }}').modal('show');">Lihat Pemilih</button>
                     </div>
                 @endif
             </li>
@@ -47,6 +47,54 @@
         </div>
     </div>
 </div>
+
+
+<!-- Modals dipindahkan ke luar list, dan script di atas akan append ke body saat di-click agar tidak terperangkap -->
+@if($polling->show_voters)
+    @foreach($options as $option)
+        @if($option->responses_count > 0)
+        <div class="modal fade" id="modalAjaxOption{{ $option->id }}" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 1050;">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Pemilih: {{ $option->text }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body p-0" style="max-height: 400px; overflow-y: auto;">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" width="50">No</th>
+                                        <th>NRP / NIM</th>
+                                        <th>Nama Lengkap</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($option->responses as $idx => $response)
+                                    <tr>
+                                        <td class="text-center">{{ $idx + 1 }}</td>
+                                        <td>{{ $response->user->studentProfile->unique_id_number ?? '-' }}</td>
+                                        <td>
+                                            {{ $response->user->name ?? 'Anonim' }}
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+    @endforeach
+@endif
 
 <script>
     // Ensure Chart.js is loaded (if not, we could dynamically load it)

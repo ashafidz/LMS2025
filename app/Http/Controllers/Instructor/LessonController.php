@@ -576,7 +576,7 @@ class LessonController extends Controller
             abort(404);
         }
 
-        $options = $polling->options()->with(['responses.user'])->withCount('responses')->get();
+        $options = $polling->options()->with(['responses.user.studentProfile'])->withCount('responses')->get();
         $totalResponses = $polling->responses()->count();
         $totalVoters = $polling->responses()->distinct('user_id')->count('user_id');
 
@@ -603,6 +603,7 @@ class LessonController extends Controller
             ->toArray();
 
         $totalResponses = $wordcloud->responses()->count();
+        $responsesGrouped = $wordcloud->responses()->with('user.studentProfile')->get()->groupBy('word');
 
         // Format for wordcloud2.js: [['word1', 12], ['word2', 8]]
         $wordCloudList = [];
@@ -610,7 +611,7 @@ class LessonController extends Controller
             $wordCloudList[] = [$word, $count];
         }
 
-        return view('instructor.lessons.wordcloud-results', compact('lesson', 'wordcloud', 'wordCounts', 'totalResponses', 'wordCloudList'));
+        return view('instructor.lessons.wordcloud-results', compact('lesson', 'wordcloud', 'wordCounts', 'totalResponses', 'wordCloudList', 'responsesGrouped'));
     }
 
     public function togglePollingStatus(Request $request, Lesson $lesson)

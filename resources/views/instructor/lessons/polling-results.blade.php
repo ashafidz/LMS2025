@@ -67,8 +67,9 @@
                                     <span class="badge badge-primary badge-pill">{{ $option->responses_count }} ({{ $totalVoters > 0 ? round(($option->responses_count / $totalVoters) * 100) : 0 }}%)</span>
                                 </li>
                                 @if($option->responses_count > 0)
-                                <div class="px-3 py-2 mb-2 bg-light text-muted small border-left border-right border-bottom" style="margin-top: -1px;">
-                                    <strong>Pemilih:</strong> {{ implode(', ', $option->responses->map(function($r) { return $r->user->name ?? 'User'; })->toArray()) }}
+                                <div class="px-3 py-2 mb-2 bg-light text-muted small border-left border-right border-bottom d-flex justify-content-between align-items-center" style="margin-top: -1px;">
+                                    <span>Terdapat <strong>{{ $option->responses_count }}</strong> Responden</span>
+                                    <button class="btn btn-xs btn-outline-info" data-toggle="modal" data-target="#modalOption{{ $option->id }}">Lihat Detail</button>
                                 </div>
                                 @endif
                                 @endforeach
@@ -96,6 +97,53 @@
         </div></div></div>
     </div>
 </div>
+
+<!-- Modals dipindahkan ke root body agar tidak trapped di dalam card/overflow -->
+@foreach($options as $option)
+    @if($option->responses_count > 0)
+    <div class="modal fade" id="modalOption{{ $option->id }}" tabindex="-1" role="dialog" aria-labelledby="modalOption{{ $option->id }}Label" aria-hidden="true" style="z-index: 1050;">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalOption{{ $option->id }}Label">Detail Responden: {{ $option->text }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0" style="max-height: 400px; overflow-y: auto;">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" width="50">No</th>
+                                    <th>NRP / NIM</th>
+                                    <th>Nama Lengkap</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($option->responses as $idx => $response)
+                                <tr>
+                                    <td class="text-center">{{ $idx + 1 }}</td>
+                                    <td>{{ $response->user->studentProfile->unique_id_number ?? '-' }}</td>
+                                    <td>
+                                        {{ $response->user->name ?? 'Anonim' }}
+                                        <div class="text-muted small">{{ $response->user->email ?? '' }}</div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+@endforeach
+
 @endsection
 
 @push('scripts')
