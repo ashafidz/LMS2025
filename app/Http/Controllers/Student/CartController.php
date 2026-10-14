@@ -21,7 +21,7 @@ class CartController extends Controller
         $cartItems = $user->carts()->with('course')->get();
         $settings = SiteSetting::first();
 
-        $subtotal = $cartItems->sum(fn($item) => $item->course->price);
+        $subtotal = $cartItems->sum(fn ($item) => $item->course->price);
         $coupon = session()->get('coupon');
         $discount = 0;
         if ($coupon) {
@@ -89,6 +89,7 @@ class CartController extends Controller
             return back()->with('info', 'Anda sudah terdaftar di kursus ini.');
         }
         $user->carts()->create(['course_id' => $course->id]);
+
         // return back()->with('success', 'Kursus berhasil ditambahkan ke keranjang.');
         return redirect()->route('student.cart.index')->with('success', 'Kursus berhasil ditambahkan ke keranjang.');
     }
@@ -105,6 +106,7 @@ class CartController extends Controller
         if (Auth::user()->carts()->count() === 0) {
             session()->forget('coupon');
         }
+
         return back()->with('success', 'Item berhasil dihapus dari keranjang.');
     }
 
@@ -117,27 +119,13 @@ class CartController extends Controller
         $validated = $request->validate(['code' => 'required|string']);
         $coupon = Coupon::where('code', $validated['code'])->first();
 
-        // Validasi Umum
-        if (!$coupon || !$coupon->is_active || ($coupon->expires_at && $coupon->expires_at->isPast()) || ($coupon->starts_at && $coupon->starts_at->isFuture()) || ($coupon->max_uses && $coupon->uses_count >= $coupon->max_uses)) {
+        // Validasi Kupon
+        if (! $coupon || ! $coupon->isUsableBy($user)) {
             return back()->withErrors(['code' => 'Kode kupon tidak valid atau sudah tidak berlaku.']);
         }
 
-        // --- VALIDASI BARU: Batas Penggunaan per Pengguna ---
-        if ($coupon->max_uses_per_user) {
-            $userUsage = $user->coupons()->where('coupon_id', $coupon->id)->first();
-            if ($userUsage && $userUsage->pivot->uses_count >= $coupon->max_uses_per_user) {
-                return back()->withErrors(['code' => 'Anda telah mencapai batas maksimal penggunaan untuk kupon ini.']);
-            }
-        }
-
-        // Validasi lingkup kupon
-        if ($coupon->course_id) {
-            if (!$user->carts()->where('course_id', $coupon->course_id)->exists()) {
-                return back()->withErrors(['code' => 'Kupon ini tidak berlaku untuk kursus yang ada di keranjang Anda.']);
-            }
-        }
-
         session()->put('coupon', $coupon);
+
         return back()->with('success', 'Kupon berhasil diterapkan.');
     }
 
@@ -147,6 +135,7 @@ class CartController extends Controller
     public function removeCoupon()
     {
         session()->forget('coupon');
+
         return back()->with('success', 'Kupon berhasil dihapus.');
     }
 }

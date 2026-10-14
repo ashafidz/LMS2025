@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\CourseReview;
 use App\Models\InstructorReview;
 use App\Models\LikertQuestion;
-use App\Models\PlatformReview;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -71,7 +70,7 @@ class StudentReviewController extends Controller
             );
 
             // Simpan/update jawaban likert untuk platform
-            if (!empty($validated['likert_answers'])) {
+            if (! empty($validated['likert_answers'])) {
                 foreach ($validated['likert_answers'] as $questionId => $answer) {
                     $user->likertAnswers()->updateOrCreate(
                         ['likert_question_id' => $questionId, 'course_id' => null], // course_id null untuk platform
@@ -107,7 +106,7 @@ class StudentReviewController extends Controller
                 'comment' => $validated['comment'],
             ]);
 
-            if (!empty($validated['likert_answers'])) {
+            if (! empty($validated['likert_answers'])) {
                 foreach ($validated['likert_answers'] as $questionId => $answer) {
                     Auth::user()->likertAnswers()->updateOrCreate(
                         ['likert_question_id' => $questionId, 'course_id' => $review->course_id],
@@ -142,7 +141,7 @@ class StudentReviewController extends Controller
                 'comment' => $validated['comment'],
             ]);
 
-            if (!empty($validated['likert_answers'])) {
+            if (! empty($validated['likert_answers'])) {
                 foreach ($validated['likert_answers'] as $questionId => $answer) {
                     Auth::user()->likertAnswers()->updateOrCreate(
                         ['likert_question_id' => $questionId, 'course_id' => $review->course_id],

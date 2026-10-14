@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Shared;
 
-use Illuminate\Http\Request;
-use App\Models\StudentProfile;
 use App\Http\Controllers\Controller;
-use Illuminate\View\View;
+use App\Models\StudentProfile;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class StudentStatusController extends Controller
 {
@@ -20,7 +19,6 @@ class StudentStatusController extends Controller
 
         return view('shared-admin.manajemen-user.manajemen-student.index', compact('students_status_data'));
     }
-
 
     /**
      *  Deactivate the student.

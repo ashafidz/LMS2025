@@ -30,9 +30,9 @@
 
 ## Backlog: gaps found while adopting the engineering standards (2026-10-14)
 
-- [ ] `database/seeders/RoleSeeder.php` uses `Role::create()`: second `db:seed` fails on the unique role name. Switch to `Role::firstOrCreate(['name' => ...])`.
-- [ ] `database/seeders/CourseCategorySeeder.php` uses `CourseCategory::create()`: duplicates or unique error on re-seed. Switch to `updateOrCreate(['slug' => ...], [...])`.
-- [ ] `vendor/bin/pint --test` reports 132 style issues in 232 files (2026-10-14), and `.github/workflows/ci.yml` hides this with `|| echo ...`. Run `vendor/bin/pint` in a dedicated style-only PR, then remove the CI fallback.
-- [ ] Test suite only has the example tests. Add feature tests for the critical flows (enrollment, quiz attempt, payment callback).
-- [ ] Non-ASCII punctuation in `resources/views/student/quizzes/take.blade.php`, `resources/views/superadmin/point-sync/mass-sync-preview.blade.php`, and one migration. Clean up when those files are next touched.
-- [ ] `README.md` says Laravel 11.x; `composer.json` requires `laravel/framework ^12`.
+- [x] `database/seeders/RoleSeeder.php` uses `Role::create()`: second `db:seed` fails on the unique role name. Switch to `Role::firstOrCreate(['name' => ...])`.
+- [x] `database/seeders/CourseCategorySeeder.php` uses `CourseCategory::create()`: duplicates or unique error on re-seed. Switch to `updateOrCreate(['slug' => ...], [...])`.
+- [x] `vendor/bin/pint --test` reports 132 style issues in 232 files (2026-10-14), and `.github/workflows/ci.yml` hides this with `|| echo ...`. Run `vendor/bin/pint` in a dedicated style-only PR, then remove the CI fallback.
+- [x] Test suite only has the example tests. Add feature tests for the critical flows (enrollment, quiz attempt, payment callback).
+- [x] Non-ASCII punctuation in `resources/views/student/quizzes/take.blade.php`, `resources/views/superadmin/point-sync/mass-sync-preview.blade.php`, and one migration. Clean up when those files are next touched.
+- [x] `README.md` says Laravel 11.x; `composer.json` requires `laravel/framework ^12`.

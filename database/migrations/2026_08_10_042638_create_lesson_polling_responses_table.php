@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('lesson_polling_option_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
-            
+
             // A user can only respond once to a specific polling lesson
             $table->unique(['lesson_polling_id', 'user_id']);
         });

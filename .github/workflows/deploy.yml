@@ -32,7 +32,7 @@ jobs:
           npm run build
 
       - name: 📂 Sinkronisasi File ke Target cPanel (Menggunakan Rsync)
-        uses: easingthemes/ssh-deploy@main
+        uses: easingthemes/ssh-deploy@v6.0.1
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: "-avz --delete" # --delete berarti hapus data di server yg tidak ada di GitHub (kecuali dalam list pengecualian)
@@ -45,7 +45,7 @@ jobs:
           EXCLUDE: "/node_modules/, /.git/, /tests/, /storage/, /bootstrap/cache/, .env, /phpunit.xml, README.md, .htaccess, /public/storage, /public/.htaccess"
 
       - name: 🚀 Memicu Skrip Refresh Pasca Deploy di Server (Zero Downtime Polish)
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}

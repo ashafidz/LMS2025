@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2026-10-14
+
+### Security & Hardening
+
+- **Payment & Webhook Security**: Memperketat alur checkout dan callback Midtrans. Menghapus ketergantungan status pembayaran pada URL return peramban. Seluruh status pelunasan transaksi kini diverifikasi melalui webhook resmi dengan validasi SHA512 signature dan pencocokan nominal tagihan (`OrderSettlementService`), serta fallback query langsung ke server Midtrans.
+- **Role Switch & Authorization**: Mengamankan rute pergantian peran (`/switch-role/{role}`) dengan middleware auth dan validasi kepemilikan role untuk mencegah eskalasi hak akses.
+- **Instructor Ownership Protection**: Menerapkan kebijakan otorisasi `CoursePolicy` pada seluruh aksi controller instruktur (Course, Module, Lesson, Quiz, Question Bank, Leaderboard) sehingga instruktur tidak dapat melihat, mengubah, atau memanipulasi materi milik instruktur lain.
+- **Quiz & Assignment Access Control**: Menerapkan validasi enrollment kursus tanpa celah pada pengerjaan kuis, pengumpulan tugas, dan pengisian polling. Memastikan siswa hanya dapat mengakses attempt miliknya sendiri dan membatasi fitur preview kuis hanya untuk instruktur pemilik dan admin.
+- **Answer Oracle Removal**: Menghapus endpoint publik pengecekan jawaban real-time (`/student/quiz/check-answer`) yang mengekspos kunci jawaban dan pembahasan soal.
+- **Data Integrity & Concurrency**: Menjamin idempoten seluruh seeder database (`RoleSeeder`, `CourseCategorySeeder`, `SuperadminUserSeeder`, `AdminUserSeeder`) dan menambahkan database lock concurrency (`lockForUpdate`) pada transaksi pengurangan diamond dan konversi poin ke diamond (`DiamondService`).
+
 ## [1.2.0] - 2026-09-14
 
 ### Changed

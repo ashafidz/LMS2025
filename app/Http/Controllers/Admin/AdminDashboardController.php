@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Course;
 use App\Models\CourseCategory;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
 
 class AdminDashboardController extends Controller
 {
@@ -41,7 +40,7 @@ class AdminDashboardController extends Controller
             ->withCount([
                 'courses as total_students' => function ($query) {
                     $query->join('course_enrollments', 'courses.id', '=', 'course_enrollments.course_id');
-                }
+                },
             ])
             ->orderByDesc('total_students')
             // ->limit(10)
@@ -116,9 +115,9 @@ class AdminDashboardController extends Controller
             'data' => $instructors->map(function ($instructor) {
                 return [
                     'name' => $instructor->name,
-                    'courses_count' => $instructor->courses_count
+                    'courses_count' => $instructor->courses_count,
                 ];
-            })
+            }),
         ]);
     }
 
@@ -130,7 +129,7 @@ class AdminDashboardController extends Controller
             ->withCount([
                 'courses as total_students' => function ($query) {
                     $query->join('course_enrollments', 'courses.id', '=', 'course_enrollments.course_id');
-                }
+                },
             ])
             ->when($search, function ($query) use ($search) {
                 $query->where('course_categories.name', 'like', "%{$search}%");
@@ -143,9 +142,9 @@ class AdminDashboardController extends Controller
             'data' => $categories->map(function ($category) {
                 return [
                     'name' => $category->name,
-                    'total_students' => $category->total_students
+                    'total_students' => $category->total_students,
                 ];
-            })
+            }),
         ]);
     }
 }

@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\LessonAssignment;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Services\PointService;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class StudentAssignmentController extends Controller
 {
@@ -18,15 +18,16 @@ class StudentAssignmentController extends Controller
     {
         // !! kode komen, tidak terpakai tapi tolong jangan dihapus
         // =============================================================
-        // TAMBAHKAN VALIDASI BATAS WAKTU DI SINI (WAJIB) 
+        // TAMBAHKAN VALIDASI BATAS WAKTU DI SINI (WAJIB)
         // =============================================================
         // if ($assignment->due_date && Carbon::now()->isAfter($assignment->due_date)) {
         //     return back()->with('error', 'Batas waktu pengumpulan tugas telah berakhir.');
         // }
         // =============================================================
 
-
         $user = Auth::user();
+        $course = $assignment->lesson->module->course;
+        abort_unless($user && $user->enrollments()->where('courses.id', $course->id)->exists(), 403, 'Anda tidak terdaftar di kursus ini.');
 
         // Validasi: pastikan file ada dan tipenya adalah pdf atau zip
         $validated = $request->validate([
@@ -36,7 +37,7 @@ class StudentAssignmentController extends Controller
         // Cek apakah siswa sudah pernah mengumpulkan untuk tugas ini
         $existingSubmission = $assignment->submissions()->where('user_id', $user->id)->first();
 
-        if (!$existingSubmission) {
+        if (! $existingSubmission) {
             PointService::addPoints(
                 user: $user,
                 course: $assignment->lesson->module->course,
@@ -61,7 +62,7 @@ class StudentAssignmentController extends Controller
         // Simpan file ke storage lokal
         // Format path: assignment_submissions/{assignment_id}/{user_id}/nama_file.pdf
         $path = $validated['submission_file']->store(
-            'assignment_submissions/' . $assignment->id . '/' . $user->id,
+            'assignment_submissions/'.$assignment->id.'/'.$user->id,
             'public'
         );
 

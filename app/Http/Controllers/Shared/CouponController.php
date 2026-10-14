@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Shared;
 
+use App\Http\Controllers\Controller;
 use App\Models\Coupon;
 use App\Models\Course;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class CouponController extends Controller
 {
@@ -17,22 +17,22 @@ class CouponController extends Controller
     public function index()
     {
         $coupons = Coupon::with('course')->latest()->simplePaginate(15);
+
         return view('shared-admin.coupons.index', compact('coupons'));
     }
 
     /**
      * Show the form for creating a new resource.
-     *
      */
     public function create()
     {
         $courses = Course::where('status', 'published')->orderBy('title')->get();
+
         return view('shared-admin.coupons.create', compact('courses'));
     }
 
     /**
      * Store a newly created resource in storage.
-     *
      */
     // public function store(Request $request)
     // {
@@ -56,10 +56,8 @@ class CouponController extends Controller
     //     Coupon::create($validated);
     //     $roleName = Auth::user()->getRoleNames()->first();
 
-
     //     return redirect()->route($roleName . '.coupons.index')->with('success', 'Kupon berhasil dibuat.');
     // }
-
 
     public function store(Request $request)
     {
@@ -83,22 +81,22 @@ class CouponController extends Controller
 
         Coupon::create($validated);
         $roleName = Auth::user()->getRoleNames()->first();
-        return redirect()->route($roleName . '.coupons.index')->with('success', 'Kupon berhasil dibuat.');
+
+        return redirect()->route($roleName.'.coupons.index')->with('success', 'Kupon berhasil dibuat.');
     }
 
     /**
      * Show the form for editing the specified resource.
-     *
      */
     public function edit(Coupon $coupon)
     {
         $courses = Course::where('status', 'published')->orderBy('title')->get();
+
         return view('shared-admin.coupons.edit', compact('coupon', 'courses'));
     }
 
     /**
      * Update the specified resource in storage.
-     *
      */
     // public function update(Request $request, Coupon $coupon)
     // {
@@ -120,7 +118,6 @@ class CouponController extends Controller
 
     //     $coupon->update($validated);
     //     $roleName = Auth::user()->getRoleNames()->first();
-
 
     //     return redirect()->route($roleName . '.coupons.index')->with('success', 'Kupon berhasil diperbarui.');
     // }
@@ -147,7 +144,8 @@ class CouponController extends Controller
 
         $coupon->update($validated);
         $roleName = Auth::user()->getRoleNames()->first();
-        return redirect()->route($roleName . '.coupons.index')->with('success', 'Kupon berhasil diperbarui.');
+
+        return redirect()->route($roleName.'.coupons.index')->with('success', 'Kupon berhasil diperbarui.');
     }
 
     /**
@@ -156,6 +154,7 @@ class CouponController extends Controller
     public function destroy(Coupon $coupon)
     {
         $coupon->delete();
+
         return back()->with('success', 'Kupon berhasil dihapus.');
     }
 }

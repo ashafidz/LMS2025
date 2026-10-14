@@ -41,7 +41,9 @@ class QuizAttemptIntegritySummary extends Model
      * Risk level constants
      */
     public const RISK_LOW = 'low';
+
     public const RISK_MEDIUM = 'medium';
+
     public const RISK_HIGH = 'high';
 
     /**

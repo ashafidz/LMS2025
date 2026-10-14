@@ -67,7 +67,7 @@
                                     <i class="bi bi-cart me-2" style="color: #0d6efd !important;"></i> Keranjang
                                 </a>
                             @endif
-                            <a href="{{ route(session('active_role').'.dashboard') }}" class="d-flex align-items-center justify-content-center w-100 rounded-pill shadow-sm" style="padding: 12px; background-color: #0d6efd; color: white !important; text-decoration: none;">
+                            <a href="{{ Route::has(session('active_role').'.dashboard') ? route(session('active_role').'.dashboard') : url('/') }}" class="d-flex align-items-center justify-content-center w-100 rounded-pill shadow-sm" style="padding: 12px; background-color: #0d6efd; color: white !important; text-decoration: none;">
                                 <i class="bi bi-speedometer2 me-2" style="color: white !important;"></i> Dashboard
                             </a>
                         @else

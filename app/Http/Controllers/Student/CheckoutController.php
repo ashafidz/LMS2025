@@ -3,21 +3,21 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Models\Cart;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\SiteSetting;
+use App\Services\MidtransService;
+use App\Services\OrderSettlementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Midtrans\Config;
-use Midtrans\Snap;
 
 class CheckoutController extends Controller
 {
     /**
      * Memproses item di keranjang menjadi sebuah pesanan (order).
      */
-    public function process(Request $request)
+    public function process(Request $request, MidtransService $midtransService)
     {
         $user = Auth::user();
         $cartItems = $user->carts()->with('course')->get();
@@ -27,12 +27,20 @@ class CheckoutController extends Controller
             return redirect()->route('student.cart.index')->with('error', 'Keranjang Anda kosong.');
         }
 
-        $subtotal = $cartItems->sum(fn($item) => $item->course->price);
-        $coupon = session()->get('coupon');
+        $subtotal = $cartItems->sum(fn ($item) => $item->course->price);
+        $sessionCoupon = session()->get('coupon');
+        $coupon = null;
         $discount = 0;
         $couponId = null;
 
-        if ($coupon) {
+        if ($sessionCoupon) {
+            $coupon = Coupon::find($sessionCoupon->id);
+            if (! $coupon || ! $coupon->isUsableBy($user)) {
+                session()->forget('coupon');
+
+                return redirect()->route('student.cart.index')->with('error', 'Kupon tidak berlaku lagi.');
+            }
+
             if ($coupon->type === 'fixed') {
                 $discount = $coupon->value;
             } elseif ($coupon->type === 'percent') {
@@ -41,47 +49,36 @@ class CheckoutController extends Controller
             $couponId = $coupon->id;
         }
 
-        $priceAfterDiscount = $subtotal - $discount;
+        // Cap discount so it does not exceed subtotal
+        $discount = min($discount, $subtotal);
+
+        $priceAfterDiscount = max(0, $subtotal - $discount);
         $vatPercentage = $settings?->vat_percentage ?? 0;
-        $vatAmount = ($priceAfterDiscount * $vatPercentage) / 100;
+        $vatAmount = ($priceAfterDiscount > 0) ? (($priceAfterDiscount * $vatPercentage) / 100) : 0;
         $subtotalBeforeFee = $priceAfterDiscount + $vatAmount;
-        $transactionFee = ($settings?->transaction_fee_fixed ?? 0) + (($subtotalBeforeFee * ($settings?->transaction_fee_percentage ?? 0)) / 100);
+        $transactionFee = ($subtotalBeforeFee > 0)
+            ? (($settings?->transaction_fee_fixed ?? 0) + (($subtotalBeforeFee * ($settings?->transaction_fee_percentage ?? 0)) / 100))
+            : 0;
         $finalTotal = max(0, $subtotalBeforeFee + $transactionFee);
-
-
-
-        // --- LOGIKA BARU: Tambahkan pencatatan penggunaan kupon ---
-        if ($coupon) {
-            DB::transaction(function () use ($coupon, $user) {
-                // Tambah jumlah penggunaan total
-                $coupon->increment('uses_count');
-
-                // Tambah jumlah penggunaan per user di tabel pivot
-                $userCoupon = $user->coupons()->where('coupon_id', $coupon->id)->first();
-                if ($userCoupon) {
-                    $userCoupon->pivot->increment('uses_count');
-                } else {
-                    $user->coupons()->attach($coupon->id, ['uses_count' => 1]);
-                }
-            });
-        }
-        // --- AKHIR LOGIKA BARU ---
 
         if ($finalTotal == 0) {
             $order = $this->processFreeOrder($user, $cartItems, $subtotal, $discount, $vatAmount, $vatPercentage, $transactionFee, $couponId);
-            // Untuk pesanan gratis, kita perlu meneruskan objek order ke view sukses
+
             return redirect()->route('payment.success', $order)->with('success_message', 'Anda berhasil mendapatkan kursus secara gratis!');
         }
 
         // Buat pesanan terlebih dahulu, LALU buat snap token
         $order = $this->createOrderRecord($user, $cartItems, $subtotal, $discount, $vatAmount, $vatPercentage, $transactionFee, $finalTotal, $couponId);
-        // Setelah order dibuat dan punya ID, generate snap token dan simpan
+
+        // Request Snap Token ke Midtrans via MidtransService
         try {
-            $this->generateAndSaveSnapToken($order);
+            $snapToken = $midtransService->createSnapToken($order);
+            $order->snap_token = $snapToken;
+            $order->save();
         } catch (\Exception $e) {
             // Jika gagal membuat token, hapus order yang baru dibuat agar tidak jadi sampah
             $order->delete();
-            // Kembalikan ke keranjang dengan pesan error
+
             return redirect()->route('student.cart.index')->with('error', 'Gagal memulai sesi pembayaran. Silakan coba lagi.');
         }
 
@@ -99,13 +96,15 @@ class CheckoutController extends Controller
      */
     public function show(Order $order)
     {
+        abort_unless($order->user_id === Auth::id(), 403);
+
         // Cek apakah order masih bisa dibayar
         if ($order->status !== 'pending') {
-            return redirect()->route('student.transactions.index')->with('info', 'Status pesanan ini adalah ' . $order->status . '.');
+            return redirect()->route('student.transactions.index')->with('info', 'Status pesanan ini adalah '.$order->status.'.');
         }
 
         // Cek apakah snap_token ada. Jika tidak, redirect dengan error.
-        if (!$order->snap_token) {
+        if (! $order->snap_token) {
             return redirect()->route('student.transactions.index')->with('error', 'Sesi pembayaran untuk pesanan ini tidak ditemukan atau rusak.');
         }
 
@@ -116,13 +115,13 @@ class CheckoutController extends Controller
         return view('student.checkout.show', [
             'order' => $order,
             'snapToken' => $order->snap_token, // Gunakan token dari DB
-            'midtransClientKey' => $midtransClientKey
+            'midtransClientKey' => $midtransClientKey,
         ]);
     }
 
     // --- Helper Methods ---
 
-    // Helper baru untuk MENCATAT order ke database
+    // Helper untuk MENCATAT order ke database
     private function createOrderRecord($user, $cartItems, $subtotal, $discount, $vatAmount, $vatPercentage, $transactionFee, $finalTotal, $couponId)
     {
         return DB::transaction(function () use ($user, $cartItems, $subtotal, $discount, $vatAmount, $vatPercentage, $transactionFee, $finalTotal, $couponId) {
@@ -141,7 +140,7 @@ class CheckoutController extends Controller
             foreach ($cartItems as $cartItem) {
                 $order->items()->create([
                     'course_id' => $cartItem->course_id,
-                    'price_at_purchase' => $cartItem->course->price
+                    'price_at_purchase' => $cartItem->course->price,
                 ]);
             }
 
@@ -149,36 +148,9 @@ class CheckoutController extends Controller
         });
     }
 
-    // Helper baru untuk MEMBUAT DAN MENYIMPAN snap token
-    private function generateAndSaveSnapToken(Order $order)
-    {
-        Config::$serverKey = config('midtrans.server_key');
-        Config::$isProduction = config('midtrans.is_production');
-        Config::$isSanitized = true;
-        Config::$is3ds = true;
-
-        $params = [
-            'transaction_details' => [
-                'order_id' => $order->order_code,
-                'gross_amount' => $order->final_amount,
-            ],
-            'customer_details' => [
-                'first_name' => $order->user->name,
-                'email' => $order->user->email,
-            ],
-        ];
-
-        // Request Snap Token ke Midtrans
-        $snapToken = Snap::getSnapToken($params);
-
-        // Simpan token ke database
-        $order->snap_token = $snapToken;
-        $order->save();
-    }
-
     private function processFreeOrder($user, $cartItems, $subtotal, $discount, $vatAmount, $vatPercentage, $transactionFee, $couponId)
     {
-        return DB::transaction(function () use ($user, $cartItems, $subtotal, $discount, $vatAmount, $vatPercentage, $transactionFee, $couponId) {
+        $order = DB::transaction(function () use ($user, $cartItems, $subtotal, $discount, $vatAmount, $vatPercentage, $transactionFee, $couponId) {
             $order = $user->orders()->create([
                 'total_amount' => $subtotal,
                 'discount_amount' => $discount,
@@ -187,15 +159,22 @@ class CheckoutController extends Controller
                 'transaction_fee_amount' => $transactionFee,
                 'final_amount' => 0,
                 'coupon_id' => $couponId,
-                'status' => 'paid',
+                'status' => 'pending',
             ]);
+
             foreach ($cartItems as $cartItem) {
-                $order->items()->create(['course_id' => $cartItem->course_id, 'price_at_purchase' => $cartItem->course->price]);
-                $user->enrollments()->attach($cartItem->course_id, ['enrolled_at' => now()]);
+                $order->items()->create([
+                    'course_id' => $cartItem->course_id,
+                    'price_at_purchase' => $cartItem->course->price,
+                ]);
             }
-            $user->carts()->delete();
-            session()->forget('coupon');
+
             return $order;
         });
+
+        app(OrderSettlementService::class)->markPaid($order);
+        session()->forget('coupon');
+
+        return $order;
     }
 }

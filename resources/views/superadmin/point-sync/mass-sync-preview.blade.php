@@ -8,7 +8,7 @@
                 <div class="col-md-12">
                     <div class="page-header-title">
                         <h5 class="m-b-10">Sinkronisasi Poin Massal</h5>
-                        <p class="m-b-0">Kursus: <strong>{{ $course->title }}</strong> — Instruktur: {{ $course->instructor->name ?? '-' }}</p>
+                        <p class="m-b-0">Kursus: <strong>{{ $course->title }}</strong> - Instruktur: {{ $course->instructor->name ?? '-' }}</p>
                     </div>
                 </div>
                 <div class="col-md-12 d-flex mt-3">

@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers\Instructor;
 
-use App\Models\Quiz;
-use App\Models\Lesson;
-use App\Models\Module;
-use App\Models\LessonPoint;
-use App\Models\LessonVideo;
-// Diperbarui: Menggunakan LessonDocument
-use Illuminate\Http\Request;
-use App\Models\LessonArticle;
-use App\Models\LessonDocument;
-use Illuminate\Support\Carbon;
-use App\Models\LessonAssignment;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Lesson;
+use App\Models\LessonArticle;
+use App\Models\LessonAssignment;
+// Diperbarui: Menggunakan LessonDocument
+use App\Models\LessonDocument;
 use App\Models\LessonLinkCollection;
+use App\Models\LessonVideo;
+use App\Models\Module;
+use App\Models\Quiz;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 class LessonController extends Controller
@@ -27,8 +27,11 @@ class LessonController extends Controller
      */
     public function index(Module $module)
     {
+        Gate::authorize('manage', $module->course);
+
         $lessons = $module->lessons()->orderBy('order')->get();
         $is_preview = false;
+
         return view('instructor.lessons.index', compact('module', 'lessons', 'is_preview'));
     }
 
@@ -37,15 +40,18 @@ class LessonController extends Controller
      */
     public function create(Request $request, Module $module)
     {
+        Gate::authorize('manage', $module->course);
+
         $type = $request->query('type');
         // Diperbarui: Mengganti 'powerpoint' menjadi 'document'
         $validTypes = ['article', 'video', 'quiz', 'assignment', 'document', 'link', 'lessonpoin', 'polling', 'wordcloud'];
 
-        if (!in_array($type, $validTypes)) {
+        if (! in_array($type, $validTypes)) {
             abort(404, 'Tipe pelajaran tidak valid.');
         }
 
         $viewName = "instructor.lessons.create-{$type}";
+
         return view($viewName, compact('module'));
     }
 
@@ -54,6 +60,8 @@ class LessonController extends Controller
      */
     public function store(Request $request, Module $module)
     {
+        Gate::authorize('manage', $module->course);
+
         $request->validate([
             'title' => 'required|string|max:255',
             // Diperbarui: Mengganti 'powerpoint' menjadi 'document'
@@ -71,9 +79,9 @@ class LessonController extends Controller
             $documentFile = $validatedDocument['document_file'];
             $documentHash = hash_file('sha1', $documentFile->getRealPath());
             $titleHash = md5($request->input('title'));
-            $documentDedupKey = 'lesson_document:' . Auth::id() . ':' . $module->id . ':' . $documentHash . ':' . $titleHash;
+            $documentDedupKey = 'lesson_document:'.Auth::id().':'.$module->id.':'.$documentHash.':'.$titleHash;
 
-            if (!Cache::add($documentDedupKey, true, now()->addSeconds(30))) {
+            if (! Cache::add($documentDedupKey, true, now()->addSeconds(30))) {
                 return redirect()
                     ->route('instructor.modules.lessons.index', $module)
                     ->with('warning', 'Pelajaran sedang diproses atau sudah dibuat. Silakan cek daftar pelajaran.');
@@ -114,7 +122,7 @@ class LessonController extends Controller
                         ]);
 
                         // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
-                        if (!empty($validated['available_from'])) {
+                        if (! empty($validated['available_from'])) {
                             // 1. Ambil timezone instruktur (dari data user yang login)
                             $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
 
@@ -125,7 +133,7 @@ class LessonController extends Controller
                             $validated['available_from'] = $availableFrom;
                         }
 
-                        if (!empty($validated['available_to'])) {
+                        if (! empty($validated['available_to'])) {
                             // 1. Ambil timezone instruktur (dari data user yang login)
                             $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
 
@@ -152,7 +160,7 @@ class LessonController extends Controller
                         $validated = $request->validate(['instructions' => 'required|string', 'due_date' => 'nullable|date', 'pass_mark' => 'required|integer|min:0|max:100']);
 
                         // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
-                        if (!empty($validated['due_date'])) {
+                        if (! empty($validated['due_date'])) {
                             // 1. Ambil timezone instruktur (dari data user yang login)
                             $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
 
@@ -210,11 +218,11 @@ class LessonController extends Controller
                         $startTime = null;
                         $endTime = null;
 
-                        if (!empty($validated['start_time'])) {
+                        if (! empty($validated['start_time'])) {
                             $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
                             $startTime = Carbon::parse($validated['start_time'], $instructorTimezone)->utc();
                         }
-                        if (!empty($validated['end_time'])) {
+                        if (! empty($validated['end_time'])) {
                             $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
                             $endTime = Carbon::parse($validated['end_time'], $instructorTimezone)->utc();
                         }
@@ -252,11 +260,11 @@ class LessonController extends Controller
                         $startTime = null;
                         $endTime = null;
 
-                        if (!empty($validated['start_time'])) {
+                        if (! empty($validated['start_time'])) {
                             $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
                             $startTime = Carbon::parse($validated['start_time'], $instructorTimezone)->utc();
                         }
-                        if (!empty($validated['end_time'])) {
+                        if (! empty($validated['end_time'])) {
                             $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
                             $endTime = Carbon::parse($validated['end_time'], $instructorTimezone)->utc();
                         }
@@ -294,11 +302,14 @@ class LessonController extends Controller
      */
     public function edit(Lesson $lesson)
     {
+        Gate::authorize('manage', $lesson->module->course);
+
         $lesson->load('lessonable');
         $type = $lesson->lessonable_type;
         $shortType = strtolower(class_basename($type));
 
         $viewName = "instructor.lessons.edit-{$shortType}";
+
         return view($viewName, compact('lesson'));
     }
 
@@ -307,6 +318,8 @@ class LessonController extends Controller
      */
     public function update(Request $request, Lesson $lesson)
     {
+        Gate::authorize('manage', $lesson->module->course);
+
         $request->validate(['title' => 'required|string|max:255']);
 
         DB::transaction(function () use ($request, $lesson) {
@@ -356,7 +369,7 @@ class LessonController extends Controller
                     ]);
 
                     // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
-                    if (!empty($validated['available_from'])) {
+                    if (! empty($validated['available_from'])) {
                         // 1. Ambil timezone instruktur (dari data user yang login)
                         $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
 
@@ -367,7 +380,7 @@ class LessonController extends Controller
                         $validated['available_from'] = $availableFrom;
                     }
 
-                    if (!empty($validated['available_to'])) {
+                    if (! empty($validated['available_to'])) {
                         // 1. Ambil timezone instruktur (dari data user yang login)
                         $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
 
@@ -391,10 +404,10 @@ class LessonController extends Controller
                     break;
 
                 case 'lessonassignment':
-                    $validated = $request->validate(['instructions' => 'required|string', 'due_date' => 'nullable|date', 'pass_mark' => 'required|integer|min:0|max:100',]);
+                    $validated = $request->validate(['instructions' => 'required|string', 'due_date' => 'nullable|date', 'pass_mark' => 'required|integer|min:0|max:100']);
 
                     // --- LOGIKA BARU DITAMBAHKAN DI SINI ---
-                    if (!empty($validated['due_date'])) {
+                    if (! empty($validated['due_date'])) {
                         // 1. Ambil timezone instruktur
                         $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
 
@@ -456,11 +469,11 @@ class LessonController extends Controller
                     $startTime = null;
                     $endTime = null;
 
-                    if (!empty($validated['start_time'])) {
+                    if (! empty($validated['start_time'])) {
                         $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
                         $startTime = Carbon::parse($validated['start_time'], $instructorTimezone)->utc();
                     }
-                    if (!empty($validated['end_time'])) {
+                    if (! empty($validated['end_time'])) {
                         $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
                         $endTime = Carbon::parse($validated['end_time'], $instructorTimezone)->utc();
                     }
@@ -479,7 +492,7 @@ class LessonController extends Controller
 
                     $existingOptions = $lessonable->options()->orderBy('order')->pluck('text')->toArray();
                     $newOptions = $validated['polling_options'];
-                    
+
                     if ($existingOptions !== $newOptions) {
                         $lessonable->options()->delete();
                         foreach ($newOptions as $index => $optionText) {
@@ -490,38 +503,38 @@ class LessonController extends Controller
                         }
                     }
                     break;
-                    case 'lessonwordcloud':
-                        $validated = $request->validate([
-                            'wordcloud_question' => 'required|string|max:255',
-                            'wordcloud_description' => 'nullable|string',
-                            'max_words' => 'required|integer|min:1|max:3',
-                            'is_active' => 'boolean',
-                            'start_time' => 'nullable|date',
-                            'end_time' => 'nullable|date|after_or_equal:start_time',
-                        ]);
+                case 'lessonwordcloud':
+                    $validated = $request->validate([
+                        'wordcloud_question' => 'required|string|max:255',
+                        'wordcloud_description' => 'nullable|string',
+                        'max_words' => 'required|integer|min:1|max:3',
+                        'is_active' => 'boolean',
+                        'start_time' => 'nullable|date',
+                        'end_time' => 'nullable|date|after_or_equal:start_time',
+                    ]);
 
-                        $isActive = $request->has('is_active');
-                        $startTime = null;
-                        $endTime = null;
+                    $isActive = $request->has('is_active');
+                    $startTime = null;
+                    $endTime = null;
 
-                        if (!empty($validated['start_time'])) {
-                            $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
-                            $startTime = Carbon::parse($validated['start_time'], $instructorTimezone)->utc();
-                        }
-                        if (!empty($validated['end_time'])) {
-                            $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
-                            $endTime = Carbon::parse($validated['end_time'], $instructorTimezone)->utc();
-                        }
+                    if (! empty($validated['start_time'])) {
+                        $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+                        $startTime = Carbon::parse($validated['start_time'], $instructorTimezone)->utc();
+                    }
+                    if (! empty($validated['end_time'])) {
+                        $instructorTimezone = Auth::user()->timezone ?? config('app.timezone');
+                        $endTime = Carbon::parse($validated['end_time'], $instructorTimezone)->utc();
+                    }
 
-                        $lessonable->update([
-                            'question' => $validated['wordcloud_question'],
-                            'description' => $validated['wordcloud_description'],
-                            'max_words' => $validated['max_words'],
-                            'is_active' => $isActive,
-                            'start_time' => $startTime,
-                            'end_time' => $endTime,
-                        ]);
-                        break;
+                    $lessonable->update([
+                        'question' => $validated['wordcloud_question'],
+                        'description' => $validated['wordcloud_description'],
+                        'max_words' => $validated['max_words'],
+                        'is_active' => $isActive,
+                        'start_time' => $startTime,
+                        'end_time' => $endTime,
+                    ]);
+                    break;
             }
         });
 
@@ -533,6 +546,8 @@ class LessonController extends Controller
      */
     public function destroy(Lesson $lesson)
     {
+        Gate::authorize('manage', $lesson->module->course);
+
         DB::transaction(function () use ($lesson) {
             $lessonable = $lesson->lessonable;
             if ($lessonable) {
@@ -555,10 +570,17 @@ class LessonController extends Controller
      */
     public function reorder(Request $request, Module $module)
     {
+        Gate::authorize('manage', $module->course);
+
         $request->validate([
             'lesson_ids' => 'required|array',
             'lesson_ids.*' => 'exists:lessons,id',
         ]);
+
+        $moduleLessonCount = $module->lessons()->whereIn('id', $request->lesson_ids)->count();
+        if ($moduleLessonCount !== count($request->lesson_ids)) {
+            abort(403, 'Pelajaran tidak valid untuk modul ini.');
+        }
 
         foreach ($request->lesson_ids as $index => $lessonId) {
             Lesson::where('id', $lessonId)
@@ -568,10 +590,13 @@ class LessonController extends Controller
 
         return response()->json(['status' => 'success', 'message' => 'Urutan pelajaran diperbarui.']);
     }
+
     public function pollingResults(Lesson $lesson)
     {
+        Gate::authorize('manage', $lesson->module->course);
+
         $polling = $lesson->lessonable;
-        
+
         if (get_class($polling) !== 'App\Models\LessonPolling') {
             abort(404);
         }
@@ -588,8 +613,10 @@ class LessonController extends Controller
 
     public function wordcloudResults(Lesson $lesson)
     {
+        Gate::authorize('manage', $lesson->module->course);
+
         $wordcloud = $lesson->lessonable;
-        
+
         if (get_class($wordcloud) !== 'App\Models\LessonWordcloud') {
             abort(404);
         }
@@ -616,31 +643,37 @@ class LessonController extends Controller
 
     public function togglePollingStatus(Request $request, Lesson $lesson)
     {
+        Gate::authorize('manage', $lesson->module->course);
+
         $polling = $lesson->lessonable;
-        
+
         if (get_class($polling) !== 'App\Models\LessonPolling') {
             abort(404);
         }
 
-        $polling->is_active = !$polling->is_active;
+        $polling->is_active = ! $polling->is_active;
         $polling->save();
 
         $status = $polling->is_active ? 'diaktifkan' : 'dinonaktifkan';
+
         return redirect()->back()->with('success', "Polling berhasil {$status}.");
     }
 
     public function toggleWordcloudStatus(Request $request, Lesson $lesson)
     {
+        Gate::authorize('manage', $lesson->module->course);
+
         $wordcloud = $lesson->lessonable;
-        
+
         if (get_class($wordcloud) !== 'App\Models\LessonWordcloud') {
             abort(404);
         }
 
-        $wordcloud->is_active = !$wordcloud->is_active;
+        $wordcloud->is_active = ! $wordcloud->is_active;
         $wordcloud->save();
 
         $status = $wordcloud->is_active ? 'diaktifkan' : 'dinonaktifkan';
+
         return redirect()->back()->with('success', "Word Cloud berhasil {$status}.");
     }
 }

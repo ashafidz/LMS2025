@@ -7,7 +7,6 @@ use App\Models\Course;
 use App\Services\DiamondService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class DiamondPurchaseController extends Controller
 {
@@ -34,7 +33,7 @@ class DiamondPurchaseController extends Controller
 
         if ($purchaseSuccess) {
             // 3. Arahkan ke halaman "Kursus Saya" dengan pesan sukses
-            return redirect()->route('student.my_courses')->with('success', 'Selamat! Anda berhasil membeli kursus "' . $course->title . '" dengan diamond.');
+            return redirect()->route('student.my_courses')->with('success', 'Selamat! Anda berhasil membeli kursus "'.$course->title.'" dengan diamond.');
         }
 
         return back()->with('error', 'Terjadi kesalahan saat memproses pembelian.');

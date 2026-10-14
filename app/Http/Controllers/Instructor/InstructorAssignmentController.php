@@ -3,16 +3,15 @@
 namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AssignmentRevisionRequired;
 use App\Models\AssignmentSubmission;
 use App\Models\LessonAssignment;
+use App\Services\HashIdService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Services\PointService;
-use App\Services\HashIdService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\AssignmentRevisionRequired;
 
 class InstructorAssignmentController extends Controller
 {
@@ -77,6 +76,7 @@ class InstructorAssignmentController extends Controller
                 // For students
                 $uniqueId = $item->studentProfile->unique_id_number;
             }
+
             // Return a tuple: [is_null, value] for proper sorting
             return [$uniqueId === null ? 1 : 0, $uniqueId];
         };
@@ -209,13 +209,13 @@ class InstructorAssignmentController extends Controller
                 try {
                     Mail::to($student->email)->send(new AssignmentRevisionRequired($submission));
                 } catch (\Exception $e) {
-                    Log::error("Gagal mengirim email revisi masal ke {$student->email}: " . $e->getMessage());
+                    Log::error("Gagal mengirim email revisi masal ke {$student->email}: ".$e->getMessage());
                 }
             }
         }
 
         $count = $submissions->count();
+
         return back()->with('success', "{$count} tugas siswa berhasil diminta untuk direvisi.");
     }
 }
-

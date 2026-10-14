@@ -16,6 +16,6 @@ class ContactMessage extends Model
         'message',
         'is_read',
         'is_replied',
-        'replied_at'
+        'replied_at',
     ];
 }

@@ -28,7 +28,6 @@ return new class extends Migration
             DB::statement("ALTER TABLE courses CHANGE payment_type payment_type ENUM('money', 'diamonds') DEFAULT 'money'");
         }
 
-
         // 3. Memperbarui tabel 'point_histories': Tambahkan course_id
         Schema::table('point_histories', function (Blueprint $table) {
             $table->foreignId('course_id')->nullable()->constrained('courses')->onDelete('cascade')->after('user_id');
@@ -78,7 +77,6 @@ return new class extends Migration
         if (DB::getDriverName() !== 'sqlite') {
             DB::statement("ALTER TABLE courses CHANGE payment_type payment_type ENUM('money', 'points') DEFAULT 'money'");
         }
-
 
         Schema::table('users', function (Blueprint $table) {
             $table->renameColumn('diamond_balance', 'points_balance');

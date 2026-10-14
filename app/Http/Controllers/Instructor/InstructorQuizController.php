@@ -3,15 +3,11 @@
 namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
+use App\Models\Course;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
-use App\Models\QuizAttemptIntegritySummary;
-use App\Models\MonitoringLog;
-use App\Models\Course;
-use App\Models\Lesson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class InstructorQuizController extends Controller
 {
@@ -125,7 +121,7 @@ class InstructorQuizController extends Controller
                 'monitoringLogs' => function ($query) {
                     // Ambil detail riwayat pelanggaran, urutkan dari yang terbaru
                     $query->orderBy('violation_timestamp', 'desc');
-                }
+                },
             ])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -135,15 +131,15 @@ class InstructorQuizController extends Controller
             return [
                 'student' => $studentAttempts->first()->student,
                 'latest_attempt' => $studentAttempts->sortByDesc('created_at')->first(), // Percobaan terbaru
-                'all_attempts' => $studentAttempts->sortByDesc('created_at')->values() // Daftar semua percobaan
+                'all_attempts' => $studentAttempts->sortByDesc('created_at')->values(), // Daftar semua percobaan
             ];
         });
 
         // Hitung statistik keseluruhan untuk ditampilkan di dasbor ringkasan
         $stats = [
             'total_attempts' => $attempts->count(), // Total berapa kali kuis dikerjakan
-            'total_tab_violations' => $attempts->sum(fn($a) => $a->integritySummary?->total_tab_switches ?? 0), // Total semua pindah tab
-            'total_camera_violations' => $attempts->sum(fn($a) => $a->integritySummary?->total_face_violations ?? 0), // Total semua pelanggaran kamera
+            'total_tab_violations' => $attempts->sum(fn ($a) => $a->integritySummary?->total_tab_switches ?? 0), // Total semua pindah tab
+            'total_camera_violations' => $attempts->sum(fn ($a) => $a->integritySummary?->total_face_violations ?? 0), // Total semua pelanggaran kamera
             'total_expelled' => $attempts->where('expelled_by_violation', true)->count(), // Total dikeluarkan karena pelanggaran
         ];
 
@@ -169,7 +165,7 @@ class InstructorQuizController extends Controller
             'monitoringLogs' => function ($query) {
                 // Urutkan riwayat pelanggaran berdasarkan urutan waktu kejadian (kronologis)
                 $query->orderBy('violation_timestamp', 'asc');
-            }
+            },
         ]);
 
         // Hitung total skor maksimal quiz
@@ -232,7 +228,7 @@ class InstructorQuizController extends Controller
             ->with([
                 'lesson.module',
                 'attempts.integritySummary',
-                'attempts.student'
+                'attempts.student',
             ])
             ->get();
 
@@ -248,8 +244,8 @@ class InstructorQuizController extends Controller
         foreach ($quizzes as $quiz) {
             $quizAttempts = $quiz->attempts;
             $attemptCount = $quizAttempts->count();
-            $tabViolations = $quizAttempts->sum(fn($a) => $a->integritySummary?->total_tab_switches ?? 0);
-            $cameraViolations = $quizAttempts->sum(fn($a) => $a->integritySummary?->total_face_violations ?? 0);
+            $tabViolations = $quizAttempts->sum(fn ($a) => $a->integritySummary?->total_tab_switches ?? 0);
+            $cameraViolations = $quizAttempts->sum(fn ($a) => $a->integritySummary?->total_face_violations ?? 0);
 
             // Track unique students
             foreach ($quizAttempts as $attempt) {
@@ -266,7 +262,7 @@ class InstructorQuizController extends Controller
                 'tab_violations' => $tabViolations,
                 'camera_violations' => $cameraViolations,
                 'total_violations' => $tabViolations + $cameraViolations,
-                'unique_students' => $quizAttempts->pluck('student_id')->unique()->count()
+                'unique_students' => $quizAttempts->pluck('student_id')->unique()->count(),
             ];
         }
 

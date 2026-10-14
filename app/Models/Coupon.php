@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
-use App\Traits\HasLocalDates;
 use App\Traits\HasHashedRouteKey;
-use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasLocalDates;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Coupon extends Model
 {
     use HasFactory;
-    use HasLocalDates;
     use HasHashedRouteKey;
+    use HasLocalDates;
 
     /**
      * The attributes that are mass assignable.
@@ -60,5 +60,42 @@ class Coupon extends Model
     public function users()
     {
         return $this->belongsToMany(User::class)->withPivot('uses_count')->withTimestamps();
+    }
+
+    /**
+     * Check if the coupon is currently usable by the given user.
+     */
+    public function isUsableBy(User $user): bool
+    {
+        if (! $this->is_active) {
+            return false;
+        }
+
+        if ($this->expires_at && $this->expires_at->isPast()) {
+            return false;
+        }
+
+        if ($this->starts_at && $this->starts_at->isFuture()) {
+            return false;
+        }
+
+        if ($this->max_uses !== null && $this->uses_count >= $this->max_uses) {
+            return false;
+        }
+
+        if ($this->max_uses_per_user !== null) {
+            $userUsage = $user->coupons()->where('coupon_id', $this->id)->first();
+            if ($userUsage && $userUsage->pivot->uses_count >= $this->max_uses_per_user) {
+                return false;
+            }
+        }
+
+        if ($this->course_id !== null) {
+            if (! $user->carts()->where('course_id', $this->course_id)->exists()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

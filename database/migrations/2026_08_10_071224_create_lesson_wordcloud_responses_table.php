@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('word');
             $table->timestamps();
-            
+
             // Allow multiple words from same user? Usually yes, or maybe not. We will enforce unique per user per wordcloud.
             $table->unique(['lesson_wordcloud_id', 'user_id']);
         });

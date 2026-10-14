@@ -3,11 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Models\InstructorProfile;
-use App\Models\QuestionTopic;
-use App\Models\StudentProfile;
 use App\Traits\HasHashedRouteKey;
-use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -17,8 +13,6 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
- * 
- *
  * @property int $id
  * @property string $name
  * @property string $email
@@ -39,6 +33,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property-read int|null $permissions_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read int|null $roles_count
+ *
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
@@ -60,12 +55,14 @@ use Spatie\Permission\Traits\HasRoles;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutPermission($permissions)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutRole($roles, $guard = null)
+ *
  * @mixin \Eloquent
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, HasRoles, Notifiable;
+
     use HasHashedRouteKey;
 
     /**
@@ -87,7 +84,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'equipped_badge_id',
         'email_verified_at',
     ];
-
 
     /**
      * Mendapatkan semua kupon yang pernah digunakan oleh pengguna ini.
@@ -128,7 +124,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(PointHistory::class);
     }
-
 
     public function instructorProfile(): HasOne
     {

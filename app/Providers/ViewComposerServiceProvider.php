@@ -2,12 +2,13 @@
 
 namespace App\Providers;
 
-use App\Models\SiteSetting;
 use App\Models\CourseCategory;
-use Illuminate\Support\Facades\View;
+use App\Models\SiteSetting;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+
 // Jika Anda butuh ShopStatus juga, tambahkan use-nya
 // use App\Models\ShopStatus;
 
@@ -28,7 +29,7 @@ class ViewComposerServiceProvider extends ServiceProvider
                 if (Schema::hasTable('site_settings')) {
                     // Ambil data dari cache, jika tidak ada, query lalu simpan selamanya
                     $siteSettings = Cache::rememberForever('site_settings', function () {
-                        return SiteSetting::first() ?? new SiteSetting();
+                        return SiteSetting::first() ?? new SiteSetting;
                     });
 
                     // Kirim data ke view yang sedang dirender
@@ -45,7 +46,7 @@ class ViewComposerServiceProvider extends ServiceProvider
             $footerCategories = CourseCategory::withCount([
                 'courses as total_students' => function ($query) {
                     $query->join('course_enrollments', 'courses.id', '=', 'course_enrollments.course_id');
-                }
+                },
             ])
                 ->orderByDesc('total_students')
                 ->limit(4)

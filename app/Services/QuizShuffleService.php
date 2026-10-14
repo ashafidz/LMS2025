@@ -39,6 +39,7 @@ class QuizShuffleService
             if (empty($questions)) {
                 Log::warning("Kuis {$quiz->id} tidak memiliki soal");
                 DB::commit();
+
                 return false;
             }
 
@@ -74,10 +75,11 @@ class QuizShuffleService
         } catch (\Exception $e) {
             // Jika terjadi error, batalkan semua perubahan database
             DB::rollBack();
-            Log::error('Gagal membuat urutan soal acak: ' . $e->getMessage(), [
+            Log::error('Gagal membuat urutan soal acak: '.$e->getMessage(), [
                 'attempt_id' => $attempt->id,
                 'trace' => $e->getTraceAsString(),
             ]);
+
             return false;
         }
     }

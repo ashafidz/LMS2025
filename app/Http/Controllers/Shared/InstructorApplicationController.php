@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Shared;
 
-use Illuminate\View\View;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Mail\InstructorApproved;
 use App\Mail\InstructorRejected;
 use App\Models\InstructorProfile;
-use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class InstructorApplicationController extends Controller
 {
@@ -54,6 +54,7 @@ class InstructorApplicationController extends Controller
         // Arahkan ke halaman "pending"
         return redirect()->route('instructor.pending')->with('success', 'Pendaftaran Anda berhasil dikirim dan sedang ditinjau.');
     }
+
     /**
      * Display a listing of the instructor applications.
      */

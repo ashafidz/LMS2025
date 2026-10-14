@@ -2,18 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Str;
-use App\Traits\HasLocalDates;
 use App\Traits\HasHashedRouteKey;
+use App\Traits\HasLocalDates;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 
 class Course extends Model
 {
     use HasFactory, SoftDeletes;
-    use HasLocalDates;
     use HasHashedRouteKey;
+    use HasLocalDates;
 
     protected $fillable = [
         'instructor_id',
@@ -31,7 +31,6 @@ class Course extends Model
         'payment_type', // Tambahkan ini
         'diamond_price', // Tambahkan ini
     ];
-
 
     /**
      * Mendapatkan semua topik soal yang terhubung dengan kursus ini.
@@ -96,6 +95,7 @@ class Course extends Model
         // return $this->hasMany(Module::class);
         return $this->hasMany(Module::class)->orderBy('order', 'asc');
     }
+
     public function lessons()
     {
         return $this->hasManyThrough(Lesson::class, Module::class);

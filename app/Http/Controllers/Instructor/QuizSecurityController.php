@@ -8,6 +8,7 @@ use App\Models\QuizSecuritySetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
 class QuizSecurityController extends Controller
@@ -17,8 +18,11 @@ class QuizSecurityController extends Controller
      */
     public function edit(Quiz $quiz)
     {
+        $quiz->loadMissing('lesson.module.course');
+        Gate::authorize('manage', $quiz->lesson->module->course);
+
         // Simple check: hanya instructor yang bisa akses
-        if (!Auth::user()->hasRole('instructor')) {
+        if (! Auth::user()->hasRole('instructor')) {
             abort(403, 'Unauthorized');
         }
 
@@ -47,8 +51,11 @@ class QuizSecurityController extends Controller
      */
     public function update(Request $request, Quiz $quiz)
     {
+        $quiz->loadMissing('lesson.module.course');
+        Gate::authorize('manage', $quiz->lesson->module->course);
+
         // Validasi: Pastikan hanya pembuat kuis (instruktur) yang bisa mengatur keamanan
-        if (!Auth::user()->hasRole('instructor')) {
+        if (! Auth::user()->hasRole('instructor')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Anda tidak memiliki akses ke halaman ini',
@@ -90,7 +97,7 @@ class QuizSecurityController extends Controller
         try {
             DB::beginTransaction();
 
-            // Simpan ke tabel 'quiz_security_settings'. 
+            // Simpan ke tabel 'quiz_security_settings'.
             // 'updateOrCreate' akan mencari berdasarkan quiz_id, jika ada maka update, jika tidak maka buat baru.
             $quiz->securitySetting()->updateOrCreate(
                 ['quiz_id' => $quiz->id],
@@ -106,7 +113,7 @@ class QuizSecurityController extends Controller
         } catch (\Exception $e) {
             // Batalkan simpan jika terjadi error teknis
             DB::rollBack();
-            Log::error('Gagal menyimpan pengaturan keamanan kuis: ' . $e->getMessage());
+            Log::error('Gagal menyimpan pengaturan keamanan kuis: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -120,7 +127,10 @@ class QuizSecurityController extends Controller
      */
     public function show(Quiz $quiz)
     {
-        if (!Auth::user()->hasRole('instructor')) {
+        $quiz->loadMissing('lesson.module.course');
+        Gate::authorize('manage', $quiz->lesson->module->course);
+
+        if (! Auth::user()->hasRole('instructor')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized',
@@ -129,7 +139,7 @@ class QuizSecurityController extends Controller
 
         $securitySetting = $quiz->securitySetting;
 
-        if (!$securitySetting) {
+        if (! $securitySetting) {
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -145,13 +155,13 @@ class QuizSecurityController extends Controller
                     'detect_look_up' => true,
                     'detect_look_down' => true,
                     'violation_duration_seconds' => 3,
-                ]
+                ],
             ]);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $securitySetting
+            'data' => $securitySetting,
         ]);
     }
 
@@ -160,7 +170,10 @@ class QuizSecurityController extends Controller
      */
     public function destroy(Quiz $quiz)
     {
-        if (!Auth::user()->hasRole('instructor')) {
+        $quiz->loadMissing('lesson.module.course');
+        Gate::authorize('manage', $quiz->lesson->module->course);
+
+        if (! Auth::user()->hasRole('instructor')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized',
@@ -175,7 +188,7 @@ class QuizSecurityController extends Controller
                 'message' => 'Pengaturan keamanan berhasil direset ke default.',
             ]);
         } catch (\Exception $e) {
-            Log::error('Error deleting quiz security settings: ' . $e->getMessage());
+            Log::error('Error deleting quiz security settings: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,

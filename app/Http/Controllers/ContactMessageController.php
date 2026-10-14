@@ -22,22 +22,22 @@ class ContactMessageController extends Controller
         }
 
         $request->validate($rules, [
-            'recaptcha-response.required' => 'Gagal memverifikasi reCAPTCHA. Silakan muat ulang halaman.'
+            'recaptcha-response.required' => 'Gagal memverifikasi reCAPTCHA. Silakan muat ulang halaman.',
         ]);
 
         if ($secretKey) {
             // Verifikasi reCAPTCHA ke Google
             $recaptchaResponse = $request->input('recaptcha-response');
-            
+
             $response = \Illuminate\Support\Facades\Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
                 'secret' => $secretKey,
                 'response' => $recaptchaResponse,
-                'remoteip' => $request->ip()
+                'remoteip' => $request->ip(),
             ]);
 
             $result = $response->json();
 
-            if (!$result['success'] || $result['score'] < 0.5) {
+            if (! $result['success'] || $result['score'] < 0.5) {
                 return response('Aktivitas Anda terdeteksi sebagai SPAM oleh Google reCAPTCHA.', 403)->header('Content-Type', 'text/plain');
             }
         }

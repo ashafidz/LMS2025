@@ -9,11 +9,19 @@
             <div class="col-lg-7">
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-body p-4 p-md-5">
+                        @if ($order->status === 'paid')
                         <div class="text-center mb-4">
                             <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
                             <h2 class="fw-bold mt-3">Pembelian Berhasil</h2>
                             <p class="text-muted">Terima kasih! Berikut detail pembelian Anda.</p>
                         </div>
+                        @else
+                        <div class="text-center mb-4">
+                            <i class="bi bi-clock-history text-warning" style="font-size: 4rem;"></i>
+                            <h2 class="fw-bold mt-3">Pembayaran sedang diproses</h2>
+                            <p class="text-muted">Kami sedang menunggu konfirmasi pembayaran Anda.</p>
+                        </div>
+                        @endif
 
                         @if (session('success_message'))
                             <div class="alert alert-success">{{ session('success_message') }}</div>
@@ -30,7 +38,11 @@
                             </div>
                             <div class="d-flex justify-content-between">
                                 <span class="text-muted">Status Pembayaran:</span>
-                                <span class="fw-bold text-success">Lunas</span>
+                                @if ($order->status === 'paid')
+                                    <span class="fw-bold text-success">Lunas</span>
+                                @else
+                                    <span class="fw-bold text-warning">Menunggu Konfirmasi</span>
+                                @endif
                             </div>
                         </div>
 
@@ -80,9 +92,15 @@
                         </div>
 
                         <div class="mt-4">
+                            @if ($order->status === 'paid')
                             <a href="{{ route('student.my_courses') }}" class="btn btn-primary w-100">
                                 <i class="bi bi-book-fill me-2"></i> Lihat Kursus Saya
                             </a>
+                            @else
+                            <a href="{{ route('student.transactions.index') }}" class="btn btn-primary w-100">
+                                <i class="bi bi-receipt me-2"></i> Lihat Riwayat Transaksi
+                            </a>
+                            @endif
                         </div>
                     </div>
                 </div>

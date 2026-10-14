@@ -2,50 +2,63 @@
 
 namespace App\Http\Controllers\Student;
 
-use Carbon\Carbon;
-use App\Models\Quiz;
-use App\Models\Question;
-use App\Models\QuizAttempt;
-use App\Models\PointHistory;
+use App\Http\Controllers\Controller;
 use App\Models\MonitoringLog;
+use App\Models\PointHistory;
+use App\Models\Question;
+use App\Models\Quiz;
+use App\Models\QuizAttempt;
 use App\Models\QuizAttemptIntegritySummary;
-use Illuminate\Http\Request;
 use App\Services\BadgeService;
+use App\Services\HashIdService;
 use App\Services\PointService;
+use App\Services\QuizShuffleService;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
-use App\Services\HashIdService;
-use App\Services\QuizShuffleService;
-use Illuminate\Support\Facades\Auth;
 
 class StudentQuizController extends Controller
 {
+    private function canAccessCourse($user, $course): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        return $user->enrollments()->where('courses.id', $course->id)->exists()
+            || $course->instructor_id === $user->id
+            || $user->hasAnyRole(['admin', 'superadmin']);
+    }
+
     // ... (metode start, begin, take, submit, result, dan helper lainnya tidak ada perubahan) ...
     public function start(Request $request, Quiz $quiz)
     {
         // Validasi: Pastikan siswa terdaftar di kursus ini
         $student = Auth::user();
         $course = $quiz->lesson->module->course;
-        if (session('active_role') === 'student') {
-            if (!$student->enrollments()->where('courses.id', $course->id)->exists()) {
-                abort(403, 'Anda tidak terdaftar di kursus ini.');
-            }
-        };
+
+        abort_unless($this->canAccessCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
+
+        if ($request->query('preview') === 'true') {
+            abort_unless(Auth::check() && ($course->instructor_id === Auth::id() || Auth::user()->hasAnyRole(['admin', 'superadmin'])), 403);
+            $is_preview = true;
+        } else {
+            $is_preview = false;
+        }
 
         $quiz->loadCount('questions');
-        $is_preview = $request->query('preview') === 'true' && Auth::check();
 
         // Hitung percobaan yang sudah dilakukan
         $attemptCount = 0;
-        if (Auth::check() && !$is_preview) {
+        if (Auth::check() && ! $is_preview) {
             $attemptCount = $student->quizAttempts()->where('quiz_id', $quiz->id)->count();
         }
 
-
         // Cari percobaan terakhir (baik lulus maupun gagal) untuk ditampilkan di view jika ada
         $lastAttempt = null; // DIUBAH: Inisialisasi sebagai null
-        if (Auth::check() && !$is_preview) { // DIUBAH: Tambahkan pengecekan ini
+        if (Auth::check() && ! $is_preview) { // DIUBAH: Tambahkan pengecekan ini
             $lastAttempt = QuizAttempt::where('student_id', $student->id)
                 ->where('quiz_id', $quiz->id)
                 ->orderBy('created_at', 'desc')
@@ -63,8 +76,6 @@ class StudentQuizController extends Controller
         // if ($lastAttempt) {
         //     return redirect()->route('student.quiz.result', $lastAttempt->id);
         // }
-
-
 
         // Cari percobaan (attempt) yang sedang berlangsung untuk kuis ini oleh siswa yang login.
         $existingAttempt = QuizAttempt::where('quiz_id', $quiz->id)
@@ -85,14 +96,12 @@ class StudentQuizController extends Controller
 
         if ($quiz->available_from && $now->isBefore($quiz->available_from)) {
             $isAvailable = false;
-            $availabilityMessage = 'Kuis ini akan tersedia pada ' . $quiz->available_from->format('d F Y, H:i');
+            $availabilityMessage = 'Kuis ini akan tersedia pada '.$quiz->available_from->format('d F Y, H:i');
         }
         if ($quiz->available_to && $now->isAfter($quiz->available_to)) {
             $isAvailable = false;
-            $availabilityMessage = 'Waktu pengerjaan kuis ini telah berakhir pada ' . $quiz->available_to->format('d F Y, H:i');
+            $availabilityMessage = 'Waktu pengerjaan kuis ini telah berakhir pada '.$quiz->available_to->format('d F Y, H:i');
         }
-
-
 
         // $quiz->loadCount('questions');
         // $is_preview = $request->query('preview') === 'true' && Auth::check();
@@ -104,12 +113,8 @@ class StudentQuizController extends Controller
         // Validasi: Pastikan siswa terdaftar di kursus ini
         $student = Auth::user();
         $course = $quiz->lesson->module->course;
-        if (session('active_role') === 'student') {
-            if (!$student->enrollments()->where('courses.id', $course->id)->exists()) {
-                abort(403, 'Anda tidak terdaftar di kursus ini.');
-            }
-        };
 
+        abort_unless($this->canAccessCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
 
         // LOGIKA BARU: Cek batas pengerjaan sebelum memulai
         $user = Auth::user();
@@ -132,18 +137,19 @@ class StudentQuizController extends Controller
             return redirect()->route('student.quiz.take', $existingAttempt->id);
         }
 
-        // dd($request['is_preview']);
-
         // preview mode (tidak generate shuffle)
         if ($request['is_preview'] === 'true') {
+            abort_unless($course->instructor_id === Auth::id() || $student->hasAnyRole(['admin', 'superadmin']), 403);
+
             $quiz->load('questions.options');
             $is_preview = true;
             $attempt = new QuizAttempt(['quiz_id' => $quiz->id, 'id' => 0]);
             $attempt->setRelation('quiz', $quiz);
+
             return view('student.quizzes.take', [
                 'attempt' => $attempt,
                 'is_preview' => true,
-                'endTime' => null
+                'endTime' => null,
             ]);
         }
 
@@ -164,14 +170,14 @@ class StudentQuizController extends Controller
             'quiz_id' => $quiz->id,
             'student_id' => Auth::id(),
             'status' => 'in_progress',
-            'start_time' => now()
+            'start_time' => now(),
         ]);
 
         // Generate shuffled question order (Fisher-Yates Algorithm)
-        $shuffleService = new QuizShuffleService();
+        $shuffleService = new QuizShuffleService;
         $shuffleResult = $shuffleService->generateShuffledOrder($attempt);
 
-        if (!$shuffleResult) {
+        if (! $shuffleResult) {
             // Jika shuffle gagal, rollback dan tampilkan error
             $attempt->delete();
             Log::error('Failed to generate shuffled order for attempt', [
@@ -188,7 +194,6 @@ class StudentQuizController extends Controller
         // END FISHER-YATES INTEGRATION
         // =====================================================================
 
-
         return redirect()->route('student.quiz.take', $attempt);
     }
 
@@ -197,14 +202,12 @@ class StudentQuizController extends Controller
         $attemptId = HashIdService::decode($attemptId) ?? $attemptId;
         $attempt = QuizAttempt::with('quiz.questions.options')->findOrFail($attemptId);
 
+        abort_unless($attempt->student_id == Auth::id(), 403);
+
         // Validasi: Pastikan siswa terdaftar di kursus ini
         $student = Auth::user();
         $course = $attempt->quiz->lesson->module->course;
-        if (session('active_role') === 'student') {
-            if (!$student->enrollments()->where('courses.id', $course->id)->exists()) {
-                abort(403, 'Anda tidak terdaftar di kursus ini.');
-            }
-        };
+        abort_unless($this->canAccessCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
 
         // $attempt = QuizAttempt::findOrFail($attemptId);
         if ($attempt->status !== 'in_progress') {
@@ -224,13 +227,12 @@ class StudentQuizController extends Controller
         }
         // --- AKHIR LOGIKA TAMBAHAN ---
 
-
         // =====================================================================
         // LOAD QUESTIONS BERDASARKAN SHUFFLED ORDER
         // =====================================================================
 
         // Load questions sesuai urutan yang sudah diacak
-        $shuffleService = new QuizShuffleService();
+        $shuffleService = new QuizShuffleService;
         $questions = $shuffleService->getShuffledQuestions($attempt);
 
         // Set questions ke quiz relation (agar tetap kompatibel dengan view existing)
@@ -244,6 +246,7 @@ class StudentQuizController extends Controller
         // $attempt->load('quiz.questions.options'); // DIHAPUS - akan menimpa urutan shuffle
 
         $is_preview = false;
+
         return view('student.quizzes.take', [
             'attempt' => $attempt,
             'is_preview' => false,
@@ -258,20 +261,23 @@ class StudentQuizController extends Controller
         $is_preview = $request->input('is_preview') === 'true';
         if ($is_preview) {
             $quiz = Quiz::with('questions.options')->findOrFail($request->input('quiz_id_preview'));
+            $course = $quiz->lesson->module->course;
+            abort_unless($course->instructor_id === Auth::id() || Auth::user()->hasAnyRole(['admin', 'superadmin']), 403);
+
             $attempt = new QuizAttempt(['quiz_id' => $quiz->id]);
             $attempt->setRelation('quiz', $quiz);
         } else {
             $attemptId = HashIdService::decode($attemptId) ?? $attemptId;
             $attempt = QuizAttempt::findOrFail($attemptId);
 
+            abort_unless($attempt->student_id == Auth::id(), 403);
+
             // Validasi: Pastikan siswa terdaftar di kursus ini
             $student = Auth::user();
             $course = $attempt->quiz->lesson->module->course;
-            if (!$student->enrollments()->where('courses.id', $course->id)->exists()) {
-                abort(403, 'Anda tidak terdaftar di kursus ini.');
-            }
+            abort_unless($this->canAccessCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
 
-            if ($attempt->student_id != Auth::id() || $attempt->status != 'in_progress') {
+            if ($attempt->status != 'in_progress') {
                 abort(403);
             }
         }
@@ -288,13 +294,13 @@ class StudentQuizController extends Controller
                 if ($isCorrect) {
                     $totalScore += $question->score;
                 }
-                if (!$is_preview) {
+                if (! $is_preview) {
                     $this->storeStudentAnswer($attempt, $question, $userAnswerForQuestion, $isCorrect);
                 } else {
                     $this->collectStudentAnswers($studentAnswersCollection, $question, $userAnswerForQuestion, $isCorrect);
                 }
             }
-            if (!$is_preview) {
+            if (! $is_preview) {
                 // 1. Kalkulasi Skor dan Status Kelulusan (Tidak berubah)
                 $maxPossibleScore = $attempt->quiz->questions->sum('score');
                 $percentageScore = ($maxPossibleScore > 0) ? ($totalScore / $maxPossibleScore) * 100 : 0;
@@ -329,7 +335,6 @@ class StudentQuizController extends Controller
                 // AKHIR DARI PERBAIKAN
                 // ======================================================================
 
-
                 // Cek apakah siswa sudah pernah DAPAT POIN untuk lesson yang berisi kuis ini.
                 // Kita gunakan model PointHistory .
                 $hasEarnedPointsBefore = PointHistory::where('user_id', Auth::id())
@@ -343,8 +348,8 @@ class StudentQuizController extends Controller
                 // c. DAN TIDAK dalam kondisi lewat waktu
                 if (
                     $newStatus === 'passed' &&
-                    !$hasEarnedPointsBefore && // <-- Menggunakan variabel baru dari pengecekan PointHistory
-                    !$quizExceededTimeLimit
+                    ! $hasEarnedPointsBefore && // <-- Menggunakan variabel baru dari pengecekan PointHistory
+                    ! $quizExceededTimeLimit
                 ) {
                     // KODE BARU (Menggunakan Named Arguments, urutan tidak masalah)
                     PointService::addPoints(
@@ -359,7 +364,7 @@ class StudentQuizController extends Controller
                     $lesson = $attempt->quiz->lesson;
 
                     // apabila lesson belum pernah dicomplete
-                    if (!$student->completedLessons->contains($attempt->quiz->lesson_id)) {
+                    if (! $student->completedLessons->contains($attempt->quiz->lesson_id)) {
                         // Tandai pelajaran sebagai selesai
                         $student->completedLessons()->syncWithoutDetaching($lesson->id);
                     }
@@ -391,30 +396,21 @@ class StudentQuizController extends Controller
 
             return view('student.quizzes.result', compact('attempt', 'is_preview', 'maxPossibleScore', 'minimumScore', 'studentScoreScaled', 'minimumScoreScaled'));
         }
+
         return redirect()->route('student.quiz.result', $attempt->id);
     }
 
     public function result($attemptId)
     {
         $attemptId = HashIdService::decode($attemptId) ?? $attemptId;
-        // check ownership attemp
         $attempt = QuizAttempt::findOrFail($attemptId);
+
+        abort_unless($attempt->student_id == Auth::id(), 403);
 
         // Validasi: Pastikan siswa terdaftar di kursus ini
         $student = Auth::user();
         $course = $attempt->quiz->lesson->module->course;
-        if (session('active_role') === 'student') {
-            if (!$student->enrollments()->where('courses.id', $course->id)->exists()) {
-                abort(403, 'Anda tidak terdaftar di kursus ini.');
-            }
-        }
-
-        if ($attempt->student_id != Auth::id()) {
-            abort(403);
-        }
-
-
-        $attempt = QuizAttempt::findOrFail($attemptId);
+        abort_unless($this->canAccessCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
 
         if ($attempt->status === 'in_progress') {
             return redirect()->route('student.quiz.take', $attempt)->with('error', 'Anda harus menyelesaikan kuis terlebih dahulu.');
@@ -431,7 +427,6 @@ class StudentQuizController extends Controller
             ?? (($maxPossibleScore > 0) ? min(100, round(($attempt->score / $maxPossibleScore) * 100, 2)) : 0);
         $minimumScoreScaled = $attempt->quiz->pass_mark; // pass_mark sudah dalam bentuk persentase 0-100
 
-
         return view('student.quizzes.result', ['attempt' => $attempt, 'is_preview' => false, 'maxPossibleScore' => $maxPossibleScore, 'minimumScore' => $minimumScore, 'studentScoreScaled' => $studentScoreScaled, 'minimumScoreScaled' => $minimumScoreScaled]);
     }
 
@@ -444,38 +439,6 @@ class StudentQuizController extends Controller
 
     //     return response()->json(['correct' => $isCorrect, 'explanation' => $isCorrect ? $question->explanation : null]);
     // }
-    // Ganti metode ini di dalam app/Http/Controllers/Student/StudentQuizController.php
-
-    /**
-     * METODE BARU: Memeriksa satu jawaban via AJAX dan memberikan umpan balik.
-     */
-    public function checkAnswerAjax(Request $request)
-    {
-        $validated = $request->validate([
-            'question_id' => 'required|exists:questions,id',
-            'answer' => 'present', // Boleh null (tidak dijawab)
-        ]);
-
-        $question = Question::with('options')->find($validated['question_id']);
-        $userAnswer = $validated['answer'];
-
-        $isCorrect = $this->checkAnswer($question, $userAnswer);
-
-        // KIRIM DATA DEBUG BERSAMA DENGAN RESPONS JSON
-        return response()->json([
-            'correct' => $isCorrect,
-            'explanation' => $isCorrect ? $question->explanation : null,
-
-            // --- DATA DEBUG ---
-            // Tambahkan baris ini untuk melihat apa yang sebenarnya terjadi:
-            'debug_info' => [
-                'received_answer' => $userAnswer,
-                'is_correct_result' => $isCorrect,
-                'question_type_checked' => $question->question_type,
-            ]
-            // --- AKHIR DATA DEBUG ---
-        ]);
-    }
 
     /**
      * Memeriksa apakah jawaban pengguna benar.
@@ -486,11 +449,13 @@ class StudentQuizController extends Controller
             case 'multiple_choice_single':
             case 'true_false':
                 $correctOption = $question->options->firstWhere('is_correct', true);
+
                 return $correctOption && $correctOption->id == $userAnswer;
 
             case 'multiple_choice_multiple':
                 $correctOptions = $question->options->where('is_correct', true)->pluck('id')->sort()->values()->toArray();
-                $userOptions = collect((array)$userAnswer)->map(fn($id) => (int)$id)->sort()->values()->toArray();
+                $userOptions = collect((array) $userAnswer)->map(fn ($id) => (int) $id)->sort()->values()->toArray();
+
                 return $correctOptions == $userOptions;
 
             case 'drag_and_drop':
@@ -500,7 +465,7 @@ class StudentQuizController extends Controller
                 if ($correctAnswers->isEmpty() && (is_null($userAnswer) || empty($userAnswer))) {
                     return true;
                 }
-                if (!is_array($userAnswer)) {
+                if (! is_array($userAnswer)) {
                     return false;
                 }
 
@@ -513,7 +478,7 @@ class StudentQuizController extends Controller
                 foreach ($correctAnswers as $correctAnswer) {
                     $blankId = $correctAnswer->correct_gap_identifier;
                     // Jika ada blank yang tidak dijawab, atau jawabannya salah, kembalikan false
-                    if (!isset($userAnswer[$blankId]) || $userAnswer[$blankId] != $correctAnswer->id) {
+                    if (! isset($userAnswer[$blankId]) || $userAnswer[$blankId] != $correctAnswer->id) {
                         return false;
                     }
                 }
@@ -521,6 +486,7 @@ class StudentQuizController extends Controller
                 // Jika semua blank yang ada di kunci jawaban berhasil dicocokkan, maka benar
                 return true;
         }
+
         return false;
     }
 
@@ -529,14 +495,14 @@ class StudentQuizController extends Controller
         if (is_array($userAnswer)) {
             $answersToStore = [];
             foreach ($userAnswer as $key => $value) {
-                if (!empty($value)) {
+                if (! empty($value)) {
                     $answersToStore[] = ['question_id' => $question->id, 'selected_option_id' => $value, 'is_correct' => $isCorrect];
                 }
             }
-            if (!empty($answersToStore)) {
+            if (! empty($answersToStore)) {
                 $attempt->answers()->createMany($answersToStore);
             }
-        } else if ($userAnswer) {
+        } elseif ($userAnswer) {
             $attempt->answers()->create(['question_id' => $question->id, 'selected_option_id' => $userAnswer, 'is_correct' => $isCorrect]);
         }
     }
@@ -545,11 +511,11 @@ class StudentQuizController extends Controller
     {
         if (is_array($userAnswer)) {
             foreach ($userAnswer as $key => $value) {
-                if (!empty($value)) {
+                if (! empty($value)) {
                     $collection->push(['question_id' => $question->id, 'selected_option_id' => $value, 'is_correct' => $isCorrect]);
                 }
             }
-        } else if ($userAnswer) {
+        } elseif ($userAnswer) {
             $collection->push(['question_id' => $question->id, 'selected_option_id' => $userAnswer, 'is_correct' => $isCorrect]);
         }
     }
@@ -576,7 +542,7 @@ class StudentQuizController extends Controller
 
             // Cek apakah fitur deteksi tab aktif untuk kuis ini
             $securitySetting = $attempt->quiz->securitySetting;
-            if (!$securitySetting || !$securitySetting->enable_tab_detection) {
+            if (! $securitySetting || ! $securitySetting->enable_tab_detection) {
                 return response()->json(['message' => 'Deteksi tab tidak aktif'], 200);
             }
 
@@ -620,12 +586,12 @@ class StudentQuizController extends Controller
             Log::error('Gagal mencatat pelanggaran tab', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'attempt_id' => $attemptId
+                'attempt_id' => $attemptId,
             ]);
 
             return response()->json([
                 'error' => 'Gagal mencatat pelanggaran',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -652,7 +618,7 @@ class StudentQuizController extends Controller
 
             // Cek apakah fitur deteksi kamera aktif
             $securitySetting = $attempt->quiz->securitySetting;
-            if (!$securitySetting || !$securitySetting->enable_camera_detection) {
+            if (! $securitySetting || ! $securitySetting->enable_camera_detection) {
                 return response()->json(['message' => 'Deteksi kamera tidak aktif'], 200);
             }
 
@@ -660,7 +626,7 @@ class StudentQuizController extends Controller
             $violationType = $request->input('violation_type');
             $validTypes = ['face_not_detected', 'look_left', 'look_right', 'look_down', 'look_up'];
 
-            if (!in_array($violationType, $validTypes)) {
+            if (! in_array($violationType, $validTypes)) {
                 return response()->json(['error' => 'Tipe pelanggaran tidak valid'], 400);
             }
 
@@ -671,17 +637,17 @@ class StudentQuizController extends Controller
                     $screenshot = $request->file('screenshot');
 
                     // Tentukan folder penyimpanan berdasarkan ID pengerjaan kuis
-                    $directory = 'screenshots/violations/' . $attempt->id;
+                    $directory = 'screenshots/violations/'.$attempt->id;
 
                     // Buat nama file unik (tipe_waktu_id.jpg)
-                    $filename = $violationType . '_' . time() . '_' . uniqid() . '.jpg';
+                    $filename = $violationType.'_'.time().'_'.uniqid().'.jpg';
 
                     // Simpan file ke storage publik
                     $screenshotPath = $screenshot->storeAs($directory, $filename, 'public');
 
                     Log::info('Screenshot bukti berhasil disimpan', [
                         'path' => $screenshotPath,
-                        'size' => $screenshot->getSize()
+                        'size' => $screenshot->getSize(),
                     ]);
                 } catch (\Exception $e) {
                     Log::error('Gagal mengunggah screenshot', ['error' => $e->getMessage()]);
@@ -702,7 +668,7 @@ class StudentQuizController extends Controller
             Log::info('Pelanggaran kamera dicatat', [
                 'log_id' => $log->id,
                 'type' => $violationType,
-                'has_screenshot' => $screenshotPath ? 'Ya' : 'Tidak'
+                'has_screenshot' => $screenshotPath ? 'Ya' : 'Tidak',
             ]);
 
             // Ambil atau inisialisasi ringkasan integritas (summary)
@@ -757,12 +723,12 @@ class StudentQuizController extends Controller
             Log::error('Gagal mencatat pelanggaran kamera', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'attempt_id' => $attemptId
+                'attempt_id' => $attemptId,
             ]);
 
             return response()->json([
                 'error' => 'Gagal mencatat pelanggaran',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

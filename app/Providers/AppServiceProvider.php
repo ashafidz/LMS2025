@@ -3,16 +3,10 @@
 namespace App\Providers;
 
 use App\Models\SiteSetting;
-use App\Services\HashIdService;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Blade;
-use App\Models\Question;
-use App\Models\QuestionTopic;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
-use App\Policies\Instructor\QuestionPolicy;
-use App\Policies\Instructor\QuestionTopicPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {

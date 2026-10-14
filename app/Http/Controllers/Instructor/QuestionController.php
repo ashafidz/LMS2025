@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers\Instructor;
 
+use App\Http\Controllers\Controller;
 use App\Models\Question;
 use App\Models\QuestionTopic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use App\Http\Controllers\Controller;
 
 class QuestionController extends Controller
 {
     public function index(QuestionTopic $topic)
     {
+        abort_unless($topic->instructor_id === Auth::id(), 403);
+
         $questions = $topic->questions()->with('options', 'quizzes')->latest()->simplePaginate(10);
 
         // Load topic with courses for modal info
@@ -38,7 +40,7 @@ class QuestionController extends Controller
                     'questions_count' => $t->questions_count,
                     'courses' => $t->courses->map(function ($course) {
                         return ['id' => $course->id, 'title' => $course->title];
-                    })
+                    }),
                 ];
             });
 
@@ -50,14 +52,17 @@ class QuestionController extends Controller
 
     public function create(Request $request, QuestionTopic $topic)
     {
+        abort_unless($topic->instructor_id === Auth::id(), 403);
+
         $questionType = $request->query('type');
         $validTypes = ['multiple_choice_single', 'multiple_choice_multiple', 'true_false', 'drag_and_drop'];
 
-        if (!in_array($questionType, $validTypes)) {
+        if (! in_array($questionType, $validTypes)) {
             abort(404, 'Invalid question type specified.');
         }
 
         $viewName = "instructor.question_bank.questions.create-{$questionType}";
+
         return view($viewName, compact('topic'));
     }
 
@@ -66,6 +71,8 @@ class QuestionController extends Controller
      */
     public function store(Request $request, QuestionTopic $topic)
     {
+        abort_unless($topic->instructor_id === Auth::id(), 403);
+
         $validated = $request->validate([
             'question_text' => 'required|string',
             'score' => 'required|integer|min:1',
@@ -90,7 +97,7 @@ class QuestionController extends Controller
                 $isCorrect = $optionData['is_correct'] ?? false;
                 if ($validated['question_type'] === 'drag_and_drop') {
                     // Jika ini soal drag and drop, is_correct ditentukan oleh keberadaan gap_id
-                    $isCorrect = !empty($optionData['gap_id']);
+                    $isCorrect = ! empty($optionData['gap_id']);
                 }
 
                 $question->options()->create([
@@ -107,6 +114,8 @@ class QuestionController extends Controller
 
     public function edit(Question $question)
     {
+        abort_unless($question->topic && $question->topic->instructor_id === Auth::id(), 403);
+
         if ($question->quizzes()->exists()) {
             return redirect()->route('instructor.question-bank.questions.index', $question->topic)
                 ->with('error', 'This question is locked and cannot be edited. Please clone it instead.');
@@ -114,6 +123,7 @@ class QuestionController extends Controller
         $questionType = $question->question_type;
         $viewName = "instructor.question_bank.questions.edit-{$questionType}";
         $question->load('options');
+
         return view($viewName, compact('question'));
     }
 
@@ -122,6 +132,8 @@ class QuestionController extends Controller
      */
     public function update(Request $request, Question $question)
     {
+        abort_unless($question->topic && $question->topic->instructor_id === Auth::id(), 403);
+
         if ($question->quizzes()->exists()) {
             abort(403, 'This question is locked and cannot be edited.');
         }
@@ -149,7 +161,7 @@ class QuestionController extends Controller
                 // LOGIKA BARU YANG DISEMPURNAKAN
                 $isCorrect = $optionData['is_correct'] ?? false;
                 if ($question->question_type === 'drag_and_drop') {
-                    $isCorrect = !empty($optionData['gap_id']);
+                    $isCorrect = ! empty($optionData['gap_id']);
                 }
 
                 $question->options()->create([
@@ -166,24 +178,31 @@ class QuestionController extends Controller
 
     public function destroy(Question $question)
     {
+        abort_unless($question->topic && $question->topic->instructor_id === Auth::id(), 403);
+
         $topic = $question->topic;
         $question->delete();
+
         return redirect()->route('instructor.question-bank.questions.index', $topic)
             ->with('success', 'Question moved to trash.');
     }
 
     public function clone(Question $question)
     {
+        abort_unless($question->topic && $question->topic->instructor_id === Auth::id(), 403);
+
         $newQuestion = DB::transaction(function () use ($question) {
             $newQuestion = $question->replicate();
-            $newQuestion->question_text = $question->question_text . ' (Copy)';
+            $newQuestion->question_text = $question->question_text.' (Copy)';
             $newQuestion->push();
             foreach ($question->options as $option) {
                 $newOption = $option->replicate();
                 $newQuestion->options()->save($newOption);
             }
+
             return $newQuestion;
         });
+
         return redirect()->route('instructor.question-bank.questions.edit', $newQuestion)
             ->with('success', 'Question cloned successfully. You are now editing the copy.');
     }
@@ -261,7 +280,7 @@ class QuestionController extends Controller
                 'questions_count' => $topic->questions_count,
                 'courses' => $topic->courses->map(function ($course) {
                     return ['id' => $course->id, 'title' => $course->title];
-                })
+                }),
             ];
         });
 

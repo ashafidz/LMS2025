@@ -654,12 +654,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             await camera.start();
             
-            // Kamera aktif — mulai grace period
+            // Kamera aktif - mulai grace period
             cameraStartTime = Date.now();
             cameraStatusIcon.className = 'badge badge-warning';
             cameraStatusIcon.innerHTML = '<i class="fa fa-hourglass-half"></i> Kalibrasi...';
             
-            console.log('✅ MediaPipe Face Mesh initialized — entering grace period (' + (GRACE_PERIOD_MS/1000) + 's)...');
+            console.log('✅ MediaPipe Face Mesh initialized - entering grace period (' + (GRACE_PERIOD_MS/1000) + 's)...');
 
             // Jalankan countdown visual pada overlay kalibrasi
             let remainingSec = Math.ceil(GRACE_PERIOD_MS / 1000);
@@ -677,7 +677,7 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => {
                 gracePeriodTimerExpired = true;
                 console.log('⏱️ Grace period timer expired. Warm-up frames so far:', warmupSuccessFrames + '/' + WARMUP_FRAMES_REQUIRED);
-                tryEndWarmupPhase(); // Coba akhiri — akan berhasil hanya jika frame sudah cukup
+                tryEndWarmupPhase(); // Coba akhiri - akan berhasil hanya jika frame sudah cukup
             }, GRACE_PERIOD_MS);
             
         } catch (error) {
@@ -721,7 +721,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // === Kedua syarat terpenuhi — akhiri warm-up ===
+        // === Kedua syarat terpenuhi - akhiri warm-up ===
         isWarmingUp = false;
         console.log(`✅ Warm-up selesai! Timer: expired, Frames: ${warmupSuccessFrames}/${WARMUP_FRAMES_REQUIRED}`);
 
@@ -794,7 +794,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             console.log('⚠️ Wajah tidak terlihat');
         } else {
-            // Jika wajah terlihat — ambil data koordinat titik-titik wajah (Landmarks)
+            // Jika wajah terlihat - ambil data koordinat titik-titik wajah (Landmarks)
             const landmarks = results.multiFaceLandmarks[0];
             
             // Hitung arah kepala (menoleh atau menunduk) berdasarkan titik koordinat wajah
@@ -815,7 +815,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log(`🚨 Pelanggaran Terdeteksi: ${violation}`);
                 logCameraViolation(violation);
             } else if (sustainedViolationType === violation) {
-                // Pelanggaran yang sama masih berlangsung — cek apakah sudah cukup lama
+                // Pelanggaran yang sama masih berlangsung - cek apakah sudah cukup lama
                 const elapsed = now - sustainedViolationStart;
                 if (elapsed >= violationDuration) {
                     console.log(`🚨 Pelanggaran Terdeteksi: ${violation} (berlangsung ${(elapsed/1000).toFixed(1)}s)`);
@@ -826,13 +826,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     console.log(`⏳ Pelanggaran ${violation} terdeteksi (${(elapsed/1000).toFixed(1)}s/${(violationDuration/1000)}s)`);
                 }
             } else {
-                // Pelanggaran baru terdeteksi — mulai hitung durasi
+                // Pelanggaran baru terdeteksi - mulai hitung durasi
                 sustainedViolationType = violation;
                 sustainedViolationStart = now;
                 console.log(`⏳ Mulai tracking pelanggaran: ${violation}`);
             }
         } else {
-            // Tidak ada pelanggaran — reset tracking
+            // Tidak ada pelanggaran - reset tracking
             if (sustainedViolationType) {
                 console.log(`✅ Pelanggaran ${sustainedViolationType} berhenti sebelum durasi tercapai`);
                 sustainedViolationType = null;

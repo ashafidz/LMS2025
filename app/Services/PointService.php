@@ -3,21 +3,21 @@
 namespace App\Services;
 
 use App\Models\Course;
-use App\Models\User;
-use App\Models\SiteSetting;
 use App\Models\CourseUser;
-use Illuminate\Support\Facades\DB;
 use App\Models\Lesson;
+use App\Models\SiteSetting;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class PointService
 {
     /**
      * Menambahkan poin ke pengguna untuk kursus tertentu dan mencatat riwayatnya.
      *
-     * @param User $user Pengguna yang akan menerima poin.
-     * @param Course $course Kursus di mana poin didapatkan.
-     * @param string $activity Tipe aktivitas (misal: 'complete_video').
-     * @param string|null $description_meta Informasi tambahan (misal: nama pelajaran).
+     * @param  User  $user  Pengguna yang akan menerima poin.
+     * @param  Course  $course  Kursus di mana poin didapatkan.
+     * @param  string  $activity  Tipe aktivitas (misal: 'complete_video').
+     * @param  string|null  $description_meta  Informasi tambahan (misal: nama pelajaran).
      * @return void
      */
     // public static function addPoints(User $user, Lesson $lesson, Course $course, string $activity, $description_meta = null)
@@ -88,7 +88,6 @@ class PointService
     //     }
     // }
 
-
     public static function addPoints(User $user, Course $course, string $activity, ?Lesson $lesson = null, $description_meta = null)
     {
         // Ambil pengaturan poin dari database (menggunakan cache untuk efisiensi)
@@ -105,46 +104,46 @@ class PointService
         switch ($activity) {
             case 'purchase':
                 $pointsToAdd = (int) ($settings?->points_for_purchase ?? 0);
-                $description = 'Membeli kursus: ' . $course->title;
+                $description = 'Membeli kursus: '.$course->title;
                 break;
             case 'complete_article':
                 $pointsToAdd = (int) ($settings?->points_for_article ?? 0);
-                $description = 'Menyelesaikan artikel: ' . $description_meta;
+                $description = 'Menyelesaikan artikel: '.$description_meta;
                 break;
             case 'complete_video':
                 $pointsToAdd = (int) ($settings?->points_for_video ?? 0);
-                $description = 'Menyelesaikan video: ' . $description_meta;
+                $description = 'Menyelesaikan video: '.$description_meta;
                 break;
             case 'complete_document':
                 $pointsToAdd = (int) ($settings?->points_for_document ?? 0);
-                $description = 'Menyelesaikan dokumen: ' . $description_meta;
+                $description = 'Menyelesaikan dokumen: '.$description_meta;
                 break;
             case 'pass_quiz':
                 $pointsToAdd = (int) ($settings?->points_for_quiz ?? 0);
-                $description = 'Lulus kuis: ' . $description_meta;
+                $description = 'Lulus kuis: '.$description_meta;
                 break;
             case 'pass_assignment':
                 $pointsToAdd = (int) ($settings?->points_for_assignment ?? 0);
-                $description = 'Mengirimkan tugas: ' . $description_meta;
+                $description = 'Mengirimkan tugas: '.$description_meta;
                 break;
             case 'complete_polling':
                 $pointsToAdd = (int) ($settings?->points_for_polling ?? 0);
-                $description = 'Mengisi polling: ' . $description_meta;
+                $description = 'Mengisi polling: '.$description_meta;
                 break;
             case 'complete_wordcloud':
                 $pointsToAdd = (int) ($settings?->points_for_wordcloud ?? 0);
-                $description = 'Mengisi word cloud: ' . $description_meta;
+                $description = 'Mengisi word cloud: '.$description_meta;
                 break;
         }
 
         // LOG: Catat ke storage/logs/laravel.log untuk keperluan debugging produksi
         \Illuminate\Support\Facades\Log::info('[PointService] addPoints called', [
-            'user_id'      => $user->id,
-            'course_id'    => $course->id,
-            'lesson_id'    => $lesson?->id,
-            'activity'     => $activity,
-            'pointsToAdd'  => $pointsToAdd,
-            'settings_polling'   => $settings?->points_for_polling,
+            'user_id' => $user->id,
+            'course_id' => $course->id,
+            'lesson_id' => $lesson?->id,
+            'activity' => $activity,
+            'pointsToAdd' => $pointsToAdd,
+            'settings_polling' => $settings?->points_for_polling,
             'settings_wordcloud' => $settings?->points_for_wordcloud,
         ]);
 
@@ -153,16 +152,16 @@ class PointService
             DB::transaction(function () use ($user, $course, $lesson, $pointsToAdd, $description) {
                 // 1. Buat atau update total poin di tabel pivot course_user
                 $courseUser = CourseUser::where('user_id', $user->id)
-                                        ->where('course_id', $course->id)
-                                        ->first();
-                
+                    ->where('course_id', $course->id)
+                    ->first();
+
                 if ($courseUser) {
                     $courseUser->increment('points_earned', $pointsToAdd);
                 } else {
                     CourseUser::create([
                         'user_id' => $user->id,
                         'course_id' => $course->id,
-                        'points_earned' => $pointsToAdd
+                        'points_earned' => $pointsToAdd,
                     ]);
                 }
 
@@ -181,11 +180,11 @@ class PointService
     /**
      * Menambahkan poin secara manual oleh instruktur untuk pelajaran tipe 'lessonpoin'.
      */
-    public static function addManualPoints(User $user, Course $course, Lesson $lesson, int $pointsToAdd,)
+    public static function addManualPoints(User $user, Course $course, Lesson $lesson, int $pointsToAdd)
     {
         if ($pointsToAdd > 0) {
             // $course = $lesson->module->course;
-            $description = "Menerima poin dari sesi: " . $lesson->title;
+            $description = 'Menerima poin dari sesi: '.$lesson->title;
             DB::transaction(function () use ($user, $course, $lesson, $pointsToAdd, $description) {
                 // $courseUser = $user->coursePoints()->where('course_id', $course->id)->first();
                 // if ($courseUser) {
@@ -197,10 +196,10 @@ class PointService
                 CourseUser::updateOrCreate(
                     [
                         'user_id' => $user->id,
-                        'course_id' => $course->id
+                        'course_id' => $course->id,
                     ],
                     [
-                        'points_earned' => DB::raw('points_earned + ' . $pointsToAdd)
+                        'points_earned' => DB::raw('points_earned + '.$pointsToAdd),
                     ]
                 );
 
@@ -210,7 +209,6 @@ class PointService
                 //     'points' => $pointsToAdd,
                 //     'description' => $description,
                 // ]);
-
 
                 $user->pointHistories()->create([
                     'course_id' => $course->id,

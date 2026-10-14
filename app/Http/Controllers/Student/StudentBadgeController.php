@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Badge;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class StudentBadgeController extends Controller

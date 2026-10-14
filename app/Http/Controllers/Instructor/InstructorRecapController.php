@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers\Instructor;
 
+use App\Exports\ModuleRecapExport;
+use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Module;
-use Illuminate\Support\Str;
-use App\Models\PointHistory;
-use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Exports\ModuleRecapExport;
-use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
 class InstructorRecapController extends Controller
@@ -22,6 +20,7 @@ class InstructorRecapController extends Controller
             abort(403);
         }
         $course->load('modules');
+
         return view('instructor.recap.index', compact('course'));
     }
 
@@ -31,9 +30,10 @@ class InstructorRecapController extends Controller
             abort(403);
         }
 
-        list($students, $gradableLessons, $scores) = $this->prepareRecapData($module);
+        [$students, $gradableLessons, $scores] = $this->prepareRecapData($module);
 
         $html = view('instructor.recap.partials._recap_table', compact('students', 'gradableLessons', 'scores', 'module'))->render();
+
         return response()->json(['html' => $html]);
     }
 
@@ -42,9 +42,10 @@ class InstructorRecapController extends Controller
         if ($module->course->instructor_id != Auth::id()) {
             abort(403);
         }
-        list($students, $gradableLessons, $scores) = $this->prepareRecapData($module);
+        [$students, $gradableLessons, $scores] = $this->prepareRecapData($module);
         $pdf = Pdf::loadView('instructor.recap.pdf_template', compact('students', 'gradableLessons', 'scores', 'module'))->setPaper('a4', 'landscape');
-        return $pdf->download('rekap-nilai-' . Str::slug($module->title) . '.pdf');
+
+        return $pdf->download('rekap-nilai-'.Str::slug($module->title).'.pdf');
     }
 
     public function downloadExcel(Module $module)
@@ -52,8 +53,9 @@ class InstructorRecapController extends Controller
         if ($module->course->instructor_id != Auth::id()) {
             abort(403);
         }
-        list($students, $gradableLessons, $scores) = $this->prepareRecapData($module);
-        return Excel::download(new ModuleRecapExport($students, $gradableLessons, $scores, $module), 'rekap-nilai-' . Str::slug($module->title) . '.xlsx');
+        [$students, $gradableLessons, $scores] = $this->prepareRecapData($module);
+
+        return Excel::download(new ModuleRecapExport($students, $gradableLessons, $scores, $module), 'rekap-nilai-'.Str::slug($module->title).'.xlsx');
     }
 
     /**
@@ -68,7 +70,7 @@ class InstructorRecapController extends Controller
             ->sortBy(function ($student) {
                 // Put null values at the bottom
                 return $student->studentProfile && $student->studentProfile->unique_id_number
-                    ? (int)$student->studentProfile->unique_id_number
+                    ? (int) $student->studentProfile->unique_id_number
                     : PHP_INT_MAX; // Using PHP_INT_MAX to push nulls to the bottom
             });
 
@@ -130,18 +132,18 @@ class InstructorRecapController extends Controller
                         $score = rtrim(rtrim(number_format($scaledScore, 2, ',', '.'), '0'), ',');
 
                         // Store both raw and scaled scores
-                        $scores[$student->id][$lesson->id . '_raw'] = rtrim(rtrim(number_format($rawScore, 2, ',', '.'), '0'), ',');
+                        $scores[$student->id][$lesson->id.'_raw'] = rtrim(rtrim(number_format($rawScore, 2, ',', '.'), '0'), ',');
 
                         // Tandai jika skor sudah direvisi
                         if ($bestAttempt->revised_score !== null) {
-                            $scores[$student->id][$lesson->id . '_revised'] = true;
+                            $scores[$student->id][$lesson->id.'_revised'] = true;
                         }
                     }
                 } elseif ($lessonable instanceof \App\Models\LessonAssignment) {
                     $submission = $student->assignmentSubmissions()
                         ->where('assignment_id', $lessonable->id)
                         ->first();
-                    if ($submission && !is_null($submission->grade)) {
+                    if ($submission && ! is_null($submission->grade)) {
                         $score = $submission->grade;
                     }
                 } elseif ($lessonable instanceof \App\Models\LessonPoint) {
@@ -154,7 +156,6 @@ class InstructorRecapController extends Controller
                 $scores[$student->id][$lesson->id] = $score;
             }
         }
-
 
         // --- LOGIKA BARU: Hitung nilai kelulusan absolut untuk Kuis ---
         foreach ($gradableLessons as $lesson) {
