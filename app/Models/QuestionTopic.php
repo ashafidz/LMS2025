@@ -22,6 +22,7 @@ class QuestionTopic extends Model
     ];
 
     protected $casts = [
+        'instructor_id' => 'integer',
         'available_for_all_courses' => 'boolean', // Tambahkan ini
     ];
 

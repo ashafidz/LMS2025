@@ -54,6 +54,7 @@ Read both before starting any non-trivial task.
 - Environment file: `.env` (keep `.env.example` up to date when adding a new variable)
 - Dev server: `composer dev` (serve + queue + vite)
 - Midtrans: Payment notification URL in Midtrans dashboard must be `https://<domain>/midtrans/notification`; locally use a tunnel (ngrok) or rely on Task 1.4 status check.
+- Scheduler: Production needs the Laravel scheduler cron (`* * * * * cd /path && php artisan schedule:run >> /dev/null 2>&1`) for `orders:sync-pending`; the Midtrans webhook stays the primary path.
 
 ---
 

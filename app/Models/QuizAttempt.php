@@ -30,6 +30,8 @@ class QuizAttempt extends Model
     ];
 
     protected $casts = [
+        'student_id' => 'integer',
+        'quiz_id' => 'integer',
         'start_time' => 'datetime',
         'end_time' => 'datetime',
         'revised_at' => 'datetime',

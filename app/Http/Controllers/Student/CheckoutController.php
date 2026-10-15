@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\SiteSetting;
+use App\Services\CartPricingService;
 use App\Services\MidtransService;
 use App\Services\OrderSettlementService;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class CheckoutController extends Controller
     /**
      * Memproses item di keranjang menjadi sebuah pesanan (order).
      */
-    public function process(Request $request, MidtransService $midtransService)
+    public function process(Request $request, MidtransService $midtransService, CartPricingService $pricingService)
     {
         $user = Auth::user();
         $cartItems = $user->carts()->with('course')->get();
@@ -27,39 +28,39 @@ class CheckoutController extends Controller
             return redirect()->route('student.cart.index')->with('error', 'Keranjang Anda kosong.');
         }
 
-        $subtotal = $cartItems->sum(fn ($item) => $item->course->price);
         $sessionCoupon = session()->get('coupon');
         $coupon = null;
-        $discount = 0;
-        $couponId = null;
 
         if ($sessionCoupon) {
             $coupon = Coupon::find($sessionCoupon->id);
-            if (! $coupon || ! $coupon->isUsableBy($user)) {
+            if (! $coupon) {
                 session()->forget('coupon');
 
                 return redirect()->route('student.cart.index')->with('error', 'Kupon tidak berlaku lagi.');
             }
-
-            if ($coupon->type === 'fixed') {
-                $discount = $coupon->value;
-            } elseif ($coupon->type === 'percent') {
-                $discount = ($subtotal * $coupon->value) / 100;
-            }
-            $couponId = $coupon->id;
         }
 
-        // Cap discount so it does not exceed subtotal
-        $discount = min($discount, $subtotal);
+        $pricing = $pricingService->calculate($cartItems, $coupon, $settings);
 
-        $priceAfterDiscount = max(0, $subtotal - $discount);
-        $vatPercentage = $settings?->vat_percentage ?? 0;
-        $vatAmount = ($priceAfterDiscount > 0) ? (($priceAfterDiscount * $vatPercentage) / 100) : 0;
-        $subtotalBeforeFee = $priceAfterDiscount + $vatAmount;
-        $transactionFee = ($subtotalBeforeFee > 0)
-            ? (($settings?->transaction_fee_fixed ?? 0) + (($subtotalBeforeFee * ($settings?->transaction_fee_percentage ?? 0)) / 100))
-            : 0;
-        $finalTotal = max(0, $subtotalBeforeFee + $transactionFee);
+        if ($sessionCoupon && $pricing['coupon'] === null) {
+            session()->forget('coupon');
+
+            return redirect()->route('student.cart.index')->with('error', 'Kupon dilepas karena kursusnya tidak ada lagi di keranjang.');
+        }
+
+        if ($coupon && ($reason = $coupon->unusableReasonFor($user))) {
+            session()->forget('coupon');
+
+            return redirect()->route('student.cart.index')->with('error', 'Kupon tidak bisa dipakai: '.$reason);
+        }
+
+        $subtotal = $pricing['subtotal'];
+        $discount = $pricing['discount'];
+        $vatPercentage = $pricing['vat_percentage'];
+        $vatAmount = $pricing['vat_amount'];
+        $transactionFee = $pricing['transaction_fee'];
+        $finalTotal = $pricing['final_total'];
+        $couponId = $pricing['coupon']?->id;
 
         if ($finalTotal == 0) {
             $order = $this->processFreeOrder($user, $cartItems, $subtotal, $discount, $vatAmount, $vatPercentage, $transactionFee, $couponId);

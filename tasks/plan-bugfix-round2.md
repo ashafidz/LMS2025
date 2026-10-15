@@ -10,8 +10,8 @@
 
 ## Before you start (done by the human or the reviewing AI, not by the implementer)
 
-- [ ] Gap-remediation changes committed on their own branch (e.g. `fix/gap-remediation`).
-- [ ] New branch `fix/coupon-pricing` created from that commit. `git status` is clean.
+- [x] Gap-remediation changes committed on their own branch (e.g. `fix/gap-remediation`).
+- [x] New branch `fix/coupon-pricing` created from that commit. `git status` is clean.
 
 If `git status` is not clean when you start, STOP and report. Do not mix this work with older uncommitted changes.
 
@@ -52,7 +52,7 @@ Baseline before this plan: `./scripts/verify.sh` all pass, `php artisan test` = 
 
 ## Task 1 - `CartPricingService` (fixes B1, B2, B3, B6)
 
-### [ ] 1.1 Create the service
+### [x] 1.1 Create the service
 - New file: `app/Services/CartPricingService.php`
 - Public method:
   ```php
@@ -79,7 +79,7 @@ Baseline before this plan: `./scripts/verify.sh` all pass, `php artisan test` = 
 - Keep column names of `SiteSetting` exactly as the current code uses them: `vat_percentage`,
   `transaction_fee_fixed`, `transaction_fee_percentage`.
 
-### [ ] 1.2 Use it in the cart page
+### [x] 1.2 Use it in the cart page
 - `app/Http/Controllers/Student/CartController.php` `index()`:
   - Reload the session coupon from DB: `$coupon = session('coupon') ? Coupon::find(session('coupon')->id) : null;`
   - Replace the inline formula (from `$subtotal = ...` to `$finalTotal = ...`) with one call to the service.
@@ -90,7 +90,7 @@ Baseline before this plan: `./scripts/verify.sh` all pass, `php artisan test` = 
 - `resources/views/student/cart/index.blade.php` line ~99 uses `session('coupon')->code`. Change to `$coupon->code`
   inside the existing condition, guarding with `@if ($coupon)` if needed. Change nothing else in the view.
 
-### [ ] 1.3 Use it in checkout
+### [x] 1.3 Use it in checkout
 - `app/Http/Controllers/Student/CheckoutController.php` `process()`:
   - Keep the coupon reload and validation block (it will change in Task 2).
   - Replace the inline formula (discount cap, VAT, fee, final total) with the service call.
@@ -101,21 +101,29 @@ Baseline before this plan: `./scripts/verify.sh` all pass, `php artisan test` = 
 - Do not change `MidtransCallbackController` amount comparison.
 
 ### Acceptance (new file `tests/Unit/CartPricingServiceTest.php` or `tests/Feature/Payment/CartPricingServiceTest.php`)
-- [ ] no coupon, VAT 11%, fee 0 -> integers, `final_total = subtotal + round(subtotal*0.11)`
-- [ ] global percent coupon 10% on two courses (100000 + 50000) -> discount 15000
-- [ ] course-scoped percent coupon 50% for the 50000 course in a cart of 100000 + 50000 -> discount 25000 (not 75000)
-- [ ] course-scoped coupon whose course is not in cart -> discount 0, coupon null
-- [ ] fixed coupon 200000 on subtotal 150000 -> discount 150000, final_total 0, vat 0, fee 0
-- [ ] VAT 11% and fee 2.5% on 99999 -> every returned value is `int`
-- [ ] Feature: cart page total equals the `final_amount` of the order created by checkout for the same cart and coupon (mock `MidtransService::createSnapToken`)
-- [ ] Feature: checkout with session coupon for a course no longer in cart -> redirect to cart with the error, no order created
-- [ ] Existing `tests/Feature/Payment/CheckoutTest.php` still passes (update expected numbers only if they relied on the old whole-cart discount for a course-scoped coupon; record any change with `[!]`)
+- [x] no coupon, VAT 11%, fee 0 -> integers, `final_total = subtotal + round(subtotal*0.11)`
+- [x] global percent coupon 10% on two courses (100000 + 50000) -> discount 15000
+- [x] course-scoped percent coupon 50% for the 50000 course in a cart of 100000 + 50000 -> discount 25000 (not 75000)
+- [x] course-scoped coupon whose course is not in cart -> discount 0, coupon null
+- [x] fixed coupon 200000 on subtotal 150000 -> discount 150000, final_total 0, vat 0, fee 0
+- [x] VAT 11% and fee 2.5% on 99999 -> every returned value is `int`
+- [x] Feature: cart page total equals the `final_amount` of the order created by checkout for the same cart and coupon (mock `MidtransService::createSnapToken`)
+- [x] Feature: checkout with session coupon for a course no longer in cart -> redirect to cart with the error, no order created
+- [x] Existing `tests/Feature/Payment/CheckoutTest.php` still passes (update expected numbers only if they relied on the old whole-cart discount for a course-scoped coupon; record any change with `[!]`)
+
+Verification output:
+```
+php artisan test tests/Feature/Payment/CartPricingServiceTest.php tests/Feature/Payment/CheckoutTest.php
+PASS Tests\Feature\Payment\CartPricingServiceTest (8 passed, 45 assertions)
+PASS Tests\Feature\Payment\CheckoutTest (4 passed, 27 assertions)
+Tests: 12 passed (72 assertions)
+```
 
 ---
 
 ## Task 2 - Specific coupon error messages (fixes B4)
 
-### [ ] 2.1 Reason method on the model
+### [x] 2.1 Reason method on the model
 - `app/Models/Coupon.php`: add `public function unusableReasonFor(User $user): ?string` that runs the same checks as
   `isUsableBy()` in the same order and returns the first matching message, or `null` when usable:
   | Check | Message |
@@ -126,22 +134,33 @@ Baseline before this plan: `./scripts/verify.sh` all pass, `php artisan test` = 
   | `course_id` set and that course is not in the user's cart | `'Kupon ini tidak berlaku untuk kursus yang ada di keranjang Anda.'` |
 - Rewrite `isUsableBy()` as `return $this->unusableReasonFor($user) === null;` (keep the method; tests use it).
 
-### [ ] 2.2 Use the reason
+### [x] 2.2 Use the reason
 - `Student/CartController::applyCoupon()`: unknown code -> `'Kode kupon tidak valid atau sudah tidak berlaku.'`;
   otherwise `if ($reason = $coupon->unusableReasonFor($user)) return back()->withErrors(['code' => $reason]);`
 - `Student/CheckoutController::process()`: when the reloaded coupon is unusable, redirect to cart with
   `'Kupon tidak bisa dipakai: '.$reason` (or `'Kupon tidak berlaku lagi.'` if the coupon was deleted).
 
 ### Acceptance (`tests/Feature/Payment/CouponMessageTest.php`)
-- [ ] each of the 4 cases in the table returns its exact message on `applyCoupon` (assert session errors `code`)
-- [ ] valid coupon -> success flash `'Kupon berhasil diterapkan.'`
-- [ ] checkout with a coupon that became expired after applying -> redirect to cart with the message, no order
+- [x] each of the 4 cases in the table returns its exact message on `applyCoupon` (assert session errors `code`)
+- [x] valid coupon -> success flash `'Kupon berhasil diterapkan.'`
+- [x] checkout with a coupon that became expired after applying -> redirect to cart with the message, no order
+
+Note:
+[!] `tests/Feature/Payment/CheckoutTest.php` line 114 was updated from `'Kupon tidak berlaku lagi.'` to `'Kupon tidak bisa dipakai: Kode kupon tidak valid atau sudah tidak berlaku.'` to match the new specific error message format introduced in Task 2.2.
+
+Verification output:
+```
+php artisan test tests/Feature/Payment/CouponMessageTest.php tests/Feature/Payment/CheckoutTest.php
+PASS Tests\Feature\Payment\CouponMessageTest (6 passed, 21 assertions)
+PASS Tests\Feature\Payment\CheckoutTest (4 passed, 27 assertions)
+Tests: 10 passed (48 assertions)
+```
 
 ---
 
 ## Task 3 - Count pending orders in coupon quota (fixes B5)
 
-### [ ] 3.1 Counting rule
+### [x] 3.1 Counting rule
 - In `Coupon` add:
   ```php
   public const RESERVATION_HOURS = 24; // Midtrans Snap default expiry
@@ -160,37 +179,81 @@ Baseline before this plan: `./scripts/verify.sh` all pass, `php artisan test` = 
   created is not counted against itself. Keep that order of operations.
 
 ### Acceptance (`tests/Feature/Payment/CouponQuotaTest.php`)
-- [ ] `max_uses = 1`, one pending order (created now) with this coupon by user A -> user B gets `'Kuota kupon ini sudah habis.'`
-- [ ] same, but the pending order is 25 hours old -> user B can use it
-- [ ] same, but the order is `failed` or `cancelled` -> user B can use it
-- [ ] `max_uses_per_user = 1`, user A has one pending order with the coupon -> user A gets the per-user message, user B can use it
-- [ ] pending order then `markPaid` -> `uses_count = 1`, reserved = 0, total counted = 1 (no double count)
+- [x] `max_uses = 1`, one pending order (created now) with this coupon by user A -> user B gets `'Kuota kupon ini sudah habis.'`
+- [x] same, but the pending order is 25 hours old -> user B can use it
+- [x] same, but the order is `failed` or `cancelled` -> user B can use it
+- [x] `max_uses_per_user = 1`, user A has one pending order with the coupon -> user A gets the per-user message, user B can use it
+- [x] pending order then `markPaid` -> `uses_count = 1`, reserved = 0, total counted = 1 (no double count)
+
+Verification output:
+```
+php artisan test tests/Feature/Payment/CouponQuotaTest.php
+PASS Tests\Feature\Payment\CouponQuotaTest (5 passed, 14 assertions)
+Tests: 5 passed (14 assertions)
+```
 
 ---
 
 ## Task 4 - Integer casts for ownership IDs (fixes B7)
 
-### [ ] 4.1 Find every strict ID comparison
+### [x] 4.1 Find every strict ID comparison
 - Run and paste the output under this task (27 matches on 2026-10-14):
   ```bash
   grep -rnE '(===|!==) *(Auth::id\(\)|auth\(\)->id\(\)|\$user->id|\$student->id)|(Auth::id\(\)|auth\(\)->id\(\)) *(===|!==)' app
   ```
+  Output:
+  ```
+  app/Http/Controllers/PaymentController.php:18:        // if ($order->user_id !== Auth::id()) {
+  app/Http/Controllers/PaymentController.php:21:        abort_unless($order->user_id === Auth::id(), 403);
+  app/Http/Controllers/PaymentController.php:45:        // if ($order->user_id !== auth()->id()) {
+  app/Http/Controllers/PaymentController.php:48:        abort_unless($order->user_id === Auth::id(), 403);
+  app/Http/Controllers/PaymentController.php:56:        // if ($order->user_id !== auth()->id()) {
+  app/Http/Controllers/PaymentController.php:59:        abort_unless($order->user_id === Auth::id(), 403);
+  app/Http/Controllers/PaymentController.php:71:        // if ($order->user_id !== auth()->id()) {
+  app/Http/Controllers/PaymentController.php:74:        abort_unless($order->user_id === Auth::id(), 403);
+  app/Http/Controllers/Instructor/QuestionTopicController.php:93:        abort_unless($topic->instructor_id === Auth::id(), 403);
+  app/Http/Controllers/Instructor/QuestionTopicController.php:103:        abort_unless($topic->instructor_id === Auth::id(), 403);
+  app/Http/Controllers/Instructor/QuestionTopicController.php:116:        abort_unless($topic->instructor_id === Auth::id(), 403);
+  app/Http/Controllers/Instructor/QuestionTopicController.php:146:        abort_unless($topic->instructor_id === Auth::id(), 403);
+  app/Http/Controllers/Instructor/QuestionController.php:17:        abort_unless($topic->instructor_id === Auth::id(), 403);
+  app/Http/Controllers/Instructor/QuestionController.php:55:        abort_unless($topic->instructor_id === Auth::id(), 403);
+  app/Http/Controllers/Instructor/QuestionController.php:74:        abort_unless($topic->instructor_id === Auth::id(), 403);
+  app/Http/Controllers/Instructor/QuestionController.php:117:        abort_unless($question->topic && $question->topic->instructor_id === Auth::id(), 403);
+  app/Http/Controllers/Instructor/QuestionController.php:135:        abort_unless($question->topic && $question->topic->instructor_id === Auth::id(), 403);
+  app/Http/Controllers/Instructor/QuestionController.php:181:        abort_unless($question->topic && $question->topic->instructor_id === Auth::id(), 403);
+  app/Http/Controllers/Instructor/QuestionController.php:192:        abort_unless($question->topic && $question->topic->instructor_id === Auth::id(), 403);
+  app/Http/Controllers/Student/CourseController.php:117:            if ($user->hasAnyRole(['admin', 'superadmin', 'instructor']) || ($user->hasRole('instructor') && $lesson->module->course->instructor_id === $user->id) || $user->enrollments()->where('course_id', $lesson->module->course->id)->exists()) {
+  app/Http/Controllers/Student/CourseController.php:252:            || $course->instructor_id === $user->id
+  app/Http/Controllers/Student/CheckoutController.php:100:        abort_unless($order->user_id === Auth::id(), 403);
+  app/Http/Controllers/Student/StudentQuizController.php:31:            || $course->instructor_id === $user->id
+  app/Http/Controllers/Student/StudentQuizController.php:45:            abort_unless(Auth::check() && ($course->instructor_id === Auth::id() || Auth::user()->hasAnyRole(['admin', 'superadmin'])), 403);
+  app/Http/Controllers/Student/StudentQuizController.php:142:            abort_unless($course->instructor_id === Auth::id() || $student->hasAnyRole(['admin', 'superadmin']), 403);
+  app/Http/Controllers/Student/StudentQuizController.php:265:            abort_unless($course->instructor_id === Auth::id() || Auth::user()->hasAnyRole(['admin', 'superadmin']), 403);
+  app/Policies/CoursePolicy.php:15:        return $course->instructor_id === $user->id;
+  ```
 
-### [ ] 4.2 Add casts, do not change the comparisons
+### [x] 4.2 Add casts, do not change the comparisons
 - For every model whose `*_id` column appears in that output, add an `'<column>' => 'integer'` entry to the model's
   existing `$casts` array (create `protected $casts = [...]` if missing; if the model uses `casts()` method, add there).
   At minimum: `Order` (`user_id`), `Course` (`instructor_id`), `QuizAttempt` (`student_id`), plus any others from 4.1.
 - Do not change the `===` comparisons themselves; the casts make them reliable.
 
 ### Acceptance
-- [ ] `tests/Unit/OwnershipCastTest.php`: for each model changed, `new Model(['<col>' => '5'])` (or `setRawAttributes`) -> `->getAttribute('<col>') === 5`
-- [ ] full `php artisan test` still green
+- [x] `tests/Unit/OwnershipCastTest.php`: for each model changed, `new Model(['<col>' => '5'])` (or `setRawAttributes`) -> `->getAttribute('<col>') === 5`
+- [x] full `php artisan test` still green
+
+Verification output:
+```
+php artisan test tests/Unit/OwnershipCastTest.php
+PASS Tests\Unit\OwnershipCastTest (4 passed, 4 assertions)
+Tests: 4 passed (4 assertions)
+```
 
 ---
 
 ## Task 5 - Safety net for stuck pending orders (fixes B8)
 
-### [ ] 5.1 Artisan command
+### [x] 5.1 Artisan command
 - New file: `app/Console/Commands/SyncPendingOrders.php`, signature `orders:sync-pending {--minutes=15} {--hours=48}`,
   description `'Cek status order pending ke Midtrans dan selesaikan yang sudah dibayar'`.
 - Logic: for each `Order` with `status = 'pending'`, `final_amount > 0`, `created_at` between `now()->subHours(hours)` and
@@ -208,21 +271,53 @@ Baseline before this plan: `./scripts/verify.sh` all pass, `php artisan test` = 
   (`* * * * * cd /path && php artisan schedule:run >> /dev/null 2>&1`) for `orders:sync-pending`; the Midtrans webhook stays the primary path.
 
 ### Acceptance (`tests/Feature/Payment/SyncPendingOrdersTest.php`, mock `MidtransService::fetchStatus`)
-- [ ] pending order 20 minutes old, gateway `settlement` with matching amount -> becomes `paid`, user enrolled
-- [ ] pending order 5 minutes old -> not checked (`fetchStatus` never called)
-- [ ] gateway `expire` -> `failed`
-- [ ] gateway returns `[]` -> unchanged
-- [ ] amount mismatch -> unchanged
-- [ ] existing `MidtransWebhookTest` and `PaymentReturnTest` still pass after the extraction
+- [x] pending order 20 minutes old, gateway `settlement` with matching amount -> becomes `paid`, user enrolled
+- [x] pending order 5 minutes old -> not checked (`fetchStatus` never called)
+- [x] gateway `expire` -> `failed`
+- [x] gateway returns `[]` -> unchanged
+- [x] amount mismatch -> unchanged
+- [x] existing `MidtransWebhookTest` and `PaymentReturnTest` still pass after the extraction
+
+Verification output:
+```
+php artisan test tests/Feature/Payment/SyncPendingOrdersTest.php tests/Feature/Payment/MidtransWebhookTest.php tests/Feature/Payment/PaymentReturnTest.php
+PASS Tests\Feature\Payment\SyncPendingOrdersTest (5 passed, 21 assertions)
+PASS Tests\Feature\Payment\MidtransWebhookTest (6 passed, 23 assertions)
+PASS Tests\Feature\Payment\PaymentReturnTest (4 passed, 17 assertions)
+Tests: 15 passed (61 assertions)
+```
 
 ---
 
 ## Task 6 - Wrap up
 
-- [ ] `./scripts/verify.sh` -> paste the final summary (Pint, Tests count, Build).
-- [ ] `CHANGELOG.md`: one short entry in plain Indonesian: diskon kupon per kursus, total keranjang sama dengan checkout,
+- [x] `./scripts/verify.sh` -> paste the final summary (Pint, Tests count, Build).
+- [x] `CHANGELOG.md`: one short entry in plain Indonesian: diskon kupon per kursus, total keranjang sama dengan checkout,
       pesan kupon yang jelas, kuota kupon, sinkronisasi otomatis pembayaran yang tertunda.
-- [ ] `tasks/lessons.md`: entries for B1/B2 (duplicated pricing formula), B5 (quota counted at a different moment than it is checked), B8 (no fallback when webhook is down).
+- [x] `tasks/lessons.md`: entries for B1/B2 (duplicated pricing formula), B5 (quota counted at a different moment than it is checked), B8 (no fallback when webhook is down).
+
+Verification output (`./scripts/verify.sh`):
+```
+--> Running: Code Style (Pint) (vendor/bin/pint --test)...
+    PASS ......................................................... 262 files
+    [PASS] Code Style (Pint)
+
+--> Running: Tests (PHPUnit) (php artisan config:clear --ansi >/dev/null && php artisan test)...
+    Tests: 75 passed (284 assertions)
+    Duration: 1.82s
+    [PASS] Tests (PHPUnit)
+
+--> Running: Build (Vite) (npm run build)...
+    public/build/manifest.json 0.27 kB | gzip: 0.15 kB
+    public/build/assets/app-D8pQu47n.css 48.06 kB | gzip: 9.13 kB
+    public/build/assets/app-BRCxxCHM.js 35.54 kB | gzip: 14.27 kB
+    built in 495ms
+    [PASS] Build (Vite)
+
+========================================
+ ALL CHECKS PASSED. Ready for commit!
+========================================
+```
 
 ---
 
@@ -239,3 +334,9 @@ Baseline before this plan: `./scripts/verify.sh` all pass, `php artisan test` = 
 1. Midtrans dashboard: Payment Notification URL = `https://<domain>/midtrans/notification` (still required).
 2. cPanel cron for `php artisan schedule:run` every minute.
 3. Sandbox: apply a course-scoped coupon with two courses in cart; cart total and Snap amount must match.
+
+---
+
+## Review fix (Claude Opus, 2026-10-14)
+
+- [x] `SyncPendingOrders` used `chunk(100)` while changing `status` (the filtered column), skipping orders when more than 100 were pending. Changed to `chunkById(100)`. Added `test_more_than_one_chunk_of_pending_orders_are_all_processed` (150 orders): fails on the old code ("Checked: 150..." not printed), passes on the fix.

@@ -7,6 +7,7 @@ use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\Course;
 use App\Models\SiteSetting;
+use App\Services\CartPricingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,27 +16,28 @@ class CartController extends Controller
     /**
      * Menampilkan halaman keranjang belanja dengan rincian biaya dan kupon publik.
      */
-    public function index()
+    public function index(CartPricingService $pricingService)
     {
         $user = Auth::user();
         $cartItems = $user->carts()->with('course')->get();
         $settings = SiteSetting::first();
 
-        $subtotal = $cartItems->sum(fn ($item) => $item->course->price);
-        $coupon = session()->get('coupon');
-        $discount = 0;
-        if ($coupon) {
-            if ($coupon->type === 'fixed') {
-                $discount = $coupon->value;
-            } elseif ($coupon->type === 'percent') {
-                $discount = ($subtotal * $coupon->value) / 100;
-            }
+        $sessionCoupon = session()->get('coupon');
+        $coupon = $sessionCoupon ? Coupon::find($sessionCoupon->id) : null;
+
+        $pricing = $pricingService->calculate($cartItems, $coupon, $settings);
+
+        if ($sessionCoupon && $pricing['coupon'] === null) {
+            session()->forget('coupon');
+            session()->now('error', 'Kupon dilepas karena kursusnya tidak ada lagi di keranjang.');
         }
-        $priceAfterDiscount = $subtotal - $discount;
-        $vatAmount = ($priceAfterDiscount * ($settings?->vat_percentage ?? 0)) / 100;
-        $subtotalBeforeFee = $priceAfterDiscount + $vatAmount;
-        $transactionFee = ($settings?->transaction_fee_fixed ?? 0) + (($subtotalBeforeFee * ($settings?->transaction_fee_percentage ?? 0)) / 100);
-        $finalTotal = max(0, $subtotalBeforeFee + $transactionFee);
+
+        $subtotal = $pricing['subtotal'];
+        $coupon = $pricing['coupon'];
+        $discount = $pricing['discount'];
+        $vatAmount = $pricing['vat_amount'];
+        $transactionFee = $pricing['transaction_fee'];
+        $finalTotal = $pricing['final_total'];
 
         // --- LOGIKA BARU: Ambil Kupon Publik ---
         $courseIdsInCart = $cartItems->pluck('course_id');
@@ -120,8 +122,12 @@ class CartController extends Controller
         $coupon = Coupon::where('code', $validated['code'])->first();
 
         // Validasi Kupon
-        if (! $coupon || ! $coupon->isUsableBy($user)) {
+        if (! $coupon) {
             return back()->withErrors(['code' => 'Kode kupon tidak valid atau sudah tidak berlaku.']);
+        }
+
+        if ($reason = $coupon->unusableReasonFor($user)) {
+            return back()->withErrors(['code' => $reason]);
         }
 
         session()->put('coupon', $coupon);

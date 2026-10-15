@@ -97,4 +97,39 @@ class OrderSettlementService
             return true;
         });
     }
+
+    /**
+     * Apply gateway status payload to order.
+     *
+     * @return 'paid'|'failed'|'ignored'|'amount_mismatch'
+     */
+    public function applyGatewayStatus(Order $order, array $status): string
+    {
+        $payloadGrossAmount = (int) round((float) ($status['gross_amount'] ?? 0));
+        $orderFinalAmount = (int) round((float) $order->final_amount);
+
+        if ($payloadGrossAmount !== $orderFinalAmount) {
+            return 'amount_mismatch';
+        }
+
+        $transactionStatus = $status['transaction_status'] ?? '';
+        $fraudStatus = $status['fraud_status'] ?? '';
+
+        if (
+            ($transactionStatus === 'capture' && $fraudStatus === 'accept')
+            || $transactionStatus === 'settlement'
+        ) {
+            $this->markPaid($order);
+
+            return 'paid';
+        }
+
+        if (in_array($transactionStatus, ['deny', 'cancel', 'failure', 'expire'], true)) {
+            $this->markFailed($order, 'failed');
+
+            return 'failed';
+        }
+
+        return 'ignored';
+    }
 }

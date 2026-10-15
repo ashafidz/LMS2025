@@ -28,6 +28,8 @@ class Order extends Model
     ];
 
     protected $casts = [
+        'user_id' => 'integer',
+        'coupon_id' => 'integer',
         'total_amount' => 'decimal:2',
         'discount_amount' => 'decimal:2',
         'final_amount' => 'decimal:2',

@@ -22,16 +22,8 @@ class PaymentController extends Controller
 
         if ($order->status === 'pending') {
             $statusData = $midtransService->fetchStatus($order->order_code);
-            $txStatus = $statusData['transaction_status'] ?? null;
-            $fraudStatus = $statusData['fraud_status'] ?? null;
-            $grossAmount = (int) round((float) ($statusData['gross_amount'] ?? 0));
-            $expectedAmount = (int) round((float) $order->final_amount);
-
-            $isSuccessful = ($txStatus === 'settlement')
-                || ($txStatus === 'capture' && $fraudStatus === 'accept');
-
-            if ($isSuccessful && $grossAmount === $expectedAmount) {
-                $settlementService->markPaid($order);
+            if (! empty($statusData)) {
+                $settlementService->applyGatewayStatus($order, $statusData);
             }
         }
 

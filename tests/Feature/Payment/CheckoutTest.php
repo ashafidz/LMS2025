@@ -111,7 +111,7 @@ class CheckoutTest extends TestCase
         $response = $this->post(route('checkout.process'));
 
         $response->assertRedirect(route('student.cart.index'));
-        $response->assertSessionHas('error', 'Kupon tidak berlaku lagi.');
+        $response->assertSessionHas('error', 'Kupon tidak bisa dipakai: Kode kupon tidak valid atau sudah tidak berlaku.');
         $this->assertNull(session('coupon'));
         $this->assertEquals(0, Order::count());
     }

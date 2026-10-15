@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] - 2026-10-14
+
+### Fixed
+
+- **Pricing & Coupon Calculation**: Diskon kupon per kursus kini hanya memotong harga kursus yang dituju (bukan seluruh subtotal keranjang). Perhitungan total di halaman keranjang belanja diselaraskan dengan alur checkout menggunakan `CartPricingService`, sehingga nominal yang ditampilkan sama persis dengan yang ditagihkan.
+- **Specific Coupon Messages**: Menampilkan pesan galat kupon yang jelas dan informatif untuk setiap kondisi (kupon kedaluwarsa/tidak aktif, kuota total habis, batas maksimal per pengguna tercapai, atau kupon tidak berlaku untuk kursus di keranjang).
+- **Coupon Quota Reservation**: Kuota kupon kini memperhitungkan pesanan berstatus pending dalam 24 jam terakhir agar kuota tidak terlampaui saat beberapa transaksi berjalan bersamaan.
+- **Ownership ID Casts**: Memastikan casting integer pada kolom kepemilikan (`user_id`, `instructor_id`, `student_id`) pada seluruh model terkait guna mencegah penolakan otorisasi palsu akibat perbandingan tipe ketat.
+
+### Added
+
+- **Pending Order Sync**: Penambahan perintah `orders:sync-pending` dan penjadwalan berkala untuk memeriksa dan menyelesaikan transaksi tertunda langsung ke gateway Midtrans secara otomatis.
+
 ## [1.3.0] - 2026-10-14
 
 ### Security & Hardening

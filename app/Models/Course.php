@@ -32,6 +32,11 @@ class Course extends Model
         'diamond_price', // Tambahkan ini
     ];
 
+    protected $casts = [
+        'instructor_id' => 'integer',
+        'category_id' => 'integer',
+    ];
+
     /**
      * Mendapatkan semua topik soal yang terhubung dengan kursus ini.
      */

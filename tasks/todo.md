@@ -36,3 +36,32 @@
 - [x] Test suite only has the example tests. Add feature tests for the critical flows (enrollment, quiz attempt, payment callback).
 - [x] Non-ASCII punctuation in `resources/views/student/quizzes/take.blade.php`, `resources/views/superadmin/point-sync/mass-sync-preview.blade.php`, and one migration. Clean up when those files are next touched.
 - [x] `README.md` says Laravel 11.x; `composer.json` requires `laravel/framework ^12`.
+
+---
+
+## Status per 2026-10-14 (akhir sesi)
+
+### Branch dan commit (semua lokal, belum ada yang di-push)
+- `feature/engineering-standards` -> `f7b90a7` standar kit (AGENTS.md, .claude, .cursor, tasks, scripts/verify.sh)
+- `fix/gap-remediation` -> `6a6df1a` hasil `tasks/plan-gap-remediation.md` (pembayaran, otorisasi, diamond, seeder, tests, Pint seluruh repo)
+- `fix/coupon-pricing` (aktif) -> BELUM di-commit: hasil `tasks/plan-bugfix-round2.md` + fix review `chunkById`.
+  Sudah direview Opus dan layak commit. Verifikasi terakhir: Pint PASS, 76 tests passed (288 assertions), build PASS.
+
+### Langkah berikutnya
+- [ ] Commit `fix/coupon-pricing`
+- [ ] Putuskan alur merge ke `develop` (urutan: engineering-standards -> gap-remediation -> coupon-pricing; tiap branch dibuat dari branch sebelumnya)
+- [ ] Push dan buka PR (setelah diputuskan)
+
+### Wajib manual sebelum deploy ke production
+- [ ] Midtrans dashboard: Payment Notification URL = `https://<domain>/midtrans/notification`
+- [ ] Cron cPanel: `* * * * * cd /path && php artisan schedule:run >> /dev/null 2>&1` (untuk `orders:sync-pending`)
+- [ ] Uji sandbox: bayar VA setelah menutup popup Snap -> order jadi `paid`; kupon khusus kursus dengan 2 kursus di keranjang -> total keranjang = nominal Snap
+- [ ] Uji akses: siswa lain membuka `/orders/<hash>/success` -> 403; instruktur B membuka edit modul instruktur A -> 403
+
+### Backlog (kecil, belum dijadwalkan)
+- [ ] Halaman keranjang belum cek ulang kupon yang kedaluwarsa setelah dipasang (checkout sudah menolak dengan pesan jelas).
+- [ ] Kupon dihapus admin saat sedang dipakai: pesan di keranjang salah ("kursusnya tidak ada lagi di keranjang").
+- [ ] Order pending menahan kuota kupon per pengguna selama 24 jam (sesuai desain; dokumentasikan untuk tim CS).
+- [ ] File tugas siswa masih di disk `public`; pindah ke disk privat dengan download terkontrol.
+- [ ] Pesan flash campur bahasa Inggris dan Indonesia.
+- [ ] `schedule:list` lokal butuh MySQL hidup (cache lock `withoutOverlapping`).

@@ -32,31 +32,16 @@ class MidtransCallbackController extends Controller
             return response()->json(['message' => 'Order not found'], 404);
         }
 
-        $payloadGrossAmount = (int) round((float) ($payload['gross_amount'] ?? 0));
-        $orderFinalAmount = (int) round((float) $order->final_amount);
+        $result = $settlementService->applyGatewayStatus($order, $payload);
 
-        if ($payloadGrossAmount !== $orderFinalAmount) {
+        if ($result === 'amount_mismatch') {
             Log::warning('Midtrans gross_amount mismatch', [
                 'order_code' => $orderCode,
-                'payload_gross_amount' => $payloadGrossAmount,
-                'order_final_amount' => $orderFinalAmount,
+                'payload_gross_amount' => (int) round((float) ($payload['gross_amount'] ?? 0)),
+                'order_final_amount' => (int) round((float) $order->final_amount),
             ]);
 
             return response()->json(['message' => 'Gross amount mismatch'], 422);
-        }
-
-        $transactionStatus = $payload['transaction_status'] ?? '';
-        $fraudStatus = $payload['fraud_status'] ?? '';
-
-        if (
-            ($transactionStatus === 'capture' && $fraudStatus === 'accept')
-            || $transactionStatus === 'settlement'
-        ) {
-            $settlementService->markPaid($order);
-        } elseif (in_array($transactionStatus, ['deny', 'cancel', 'failure'], true)) {
-            $settlementService->markFailed($order, 'failed');
-        } elseif ($transactionStatus === 'expire') {
-            $settlementService->markFailed($order, 'failed');
         }
 
         return response()->json(['message' => 'OK'], 200);
