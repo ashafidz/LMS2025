@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- Tampilan halaman publik diperbarui (beranda, katalog, detail kursus, tentang, kontak, FAQ, testimoni, detail layanan, profil publik): huruf Bitter dan Atkinson Hyperlegible, warna biru-putih-abu, kursus ditampilkan seperti sampul buku.
+
+### Fixed
+
+- Kartu kursus berbayar diamond tidak lagi tampil sebagai Gratis di katalog dan detail kursus.
+- Angka peserta 0 tidak lagi ditampilkan sebagai 0+ Siswa.
+
 ## [1.5.2] - 2026-10-26
 
 ### Fixed

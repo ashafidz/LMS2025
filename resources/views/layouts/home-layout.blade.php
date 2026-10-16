@@ -1,213 +1,183 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $siteSettings->site_name }}</title>
+    <title>@hasSection('title')@yield('title') | @endif{{ $siteSettings->site_name }}</title>
     <meta name="description" content="">
     <meta name="keywords" content="">
 
     <!-- Favicons -->
-    <link href="assets/img/favicon.png" rel="icon">
-    <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="{{ asset('home-page/assets/img/favicon.png') }}" rel="icon">
+    <link href="{{ asset('home-page/assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bitter:wght@500;700;800&display=swap" rel="stylesheet">
 
-    <!-- Vendor CSS Files -->
     <!-- CSS -->
     <link href="{{ asset('home-page/assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('home-page/assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
-    <link href="{{ asset('home-page/assets/vendor/aos/aos.css') }}" rel="stylesheet">
-    <link href="{{ asset('home-page/assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('home-page/assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('home-page/assets/css/main.css') }}" rel="stylesheet">
-
-    <link rel="stylesheet" type="text/css" href="{{ asset('icon/icofont/css/icofont.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('icon/themify-icons/themify-icons.css') }}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
-    <!-- Main CSS File -->
-    <link href="home-page/assets/css/main.css" rel="stylesheet">
+    <link href="{{ asset('home-page/assets/css/main.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/ruang-studi.css') }}" rel="stylesheet">
+    @stack('styles')
 </head>
 
-<body class="index-page" style="background-color: #f2f6fd;">
+<body class="rs-body">
+    <a class="rs-skip" href="#main">Langsung ke isi</a>
 
     <!-- ======= Navbar ======= -->
-    <header id="header" class="header fixed-top header-transparent">
-        <div
-            class="header-container container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
-
-            <a href="{{ route('home') }}" class="logo d-flex align-items-center me-auto me-xl-0">
-                <h1 class="sitename">{{ $siteSettings->site_name }}</h1>
-            </a>
-
-            <nav id="navmenu" class="navmenu">
-                <ul>
-                    <li><a href="{{ route('home') }}">Beranda</a></li>
-                    <li><a href="{{ url('/about') }}">Tentang Kami</a></li>
-                    <li><a href="{{ route('courses') }}">Katalog</a></li>
-                    <li><a href="{{ url('/faqs') }}">FAQ</a></li>
-                    <li><a href="{{ url('/contact') }}">Kontak</a></li>
-                    <li class="d-xl-none mt-3 pt-3 border-top px-3 pb-3">
-                        @auth
-                            @if (session('active_role') == 'student')
-                                <div class="d-flex align-items-center justify-content-center bg-light rounded-pill py-2 mb-3 shadow-sm" style="border: 1px solid #e9ecef;">
-                                    <i class="fa fa-diamond text-primary me-2"></i>
-                                    <span class="text-primary fw-bold">{{ number_format(Auth::user()->diamond_balance, 0, ',', '.') }} Diamond</span>
-                                </div>
-                                <a href="{{ url('/cart') }}" class="d-flex align-items-center justify-content-center w-100 mb-2 rounded-pill shadow-sm" style="padding: 12px; border: 2px solid #0d6efd; color: #0d6efd !important; text-decoration: none;">
-                                    <i class="bi bi-cart me-2" style="color: #0d6efd !important;"></i> Keranjang
-                                </a>
-                            @endif
-                            <a href="{{ Route::has(session('active_role').'.dashboard') ? route(session('active_role').'.dashboard') : url('/') }}" class="d-flex align-items-center justify-content-center w-100 rounded-pill shadow-sm" style="padding: 12px; background-color: #0d6efd; color: white !important; text-decoration: none;">
-                                <i class="bi bi-speedometer2 me-2" style="color: white !important;"></i> Dashboard
-                            </a>
-                        @else
-                            <a href="{{ url('/login') }}" class="d-flex align-items-center justify-content-center w-100 rounded-pill shadow-sm" style="padding: 12px; background-color: #0d6efd; color: white !important; text-decoration: none;">
-                                <i class="bi bi-box-arrow-in-right me-2" style="color: white !important;"></i> Login
-                            </a>
-                        @endauth
-                    </li>
-                </ul>
-                <i class="mobile-nav-toggle d-xl-none bi bi-list" style="margin-right: 10px; line-height: 1; display: flex; align-items: center; justify-content: center;"></i>
+@php
+    $navItems = [
+        ['label' => 'Beranda', 'url' => route('home'), 'active' => request()->routeIs('home')],
+        ['label' => 'Tentang Kami', 'url' => route('about'), 'active' => request()->routeIs('about')],
+        ['label' => 'Katalog', 'url' => route('courses'), 'active' => request()->routeIs('courses', 'courses.show')],
+        ['label' => 'FAQ', 'url' => route('faqs'), 'active' => request()->routeIs('faqs')],
+        ['label' => 'Kontak', 'url' => route('contact'), 'active' => request()->routeIs('contact')],
+    ];
+    $activeRole = session('active_role');
+    $dashboardUrl = null;
+    if (Auth::check()) {
+        if ($activeRole === 'superadmin') {
+            $dashboardUrl = route('superadmin.dashboard');
+        } elseif ($activeRole === 'admin') {
+            $dashboardUrl = route('admin.dashboard');
+        } elseif ($activeRole === 'instructor' && Auth::user()->instructorProfile?->application_status === 'approved') {
+            $dashboardUrl = route('instructor.dashboard');
+        } elseif ($activeRole === 'student') {
+            $dashboardUrl = route('student.dashboard');
+        }
+    }
+@endphp
+<header class="rs-header">
+    <div class="rs-wrap">
+        <div class="rs-header__bar">
+            <a href="{{ route('home') }}" class="rs-logo">{{ $siteSettings->site_name }}</a>
+            <nav class="rs-nav" aria-label="Menu utama">
+                @foreach ($navItems as $item)
+                    <a href="{{ $item['url'] }}" @if ($item['active']) aria-current="page" @endif>{{ $item['label'] }}</a>
+                @endforeach
             </nav>
-
-            <div class="d-flex align-items-center gap-2 d-none d-xl-flex">
+            <div class="rs-account">
                 @auth
-                    @if (session('active_role') == 'student')
-                        <i class="fa fa-diamond text-primary d-block f-40"></i>
-                        <p class="mb-0 align-self-center text-primary">
-                            {{ number_format(Auth::user()->diamond_balance, 0, ',', '.') }}</p>
-
-                        <a href="{{ url('/cart') }}" class="btn-cart"
-                            onmouseover="this.firstElementChild.style.color='#0d6efd'"
-                            onmouseout="this.firstElementChild.style.color='black'">
-                            <i class="bi bi-cart" style="font-size: 1.4rem; color: black;"></i>
-                        </a>
+                    @if ($activeRole === 'student')
+                        <span class="rs-diamond" title="Saldo diamond"><i class="bi bi-gem" aria-hidden="true"></i>{{ number_format(Auth::user()->diamond_balance, 0, ',', '.') }} Diamond</span>
+                        <a href="{{ url('/cart') }}" class="rs-iconlink"><i class="bi bi-cart" aria-hidden="true"></i>Keranjang</a>
                     @endif
-
-                    @if (session('active_role') == 'superadmin')
-                        <a class="btn-getstarted ms-2" href="{{ route('superadmin.dashboard') }}">Dashboard</a>
-                    @elseif (session('active_role') == 'admin')
-                        <a class="btn-getstarted ms-2" href="{{ route('admin.dashboard') }}">Dashboard</a>
-                    @elseif (session('active_role') == 'instructor' && Auth::user()->instructorProfile?->application_status === 'approved')
-                        <a class="btn-getstarted ms-2" href="{{ route('instructor.dashboard') }}">Dashboard</a>
-                    @elseif (session('active_role') == 'student')
-                        <a class="btn-getstarted ms-2" href="{{ route('student.dashboard') }}">Dashboard</a>
+                    @if ($dashboardUrl)
+                        <a class="rs-btn" href="{{ $dashboardUrl }}">Dashboard</a>
                     @endif
                 @endauth
                 @guest
-                    <a class="btn-getstarted ms-2" href="{{ url('/login') }}">Login</a>
+                    <a class="rs-link" href="{{ route('register') }}">Daftar</a>
+                    <a class="rs-btn" href="{{ url('/login') }}">Masuk</a>
                 @endguest
-
+            </div>
+            <button type="button" class="rs-menu-btn" aria-expanded="false" aria-controls="rs-mobile-menu">
+                <i class="bi bi-list" aria-hidden="true"></i>Menu
+            </button>
+        </div>
+        <div class="rs-mobile" id="rs-mobile-menu">
+            <ul>
+                @foreach ($navItems as $item)
+                    <li><a href="{{ $item['url'] }}" @if ($item['active']) aria-current="page" @endif>{{ $item['label'] }}</a></li>
+                @endforeach
+            </ul>
+            <div class="rs-mobile__account">
+                @auth
+                    @if ($activeRole === 'student')
+                        <span class="rs-diamond"><i class="bi bi-gem" aria-hidden="true"></i>{{ number_format(Auth::user()->diamond_balance, 0, ',', '.') }} Diamond</span>
+                        <a href="{{ url('/cart') }}" class="rs-btn rs-btn--outline rs-btn--block"><i class="bi bi-cart" aria-hidden="true"></i>Keranjang</a>
+                    @endif
+                    @if ($dashboardUrl)
+                        <a class="rs-btn rs-btn--block" href="{{ $dashboardUrl }}">Dashboard</a>
+                    @endif
+                @endauth
+                @guest
+                    <a class="rs-btn rs-btn--block" href="{{ url('/login') }}">Masuk</a>
+                    <a class="rs-btn rs-btn--outline rs-btn--block" href="{{ route('register') }}">Daftar</a>
+                @endguest
             </div>
         </div>
-    </header>
+    </div>
+</header>
     <!-- End Navbar -->
 
     <!-- ======= Main Content ======= -->
-    <main class="main">
+    <main id="main" class="main">
         @yield('content')
     </main>
 
     <!-- ======= Footer ======= -->
-    <footer id="footer" class="footer">
-
-        <div class="container footer-top">
-            <div class="row gy-4">
-                <div class="col-lg-4 col-md-6 footer-about">
-                    <a href="{{ url('/') }}" class="logo d-flex align-items-center">
-                        <span class="sitename">{{ $siteSettings->site_name }}</span>
-                    </a>
-                    <div class="footer-contact pt-3">
-                        <p>{{ $siteSettings->company_name }}</p>
-                        <p>{{ $siteSettings->address }}</p>
-                        <p class="mt-3"><strong>Phone:</strong> <span>{{ $siteSettings->phone }}</span></p>
-                        <p><strong>Email:</strong> <span>{{ $siteSettings->email ?? 'info@example.com' }}</span></p>
-                    </div>
-                    <div class="social-links d-flex mt-4">
-                        {{-- Tampilkan ikon hanya jika link-nya diisi --}}
-                        @if ($siteSettings->twitter_url && $siteSettings->twitter_url !== '#')
-                            <a href="{{ $siteSettings->twitter_url }}" target="_blank"><i
-                                    class="bi bi-twitter-x"></i></a>
-                        @endif
-                        @if ($siteSettings->facebook_url && $siteSettings->facebook_url !== '#')
-                            <a href="{{ $siteSettings->facebook_url }}" target="_blank"><i
-                                    class="bi bi-facebook"></i></a>
-                        @endif
-                        @if ($siteSettings->instagram_url && $siteSettings->instagram_url !== '#')
-                            <a href="{{ $siteSettings->instagram_url }}" target="_blank"><i
-                                    class="bi bi-instagram"></i></a>
-                        @endif
-                        @if ($siteSettings->youtube_url && $siteSettings->youtube_url !== '#')
-                            <a href="{{ $siteSettings->youtube_url }}" target="_blank"><i
-                                    class="bi bi-youtube"></i></a>
-                        @endif
-                    </div>
+<footer class="rs-footer">
+    <div class="rs-wrap">
+        <div class="rs-footer__grid">
+            <div>
+                <a href="{{ url('/') }}" class="rs-footer__brand">{{ $siteSettings->site_name }}</a>
+                @if ($siteSettings->company_name)<p>{{ $siteSettings->company_name }}</p>@endif
+                @if ($siteSettings->address)<p>{{ $siteSettings->address }}</p>@endif
+                @if ($siteSettings->phone)<p>Telepon: {{ $siteSettings->phone }}</p>@endif
+                @if ($siteSettings->email)<p>Email: {{ $siteSettings->email }}</p>@endif
+                <div class="rs-social">
+                    {{-- Tampilkan ikon hanya jika link-nya diisi --}}
+                    @if ($siteSettings->twitter_url && $siteSettings->twitter_url !== '#')
+                        <a href="{{ $siteSettings->twitter_url }}" target="_blank" rel="noopener" aria-label="Twitter"><i class="bi bi-twitter-x" aria-hidden="true"></i></a>
+                    @endif
+                    @if ($siteSettings->facebook_url && $siteSettings->facebook_url !== '#')
+                        <a href="{{ $siteSettings->facebook_url }}" target="_blank" rel="noopener" aria-label="Facebook"><i class="bi bi-facebook" aria-hidden="true"></i></a>
+                    @endif
+                    @if ($siteSettings->instagram_url && $siteSettings->instagram_url !== '#')
+                        <a href="{{ $siteSettings->instagram_url }}" target="_blank" rel="noopener" aria-label="Instagram"><i class="bi bi-instagram" aria-hidden="true"></i></a>
+                    @endif
+                    @if ($siteSettings->youtube_url && $siteSettings->youtube_url !== '#')
+                        <a href="{{ $siteSettings->youtube_url }}" target="_blank" rel="noopener" aria-label="YouTube"><i class="bi bi-youtube" aria-hidden="true"></i></a>
+                    @endif
                 </div>
-
-                <div class="col-lg-2 col-md-3 footer-links">
-                    <h4>Beranda</h4>
-                    <ul>
-                        <li><a href="{{ url('/#services') }}">Service</a></li>
-                        <li><a href="{{ url('/#pricing') }}">Kursus yang Sering Dibeli</a></li>
-                    </ul>
-                </div>
-
-                <div class="col-lg-2 col-md-3 footer-links">
-                    <h4>Tentang Kami</h4>
-                    <ul>
-                        <li><a href="{{ url('/about/#features') }}">Fitur Unggulan</a></li>
-                        <li><a href="{{ url('/#testimonials') }}">Testimoni Peserta</a></li>
-                        <li><a href="{{ route('certificates.verify') }}">Cek Keaslian Sertifikat</a></li>
-                    </ul>
-                </div>
-
-                <div class="col-lg-2 col-md-3 footer-links">
-                    <h4>Katalog</h4>
-                    <ul>
-                        {{-- Loop untuk menampilkan kategori dari View Composer --}}
-                        @if (isset($footerCategories))
-                            @foreach ($footerCategories as $category)
-                                {{-- Tautan ini akan mengarah ke halaman katalog dengan filter kategori yang sudah diterapkan --}}
-                                <li><a
-                                        href="{{ route('courses', ['categories[]' => $category->id]) }}">{{ $category->name }}</a>
-                                </li>
-                            @endforeach
-                        @endif
-                    </ul>
-                </div>
-
-                <div class="container copyright text-center mt-4">
-                    <p>© <strong class="px-1 sitename">{{ $siteSettings->site_name }}</strong> All Rights Reserved</p>
-                    <div class="credits">
-                        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
-                    </div>
-                </div>
-    </footer>
+            </div>
+            <div>
+                <h2>Beranda</h2>
+                <ul>
+                    <li><a href="{{ url('/#services') }}">Layanan Kami</a></li>
+                    <li><a href="{{ url('/#pricing') }}">Kursus yang Sering Dibeli</a></li>
+                </ul>
+            </div>
+            <div>
+                <h2>Tentang Kami</h2>
+                <ul>
+                    <li><a href="{{ url('/about/#features') }}">Fitur Unggulan</a></li>
+                    <li><a href="{{ url('/#testimonials') }}">Testimoni Peserta</a></li>
+                    <li><a href="{{ route('certificates.verify') }}">Cek Keaslian Sertifikat</a></li>
+                </ul>
+            </div>
+            <div>
+                <h2>Katalog</h2>
+                <ul>
+                    {{-- Loop untuk menampilkan kategori dari View Composer --}}
+                    @if (isset($footerCategories))
+                        @foreach ($footerCategories as $category)
+                            {{-- Tautan ini akan mengarah ke halaman katalog dengan filter kategori yang sudah diterapkan --}}
+                            <li><a href="{{ route('courses', ['categories[]' => $category->id]) }}">{{ $category->name }}</a></li>
+                        @endforeach
+                    @endif
+                </ul>
+            </div>
+        </div>
+        <div class="rs-footer__bottom">
+            <span>&copy; {{ date('Y') }} {{ $siteSettings->site_name }}</span>
+            <span>Designed by <a href="https://bootstrapmade.com/" target="_blank" rel="noopener">BootstrapMade</a></span>
+        </div>
+    </div>
+</footer>
     <!-- End Footer -->
 
-    <!-- Scroll Top -->
-    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
-        <i class="bi bi-arrow-up-short"></i>
-    </a>
+    <a href="https://wa.me/6281234567890" target="_blank" rel="noopener" class="rs-wa"><i class="bi bi-whatsapp" aria-hidden="true"></i><span>WhatsApp</span></a>
 
-    <!-- Vendor JS Files -->
     <script src="{{ asset('home-page/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('home-page/assets/vendor/php-email-form/validate.js') }}"></script>
-    <script src="{{ asset('home-page/assets/vendor/aos/aos.js') }}"></script>
-    <script src="{{ asset('home-page/assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
-    <script src="{{ asset('home-page/assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
-    <script src="{{ asset('home-page/assets/vendor/purecounter/purecounter_vanilla.js') }}"></script>
-
 
     <script>
         // Cek jika timezone belum diatur di session storage browser
@@ -252,44 +222,11 @@
         }
     </script>
 
-    <!-- Tombol WhatsApp Ikon + Teks -->
-    <a href="https://wa.me/6281234567890" target="_blank"
-        style="
-            position: fixed;
-            bottom: 50px;
-            right: 50px;
-            z-index: 9999;
-            background-color: #128C7E;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: bold;
-            text-decoration: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
-        "
-        onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+    <!-- CSRF protection -->
+    <script type="text/javascript" src="{{ asset('js/csrf-refresh.js') }}"></script>
+    <script src="{{ asset('js/ruang-studi.js') }}"></script>
 
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp"
-            style="width: 28px; height: 28px;">
-
-        WhatsApp
-    </a>
-
+    @stack('scripts')
 </body>
-
-<!-- Main JS File -->
-<script src="{{ asset('home-page/assets/js/main.js') }}"></script>
-
-<!-- CSRF protection -->
-<script type="text/javascript" src="{{ asset('js/csrf-refresh.js') }}"></script>
-
-<!-- Tambah di sini -->
-@stack('scripts')
-
-
 
 </html>
