@@ -46,7 +46,7 @@
                     <h2 class="rs-h2">Kirim Pesan</h2>
                     <p class="rs-muted">Isi form di bawah ini, dan kami akan segera menghubungi kamu kembali.</p>
 
-                    <form action="{{ route('contact.store') }}" method="post" class="php-email-form rs-form" data-recaptcha-site-key="{{ config('services.recaptcha.site_key') }}">
+                    <form action="{{ route('contact.store') }}" method="post" class="rs-form" data-rs-contact data-recaptcha-site-key="{{ config('services.recaptcha.site_key') }}">
                         @csrf
                         <div class="rs-form__row">
                             <div class="rs-field">
@@ -70,9 +70,9 @@
                         </div>
 
                         <div>
-                            <div class="loading">Memuat</div>
-                            <div class="error-message"></div>
-                            <div class="sent-message">Pesan kamu berhasil terkirim. Terima kasih!</div>
+                            <div class="rs-form-status rs-form-status--wait" data-rs-status="wait" role="status">Sedang mengirim pesan...</div>
+                            <div class="rs-form-status rs-form-status--error" data-rs-status="error" role="alert"></div>
+                            <div class="rs-form-status rs-form-status--ok" data-rs-status="ok" role="status">Pesan kamu berhasil terkirim. Terima kasih!</div>
 
                             <button type="submit" class="rs-btn">Kirim Pesan</button>
                         </div>

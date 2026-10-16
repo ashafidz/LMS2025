@@ -10,8 +10,7 @@
     <meta name="keywords" content="">
 
     <!-- Favicons -->
-    <link href="{{ asset('home-page/assets/img/favicon.png') }}" rel="icon">
-    <link href="{{ asset('home-page/assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+    <link href="{{ asset('favicon.svg') }}" rel="icon" type="image/svg+xml">
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect">
@@ -19,10 +18,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bitter:wght@500;700;800&display=swap" rel="stylesheet">
 
     <!-- CSS -->
-    <link href="{{ asset('home-page/assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('home-page/assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link href="{{ asset('home-page/assets/css/main.css') }}" rel="stylesheet">
+    <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/ruang-studi.css') }}" rel="stylesheet">
     @stack('styles')
 </head>
@@ -108,7 +104,7 @@
     <!-- End Navbar -->
 
     <!-- ======= Main Content ======= -->
-    <main id="main" class="main">
+    <main id="main">
         @yield('content')
     </main>
 
@@ -168,16 +164,12 @@
         </div>
         <div class="rs-footer__bottom">
             <span>&copy; {{ date('Y') }} {{ $siteSettings->site_name }}</span>
-            <span>Designed by <a href="https://bootstrapmade.com/" target="_blank" rel="noopener">BootstrapMade</a></span>
         </div>
     </div>
 </footer>
     <!-- End Footer -->
 
     <a href="https://wa.me/6281234567890" target="_blank" rel="noopener" class="rs-wa"><i class="bi bi-whatsapp" aria-hidden="true"></i><span>WhatsApp</span></a>
-
-    <script src="{{ asset('home-page/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('home-page/assets/vendor/php-email-form/validate.js') }}"></script>
 
     <script>
         // Cek jika timezone belum diatur di session storage browser

@@ -27,7 +27,7 @@
                         </div>
                         <button type="submit" class="rs-btn rs-btn--block">Terapkan filter</button>
                         @if (request()->filled('search') || request()->filled('categories'))
-                            <p class="mt-3 mb-0"><a class="rs-link" href="{{ route('courses') }}">Hapus filter</a></p>
+                            <p class="rs-mt-3 rs-mb-0"><a class="rs-link" href="{{ route('courses') }}">Hapus filter</a></p>
                         @endif
                     </details>
 

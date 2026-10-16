@@ -181,7 +181,7 @@
         </div>
         <div>
           <h2>Kategori</h2>
-          <p class="rs-muted mb-0">{{ $course->category?->name }}</p>
+          <p class="rs-muted rs-mb-0">{{ $course->category?->name }}</p>
         </div>
       </aside>
     </div>

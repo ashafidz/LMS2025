@@ -1,28 +1,13 @@
-@extends('layouts.home-layout')
+@extends('layouts.plain-layout')
 
-@section('title', '504')
+@section('title', 'Sistem terlalu lama merespons')
 
 @section('content')
-<section class="d-flex flex-column justify-content-center align-items-center text-center"
-         style="background: #f8f9fa; min-height: 100vh; padding: 20px;">
-
-    <div class="mb-4">
-        <img src="https://static.domainesia.com/assets/slots/webcdn/server/img/error-code/svg/error-504.svg"
-             alt="504 Gateway Timeout"
-             style="max-width: 400px; width: 100%;">
+<x-rs.status icon="bi-clock-history" eyebrow="Kode 504" title="Sistem terlalu lama merespons">
+    <p>Permintaanmu butuh waktu terlalu lama. Coba lagi beberapa saat lagi.</p>
+    <div class="rs-status__actions">
+        <a href="{{ url()->current() }}" class="rs-btn rs-btn--block">Muat ulang</a>
+        <a href="{{ url('/') }}" class="rs-btn rs-btn--outline rs-btn--block">Ke beranda</a>
     </div>
-
-    <h1 class="fw-bold mb-2" style="font-size: 2.5rem; color: #012970;">
-        Gateway Timeout
-    </h1>
-
-    <p class="mb-4" style="color: #5e5e5e; font-size: 1.2rem;">
-        Server butuh waktu terlalu lama untuk merespon permintaan.  
-        Silakan coba lagi nanti.
-    </p>
-
-    <a href="{{ url('/') }}" class="btn btn-primary btn-lg px-4" style="border-radius: 50px;">
-        Muat Ulang
-    </a>
-</section>
+</x-rs.status>
 @endsection

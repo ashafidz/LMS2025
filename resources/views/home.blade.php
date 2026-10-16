@@ -54,11 +54,9 @@
                         <li><i class="bi bi-check2" aria-hidden="true"></i><span>Komunitas diskusi</span></li>
                     </ul>
 
-                    <p class="mt-4"><a class="rs-link" href="{{ route('contact') }}">Hubungi kami</a></p>
+                    <p class="rs-mt-4"><a class="rs-link" href="{{ route('contact') }}">Hubungi kami</a></p>
                 </div>
-                <div>
-                    <img src="{{ asset('home-page/assets/img/about-5.webp') }}" alt="">
-                </div>
+                <div class="rs-plate" aria-hidden="true"><i class="bi bi-book"></i></div>
             </div>
         </div>
     </section><!-- /About Section -->

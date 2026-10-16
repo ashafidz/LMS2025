@@ -28,7 +28,11 @@ class PublicPagesTest extends TestCase
                 ->assertOk()
                 ->assertSee('class="rs-header"', false)
                 ->assertSee('ruang-studi.css', false)
-                ->assertDontSee('aos.js', false);
+                ->assertDontSee('aos.js', false)
+                ->assertDontSee('main.css', false)
+                ->assertDontSee('bootstrap.min.css', false)
+                ->assertDontSee('BootstrapMade')
+                ->assertDontSee('home-page/', false);
         }
     }
 
@@ -155,14 +159,14 @@ class PublicPagesTest extends TestCase
         $this->get('/contact')
             ->assertOk()
             ->assertSee('action="'.route('contact.store').'"', false)
-            ->assertSee('class="php-email-form', false)
+            ->assertSee('data-rs-contact', false)
             ->assertSee('name="name"', false)
             ->assertSee('name="email"', false)
             ->assertSee('name="subject"', false)
             ->assertSee('name="message"', false)
-            ->assertSee('class="loading"', false)
-            ->assertSee('class="error-message"', false)
-            ->assertSee('class="sent-message"', false);
+            ->assertSee('data-rs-status="wait"', false)
+            ->assertSee('data-rs-status="error"', false)
+            ->assertSee('data-rs-status="ok"', false);
     }
 
     public function test_public_profile_shows_role_label(): void

@@ -7,11 +7,21 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Tampilan halaman publik diperbarui (beranda, katalog, detail kursus, tentang, kontak, FAQ, testimoni, detail layanan, profil publik): huruf Bitter dan Atkinson Hyperlegible, warna biru-putih-abu, kursus ditampilkan seperti sampul buku.
+- Template BootstrapMade dihapus dari halaman publik, keranjang, checkout, halaman galat, halaman status akun, login, dan daftar. Kredit "Designed by BootstrapMade" dihapus, folder `public/home-page` dihapus, dan halaman-halaman tersebut memakai tampilan Rak Buku yang sama (modal diganti dialog bawaan peramban).
 
 ### Fixed
 
 - Kartu kursus berbayar diamond tidak lagi tampil sebagai Gratis di katalog dan detail kursus.
 - Angka peserta 0 tidak lagi ditampilkan sebagai 0+ Siswa.
+- Teks halaman galat 400 dan 404 yang tertukar sudah diperbaiki.
+- Pesan galat kupon di keranjang kini terlihat (sebelumnya tidak tampil).
+- Label PPN di keranjang kini memakai persentase asli dari pengaturan, bukan selalu 11%.
+- Kupon potongan tetap kini tampil sebagai "Potongan Rp..." (sebelumnya selalu "Diskon ...%").
+- Ringkasan pesanan di checkout kini menampilkan PPN dan Biaya Layanan sehingga rinciannya sesuai total.
+- Snap.js memakai alamat produksi saat `midtrans.is_production` aktif (sebelumnya selalu sandbox).
+- Waktu di halaman pembayaran berhasil kini memakai zona waktu pengguna, bukan jam UTC yang diberi label WIB.
+- Kolom alamat website di pendaftaran instruktur tidak lagi tampil sebagai opsional padahal wajib.
+- Status "tautan atur ulang kata sandi dikirim" kini terlihat di halaman lupa kata sandi (sebelumnya tersembunyi di modal).
 
 ## [1.5.2] - 2026-10-26
 

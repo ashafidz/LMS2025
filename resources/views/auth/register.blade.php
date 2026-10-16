@@ -1,195 +1,75 @@
-@extends('layouts.app-layout')
+@extends('layouts.plain-layout')
+
+@section('title', 'Daftar')
 
 @section('content')
-<section class="login-block">
-    <div class="container-fluid px-0">
-        <div class="row no-gutters shift-up" style="min-height: 100vh;">
+<div class="rs-auth rs-auth--wide">
+    <h1 class="rs-h2">Daftar</h1>
+    <p class="rs-auth__lead">Buat akun untuk mulai belajar atau mengajar.</p>
 
-            <!-- Form Registrasi -->
-            <div class="col-12 d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-                <form class="md-float-material form-material w-100 px-4" method="POST" action="{{ route('register') }}" style="max-width: 600px; width: 100%;">
+    @if ($errors->any())
+        <div class="rs-alert rs-alert--danger" role="alert">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-                    @csrf
-                    <div class="auth-box card">
-                        <div class="card-block">
+    <form method="POST" action="{{ route('register') }}" class="rs-form">
+        @csrf
 
-                            <div class="text-center mb-3">
-                                <h3 class="text-center">Daftar</h3>
-                                <p class="font-weight-bold">Daftar Sebagai</p>
-                                <div class="d-flex justify-content-center mb-2">
-                                    <div class="role-btn btn btn-primary mr-2 active" onclick="selectRole(this, 'student')">
-                                        👨‍🎓 Siswa
-                                    </div>
-                                    <div class="role-btn btn btn-outline-secondary" onclick="selectRole(this, 'instructor')">
-                                        🧑‍🏫 Instruktur
-                                    </div>
-                                </div>
-                                <input type="hidden" id="selected-role" name="role" value="student">
-                            </div>
+        <fieldset class="rs-choice">
+            <legend>Daftar sebagai</legend>
+            <label><input type="radio" name="role" value="student" @checked(old('role', 'student') !== 'instructor')> Siswa</label>
+            <label><input type="radio" name="role" value="instructor" @checked(old('role') === 'instructor')> Instruktur</label>
+        </fieldset>
 
-                            <!-- Validation Errors -->
-                            @if ($errors->any())
-                                <div class="alert alert-danger">
-                                    <ul>
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
+        <div class="rs-field">
+            <label for="name">Nama lengkap</label>
+            <input id="name" class="rs-input" type="text" name="name" value="{{ old('name') }}" required autocomplete="name">
+        </div>
 
-                            {{-- Common Fields --}}
-                            <div class="form-group form-primary">
-                                <input type="text" name="name" class="form-control" required value="{{ old('name') }}">
-                                <span class="form-bar"></span>
-                                <label class="float-label">Nama Lengkap</label>
-                            </div>
+        <div class="rs-field">
+            <label for="email">Email</label>
+            <input id="email" class="rs-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="email">
+        </div>
 
-                            <div class="form-group form-primary">
-                                <input type="email" name="email" class="form-control" required value="{{ old('email') }}">
-                                <span class="form-bar"></span>
-                                <label class="float-label">Alamat Email</label>
-                            </div>
-
-                            {{-- Instructor-only fields --}}
-                            <div id="instructor-fields" style="display: none;">
-                                <div class="form-group form-primary">
-                                    <input type="text" name="headline" class="form-control" value="{{ old('headline') }}">
-                                    <span class="form-bar"></span>
-                                    <label class="float-label">Psosisi/Jabatan (e.g., Web Developer)</label>
-                                </div>
-                                <div class="form-group form-primary">
-                                    <input type="url" name="website_url" class="form-control" value="{{ old('website_url') }}">
-                                    <span class="form-bar"></span>
-                                    <label class="float-label">Website URL (Optional)</label>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                            <div class="col-sm-6">
-                                <div class="form-group form-primary" style="position: relative;">
-                                    <input type="password" id="password" name="password" class="form-control" required>
-                                    <span class="form-bar"></span>
-                                    <label class="float-label">Password</label>
-                                    <i class="fa-solid fa-eye-slash toggle-password"
-                                       data-target="password"
-                                       style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;"></i>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="form-group form-primary" style="position: relative;">
-                                    <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" required>
-                                    <span class="form-bar"></span>
-                                    <label class="float-label">Konfirmasi Password</label>
-                                    <i class="fa-solid fa-eye-slash toggle-password"
-                                       data-target="password_confirmation"
-                                       style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;"></i>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <script>
-                        function initTogglePassword() {
-                            document.querySelectorAll(".toggle-password").forEach(icon => {
-                                icon.addEventListener("click", function() {
-                                    const input = document.getElementById(this.dataset.target);
-                                    if (!input) return;
-                        
-                                    if (input.type === "password") {
-                                        input.type = "text";
-                                        this.classList.replace("fa-eye-slash", "fa-eye");
-                                    } else {
-                                        input.type = "password";
-                                        this.classList.replace("fa-eye", "fa-eye-slash");
-                                    }
-                                });
-                            });
-                        }
-                        
-                        document.addEventListener("DOMContentLoaded", initTogglePassword);
-                        </script>
-
-                            <div class="row m-t-30">
-                                <div class="col-md-12">
-                                    <button type="submit" class="btn btn-primary btn-md btn-block waves-effect text-center m-b-20">
-                                        Daftar Sekarang
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="text-center mt-3">
-                                <p class="text-muted">Sudah punya akun?<a href="{{ route('login') }}" class="text-primary">Masuk</a></p>
-                            </div>
-
-                            <hr/>
-
-                            <div class="row">
-                                <div class="col-md-10">
-                                    <p class="text-inverse text-left m-b-0">Terima Kasih</p>
-                                    <p class="text-inverse text-left"><a href="{{ route('home') }}"><b>Kembali ke website</b></a></p>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </form>
+        <div id="instructor-fields" class="rs-form" hidden>
+            <div class="rs-field">
+                <label for="headline">Posisi atau jabatan</label>
+                <input id="headline" class="rs-input" type="text" name="headline" value="{{ old('headline') }}">
+                <p class="rs-hint">Contoh: Guru Matematika</p>
+            </div>
+            <div class="rs-field">
+                <label for="website_url">Alamat website</label>
+                <input id="website_url" class="rs-input" type="url" name="website_url" value="{{ old('website_url') }}">
+                <p class="rs-hint">Wajib untuk instruktur. Contoh: https://sekolahku.sch.id</p>
             </div>
         </div>
-    </div>
-</section>
+
+        <div class="rs-form__row">
+            <div class="rs-field">
+                <label for="password">Kata sandi</label>
+                <div class="rs-password">
+                    <input id="password" class="rs-input" type="password" name="password" required autocomplete="new-password">
+                    <button type="button" data-rs-toggle-password="password" aria-label="Tampilkan kata sandi" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
+                </div>
+                <p class="rs-hint">Minimal 8 karakter.</p>
+            </div>
+            <div class="rs-field">
+                <label for="password_confirmation">Ulangi kata sandi</label>
+                <div class="rs-password">
+                    <input id="password_confirmation" class="rs-input" type="password" name="password_confirmation" required autocomplete="new-password">
+                    <button type="button" data-rs-toggle-password="password_confirmation" aria-label="Tampilkan kata sandi" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="rs-btn rs-btn--block">Daftar Sekarang</button>
+    </form>
+
+    <p class="rs-auth__alt">Sudah punya akun? <a class="rs-link" href="{{ route('login') }}">Masuk</a></p>
+</div>
 @endsection
-
-@push('scripts')
-<style>
-    html,
-    body {
-        height: 100%;
-        margin: 0;
-        overflow: hidden;
-    }
-
-    .shift-up {
-        transform: translateY(-30px);
-    }
-</style>
-<script>
-    function selectRole(element, role) {
-        // --- Button Visuals ---
-        document.querySelectorAll('.role-btn').forEach(btn => {
-            btn.classList.remove('btn-primary', 'active');
-            btn.classList.add('btn-outline-secondary');
-        });
-        element.classList.add('btn-primary', 'active');
-        element.classList.remove('btn-outline-secondary');
-
-        // --- Form Logic ---
-        document.getElementById('selected-role').value = role;
-        const instructorFields = document.getElementById('instructor-fields');
-        const headlineInput = document.querySelector('input[name="headline"]');
-        const websiteInput = document.querySelector('input[name="website_url"]');
-
-        if (role === 'instructor') {
-            instructorFields.style.display = 'block';
-            headlineInput.required = true;
-            websiteInput.required = true;
-        } else {
-            instructorFields.style.display = 'none';
-            headlineInput.required = false;
-            websiteInput.required = false;
-        }
-    }
-
-    // Ensure the correct fields are shown if there's an old('role') value from a validation error
-    document.addEventListener('DOMContentLoaded', function() {
-        const initialRole = '{{ old("role", "student") }}';
-        const instructorButton = document.querySelector('.role-btn[onclick*="instructor"]');
-        const studentButton = document.querySelector('.role-btn[onclick*="student"]');
-        
-        if (initialRole === 'instructor') {
-            selectRole(instructorButton, 'instructor');
-        } else {
-            selectRole(studentButton, 'student');
-        }
-    });
-</script>
-@endpush

@@ -1,6 +1,6 @@
 # ADR-001: Static stylesheet for the public site
 
-- **Status**: Accepted
+- **Status**: Superseded in part by ADR-002
 - **Date**: 2026-10-17
 - **Deciders**: Project owner
 

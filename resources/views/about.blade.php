@@ -30,9 +30,7 @@
                         <li><i class="bi bi-check2" aria-hidden="true"></i> <span>Cocok untuk pelajar, mahasiswa, hingga profesional.</span></li>
                     </ul>
                 </div>
-                <div>
-                    <img src="{{ asset('home-page/assets/img/features-illustration-1.webp') }}" alt="">
-                </div>
+                <div class="rs-plate" aria-hidden="true"><i class="bi bi-play-btn"></i></div>
             </div>
 
             <div class="rs-split rs-split--flip">
@@ -49,9 +47,7 @@
                         <li><i class="bi bi-check2" aria-hidden="true"></i> <span>Forum diskusi dan komunitas pembelajar.</span></li>
                     </ul>
                 </div>
-                <div>
-                    <img src="{{ asset('home-page/assets/img/features-illustration-2.webp') }}" alt="">
-                </div>
+                <div class="rs-plate" aria-hidden="true"><i class="bi bi-people"></i></div>
             </div>
 
             <div class="rs-split">
@@ -63,13 +59,11 @@
                         <li><i class="bi bi-check2" aria-hidden="true"></i> <span>Akses ke lowongan kerja eksklusif mitra {{ $siteSettings->site_name }}.</span></li>
                         <li><i class="bi bi-check2" aria-hidden="true"></i> <span>Pelatihan interview dan pengembangan soft skill.</span></li>
                     </ul>
-                    <p class="mt-3">
+                    <p class="rs-mt-3">
                         {{ $siteSettings->site_name }} mendukung kariermu sejak proses belajar hingga siap terjun ke industri.
                     </p>
                 </div>
-                <div>
-                    <img src="{{ asset('home-page/assets/img/features-illustration-3.webp') }}" alt="">
-                </div>
+                <div class="rs-plate" aria-hidden="true"><i class="bi bi-briefcase"></i></div>
             </div>
         </div>
     </section><!-- /Features Section -->
