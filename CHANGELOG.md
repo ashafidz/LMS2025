@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Dasbor semua peran (instruktur, admin, superadmin, siswa) memakai kerangka baru: menu daftar isi berkelompok, bar atas, serta huruf dan warna Ruang Studi. Isi halaman dasbor belum berubah.
 - Tampilan halaman publik diperbarui (beranda, katalog, detail kursus, tentang, kontak, FAQ, testimoni, detail layanan, profil publik): huruf Bitter dan Atkinson Hyperlegible, warna biru-putih-abu, kursus ditampilkan seperti sampul buku.
 - Template BootstrapMade dihapus dari halaman publik, keranjang, checkout, halaman galat, halaman status akun, login, dan daftar. Kredit "Designed by BootstrapMade" dihapus, folder `public/home-page` dihapus, dan halaman-halaman tersebut memakai tampilan Rak Buku yang sama (modal diganti dialog bawaan peramban).
 

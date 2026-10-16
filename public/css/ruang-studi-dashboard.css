@@ -1,0 +1,110 @@
+/* Ruang Studi dashboard shell, direction "Rak Buku" (grouped table-of-contents sidebar).
+   Loaded after Bootstrap 4 and Guru Able style.css, which stay for page content until phase D.
+   Shell classes use the rs-dash prefix. */
+
+:root {
+  --rs-navy: #1d3f87;
+  --rs-navy-d: #152f66;
+  --rs-blue: #3463c9;
+  --rs-ink: #1b2233;
+  --rs-slate: #4a5875;
+  --rs-steel: #8696b4;
+  --rs-paper: #f6f8fb;
+  --rs-line: #dde3ee;
+  --rs-shelf: #c8d1e0;
+  --rs-danger: #b42318;
+  --rs-serif: "Bitter", Georgia, "Times New Roman", serif;
+  --rs-sans: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --rs-dash-side: 272px;
+}
+
+/* ---------- Base (replaces the Guru Able body look) ---------- */
+body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; color: var(--rs-ink);
+  font-family: var(--rs-sans); font-size: 15px; line-height: 1.5; }
+.rs-dash a:focus-visible, .rs-dash button:focus-visible, .rs-dash summary:focus-visible { outline: 3px solid var(--rs-blue); outline-offset: 2px; }
+.rs-dash-skip { position: absolute; left: -9999px; top: 8px; z-index: 2000; padding: 8px 14px; background: var(--rs-navy); color: #fff; }
+.rs-dash-skip:focus { left: 8px; color: #fff; }
+
+/* ---------- Shell ---------- */
+.rs-dash-shell { display: grid; grid-template-columns: var(--rs-dash-side) minmax(0, 1fr); min-height: 100vh; }
+.rs-dash-side { position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; gap: 18px;
+  padding: 20px 20px 24px; background: #fff; border-right: 1px solid var(--rs-line); }
+.rs-dash-logo { font-family: var(--rs-serif); font-weight: 800; font-size: 20px; line-height: 1.2; color: var(--rs-navy); text-decoration: none; }
+.rs-dash-logo:hover { color: var(--rs-navy-d); text-decoration: none; }
+.rs-dash-role { display: inline-flex; width: max-content; border: 1px solid var(--rs-line); border-radius: 2px; font-size: 14px; }
+.rs-dash-role a, .rs-dash-role span { padding: 5px 12px; text-decoration: none; }
+.rs-dash-role span { background: var(--rs-navy); color: #fff; font-weight: 700; }
+.rs-dash-role a { color: var(--rs-slate); }
+.rs-dash-role a:hover { background: var(--rs-paper); color: var(--rs-navy); text-decoration: none; }
+.rs-dash-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 8px 16px;
+  background: var(--rs-navy); color: #fff; border: 2px solid var(--rs-navy); border-radius: 2px; font-weight: 700; text-decoration: none; }
+.rs-dash-btn:hover { background: var(--rs-navy-d); border-color: var(--rs-navy-d); color: #fff; text-decoration: none; }
+
+/* ---------- Table-of-contents menu ---------- */
+.rs-dash-group h2 { margin: 0 0 2px; padding-bottom: 4px; border-bottom: 2px solid var(--rs-ink); font-family: var(--rs-sans);
+  font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--rs-slate); }
+.rs-dash-toc { list-style: none; margin: 0; padding: 0; }
+.rs-dash-toc a { display: flex; align-items: baseline; gap: 6px; padding: 6px 0; color: var(--rs-ink); font-size: 15px; text-decoration: none; }
+.rs-dash-toc a::after { content: ""; order: 1; flex: 1; border-bottom: 2px dotted var(--rs-shelf); transform: translateY(-4px); }
+.rs-dash-toc a > em { order: 2; font-style: normal; font-size: 14px; color: var(--rs-slate); font-variant-numeric: tabular-nums; }
+.rs-dash-toc a > em.is-action { color: var(--rs-danger); font-weight: 700; }
+.rs-dash-toc a:hover { color: var(--rs-navy); text-decoration: none; }
+.rs-dash-toc a[aria-current="page"] { margin-left: -12px; padding-left: 8px; border-left: 4px solid var(--rs-navy); color: var(--rs-navy); font-weight: 700; }
+
+/* ---------- Top bar ---------- */
+.rs-dash-main { display: flex; flex-direction: column; min-width: 0; }
+.rs-dash-top { position: sticky; top: 0; z-index: 1020; display: flex; align-items: center; gap: 12px 18px; min-height: 60px;
+  padding: 10px 28px; background: var(--rs-paper); border-bottom: 1px solid var(--rs-line); }
+.rs-dash-top__sp { flex: 1; }
+.rs-dash-menu-btn { display: none; align-items: center; gap: 6px; min-height: 40px; padding: 6px 12px; background: #fff;
+  border: 1px solid var(--rs-line); border-radius: 2px; color: var(--rs-ink); font-weight: 700; }
+.rs-dash-top__link { display: inline-flex; align-items: center; gap: 6px; color: var(--rs-ink); font-size: 14px; text-decoration: none; }
+.rs-dash-top__link:hover { color: var(--rs-navy); text-decoration: none; }
+.rs-dash-user { position: relative; }
+.rs-dash-user > summary { display: flex; align-items: center; gap: 8px; list-style: none; cursor: pointer; font-size: 14px; }
+.rs-dash-user > summary::-webkit-details-marker { display: none; }
+.rs-dash-avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; object-fit: cover;
+  background: var(--rs-line); color: var(--rs-ink); font-weight: 700; font-size: 13px; }
+.rs-dash-user__menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 1030; min-width: 220px; padding: 6px 0;
+  background: #fff; border: 1px solid var(--rs-line); box-shadow: 0 8px 24px rgba(27, 34, 51, .12); }
+.rs-dash-user__menu a, .rs-dash-user__menu button { display: block; width: 100%; padding: 9px 16px; background: none; border: 0;
+  color: var(--rs-ink); font-size: 15px; text-align: left; text-decoration: none; }
+.rs-dash-user__menu a:hover, .rs-dash-user__menu button:hover { background: var(--rs-paper); color: var(--rs-navy); text-decoration: none; }
+.rs-dash-user__menu form { margin: 0; border-top: 1px solid var(--rs-line); }
+.rs-dash-content { flex: 1; min-width: 0; padding: 24px 28px 48px; }
+
+/* ---------- Content helpers kept from the old layout ---------- */
+.star-rating { display: inline-flex; gap: 8px; font-size: 20px; }
+.star-rating i { color: #ddd; transition: transform .2s, color .3s; cursor: pointer; }
+.star-rating i.hovered, .star-rating i.selected { color: #facc15; transform: scale(1.2); }
+
+/* ---------- Bridge: Guru Able parts every content view still uses. Remove in phase D. ---------- */
+.rs-dash .pcoded-content { margin: 0; }
+.rs-dash .pcoded-inner-content, .rs-dash .main-body .page-wrapper { padding: 0; }
+.rs-dash .page-header { margin: 0 0 20px; background: none; color: var(--rs-ink); border-bottom: 2px solid var(--rs-ink); }
+.rs-dash .page-header:before { content: none; }
+.rs-dash .page-header .page-block { padding: 0 0 14px; }
+.rs-dash .page-header-title h5 { margin: 0 0 4px; font-family: var(--rs-serif); font-weight: 800; font-size: clamp(24px, 3vw, 30px); color: var(--rs-ink); }
+.rs-dash .page-header-title p { color: var(--rs-slate); }
+.rs-dash .page-header .page-block .breadcrumb-title { font-size: 14px; }
+.rs-dash .page-header .page-block .breadcrumb-title a { color: var(--rs-slate); }
+.rs-dash .card { border: 1px solid var(--rs-line); border-radius: 2px; box-shadow: none; }
+.rs-dash .card .card-header h5 { font-family: var(--rs-serif); font-weight: 700; color: var(--rs-ink); }
+.rs-dash .btn-primary { background-color: var(--rs-navy); border-color: var(--rs-navy); }
+.rs-dash .btn-primary:hover, .rs-dash .btn-primary:focus { background-color: var(--rs-navy-d); border-color: var(--rs-navy-d); }
+
+/* ---------- Small screens: the menu slides in from the left ---------- */
+@media (max-width: 991.98px) {
+  .rs-dash-shell { grid-template-columns: 1fr; }
+  .rs-dash-side { position: fixed; top: 0; bottom: 0; left: 0; z-index: 1040; width: min(320px, 86vw); height: auto;
+    transform: translateX(-100%); transition: transform .2s ease; }
+  body.rs-dash.is-menu-open { overflow: hidden; }
+  body.rs-dash.is-menu-open .rs-dash-side { transform: none; box-shadow: 0 0 0 100vmax rgba(27, 34, 51, .35); }
+  .rs-dash-menu-btn { display: inline-flex; }
+  .rs-dash-top, .rs-dash-content { padding-left: 16px; padding-right: 16px; }
+  .rs-dash-user > summary > span { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rs-dash-side { transition: none; }
+}
