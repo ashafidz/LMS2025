@@ -1,0 +1,25 @@
+---
+description: Database schema changes, Laravel migrations, and idempotent seeding rules
+alwaysApply: true
+---
+
+# Database Governance Rules
+
+## 1. Migrations as Single Source of Truth
+- Never apply raw DDL directly to the database, from tinker, or through runtime code.
+- All structural changes (tables, columns, indexes, constraints) are new files in `database/migrations/`.
+- Never edit a migration that already ran on a shared environment; add a new one. Every migration needs a working `down()`.
+- Tests run on SQLite in-memory: avoid MySQL-only SQL or guard it with `DB::getDriverName()`.
+
+## 2. Idempotent Seeding
+- `php artisan db:seed` must be safe to run multiple times without duplicates or constraint errors.
+- Use `updateOrCreate`, `firstOrCreate`, or `upsert` keyed on natural keys (role `name`, category `slug`, user `email`).
+- Never rely on auto-increment IDs for seeded rows that other rows depend on; look them up by natural key.
+- Seed in dependency order in `DatabaseSeeder`: lookup tables first, dependent tables second.
+
+## 3. Safe Testing
+- Use `RefreshDatabase` and factories. Never run tests against the dev or production MySQL database.
+
+## 4. Truth in Data
+- Do not show "reassuring" zero values when data is absent or not computed.
+- Return `null` or an empty collection and let the view render an explicit "no data yet" state.

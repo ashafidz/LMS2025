@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use App\Traits\HasLocalDates;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class QuestionOption extends Model
 {
@@ -19,10 +19,10 @@ class QuestionOption extends Model
         'is_correct',
         'correct_gap_identifier', // Added this field
     ];
+
     protected $casts = [
         'is_correct' => 'boolean', // <--- TAMBAHKAN BARIS INI
     ];
-
 
     /**
      * The question this option belongs to.

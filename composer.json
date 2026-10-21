@@ -64,6 +64,10 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@php artisan test"
+        ],
+        "verify": [
+            "Composer\\Config::disableProcessTimeout",
+            "./scripts/verify.sh"
         ]
     },
     "extra": {

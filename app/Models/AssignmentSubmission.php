@@ -2,18 +2,18 @@
 
 namespace App\Models;
 
-use App\Traits\HasLocalDates;
 use App\Traits\HasHashedRouteKey;
-use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasLocalDates;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class AssignmentSubmission extends Model
 {
     use HasFactory;
-    use HasLocalDates;
     use HasHashedRouteKey;
+    use HasLocalDates;
 
-    protected $fillable = ['assignment_id', 'user_id', 'file_path', 'submitted_at', 'grade', 'feedback', 'status',];
+    protected $fillable = ['assignment_id', 'user_id', 'file_path', 'submitted_at', 'grade', 'feedback', 'status'];
 
     protected $casts = [
         'submitted_at' => 'datetime',

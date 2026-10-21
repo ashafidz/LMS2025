@@ -60,7 +60,7 @@ return new class extends Migration
                 'points_for_video',
                 'points_for_document',
                 'points_for_quiz',
-                'points_for_assignment'
+                'points_for_assignment',
             ]);
         });
 

@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Lesson;
+use App\Models\LessonDiscussion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\LessonDiscussion;
 
 class LessonDiscussionController extends Controller
 {
@@ -19,7 +19,7 @@ class LessonDiscussionController extends Controller
 
         // Validasi: Pastikan pengguna terdaftar di kursus ini
         $is_enrolled = $user->enrollments()->where('course_id', $lesson->module->course_id)->exists();
-        if (!$is_enrolled) {
+        if (! $is_enrolled) {
             return back()->with('error', 'Anda harus terdaftar di kursus ini untuk berdiskusi.');
         }
 
@@ -37,8 +37,6 @@ class LessonDiscussionController extends Controller
 
         return back()->with('success', 'Komentar Anda berhasil dikirim.');
     }
-
-
 
     /**
      * "Menghapus" sebuah komentar dengan mengganti isinya.

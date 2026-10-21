@@ -1,68 +1,61 @@
 <?php
 
 use App\Http\Controllers;
-use App\Models\SiteSetting;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AboutController;
-use App\Http\Controllers\CatalogController;
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\RoleSwitchController;
-use App\Http\Controllers\TestimonialController;
-use App\Http\Controllers\UserProfileController;
-use App\Http\Controllers\Student\CartController;
-use App\Http\Controllers\Shared\CouponController;
-use App\Http\Controllers\MidtransCallbackController;
-use App\Http\Controllers\Student\CheckoutController;
-use App\Http\Controllers\Superadmin\BadgeController;
-use App\Http\Controllers\Instructor\CourseController;
-use App\Http\Controllers\Instructor\LessonController;
-use App\Http\Controllers\Instructor\ModuleController;
-use App\Http\Controllers\Shared\PublicationController;
-use App\Http\Controllers\Instructor\QuestionController;
-use App\Http\Controllers\Student\CertificateController;
-use App\Http\Controllers\Student\StudentQuizController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
-use App\Http\Controllers\Shared\StudentStatusController;
-use App\Http\Controllers\Student\CourseReviewController;
-use App\Http\Controllers\Student\GamificationController;
-use App\Http\Controllers\Student\StudentBadgeController;
-use App\Http\Controllers\Student\StudentPointController;
-use App\Http\Controllers\Shared\CourseCategoryController;
-use App\Http\Controllers\Shared\LikertQuestionController;
-use App\Http\Controllers\Student\PointPurchaseController;
-use App\Http\Controllers\Student\StudentReviewController;
+use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Instructor\CourseController;
+use App\Http\Controllers\Instructor\InstructorAssignmentController;
+use App\Http\Controllers\Instructor\InstructorDashboardController;
+use App\Http\Controllers\Instructor\InstructorLeaderboardController;
+use App\Http\Controllers\Instructor\InstructorQuizController;
+use App\Http\Controllers\Instructor\InstructorRecapController;
+use App\Http\Controllers\Instructor\LessonController;
 use App\Http\Controllers\Instructor\LessonPointController;
-use App\Http\Controllers\Superadmin\SiteSettingController;
+use App\Http\Controllers\Instructor\ModuleController;
+use App\Http\Controllers\Instructor\QuestionController;
+use App\Http\Controllers\Instructor\QuestionTopicController;
 use App\Http\Controllers\Instructor\QuizQuestionController;
 use App\Http\Controllers\Instructor\QuizSecurityController;
+use App\Http\Controllers\MidtransCallbackController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PublicProfileController;
+use App\Http\Controllers\RoleSwitchController;
+use App\Http\Controllers\Shared\CouponController;
+use App\Http\Controllers\Shared\CourseCategoryController;
 use App\Http\Controllers\Shared\CourseEnrollmentController;
-use App\Http\Controllers\Student\DiamondPurchaseController;
-use App\Http\Controllers\Instructor\QuestionTopicController;
-use App\Http\Controllers\Student\LessonDiscussionController;
-use App\Http\Controllers\Student\StudentDashboardController;
-
-use App\Http\Controllers\Instructor\InstructorQuizController;
-use App\Http\Controllers\Student\DiamondConversionController;
-use App\Http\Controllers\Student\StudentAssignmentController;
-use App\Http\Controllers\Instructor\InstructorRecapController;
-use App\Http\Controllers\Student\TransactionHistoryController;
 use App\Http\Controllers\Shared\InstructorApplicationController;
-use App\Http\Controllers\Instructor\InstructorDashboardController;
-
-use App\Http\Controllers\PublicProfileController; // Tambahkan ini
-use App\Http\Controllers\Superadmin\SuperAdminDashboardController;
-use App\Http\Controllers\Instructor\InstructorAssignmentController;
-use App\Http\Controllers\Instructor\InstructorLeaderboardController;
+use App\Http\Controllers\Shared\LikertQuestionController;
+use App\Http\Controllers\Shared\PublicationController;
+use App\Http\Controllers\Shared\StudentStatusController;
+use App\Http\Controllers\Student\CartController;
+use App\Http\Controllers\Student\CertificateController;
+use App\Http\Controllers\Student\CheckoutController;
 use App\Http\Controllers\Student\CourseController as StudentCourseController;
-use App\Http\Controllers\Student\StudentCertificateController; // Tambahkan ini
-use App\Http\Controllers\Superadmin\AdminManagementController; // Tambahkan ini
-use App\Http\Controllers\Superadmin\PointSyncController;
-
-
+use App\Http\Controllers\Student\CourseReviewController;
+use App\Http\Controllers\Student\DiamondConversionController;
+use App\Http\Controllers\Student\DiamondPurchaseController;
+use App\Http\Controllers\Student\GamificationController;
+use App\Http\Controllers\Student\LessonDiscussionController;
+use App\Http\Controllers\Student\StudentAssignmentController;
+use App\Http\Controllers\Student\StudentBadgeController;
+use App\Http\Controllers\Student\StudentCertificateController;
+use App\Http\Controllers\Student\StudentDashboardController;
+use App\Http\Controllers\Student\StudentQuizController;
+use App\Http\Controllers\Student\StudentReviewController;
+use App\Http\Controllers\Student\TransactionHistoryController;
+use App\Http\Controllers\Superadmin\AdminManagementController;
+use App\Http\Controllers\Superadmin\BadgeController;
+use App\Http\Controllers\Superadmin\PointSyncController; // Tambahkan ini
+use App\Http\Controllers\Superadmin\SiteSettingController;
+use App\Http\Controllers\Superadmin\SuperAdminDashboardController;
+use App\Http\Controllers\TestimonialController;
+use App\Http\Controllers\UserProfileController;
+use Illuminate\Http\Request; // Tambahkan ini
+use Illuminate\Support\Facades\Auth; // Tambahkan ini
+use Illuminate\Support\Facades\Route;
 
 Route::get('/testimonials', [TestimonialController::class, 'index'])->name('testimonials');
 
@@ -70,8 +63,6 @@ Route::get('/testimonials', [TestimonialController::class, 'index'])->name('test
 Route::get('/courses/{course}/leaderboard', [StudentCourseController::class, 'getLeaderboard'])->name('student.course.leaderboard');
 // RUTE BARU UNTUK HALAMAN PROFIL PUBLIK
 Route::get('/profile/{user}', [PublicProfileController::class, 'show'])->name('profile.show');
-
-
 
 // di dalam file routes/web.php RUTE LEADERBOARD MODULE
 Route::get('/modules/{module}/leaderboard', [StudentCourseController::class, 'getModuleLeaderboard'])->name('student.module.leaderboard');
@@ -91,9 +82,6 @@ Route::post('/set-timezone', function (Request $request) {
 
     return response()->json(['status' => 'success']);
 });
-
-
-Route::get('/switch-role/{role}', [RoleSwitchController::class, 'switch'])->name('role.switch');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 // Add a route to refresh CSRF tokens
@@ -115,9 +103,13 @@ Route::get('/detail-service', function () {
     return view('detail-layanan');
 })->name('services.detail');
 
-
+Route::post('/midtrans/notification', [MidtransCallbackController::class, 'handle'])
+    ->middleware('throttle:60,1')
+    ->name('midtrans.notification');
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/switch-role/{role}', [RoleSwitchController::class, 'switch'])->name('role.switch');
+
     // profile index
     Route::get('/user/profile/view', [UserProfileController::class, 'index'])->name('user.profile.index');
     Route::get('/user/profile/edit', [UserProfileController::class, 'edit'])->name('user.profile.edit');
@@ -144,9 +136,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Halaman untuk menampilkan hasil akhir kuis
     Route::get('/student/quiz/attempt/{attempt}/result', [StudentQuizController::class, 'result'])->name('student.quiz.result');
-
-    // RUTE BARU UNTUK MENGECEK JAWABAN SECARA REAL-TIME (AJAX)
-    Route::post('/student/quiz/check-answer', [StudentQuizController::class, 'checkAnswerAjax'])->name('student.quiz.check_answer');
 
     // RUTE UNTUK LOG TAB VIOLATION
     Route::post('/student/quiz/attempt/{attempt}/log-tab-violation', [StudentQuizController::class, 'logTabViolation'])->name('student.quiz.log_tab_violation');
@@ -187,11 +176,9 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     Route::put('/superadmin/coupons/{coupon}', [CouponController::class, 'update'])->name('superadmin.coupons.update');
     Route::delete('/superadmin/coupons/{coupon}', [CouponController::class, 'destroy'])->name('superadmin.coupons.destroy');
 
-
     // --- Rute untuk Pengaturan Situs ---
     Route::get('/superadmin/settings', [SiteSettingController::class, 'edit'])->name('superadmin.settings.edit');
     Route::put('/superadmin/settings', [SiteSettingController::class, 'update'])->name('superadmin.settings.update');
-
 
     // --- Rute untuk Manajemen Pertanyaan Skala Likert ---
     Route::get('/superadmin/likert-questions', [LikertQuestionController::class, 'index'])->name('superadmin.likert-questions.index');
@@ -201,8 +188,6 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     Route::put('/superadmin/likert-questions/{likertQuestion}', [LikertQuestionController::class, 'update'])->name('superadmin.likert-questions.update');
     Route::delete('/superadmin/likert-questions/{likertQuestion}', [LikertQuestionController::class, 'destroy'])->name('superadmin.likert-questions.destroy');
 
-
-
     // --- RUTE BARU UNTUK MANAJEMEN BADGE ---
     Route::get('/superadmin/badges', [BadgeController::class, 'index'])->name('superadmin.badges.index');
     Route::get('/superadmin/badges/create', [BadgeController::class, 'create'])->name('superadmin.badges.create');
@@ -211,7 +196,6 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     Route::put('/superadmin/badges/{badge}', [BadgeController::class, 'update'])->name('superadmin.badges.update');
     Route::delete('/superadmin/badges/{badge}', [BadgeController::class, 'destroy'])->name('superadmin.badges.destroy');
 
-
     // --- RUTE BARU UNTUK KELOLA USER KURSUS ---
     Route::get('/superadmin/course-enrollments', [CourseEnrollmentController::class, 'index'])->name('superadmin.course-enrollments.index');
     Route::get('/superadmin/course-enrollments/{course}', [CourseEnrollmentController::class, 'show'])->name('superadmin.course-enrollments.show');
@@ -219,17 +203,14 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     Route::post('/superadmin/course-enrollments/{course}', [CourseEnrollmentController::class, 'store'])->name('superadmin.course-enrollments.store');
     Route::delete('/superadmin/course-enrollments/{course}/remove', [CourseEnrollmentController::class, 'destroy'])->name('superadmin.course-enrollments.destroy');
 
-
     // --- RUTE BARU UNTUK MANAJEMEN KATEGORI KURSUS ---
     Route::resource('/superadmin/course-categories', CourseCategoryController::class, [
-        'as' => 'superadmin'
+        'as' => 'superadmin',
     ])->except(['show']);
-
-
 
     // --- RUTE BARU UNTUK MANAJEMEN ADMIN ---
     Route::resource('/superadmin/admins', AdminManagementController::class, [
-        'as' => 'superadmin'
+        'as' => 'superadmin',
     ])->except(['show']);
 
     // --- RUTE SINKRONISASI POIN ---
@@ -265,7 +246,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::patch('/admin/publication/{course}/publish', [PublicationController::class, 'publish'])->name('admin.publication.publish');
     Route::patch('/admin/publication/{course}/reject', [PublicationController::class, 'reject'])->name('admin.publication.reject');
 
-
     // --- Rute untuk Manajemen Kupon ---
     Route::get('/admin/coupons', [CouponController::class, 'index'])->name('admin.coupons.index');
     Route::get('/admin/coupons/create', [CouponController::class, 'create'])->name('admin.coupons.create');
@@ -273,7 +253,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/admin/coupons/{coupon}/edit', [CouponController::class, 'edit'])->name('admin.coupons.edit');
     Route::put('/admin/coupons/{coupon}', [CouponController::class, 'update'])->name('admin.coupons.update');
     Route::delete('/admin/coupons/{coupon}', [CouponController::class, 'destroy'])->name('admin.coupons.destroy');
-
 
     // --- Rute untuk Manajemen Pertanyaan Skala Likert ---
     Route::get('/admin/likert-questions', [LikertQuestionController::class, 'index'])->name('admin.likert-questions.index');
@@ -290,10 +269,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::post('/admin/course-enrollments/{course}', [CourseEnrollmentController::class, 'store'])->name('admin.course-enrollments.store');
     Route::delete('/admin/course-enrollments/{course}/remove', [CourseEnrollmentController::class, 'destroy'])->name('admin.course-enrollments.destroy');
 
-
     // --- RUTE BARU UNTUK MANAJEMEN KATEGORI KURSUS ---
     Route::resource('/admin/course-categories', CourseCategoryController::class, [
-        'as' => 'admin'
+        'as' => 'admin',
     ])->except(['show']);
 
     // --- RUTE SINKRONISASI POIN (ADMIN) ---
@@ -304,8 +282,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/admin/point-sync/courses/{course}/students/{student}/progress', [PointSyncController::class, 'studentProgress'])->name('admin.point-sync.student-progress');
     Route::post('/admin/point-sync/courses/{course}/students/{student}/sync', [PointSyncController::class, 'syncPoints'])->name('admin.point-sync.sync-points');
 });
-
-
 
 // Group route for instructor
 Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
@@ -347,7 +323,6 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         Route::patch('/questions/{question}', [QuestionController::class, 'update']); // Patch route for update
         Route::delete('/questions/{question}', [QuestionController::class, 'destroy'])->name('instructor.question-bank.questions.destroy');
 
-
         // GET /instructor/courses -> List all courses
         Route::get('/instructor/courses', [CourseController::class, 'index'])->name('instructor.courses.index');
 
@@ -368,8 +343,6 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
 
         // DELETE /instructor/courses/{course} -> Delete a course
         Route::delete('/instructor/courses/{course}', [CourseController::class, 'destroy'])->name('instructor.courses.destroy');
-
-
 
         // List all modules for a course & handle reordering
         Route::get('/instructor/courses/{course}/modules', [ModuleController::class, 'index'])->name('instructor.courses.modules.index');
@@ -393,7 +366,6 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         // Aksi untuk meminta revisi masal
         Route::post('/instructor/assignments/{assignment}/submissions/bulk-revision', [InstructorAssignmentController::class, 'bulkRevise'])->name('instructor.assignment.submissions.bulk_revision');
 
-
         // --- Routes untuk Mengelola Pelajaran (Lessons) dalam sebuah Modul ---
 
         // Menampilkan daftar pelajaran & menangani pengurutan
@@ -413,7 +385,6 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         Route::put('/instructor/lessons/{lesson}', [LessonController::class, 'update'])->name('instructor.lessons.update');
         Route::delete('/instructor/lessons/{lesson}', [LessonController::class, 'destroy'])->name('instructor.lessons.destroy');
 
-
         // --- Routes untuk Mengelola Soal di dalam sebuah Kuis ---
 
         // Halaman utama yang menampilkan daftar soal dalam kuis
@@ -431,15 +402,12 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         Route::patch('/instructor/courses/{course}/submit-review', [CourseController::class, 'submitForReview'])->name('instructor.courses.submit_review');
         Route::patch('/instructor/courses/{course}/make-private', [CourseController::class, 'makePrivate'])->name('instructor.courses.make_private');
 
-
         Route::get('/instructor/lesson-points/{lesson}/manage', [LessonPointController::class, 'index'])->name('instructor.lesson_points.manage');
         Route::post('/instructor/lesson-points/{lesson}/award', [LessonPointController::class, 'award'])->name('instructor.lesson_points.award');
-
 
         // --- RUTE BARU UNTUK LEADERBOARD INSTRUKTUR ---
         Route::get('/instructor/courses/{course}/leaderboard', [InstructorLeaderboardController::class, 'courseLeaderboard'])->name('instructor.course.leaderboard');
         Route::get('/instructor/modules/{module}/leaderboard', [InstructorLeaderboardController::class, 'moduleLeaderboard'])->name('instructor.module.leaderboard');
-
 
         // Halaman untuk menampilkan daftar semua hasil/percobaan untuk sebuah kuis
         Route::get('/instructor/quizzes/{quiz}/results', [InstructorQuizController::class, 'showResults'])->name('instructor.quiz.results');
@@ -449,7 +417,7 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
 
         // RUTE BARU UNTUK MENG-CLONE KURSUS
         Route::post('/instructor/courses/{course}/clone', [CourseController::class, 'clone'])->name('instructor.courses.clone');
-        
+
         // Student Progress Route (read-only for instructor)
         Route::get('/instructor/courses/{course}/students/{student}/progress', [CourseController::class, 'studentProgress'])->name('instructor.courses.student_progress');
         // --- RUTE UNTUK REKAP NILAI ---
@@ -459,8 +427,6 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         // RUTE BARU UNTUK UNDUH
         Route::get('/instructor/modules/{module}/recap/pdf', [InstructorRecapController::class, 'downloadPdf'])->name('instructor.recap.download_pdf');
         Route::get('/instructor/modules/{module}/recap/excel', [InstructorRecapController::class, 'downloadExcel'])->name('instructor.recap.download_excel');
-
-
 
         // NEW: Route for moving questions between topics
         Route::patch('/questions/{question}/move', [QuestionController::class, 'move'])->name('instructor.question-bank.questions.move');
@@ -490,10 +456,6 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         ->name('instructor.quiz.attempt.revise_score');
 });
 
-
-
-
-
 // * group route for student
 Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
 
@@ -501,15 +463,12 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
         return view('auth.deactive-student');
     })->name('student.deactive');
 
-    //! This nested group IS protected by the status-checking middleware.
+    // ! This nested group IS protected by the status-checking middleware.
     Route::middleware(['checkStudentStatus'])->group(function () {
         Route::view('/student/dashboard', 'student.dashboard')->name('student.dashboard');
 
         // RUTE BARU UNTUK HALAMAN SERTIFIKAT SAYA
         Route::get('/my-certificates', [StudentCertificateController::class, 'index'])->name('student.certificates.index');
-
-
-
 
         // Halaman utama untuk menampilkan isi keranjang
         Route::get('/cart', [CartController::class, 'index'])->name('student.cart.index');
@@ -526,7 +485,6 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
         // Aksi untuk menghapus kupon yang sudah diterapkan
         Route::post('/cart/remove-coupon', [CartController::class, 'removeCoupon'])->name('student.cart.remove_coupon');
 
-
         // --- RUTE UNTUK PROSES CHECKOUT ---
         // Aksi untuk memproses keranjang menjadi pesanan
         Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
@@ -534,9 +492,7 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
         // Halaman untuk menampilkan detail pesanan dan tombol bayar
         Route::get('/orders/{order}', [CheckoutController::class, 'show'])->name('checkout.show');
 
-
         Route::get('/my-transactions', [TransactionHistoryController::class, 'index'])->name('student.transactions.index');
-
 
         Route::get('/orders/{order}/success', [PaymentController::class, 'success'])->name('payment.success');
         Route::get('/orders/{order}/pending', [PaymentController::class, 'pending'])->name('payment.pending');
@@ -549,7 +505,7 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
         Route::post('/assignments/{assignment}/submit', [StudentAssignmentController::class, 'submit'])->name('student.assignment.submit');
         Route::post('/lessons/{lesson}/polling/submit', [StudentCourseController::class, 'submitPolling'])->name('student.lessons.polling.submit');
         Route::get('/lessons/{lesson}/polling/results', [StudentCourseController::class, 'ajaxPollingResults'])->name('student.lessons.polling.results.ajax');
-        
+
         Route::post('/lessons/{lesson}/wordcloud/submit', [StudentCourseController::class, 'submitWordcloud'])->name('student.lessons.wordcloud.submit');
         Route::get('/lessons/{lesson}/wordcloud/results', [StudentCourseController::class, 'ajaxWordcloudResults'])->name('student.lessons.wordcloud.results.ajax');
 
@@ -564,7 +520,6 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
 
         // Rute untuk mengunduh sertifikat sebagai PDF
         Route::get('/courses/{course}/certificate/download', [CertificateController::class, 'download'])->name('student.certificate.download');
-
 
         // Halaman utama untuk menampilkan semua ulasan
         Route::get('/my-reviews', [StudentReviewController::class, 'index'])->name('student.reviews.index');
@@ -582,10 +537,8 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
 
         Route::post('/courses/{course}/purchase-with-diamonds', [DiamondPurchaseController::class, 'purchase'])->name('student.courses.purchase_with_diamonds');
 
-
         // RUTE BARU UNTUK HALAMAN "BADGE SAYA"
         Route::get('/my-badges', [StudentBadgeController::class, 'index'])->name('student.badges.index');
-
 
         // RUTE BARU UNTUK FITUR DISKUSI
         Route::post('/lessons/{lesson}/discussions', [LessonDiscussionController::class, 'store'])->name('student.lessons.discussions.store');
@@ -593,21 +546,15 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
         // RUTE BARU UNTUK MENGHAPUS KOMENTAR
         Route::delete('/discussions/{discussion}', [LessonDiscussionController::class, 'destroy'])->name('student.lessons.discussions.destroy');
 
-
         // --- RUTE BARU UNTUK HALAMAN POIN & DIAMOND ---
         Route::get('/my-points', [GamificationController::class, 'points'])->name('student.points.index');
         Route::get('/my-diamonds', [GamificationController::class, 'diamonds'])->name('student.diamonds.index');
 
-
-
-
         // RUTE BARU UNTUK MENGONVERSI POIN
         Route::post('/courses/{course}/convert-points', [DiamondConversionController::class, 'convert'])->name('student.course.convert_points');
-
 
         // --- RUTE BARU UNTUK PENDAFTARAN INSTRUKTUR ---
         Route::get('/apply-instructor', [InstructorApplicationController::class, 'create'])->name('student.apply_instructor.create');
         Route::post('/apply-instructor', [InstructorApplicationController::class, 'store'])->name('student.apply_instructor.store');
     });
 });
-

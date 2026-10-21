@@ -23,7 +23,7 @@ class CatalogController extends Controller
 
         // 1. Logika untuk Pencarian
         if ($request->filled('search')) {
-            $query->where('title', 'like', '%' . $request->input('search') . '%');
+            $query->where('title', 'like', '%'.$request->input('search').'%');
         }
 
         // 2. Logika untuk Filter Kategori
@@ -37,14 +37,12 @@ class CatalogController extends Controller
         // Ambil semua kategori untuk ditampilkan di sidebar filter
         $categories = CourseCategory::orderBy('name')->get();
 
-
         // LOGIKA BARU: Ambil 10 kursus terpopuler
         $popularCourses = Course::where('status', 'published')
             ->withCount('students')
             ->orderBy('students_count', 'desc')
             ->take(10)
             ->get();
-
 
         // Ambil 3 kursus terpopuler
         $popularCourses = Course::where('status', 'published')
@@ -57,7 +55,6 @@ class CatalogController extends Controller
         $mostPopularCourse = $popularCourses->get(0); // Kursus paling populer (urutan 1)
         $secondMostPopularCourse = $popularCourses->get(1); // Urutan 2
         $thirdMostPopularCourse = $popularCourses->get(2); // Urutan 3
-
 
         return view('catalog', compact('courses', 'categories', 'popularCourses', 'mostPopularCourse', 'secondMostPopularCourse', 'thirdMostPopularCourse'));
     }
@@ -74,8 +71,8 @@ class CatalogController extends Controller
         $course->load([
             'instructor',
             'category',
-            'modules' => fn($q) => $q->orderBy('order'),
-            'modules.lessons' => fn($q) => $q->orderBy('order')
+            'modules' => fn ($q) => $q->orderBy('order'),
+            'modules.lessons' => fn ($q) => $q->orderBy('order'),
         ]);
 
         $reviews = $course->reviews()->with('user')->latest()->simplePaginate(5);
@@ -87,9 +84,9 @@ class CatalogController extends Controller
             $is_enrolled = Auth::user()->enrollments()->where('course_id', $course->id)->exists();
         }
 
-
         // LOGIKA BARU: Ambil kursus lain dalam kategori yang sama
-        $relatedCourses = Course::where('status', 'published')
+        $relatedCourses = Course::with('instructor', 'category')
+            ->where('status', 'published')
             ->where('category_id', $course->category_id)
             ->where('id', '!=', $course->id) // Kecualikan kursus saat ini
             ->inRandomOrder()

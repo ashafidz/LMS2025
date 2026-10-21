@@ -16,6 +16,7 @@ class LikertQuestionController extends Controller
     public function index()
     {
         $questions = LikertQuestion::latest()->simplePaginate(15);
+
         return view('shared-admin.likert-questions.index', compact('questions'));
     }
 
@@ -42,7 +43,7 @@ class LikertQuestionController extends Controller
         LikertQuestion::create($validated);
         $roleName = Auth::user()->getRoleNames()->first();
 
-        return redirect()->route($roleName . '.likert-questions.index')->with('success', 'Pertanyaan berhasil dibuat.');
+        return redirect()->route($roleName.'.likert-questions.index')->with('success', 'Pertanyaan berhasil dibuat.');
     }
 
     /**
@@ -68,7 +69,7 @@ class LikertQuestionController extends Controller
         $likertQuestion->update($validated);
         $roleName = Auth::user()->getRoleNames()->first();
 
-        return redirect()->route($roleName . '.likert-questions.index')->with('success', 'Pertanyaan berhasil diperbarui.');
+        return redirect()->route($roleName.'.likert-questions.index')->with('success', 'Pertanyaan berhasil diperbarui.');
     }
 
     /**
@@ -77,6 +78,7 @@ class LikertQuestionController extends Controller
     public function destroy(LikertQuestion $likertQuestion)
     {
         $likertQuestion->delete();
+
         return back()->with('success', 'Pertanyaan berhasil dihapus.');
     }
 }

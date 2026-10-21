@@ -1,4 +1,5 @@
 <?php
+
 // simpan di app/Traits/HasLocalDates.php
 
 namespace App\Traits;
@@ -11,8 +12,6 @@ trait HasLocalDates
     /**
      * Helper function untuk mendapatkan zona waktu lokal yang benar.
      * Prioritas: DB Pengguna -> Session -> Config Default
-     *
-     * @return string
      */
     private function getLocalTimezone(): string
     {
@@ -38,6 +37,7 @@ trait HasLocalDates
         if (is_null($value)) {
             return null;
         }
+
         return Carbon::parse($value)->tz($this->getLocalTimezone());
     }
 
@@ -49,6 +49,7 @@ trait HasLocalDates
         if (is_null($value)) {
             return null;
         }
+
         return Carbon::parse($value)->tz($this->getLocalTimezone());
     }
 
@@ -60,6 +61,7 @@ trait HasLocalDates
         if (is_null($value)) {
             return null;
         }
+
         return Carbon::parse($value)->tz($this->getLocalTimezone());
     }
 
@@ -71,6 +73,7 @@ trait HasLocalDates
         if (is_null($value)) {
             return null;
         }
+
         return Carbon::parse($value)->tz($this->getLocalTimezone());
     }
 
@@ -82,6 +85,7 @@ trait HasLocalDates
         if (is_null($value)) {
             return null;
         }
+
         return Carbon::parse($value)->tz($this->getLocalTimezone());
     }
 
@@ -93,6 +97,7 @@ trait HasLocalDates
         if (is_null($value)) {
             return null;
         }
+
         return Carbon::parse($value)->tz($this->getLocalTimezone());
     }
 
@@ -104,6 +109,7 @@ trait HasLocalDates
         if (is_null($value)) {
             return null;
         }
+
         return Carbon::parse($value)->tz($this->getLocalTimezone());
     }
 
@@ -115,6 +121,7 @@ trait HasLocalDates
         if (is_null($value)) {
             return null;
         }
+
         return Carbon::parse($value)->tz($this->getLocalTimezone());
     }
 
@@ -126,6 +133,7 @@ trait HasLocalDates
         if (is_null($value)) {
             return null;
         }
+
         return Carbon::parse($value)->tz($this->getLocalTimezone());
     }
 
@@ -137,6 +145,7 @@ trait HasLocalDates
         if (is_null($value)) {
             return null;
         }
+
         return Carbon::parse($value)->tz($this->getLocalTimezone());
     }
 
@@ -148,6 +157,7 @@ trait HasLocalDates
         if (is_null($value)) {
             return null;
         }
+
         return Carbon::parse($value)->tz($this->getLocalTimezone());
     }
 
@@ -159,6 +169,7 @@ trait HasLocalDates
         if (is_null($value)) {
             return null;
         }
+
         return Carbon::parse($value)->tz($this->getLocalTimezone());
     }
 
@@ -170,6 +181,7 @@ trait HasLocalDates
         if (is_null($value)) {
             return null;
         }
+
         return Carbon::parse($value)->tz($this->getLocalTimezone());
     }
 
@@ -181,6 +193,7 @@ trait HasLocalDates
         if (is_null($value)) {
             return null;
         }
+
         return Carbon::parse($value)->tz($this->getLocalTimezone());
     }
 }

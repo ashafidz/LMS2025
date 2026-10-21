@@ -19,7 +19,7 @@ class DiamondConversionController extends Controller
 
         // 1. Validasi Kelayakan di Sisi Server (Sangat Penting untuk Keamanan)
         $isEligible = $this->checkEligibility($user, $course);
-        if (!$isEligible) {
+        if (! $isEligible) {
             return redirect()->back()->with('error', 'Anda belum memenuhi syarat untuk mengonversi poin dari kursus ini.');
         }
 
@@ -40,7 +40,9 @@ class DiamondConversionController extends Controller
     {
         // Syarat 1: Progres belajar harus 100%
         $totalLessons = $course->lessons()->count();
-        if ($totalLessons == 0) return false; // Tidak bisa konversi jika tidak ada pelajaran
+        if ($totalLessons == 0) {
+            return false;
+        } // Tidak bisa konversi jika tidak ada pelajaran
 
         $completedLessonsCount = $user->completedLessons()->whereIn('lesson_id', $course->lessons->pluck('id'))->count();
         if ($completedLessonsCount < $totalLessons) {
@@ -49,7 +51,7 @@ class DiamondConversionController extends Controller
 
         // Syarat 2: Harus sudah memberikan ulasan untuk kursus
         $hasReviewed = $course->reviews()->where('user_id', $user->id)->exists();
-        if (!$hasReviewed) {
+        if (! $hasReviewed) {
             return false;
         }
 

@@ -22,8 +22,10 @@ class CheckStudentStatus
             if ($request->routeIs('student.deactive')) {
                 return $next($request);
             }
+
             return redirect()->route('student.deactive');
         }
+
         return $next($request);
     }
 }

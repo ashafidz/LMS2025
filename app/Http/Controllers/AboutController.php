@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\PlatformReview;
 
-use Illuminate\Http\Request;
-
 class AboutController extends Controller
 {
     //

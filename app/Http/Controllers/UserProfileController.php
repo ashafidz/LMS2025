@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Auth;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
-use Illuminate\Http\Request;
 
 class UserProfileController extends Controller
 {
@@ -18,22 +18,22 @@ class UserProfileController extends Controller
         // Get the active role from the session
         $activeRole = session('active_role');
 
-
         // Load the profile only if the role requires it
-        if ($activeRole == "student") {
+        if ($activeRole == 'student') {
             $profile = $user->studentProfile;
-        } elseif ($activeRole == "instructor") {
+        } elseif ($activeRole == 'instructor') {
             $profile = $user->instructorProfile;
         }
 
         // For admins/superadmins, $profile will correctly remain null.
         // return for student and instructor\
-        if ($activeRole == "student" || $activeRole == "instructor") {
-            return view("profile.profile-student_instructor", compact("user", "profile"));
+        if ($activeRole == 'student' || $activeRole == 'instructor') {
+            return view('profile.profile-student_instructor', compact('user', 'profile'));
         } elseif (Auth::user()->hasRole('admin') || Auth::user()->hasRole('superadmin')) {
-            return view("profile.profile-admin_superadmin", compact("user", "profile"));
+            return view('profile.profile-admin_superadmin', compact('user', 'profile'));
         }
     }
+
     /**
      * Show the form for editing the user's profile.
      */
@@ -43,12 +43,12 @@ class UserProfileController extends Controller
         $profile = null; // Default to null
 
         // Get the active role from the session
-        $activeRole = $request->session()->get("active_role");
+        $activeRole = $request->session()->get('active_role');
 
         // Load the profile only if the role requires it
-        if ($activeRole == "student") {
+        if ($activeRole == 'student') {
             $profile = $user->studentProfile;
-        } elseif ($activeRole == "instructor") {
+        } elseif ($activeRole == 'instructor') {
             $profile = $user->instructorProfile;
         }
 
@@ -64,18 +64,16 @@ class UserProfileController extends Controller
         }
         // --- END OF NEW BLOCK ---
 
-
         // Ambil semua badge yang sudah dimiliki pengguna
         $unlockedBadges = $user->badges()->get();
-
 
         // For admins/superadmins, $profile will correctly remain null.
 
         // return for student and instructor\
-        if ($activeRole == "student" || $activeRole == "instructor") {
-            return view("profile.edit-student_instructor", compact("user", "profile", 'unlockedBadges'));
+        if ($activeRole == 'student' || $activeRole == 'instructor') {
+            return view('profile.edit-student_instructor', compact('user', 'profile', 'unlockedBadges'));
         } elseif (Auth::user()->hasRole('admin') || Auth::user()->hasRole('superadmin')) {
-            return view("profile.edit-admin_superadmin", compact("user", "profile"));
+            return view('profile.edit-admin_superadmin', compact('user', 'profile'));
         }
     }
 
@@ -116,7 +114,7 @@ class UserProfileController extends Controller
 
         // Pastikan pengguna hanya bisa memasang badge yang mereka miliki
         if ($request->filled('equipped_badge_id')) {
-            if (!$user->badges()->where('badge_id', $request->equipped_badge_id)->exists()) {
+            if (! $user->badges()->where('badge_id', $request->equipped_badge_id)->exists()) {
                 return back()->withErrors(['equipped_badge_id' => 'Anda tidak bisa memasang badge yang tidak Anda miliki.']);
             }
         }
@@ -164,6 +162,7 @@ class UserProfileController extends Controller
                 ]);
             }
         }
+
         return redirect()->route('user.profile.index')->with('status', 'Profile updated successfully!');
     }
 }

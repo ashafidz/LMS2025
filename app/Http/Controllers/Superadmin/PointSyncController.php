@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Superadmin;
 
-use App\Models\User;
-use App\Models\Course;
-use App\Models\Lesson;
-use App\Models\CourseUser;
-use App\Models\SiteSetting;
-use App\Models\PointHistory;
-use Illuminate\Http\Request;
-use App\Models\AssignmentSubmission;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\AssignmentSubmission;
+use App\Models\Course;
+use App\Models\CourseUser;
+use App\Models\Lesson;
+use App\Models\PointHistory;
+use App\Models\SiteSetting;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PointSyncController extends Controller
 {
@@ -79,7 +79,7 @@ class PointSyncController extends Controller
                     ],
                     [
                         'points' => $expectedPoints,
-                        'description' => $description
+                        'description' => $description,
                     ]
                 );
 
@@ -94,7 +94,7 @@ class PointSyncController extends Controller
                         CourseUser::create([
                             'user_id' => $student->id,
                             'course_id' => $course->id,
-                            'points_earned' => max(0, $pointDifference)
+                            'points_earned' => max(0, $pointDifference),
                         ]);
                     }
                 }
@@ -102,7 +102,7 @@ class PointSyncController extends Controller
         });
 
         return redirect()->route('superadmin.point-sync.mass-sync.preview', $course)
-            ->with('success', 'Sinkronisasi massal berhasil dieksekusi. ' . count($anomalies) . ' riwayat poin telah diperbaiki.');
+            ->with('success', 'Sinkronisasi massal berhasil dieksekusi. '.count($anomalies).' riwayat poin telah diperbaiki.');
     }
 
     /**
@@ -111,7 +111,7 @@ class PointSyncController extends Controller
     public function studentProgress(Course $course, User $student)
     {
         $isEnrolled = $course->students()->where('user_id', $student->id)->exists();
-        if (!$isEnrolled) {
+        if (! $isEnrolled) {
             abort(404, 'Siswa tidak terdaftar di kursus ini.');
         }
 
@@ -165,7 +165,7 @@ class PointSyncController extends Controller
                 $pointDifference = $validated['expected_points'] - $existingHistory->points;
                 $existingHistory->update([
                     'points' => $validated['expected_points'],
-                    'description' => $validated['description']
+                    'description' => $validated['description'],
                 ]);
             } else {
                 $pointDifference = $validated['expected_points'];
@@ -174,7 +174,7 @@ class PointSyncController extends Controller
                     'course_id' => $course->id,
                     'lesson_id' => $lesson->id,
                     'points' => $validated['expected_points'],
-                    'description' => $validated['description']
+                    'description' => $validated['description'],
                 ]);
             }
 
@@ -188,7 +188,7 @@ class PointSyncController extends Controller
                     CourseUser::create([
                         'user_id' => $student->id,
                         'course_id' => $course->id,
-                        'points_earned' => $pointDifference
+                        'points_earned' => $pointDifference,
                     ]);
                 }
             }
@@ -231,31 +231,31 @@ class PointSyncController extends Controller
                     if ($typeStr == 'LessonArticle') {
                         $potentialPoints = $siteSettings->points_for_article;
                         $displayType = 'Artikel';
-                        $syncDescription = 'Menyelesaikan artikel: ' . $lesson->title;
+                        $syncDescription = 'Menyelesaikan artikel: '.$lesson->title;
                     } elseif ($typeStr == 'LessonVideo') {
                         $potentialPoints = $siteSettings->points_for_video;
                         $displayType = 'Video';
-                        $syncDescription = 'Menyelesaikan video: ' . $lesson->title;
+                        $syncDescription = 'Menyelesaikan video: '.$lesson->title;
                     } elseif ($typeStr == 'LessonDocument') {
                         $potentialPoints = $siteSettings->points_for_document;
                         $displayType = 'Dokumen / Slide';
-                        $syncDescription = 'Menyelesaikan dokumen: ' . $lesson->title;
+                        $syncDescription = 'Menyelesaikan dokumen: '.$lesson->title;
                     } elseif ($typeStr == 'Quiz') {
                         $potentialPoints = $siteSettings->points_for_quiz;
                         $displayType = 'Kuis';
-                        $syncDescription = 'Lulus kuis: ' . $lesson->title;
+                        $syncDescription = 'Lulus kuis: '.$lesson->title;
                     } elseif ($typeStr == 'LessonAssignment') {
                         $potentialPoints = $siteSettings->points_for_assignment;
                         $displayType = 'Tugas';
-                        $syncDescription = 'Mengirimkan tugas: ' . $lesson->title;
+                        $syncDescription = 'Mengirimkan tugas: '.$lesson->title;
                     } elseif ($typeStr == 'LessonPolling') {
                         $potentialPoints = $siteSettings->points_for_polling;
                         $displayType = 'Polling';
-                        $syncDescription = 'Mengisi polling: ' . $lesson->title;
+                        $syncDescription = 'Mengisi polling: '.$lesson->title;
                     } elseif ($typeStr == 'LessonWordcloud') {
                         $potentialPoints = $siteSettings->points_for_wordcloud;
                         $displayType = 'Word Cloud';
-                        $syncDescription = 'Mengisi word cloud: ' . $lesson->title;
+                        $syncDescription = 'Mengisi word cloud: '.$lesson->title;
                     }
 
                     $isCompleted = in_array($lesson->id, $completedLessonIds);
@@ -275,7 +275,7 @@ class PointSyncController extends Controller
                                 'actual_points' => $actualPoints,
                                 'expected_points' => $potentialPoints,
                                 'description' => $syncDescription,
-                                'is_missing' => !isset($pointHistories[$lesson->id])
+                                'is_missing' => ! isset($pointHistories[$lesson->id]),
                             ];
                         }
                     }

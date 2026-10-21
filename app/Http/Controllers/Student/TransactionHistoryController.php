@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
 
 class TransactionHistoryController extends Controller
 {
@@ -35,7 +34,7 @@ class TransactionHistoryController extends Controller
         $pdf = Pdf::loadView('student.transactions.invoice_pdf', compact('order'));
 
         $safeOrderCode = str_replace('/', '-', $order->order_code);
-        $fileName = 'invoice-' . $safeOrderCode . '.pdf';
+        $fileName = 'invoice-'.$safeOrderCode.'.pdf';
 
         // Kembalikan PDF sebagai respons unduhan di browser
         return $pdf->download($fileName);

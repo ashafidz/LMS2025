@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Module;
 use App\Models\PointHistory;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class InstructorLeaderboardController extends Controller
 {
@@ -16,6 +16,8 @@ class InstructorLeaderboardController extends Controller
      */
     public function courseLeaderboard(Course $course)
     {
+        Gate::authorize('manage', $course);
+
         // 1. Ambil peringkat berdasarkan total poin
         $leaderboardRanks = $course->points()
             ->with('user')
@@ -49,7 +51,7 @@ class InstructorLeaderboardController extends Controller
         // 3. Buat collection terpisah untuk tab "Peringkat" (urut berdasarkan poin)
         $enrolledStudentsByPoints = $enrolledStudents->sortByDesc('points_earned')->values();
 
-        $title = "Data Siswa & Peringkat: " . $course->title;
+        $title = 'Data Siswa & Peringkat: '.$course->title;
 
         // Render partial view baru dan kirim sebagai respons
         $html = view('instructor.leaderboards._course_data_modal', compact(
@@ -68,6 +70,8 @@ class InstructorLeaderboardController extends Controller
      */
     public function moduleLeaderboard(Module $module)
     {
+        Gate::authorize('manage', $module->course);
+
         $course = $module->course;
         $lessonIds = $module->lessons()->pluck('id');
 
@@ -82,7 +86,7 @@ class InstructorLeaderboardController extends Controller
             ->take(100)
             ->get();
 
-        $title = "Papan Peringkat Modul: " . $module->title;
+        $title = 'Papan Peringkat Modul: '.$module->title;
 
         $html = view('instructor.leaderboards._modal_content', compact('leaderboardRanks', 'title'))->render();
 

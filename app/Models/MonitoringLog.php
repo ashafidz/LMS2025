@@ -32,10 +32,15 @@ class MonitoringLog extends Model
      * Violation types constants
      */
     public const TYPE_TAB_SWITCH = 'tab_switch';
+
     public const TYPE_FACE_NOT_DETECTED = 'face_not_detected';
+
     public const TYPE_LOOK_LEFT = 'look_left';
+
     public const TYPE_LOOK_RIGHT = 'look_right';
+
     public const TYPE_LOOK_DOWN = 'look_down';
+
     public const TYPE_LOOK_UP = 'look_up';
 
     /**

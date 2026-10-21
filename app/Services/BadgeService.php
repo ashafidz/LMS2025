@@ -11,7 +11,7 @@ class BadgeService
      * Memeriksa dan memberikan badge kelulusan kuis kepada pengguna.
      * Metode ini harus dipanggil setiap kali seorang siswa berhasil lulus kuis.
      *
-     * @param User $user Pengguna yang baru saja lulus kuis.
+     * @param  User  $user  Pengguna yang baru saja lulus kuis.
      * @return void
      */
     public static function checkQuizCompletionBadges(User $user)
@@ -29,7 +29,7 @@ class BadgeService
             // Cek apakah siswa sudah memiliki badge ini
             $hasBadge = $user->badges()->where('badge_id', $quizBadgeId)->exists();
 
-            if (!$hasBadge) {
+            if (! $hasBadge) {
                 // Jika belum, berikan badge-nya
                 $user->badges()->attach($quizBadgeId);
 
