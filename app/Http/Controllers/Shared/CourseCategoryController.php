@@ -15,6 +15,7 @@ class CourseCategoryController extends Controller
     public function index()
     {
         $categories = CourseCategory::withCount('courses')->latest()->simplePaginate(15);
+
         return view('shared-admin.course-categories.index', compact('categories'));
     }
 
@@ -35,7 +36,8 @@ class CourseCategoryController extends Controller
         ]);
 
         $roleName = Auth::user()->getRoleNames()->first();
-        return redirect()->route($roleName . '.course-categories.index')->with('success', 'Kategori berhasil dibuat.');
+
+        return redirect()->route($roleName.'.course-categories.index')->with('success', 'Kategori berhasil dibuat.');
     }
 
     public function edit(CourseCategory $courseCategory)
@@ -55,7 +57,8 @@ class CourseCategoryController extends Controller
         ]);
 
         $roleName = Auth::user()->getRoleNames()->first();
-        return redirect()->route($roleName . '.course-categories.index')->with('success', 'Kategori berhasil diperbarui.');
+
+        return redirect()->route($roleName.'.course-categories.index')->with('success', 'Kategori berhasil diperbarui.');
     }
 
     public function destroy(Request $request, CourseCategory $courseCategory)

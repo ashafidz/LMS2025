@@ -2,17 +2,17 @@
 
 namespace App\Models;
 
-use App\Traits\HasLocalDates;
 use App\Traits\HasHashedRouteKey;
-use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasLocalDates;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Quiz extends Model
 {
     //
     use HasFactory;
-    use HasLocalDates;
     use HasHashedRouteKey;
+    use HasLocalDates;
 
     protected $fillable = [
         'title',
@@ -25,6 +25,7 @@ class Quiz extends Model
         'available_from', // Tambahkan ini
         'available_to',   // Tambahkan ini
     ];
+
     protected $casts = [
         'time_limit' => 'integer',
         'allow_exceed_time_limit' => 'boolean',
@@ -47,7 +48,6 @@ class Quiz extends Model
     {
         return $this->hasMany(QuizAttempt::class);
     }
-
 
     /**
      * Relationship: Quiz has one security setting

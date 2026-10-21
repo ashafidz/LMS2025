@@ -3,26 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use Illuminate\Http\Request;
+use App\Services\MidtransService;
+use App\Services\OrderSettlementService;
 use Illuminate\Support\Facades\Auth;
-use App\Services\PointService;
 
 class PaymentController extends Controller
 {
-    public function success(Order $order)
-    {
+    public function success(
+        Order $order,
+        MidtransService $midtransService,
+        OrderSettlementService $settlementService
+    ) {
         // Pastikan hanya pemilik pesanan yang bisa mengakses
         // if ($order->user_id !== Auth::id()) {
         //     abort(403);
         // }
+        abort_unless($order->user_id === Auth::id(), 403);
 
-        // Update status pesanan menjadi 'paid' dan daftarkan siswa
         if ($order->status === 'pending') {
-            $order->status = 'paid';
-            $order->save();
-            // $this->enrollStudent($order); // ! Not Used
-            $this->enrollStudentAndAddPoints($order);
+            $statusData = $midtransService->fetchStatus($order->order_code);
+            if (! empty($statusData)) {
+                $settlementService->applyGatewayStatus($order, $statusData);
+            }
         }
+
+        $order->refresh();
 
         return view('student.checkout.success', compact('order'));
     }
@@ -32,6 +37,8 @@ class PaymentController extends Controller
         // if ($order->user_id !== auth()->id()) {
         //     abort(403);
         // }
+        abort_unless($order->user_id === Auth::id(), 403);
+
         // Status sudah 'pending' dari awal, jadi tidak perlu diubah
         return view('student.checkout.pending', compact('order'));
     }
@@ -41,11 +48,9 @@ class PaymentController extends Controller
         // if ($order->user_id !== auth()->id()) {
         //     abort(403);
         // }
+        abort_unless($order->user_id === Auth::id(), 403);
 
-        if ($order->status === 'pending') {
-            $order->status = 'failed';
-            $order->save();
-        }
+        // Do not change status client-side. Webhook decides.
 
         return view('student.checkout.failed', compact('order'));
     }
@@ -58,39 +63,10 @@ class PaymentController extends Controller
         // if ($order->user_id !== auth()->id()) {
         //     abort(403);
         // }
+        abort_unless($order->user_id === Auth::id(), 403);
 
-        // Ubah status menjadi 'cancelled' jika masih 'pending'
-        if ($order->status === 'pending') {
-            $order->status = 'cancelled';
-            $order->save();
-        }
+        // Do not change status client-side. Webhook decides.
 
         return view('student.checkout.cancelled', compact('order'));
-    }
-
-
-    /**
-     * Helper method untuk mendaftarkan siswa ke kursus. // !! Not Used
-     */
-    private function enrollStudent(Order $order)
-    {
-        $order->load('items.course', 'user');
-        foreach ($order->items as $item) {
-            $order->user->enrollments()->syncWithoutDetaching($item->course_id);
-        }
-    }
-
-    /**
-     * Helper method baru untuk mendaftarkan siswa DAN memberikan poin.
-     */
-    private function enrollStudentAndAddPoints(Order $order)
-    {
-        $order->load('items.course', 'user');
-        foreach ($order->items as $item) {
-            $order->user->enrollments()->syncWithoutDetaching($item->course_id);
-
-            // Perbarui pemanggilan PointService untuk menyertakan objek course
-            PointService::addPoints($order->user, $item->course, 'purchase');
-        }
     }
 }

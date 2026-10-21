@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Student;
 
-use App\Models\User;
-use App\Models\Course;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class CertificateController extends Controller
 {
@@ -29,7 +29,6 @@ class CertificateController extends Controller
     //     return response()->json(['success' => true, 'html' => $html]);
     // }
 
-
     /**
      * Menampilkan pratinjau sertifikat (via AJAX).
      */
@@ -40,7 +39,7 @@ class CertificateController extends Controller
         // Eager load relasi untuk mencegah N+1 query
         $course->load('instructor', 'modules.lessons');
 
-        if (!$this->isEligibleForCertificate($user, $course)) {
+        if (! $this->isEligibleForCertificate($user, $course)) {
             return response()->json(['success' => false, 'message' => 'Anda belum memenuhi syarat untuk mendapatkan sertifikat.'], 403);
         }
 
@@ -48,7 +47,7 @@ class CertificateController extends Controller
         $certificate = $user->certificates()->firstOrCreate(
             ['course_id' => $course->id],
             [
-                'certificate_code' => 'LMS-' . $course->id . '-' . $user->id . '-' . time(),
+                'certificate_code' => 'LMS-'.$course->id.'-'.$user->id.'-'.time(),
                 'issued_at' => now(),
             ]
         );
@@ -102,14 +101,14 @@ class CertificateController extends Controller
         // Eager load relasi untuk mencegah N+1 query
         $course->load('instructor', 'modules.lessons');
 
-        if (!$this->isEligibleForCertificate($user, $course)) {
+        if (! $this->isEligibleForCertificate($user, $course)) {
             return redirect()->back()->with('error', 'Anda belum memenuhi syarat untuk mengunduh sertifikat.');
         }
 
         $certificate = $user->certificates()->firstOrCreate(
             ['course_id' => $course->id],
             [
-                'certificate_code' => 'LMS-' . $course->id . '-' . $user->id . '-' . time(),
+                'certificate_code' => 'LMS-'.$course->id.'-'.$user->id.'-'.time(),
                 'issued_at' => now(),
             ]
         );
@@ -127,15 +126,29 @@ class CertificateController extends Controller
             'settings' => $settings,
         ];
 
+        $fileName = 'sertifikat-'.Str::slug($course->title).'.pdf';
+
+        // PDF disimpan agar tidak di-render ulang (dompdf berat). Nama file berubah jika isi yang dicetak berubah.
+        $contentHash = md5(implode('|', [
+            $user->name,
+            $course->title,
+            $course->instructor->name ?? '',
+            optional($settings?->updated_at)->timestamp,
+        ]));
+        $cachedPath = 'certificates/'.$certificate->certificate_code.'-'.$contentHash.'.pdf';
+
         try {
-            $pdf = Pdf::loadView('student.certificates.pdf_template', $data)
-                ->setPaper('a4', 'landscape');
+            if (! Storage::disk('local')->exists($cachedPath)) {
+                $pdf = Pdf::loadView('student.certificates.pdf_template', $data)
+                    ->setPaper('a4', 'landscape');
 
-            $fileName = 'sertifikat-' . Str::slug($course->title) . '.pdf';
+                Storage::disk('local')->put($cachedPath, $pdf->output());
+            }
 
-            return $pdf->download($fileName);
+            return Storage::disk('local')->download($cachedPath, $fileName);
         } catch (\Exception $e) {
-            \Log::error('Certificate PDF generation failed: ' . $e->getMessage());
+            \Log::error('Certificate PDF generation failed: '.$e->getMessage());
+
             return redirect()->back()->with('error', 'Gagal membuat sertifikat. Silakan coba lagi nanti.');
         }
     }
@@ -166,7 +179,7 @@ class CertificateController extends Controller
 
         // Syarat 2: Harus sudah memberikan ulasan untuk kursus
         $hasReviewedCourse = $course->reviews()->where('user_id', $user->id)->exists();
-        if (!$hasReviewedCourse) {
+        if (! $hasReviewedCourse) {
             return false;
         }
 

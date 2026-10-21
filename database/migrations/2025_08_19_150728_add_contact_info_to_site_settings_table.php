@@ -35,7 +35,7 @@ return new class extends Migration
                 'facebook_url',
                 'twitter_url',
                 'instagram_url',
-                'youtube_url'
+                'youtube_url',
             ]);
         });
     }

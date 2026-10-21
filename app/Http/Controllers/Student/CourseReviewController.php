@@ -29,7 +29,6 @@ class CourseReviewController extends Controller
             }
         }
 
-
         // Ambil semua pertanyaan Likert yang aktif
         $likertQuestions = LikertQuestion::where('is_active', true)->get();
 
@@ -93,7 +92,8 @@ class CourseReviewController extends Controller
             });
         } catch (\Exception $e) {
             // Log error untuk catatan permanen
-            \Log::error('Review Store Error: ' . $e->getMessage() . ' on line ' . $e->getLine());
+            \Log::error('Review Store Error: '.$e->getMessage().' on line '.$e->getLine());
+
             // Jika terjadi error, kembalikan respons error
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat menyimpan ulasan.'], 500);
         }

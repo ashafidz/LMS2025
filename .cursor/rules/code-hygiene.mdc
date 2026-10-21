@@ -1,0 +1,24 @@
+---
+description: Code hygiene, plain ASCII punctuation, timezone rules, and error handling
+alwaysApply: true
+---
+
+# Code Hygiene Standards
+
+## 1. Code Style
+- Laravel Pint (default preset). `vendor/bin/pint --test` must pass before a PR.
+
+## 2. Punctuation & Character Policy
+- Use plain ASCII characters in new code, comments, Blade views, and translation files.
+- Prohibited: smart curly quotes (`“`, `”`, `‘`, `’`), em-dash (`—`), en-dash (`–`), and Unicode ellipsis (`…`).
+- Permitted: plain straight quotes (`"` and `'`), ASCII hyphens (`-`), and ASCII dots (`...`).
+
+## 3. Timezone & DateTime Safety
+- Store timestamps in UTC (`config/app.php` timezone is `UTC`).
+- Convert to the user's `users.timezone` only when displaying.
+- For calendar dates without time components (birth date, availability dates), use `Y-m-d` strings or `date` casts to avoid off-by-one errors.
+
+## 4. Error Handling & Security
+- Validate input with Form Requests or `$request->validate()`.
+- Protect routes with the right role middleware (Spatie) and check record ownership.
+- Do not expose raw database errors or stack traces to end users.

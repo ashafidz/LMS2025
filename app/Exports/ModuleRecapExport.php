@@ -9,8 +9,11 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 class ModuleRecapExport implements FromView, ShouldAutoSize
 {
     protected $students;
+
     protected $gradableLessons;
+
     protected $scores;
+
     protected $module;
 
     public function __construct($students, $gradableLessons, $scores, $module)

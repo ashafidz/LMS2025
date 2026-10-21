@@ -93,10 +93,10 @@
                         <h5 class="fw-bold">Ringkasan Belanja</h5>
                         <hr>
                         
-                        @if (session()->has('coupon'))
+                        @if ($coupon)
                             <div class="d-flex justify-content-between">
                                 <span>Kupon diterapkan:</span>
-                                <strong>{{ session('coupon')->code }}</strong>
+                                <strong>{{ $coupon->code }}</strong>
                             </div>
                             <form action="{{ route('student.cart.remove_coupon') }}" method="POST" class="mt-2">
                                 @csrf

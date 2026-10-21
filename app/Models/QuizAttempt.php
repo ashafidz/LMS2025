@@ -2,17 +2,17 @@
 
 namespace App\Models;
 
-use App\Traits\HasLocalDates;
-use App\Traits\HasHashedRouteKey;
 use App\Services\QuizShuffleService;
-use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasHashedRouteKey;
+use App\Traits\HasLocalDates;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class QuizAttempt extends Model
 {
     use HasFactory;
-    use HasLocalDates;
     use HasHashedRouteKey;
+    use HasLocalDates;
 
     protected $fillable = [
         'quiz_id',
@@ -30,6 +30,8 @@ class QuizAttempt extends Model
     ];
 
     protected $casts = [
+        'student_id' => 'integer',
+        'quiz_id' => 'integer',
         'start_time' => 'datetime',
         'end_time' => 'datetime',
         'revised_at' => 'datetime',
@@ -52,8 +54,10 @@ class QuizAttempt extends Model
         // Hitung dari skor mentah / skor maksimal quiz × 100
         if ($this->score !== null && $this->relationLoaded('quiz')) {
             $maxScore = $this->quiz->questions->sum('score');
+
             return ($maxScore > 0) ? min(100, round(($this->score / $maxScore) * 100, 2)) : 0;
         }
+
         return $this->score;
     }
 
@@ -79,8 +83,6 @@ class QuizAttempt extends Model
     {
         return $this->hasMany(StudentAnswer::class, 'attempt_id');
     }
-
-
 
     /**
      * Relationship: QuizAttempt has one integrity summary
@@ -126,13 +128,13 @@ class QuizAttempt extends Model
     //         ->pluck('question');
     // }
 
-
     /**
      * Get shuffled questions for this attempt
      */
     public function getShuffledQuestions()
     {
-        $shuffleService = new QuizShuffleService();
+        $shuffleService = new QuizShuffleService;
+
         return $shuffleService->getShuffledQuestions($this);
     }
 

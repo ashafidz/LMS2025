@@ -14,7 +14,7 @@ class HashIdService
         if (empty($id)) {
             return '';
         }
-        
+
         return Hashids::encode($id);
     }
 
@@ -36,7 +36,7 @@ class HashIdService
 
         // Coba decode hash
         $decoded = Hashids::decode($value);
-        
+
         // Jika decode gagal atau kosong, return null
         if (empty($decoded)) {
             return null;
@@ -50,6 +50,6 @@ class HashIdService
      */
     public static function isHash($value): bool
     {
-        return !is_numeric($value);
+        return ! is_numeric($value);
     }
 }

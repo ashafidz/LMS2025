@@ -12,7 +12,6 @@ class ConfigureSessionDomain
      * Handle an incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -25,7 +24,7 @@ class ConfigureSessionDomain
 
         // Check if the host matches the configured domain
         // If not, try to adjust the session domain to match the current host
-        if ($configuredDomain && !Str::endsWith($host, $configuredDomain)) {
+        if ($configuredDomain && ! Str::endsWith($host, $configuredDomain)) {
             // Extract the main domain and TLD
             $parts = explode('.', $host);
 
@@ -34,7 +33,7 @@ class ConfigureSessionDomain
                 $mainDomain = implode('.', array_slice($parts, -2));
 
                 // Set the session domain to include all subdomains of the current domain
-                Config::set('session.domain', '.' . $mainDomain);
+                Config::set('session.domain', '.'.$mainDomain);
             }
         }
 

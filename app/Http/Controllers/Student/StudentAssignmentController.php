@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\LessonAssignment;
+use App\Services\PointService;
+use App\Services\StudentWriteLock;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Services\PointService;
-use Carbon\Carbon;
 
 class StudentAssignmentController extends Controller
 {
@@ -18,37 +19,21 @@ class StudentAssignmentController extends Controller
     {
         // !! kode komen, tidak terpakai tapi tolong jangan dihapus
         // =============================================================
-        // TAMBAHKAN VALIDASI BATAS WAKTU DI SINI (WAJIB) 
+        // TAMBAHKAN VALIDASI BATAS WAKTU DI SINI (WAJIB)
         // =============================================================
         // if ($assignment->due_date && Carbon::now()->isAfter($assignment->due_date)) {
         //     return back()->with('error', 'Batas waktu pengumpulan tugas telah berakhir.');
         // }
         // =============================================================
 
-
         $user = Auth::user();
+        $course = $assignment->lesson->module->course;
+        abort_unless($user && $user->enrollments()->where('courses.id', $course->id)->exists(), 403, 'Anda tidak terdaftar di kursus ini.');
 
         // Validasi: pastikan file ada dan tipenya adalah pdf atau zip
         $validated = $request->validate([
             'submission_file' => 'required|file|mimes:pdf,zip|max:20480', // Maksimal 20MB
         ]);
-
-        // Cek apakah siswa sudah pernah mengumpulkan untuk tugas ini
-        $existingSubmission = $assignment->submissions()->where('user_id', $user->id)->first();
-
-        if (!$existingSubmission) {
-            PointService::addPoints(
-                user: $user,
-                course: $assignment->lesson->module->course,
-                activity: 'pass_assignment',
-                lesson: $assignment->lesson,
-                description_meta: $assignment->lesson->title
-            );
-        }
-        if ($existingSubmission) {
-            // Jika sudah ada, hapus file lama dari storage sebelum menyimpan yang baru
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($existingSubmission->file_path);
-        }
 
         // Cek apakah siswa sudah pernah mengumpulkan untuk tugas ini
         // $existingSubmission = $assignment->submissions()->where('user_id', $user->id)->first();
@@ -61,24 +46,47 @@ class StudentAssignmentController extends Controller
         // Simpan file ke storage lokal
         // Format path: assignment_submissions/{assignment_id}/{user_id}/nama_file.pdf
         $path = $validated['submission_file']->store(
-            'assignment_submissions/' . $assignment->id . '/' . $user->id,
+            'assignment_submissions/'.$assignment->id.'/'.$user->id,
             'public'
         );
 
-        // Buat atau perbarui catatan pengumpulan di database
-        $assignment->submissions()->updateOrCreate(
-            ['user_id' => $user->id], // Kunci untuk mencari
-            [
-                'file_path' => $path,
-                'submitted_at' => now(),
-                'grade' => null,
-                'feedback' => null,
-                'status' => 'submitted',
-            ]
-        );
+        // Cek pengumpulan pertama, poin, dan simpan data dikunci per siswa agar klik ganda tidak memberi poin dua kali
+        $oldFilePath = StudentWriteLock::run($user, function () use ($assignment, $user, $path) {
+            // Cek apakah siswa sudah pernah mengumpulkan untuk tugas ini
+            $existingSubmission = $assignment->submissions()->where('user_id', $user->id)->first();
 
-        // Tandai lesson sebagai selesai saat submit (baik pertama kali maupun revisi)
-        $user->completedLessons()->syncWithoutDetaching($assignment->lesson->id);
+            if (! $existingSubmission) {
+                PointService::addPoints(
+                    user: $user,
+                    course: $assignment->lesson->module->course,
+                    activity: 'pass_assignment',
+                    lesson: $assignment->lesson,
+                    description_meta: $assignment->lesson->title
+                );
+            }
+
+            // Buat atau perbarui catatan pengumpulan di database
+            $assignment->submissions()->updateOrCreate(
+                ['user_id' => $user->id], // Kunci untuk mencari
+                [
+                    'file_path' => $path,
+                    'submitted_at' => now(),
+                    'grade' => null,
+                    'feedback' => null,
+                    'status' => 'submitted',
+                ]
+            );
+
+            // Tandai lesson sebagai selesai saat submit (baik pertama kali maupun revisi)
+            $user->completedLessons()->syncWithoutDetaching($assignment->lesson->id);
+
+            return $existingSubmission?->file_path;
+        });
+
+        // Jika sudah ada, hapus file lama dari storage setelah data baru tersimpan
+        if ($oldFilePath && $oldFilePath !== $path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($oldFilePath);
+        }
 
         return back()->with('success', 'Tugas Anda berhasil dikumpulkan!');
     }

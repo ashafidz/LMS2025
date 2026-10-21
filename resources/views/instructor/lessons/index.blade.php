@@ -195,15 +195,15 @@
 
     @foreach ($lessons as $lesson)
         @if (strtolower(class_basename($lesson->lessonable_type)) !== 'quiz')
+            @php $lessonType = strtolower(class_basename($lesson->lessonable_type)); @endphp
             <div class="modal fade" id="previewModal-{{ $lesson->id }}" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-dialog modal-lg modal-dialog-centered {{ $lessonType === 'lessondocument' ? 'modal-preview-wide' : '' }}" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Pratinjau: {{ $lesson->title }}</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         </div>
                         <div class="modal-body">
-                            @php $lessonType = strtolower(class_basename($lesson->lessonable_type)); @endphp
                             @if (view()->exists('instructor.lessons.previews._' . $lessonType))
                                 @include('instructor.lessons.previews._' . $lessonType, ['lesson' => $lesson])
                             @else
@@ -222,6 +222,12 @@
 
 @push('scripts')
     <style>
+        /* Bootstrap 4.0 has no modal-xl; widen the document (PDF) preview */
+        @media (min-width: 992px) {
+            .modal-dialog.modal-preview-wide {
+                max-width: 90vw;
+            }
+        }
         .sortable-ghost {
             opacity: 0.4;
             background-color: #f8f9fa;

@@ -60,7 +60,7 @@ jobs:
         run: npm run build
 
       - name: 🧹 Run Laravel Pint (Code Style)
-        run: vendor/bin/pint --test || echo "Pint failed, but we continue for now"
+        run: vendor/bin/pint --test
 
       - name: 🧪 Run PHPUnit Tests
         run: php artisan test

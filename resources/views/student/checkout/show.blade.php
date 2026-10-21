@@ -97,7 +97,7 @@
           },
           onClose: function(){
             /* Pengguna menutup popup tanpa menyelesaikan pembayaran */
-            window.location.href = "{{ route('payment.cancelled', $order) }}";
+            window.location.href = "{{ route('payment.pending', $order) }}";
           }
         });
       });

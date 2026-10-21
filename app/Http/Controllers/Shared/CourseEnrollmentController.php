@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Shared;
 
-use App\Models\User;
-use App\Models\Course;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class CourseEnrollmentController extends Controller
@@ -18,6 +18,7 @@ class CourseEnrollmentController extends Controller
     public function index()
     {
         $courses = Course::with('instructor')->latest()->simplePaginate(15);
+
         return view('shared-admin.course-enrollments.index', compact('courses'));
     }
 
@@ -59,8 +60,8 @@ class CourseEnrollmentController extends Controller
 
         // Terapkan filter pencarian jika ada
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%')
-                ->orWhere('email', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%'.$request->search.'%')
+                ->orWhere('email', 'like', '%'.$request->search.'%');
         }
 
         $availableUsers = $query->simplePaginate(15);
@@ -81,8 +82,8 @@ class CourseEnrollmentController extends Controller
         // Gunakan syncWithoutDetaching untuk menambahkan tanpa menghapus yang lama
         $course->students()->syncWithoutDetaching($validated['user_ids']);
 
-        return redirect()->route(Auth::user()->getRoleNames()->first() . '.course-enrollments.show', $course)
-            ->with('success', count($validated['user_ids']) . ' pengguna berhasil ditambahkan.');
+        return redirect()->route(Auth::user()->getRoleNames()->first().'.course-enrollments.show', $course)
+            ->with('success', count($validated['user_ids']).' pengguna berhasil ditambahkan.');
     }
 
     // /**
@@ -194,6 +195,6 @@ class CourseEnrollmentController extends Controller
             }
         });
 
-        return back()->with('success', count($validated['user_ids']) . ' pengguna beserta semua progres dan poinnya di kursus ini berhasil dihapus.');
+        return back()->with('success', count($validated['user_ids']).' pengguna beserta semua progres dan poinnya di kursus ini berhasil dihapus.');
     }
 }

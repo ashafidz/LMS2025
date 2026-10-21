@@ -6,9 +6,8 @@ use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\SerializesModels;
 
 class InstructorApproved extends Mailable
 {
@@ -17,7 +16,7 @@ class InstructorApproved extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(public User $user,)
+    public function __construct(public User $user)
     {
         //
     }

@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\AssignmentSubmission;
+use Illuminate\Console\Command;
 
 class UpdateAssignmentCompletions extends Command
 {
