@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use App\Models\User;
 use App\Traits\HasLocalDates;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * 
- *
  * @property int $id
  * @property int $user_id
  * @property string|null $headline
@@ -19,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read User $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstructorProfile newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstructorProfile newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstructorProfile query()
@@ -30,11 +29,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstructorProfile whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstructorProfile whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InstructorProfile whereWebsiteUrl($value)
+ *
  * @mixin \Eloquent
  */
 class InstructorProfile extends Model
 {
+    use HasFactory;
     use HasLocalDates;
+
     protected $fillable = [
         'user_id',
         'headline',

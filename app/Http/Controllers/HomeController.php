@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
-use Illuminate\Http\Request;
 use App\Models\PlatformReview;
 
 class HomeController extends Controller
@@ -24,7 +23,6 @@ class HomeController extends Controller
         $mostPopularCourse = $popularCourses->get(0); // Kursus paling populer (urutan 1)
         $secondMostPopularCourse = $popularCourses->get(1); // Urutan 2
         $thirdMostPopularCourse = $popularCourses->get(2); // Urutan 3
-
 
         // 2. Ambil 4 ulasan platform terbaru dengan rating tinggi
         $platformReviews = PlatformReview::with('user.studentProfile')

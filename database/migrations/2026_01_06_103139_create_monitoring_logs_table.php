@@ -20,7 +20,7 @@ return new class extends Migration
                 'look_left',
                 'look_right',
                 'look_down',
-                'look_up'
+                'look_up',
             ]);
             $table->timestamp('violation_timestamp');
             $table->integer('duration_seconds')->nullable()->comment('Durasi pelanggaran (untuk face detection)');

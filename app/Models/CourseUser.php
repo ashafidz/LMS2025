@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use App\Traits\HasLocalDates;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class CourseUser extends Model
 {
@@ -24,8 +24,6 @@ class CourseUser extends Model
     protected $casts = [
         'is_converted_to_diamond' => 'boolean',
     ];
-
-
 
     /**
      * [SOLUSI] Tambahkan relasi ini.

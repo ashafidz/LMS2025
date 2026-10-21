@@ -20,7 +20,7 @@ class QuestionTopicController extends Controller
 
         // Mulai query dasar untuk topik milik instruktur
         $query = $user->questionTopics()
-            ->withExists(['questions as is_locked' => fn($q) => $q->whereHas('quizzes')])
+            ->withExists(['questions as is_locked' => fn ($q) => $q->whereHas('quizzes')])
             ->withCount('questions')
             ->with(['courses', 'questions' => function ($q) {
                 $q->select('id', 'topic_id', 'question_type');
@@ -55,6 +55,7 @@ class QuestionTopicController extends Controller
     public function create()
     {
         $courses = Auth::user()->courses()->orderBy('title')->get();
+
         return view('instructor.question_bank.topics.create', compact('courses'));
     }
 
@@ -78,7 +79,7 @@ class QuestionTopicController extends Controller
                 'available_for_all_courses' => $request->has('available_for_all_courses'),
             ]);
 
-            if (!$topic->available_for_all_courses && !empty($validated['course_ids'])) {
+            if (! $topic->available_for_all_courses && ! empty($validated['course_ids'])) {
                 $topic->courses()->sync($validated['course_ids']);
             }
         });
@@ -89,6 +90,8 @@ class QuestionTopicController extends Controller
 
     public function show(QuestionTopic $topic)
     {
+        abort_unless($topic->instructor_id === Auth::id(), 403);
+
         return redirect()->route('instructor.question-bank.questions.index', $topic);
     }
 
@@ -97,8 +100,11 @@ class QuestionTopicController extends Controller
      */
     public function edit(QuestionTopic $topic)
     {
+        abort_unless($topic->instructor_id === Auth::id(), 403);
+
         $topic->load('courses');
         $courses = Auth::user()->courses()->orderBy('title')->get();
+
         return view('instructor.question_bank.topics.edit', compact('topic', 'courses'));
     }
 
@@ -107,6 +113,8 @@ class QuestionTopicController extends Controller
      */
     public function update(Request $request, QuestionTopic $topic)
     {
+        abort_unless($topic->instructor_id === Auth::id(), 403);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -122,7 +130,7 @@ class QuestionTopicController extends Controller
                 'available_for_all_courses' => $request->has('available_for_all_courses'),
             ]);
 
-            if (!$topic->available_for_all_courses && !empty($validated['course_ids'])) {
+            if (! $topic->available_for_all_courses && ! empty($validated['course_ids'])) {
                 $topic->courses()->sync($validated['course_ids']);
             } else {
                 $topic->courses()->detach();
@@ -135,7 +143,10 @@ class QuestionTopicController extends Controller
 
     public function destroy(QuestionTopic $topic)
     {
+        abort_unless($topic->instructor_id === Auth::id(), 403);
+
         $topic->delete();
+
         return redirect()->route('instructor.question-bank.topics.index')
             ->with('success', 'Topik soal berhasil dihapus.');
     }

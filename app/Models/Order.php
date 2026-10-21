@@ -2,17 +2,16 @@
 
 namespace App\Models;
 
-use App\Models\Coupon;
-use App\Traits\HasLocalDates;
 use App\Traits\HasHashedRouteKey;
-use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasLocalDates;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
     use HasFactory;
-    use HasLocalDates;
     use HasHashedRouteKey;
+    use HasLocalDates;
 
     protected $fillable = [
         'order_code',
@@ -29,6 +28,8 @@ class Order extends Model
     ];
 
     protected $casts = [
+        'user_id' => 'integer',
+        'coupon_id' => 'integer',
         'total_amount' => 'decimal:2',
         'discount_amount' => 'decimal:2',
         'final_amount' => 'decimal:2',
@@ -50,7 +51,7 @@ class Order extends Model
         static::creating(function ($order) {
             // DIPERBARUI: Menggunakan tanda hubung (-) bukan garis miring (/)
             // Hasilnya akan seperti: INV-20250718-XXXXX
-            $order->order_code = 'INV-' . now()->format('Ymd') . '-' . strtoupper(uniqid());
+            $order->order_code = 'INV-'.now()->format('Ymd').'-'.strtoupper(uniqid());
         });
     }
 

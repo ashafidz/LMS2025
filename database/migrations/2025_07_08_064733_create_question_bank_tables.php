@@ -32,7 +32,7 @@ return new class extends Migration
                 'multiple_choice_single', // Radio buttons
                 'multiple_choice_multiple', // Checkboxes
                 'true_false', // Radio buttons with True/False options
-                'drag_and_drop' // Fill in the blanks
+                'drag_and_drop', // Fill in the blanks
             ])->default('multiple_choice_single');
             $table->integer('score')->default(10);
             $table->timestamps();

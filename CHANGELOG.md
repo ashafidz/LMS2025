@@ -2,20 +2,75 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- **Student Management Search**: Halaman Manajemen Student (admin dan superadmin) kini memiliki kotak pencarian berdasarkan nama, email, atau NIM/NIP/NIDN, lengkap dengan tombol Reset dan pesan jelas saat tidak ada hasil.
+- **Load Test Tooling**: Skrip uji beban lokal `scripts/loadtest/run.sh` (k6, simulasi 150 siswa acak dengan batas mirip hosting: 1 core CPU, 20 proses PHP) dan `scripts/loadtest/race.sh` (20 request serentak dari satu siswa), beserta `LoadTestSeeder` yang menolak berjalan di production.
+
+### Changed
+
+- **Student Management Pagination**: Daftar student kini memakai pagination bernomor bergaya Bootstrap (10 per halaman) dengan keterangan "Menampilkan X-Y dari N student". Kata kunci pencarian tetap terbawa saat berpindah halaman.
+- **Document Preview Modal**: Modal pratinjau pelajaran Dokumen (PDF) di halaman Kelola Pelajaran instruktur kini lebih lebar (90% layar di desktop) dan viewer PDF lebih tinggi (70% tinggi layar), juga pada tampilan dokumen di halaman belajar siswa.
+
+### Performance
+
+- **Concurrent Users**: Mengurangi beban server agar lebih tahan saat banyak siswa aktif bersamaan (batas 20 proses hosting). Query per halaman siswa turun (mulai kuis 40 -> 11, submit kuis 74 -> 16), tidak ada lagi query skema per view, laporan pelanggaran kamera mengirim screenshot lebih kecil dan diproses lebih ringan, PDF sertifikat disimpan dan tidak dibuat ulang setiap unduhan.
+- **Leaderboard & Course Page Queries**: Leaderboard kursus dan modul tidak lagi menjalankan satu query per siswa (sebelumnya hingga 100 query), dan daftar kursus terkait di halaman detail kursus memuat instruktur dan kategori sekaligus.
+- **Deploy Cache**: Deploy kini juga menjalankan `php artisan event:cache`.
+- **Queued Auth Emails**: Email verifikasi dan reset password kini dikirim lewat antrean (dijalankan scheduler tiap menit), sehingga SMTP tidak menahan request. Membutuhkan cron `schedule:run` di server.
+
+### Fixed
+
+- **Double Click Protection**: Klik ganda atau request bersamaan dari siswa yang sama tidak lagi membuat attempt kuis ganda, menyimpan jawaban kuis berkali-kali, memberi poin dua kali (tandai selesai, polling, word cloud, tugas), atau memunculkan error 500. Submit ulang attempt yang sudah selesai kini diarahkan ke halaman hasil, dan klik "Mulai" pada kuis yang sedang dikerjakan selalu melanjutkan attempt yang ada.
+- **Student Status Confirmation**: Pesan konfirmasi tombol Deactive/Re-active di Manajemen Student sebelumnya menyebut "Instructor"; kini menyebut student dengan kalimat yang benar.
+
+### Deployment Notes
+
+- Wajib sebelum deploy: cron cPanel `* * * * * cd <path aplikasi> && php artisan schedule:run >> /dev/null 2>&1` (menjalankan antrean email dan `orders:sync-pending`).
+- Disarankan di `.env` production (hasil uji beban: antrean 17-27 detik hilang): `SESSION_DRIVER=file`, `CACHE_STORE=file`, `BCRYPT_ROUNDS=10`, `LOG_LEVEL=warning`, `LOG_STACK=daily`, lalu `php artisan config:cache`. Ganti driver session membuat semua pengguna logout sekali; lakukan di luar jam kelas. Pastikan ekstensi `opcache` aktif.
+
+## [1.3.1] - 2026-10-14
+
+### Fixed
+
+- **Pricing & Coupon Calculation**: Diskon kupon per kursus kini hanya memotong harga kursus yang dituju (bukan seluruh subtotal keranjang). Perhitungan total di halaman keranjang belanja diselaraskan dengan alur checkout menggunakan `CartPricingService`, sehingga nominal yang ditampilkan sama persis dengan yang ditagihkan.
+- **Specific Coupon Messages**: Menampilkan pesan galat kupon yang jelas dan informatif untuk setiap kondisi (kupon kedaluwarsa/tidak aktif, kuota total habis, batas maksimal per pengguna tercapai, atau kupon tidak berlaku untuk kursus di keranjang).
+- **Coupon Quota Reservation**: Kuota kupon kini memperhitungkan pesanan berstatus pending dalam 24 jam terakhir agar kuota tidak terlampaui saat beberapa transaksi berjalan bersamaan.
+- **Ownership ID Casts**: Memastikan casting integer pada kolom kepemilikan (`user_id`, `instructor_id`, `student_id`) pada seluruh model terkait guna mencegah penolakan otorisasi palsu akibat perbandingan tipe ketat.
+
+### Added
+
+- **Pending Order Sync**: Penambahan perintah `orders:sync-pending` dan penjadwalan berkala untuk memeriksa dan menyelesaikan transaksi tertunda langsung ke gateway Midtrans secara otomatis.
+
+## [1.3.0] - 2026-10-14
+
+### Security & Hardening
+
+- **Payment & Webhook Security**: Memperketat alur checkout dan callback Midtrans. Menghapus ketergantungan status pembayaran pada URL return peramban. Seluruh status pelunasan transaksi kini diverifikasi melalui webhook resmi dengan validasi SHA512 signature dan pencocokan nominal tagihan (`OrderSettlementService`), serta fallback query langsung ke server Midtrans.
+- **Role Switch & Authorization**: Mengamankan rute pergantian peran (`/switch-role/{role}`) dengan middleware auth dan validasi kepemilikan role untuk mencegah eskalasi hak akses.
+- **Instructor Ownership Protection**: Menerapkan kebijakan otorisasi `CoursePolicy` pada seluruh aksi controller instruktur (Course, Module, Lesson, Quiz, Question Bank, Leaderboard) sehingga instruktur tidak dapat melihat, mengubah, atau memanipulasi materi milik instruktur lain.
+- **Quiz & Assignment Access Control**: Menerapkan validasi enrollment kursus tanpa celah pada pengerjaan kuis, pengumpulan tugas, dan pengisian polling. Memastikan siswa hanya dapat mengakses attempt miliknya sendiri dan membatasi fitur preview kuis hanya untuk instruktur pemilik dan admin.
+- **Answer Oracle Removal**: Menghapus endpoint publik pengecekan jawaban real-time (`/student/quiz/check-answer`) yang mengekspos kunci jawaban dan pembahasan soal.
+- **Data Integrity & Concurrency**: Menjamin idempoten seluruh seeder database (`RoleSeeder`, `CourseCategorySeeder`, `SuperadminUserSeeder`, `AdminUserSeeder`) dan menambahkan database lock concurrency (`lockForUpdate`) pada transaksi pengurangan diamond dan konversi poin ke diamond (`DiamondService`).
+
 ## [1.2.0] - 2026-09-14
 
 ### Changed
-- **Lesson Editor UI**: Menambahkan informasi nama Kursus dan Modul secara dinamis pada *header* seluruh halaman pembuatan dan pengeditan pelajaran (Video, Artikel, Kuis, Polling, Word Cloud, dll) agar instruktur memiliki konteks navigasi yang jelas.
-- **Module List UI**: Mengeluarkan tombol "Papan Peringkat" dari menu *dropdown* dan meletakkannya di samping tombol "Kelola Pelajaran" (tampil adaptif berdasarkan ukuran layar *device*).
-- **Lesson List UI**: Merapikan tombol aksi pelajaran. Tombol "Edit" kini disembunyikan secara permanen ke dalam menu *dropdown* (gear), sementara tombol-tombol aksi sekunder (seperti Pratinjau, Kelola Soal, Hasil Polling) dikeluarkan agar lebih cepat diakses dari layar desktop.
+
+- **Lesson Editor UI**: Menambahkan informasi nama Kursus dan Modul secara dinamis pada _header_ seluruh halaman pembuatan dan pengeditan pelajaran (Video, Artikel, Kuis, Polling, Word Cloud, dll) agar instruktur memiliki konteks navigasi yang jelas.
+- **Module List UI**: Mengeluarkan tombol "Papan Peringkat" dari menu _dropdown_ dan meletakkannya di samping tombol "Kelola Pelajaran" (tampil adaptif berdasarkan ukuran layar _device_).
+- **Lesson List UI**: Merapikan tombol aksi pelajaran. Tombol "Edit" kini disembunyikan secara permanen ke dalam menu _dropdown_ (gear), sementara tombol-tombol aksi sekunder (seperti Pratinjau, Kelola Soal, Hasil Polling) dikeluarkan agar lebih cepat diakses dari layar desktop.
 - **Student List UI**: Menghapus kolom "Email" dari tabel daftar siswa yang terdaftar di dalam menu Daftar Kursus untuk merampingkan antarmuka.
-- **Student Progress UI**: Memperbaiki tata letak (layout) *header* profil siswa sehingga Email dan NIM kini tersusun rapi di bawah Nama Siswa. Selain itu, ditambahkan ruang (margin) yang ideal antara ikon status kelulusan (centang hijau) dengan judul pelajaran.
+- **Student Progress UI**: Memperbaiki tata letak (layout) _header_ profil siswa sehingga Email dan NIM kini tersusun rapi di bawah Nama Siswa. Selain itu, ditambahkan ruang (margin) yang ideal antara ikon status kelulusan (centang hijau) dengan judul pelajaran.
 
 ## [1.1.1] - 2026-09-10
 
 ### Changed
-- **Licensing & Copyright**: Mengubah lisensi repositori dari status terbuka (MIT) menjadi tertutup secara hukum (*Proprietary / All Rights Reserved*) melalui penambahan berkas `LICENSE` khusus untuk `ruangstudi.id`. Hal ini mengamankan hak kekayaan intelektual (HAKI) perusahaan dari penyalinan yang tidak sah.
-- **Documentation Cleanup**: Membersihkan duplikasi konten (teks dan *badge*) yang sempat berantakan di `README.md` dan memperbarui klausa lisensi di bagian paling bawah dokumen agar sejalan dengan status *Proprietary*.
+
+- **Licensing & Copyright**: Mengubah lisensi repositori dari status terbuka (MIT) menjadi tertutup secara hukum (_Proprietary / All Rights Reserved_) melalui penambahan berkas `LICENSE` khusus untuk `ruangstudi.id`. Hal ini mengamankan hak kekayaan intelektual (HAKI) perusahaan dari penyalinan yang tidak sah.
+- **Documentation Cleanup**: Membersihkan duplikasi konten (teks dan _badge_) yang sempat berantakan di `README.md` dan memperbarui klausa lisensi di bagian paling bawah dokumen agar sejalan dengan status _Proprietary_.
 
 ## [1.1.0] - 2026-09-10
 

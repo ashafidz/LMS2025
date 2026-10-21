@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Student;
 
-use Exception;
-use Carbon\Carbon;
+use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Module;
 use App\Models\PointHistory;
-use Illuminate\Http\Request;
 use App\Services\PointService;
+use App\Services\StudentWriteLock;
+use Carbon\Carbon;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 
 class CourseController extends Controller
 {
@@ -34,7 +35,7 @@ class CourseController extends Controller
             }
         }
 
-        if (!$is_preview && $course->status !== 'published') {
+        if (! $is_preview && $course->status !== 'published') {
             abort(404, 'Kursus tidak ditemukan.');
         }
 
@@ -65,16 +66,14 @@ class CourseController extends Controller
                 ->pluck('lesson_id')
                 ->toArray();
 
-
             // Ambil total poin siswa di kursus ini
             $courseUserPivot = $user->coursePoints()->where('course_id', $course->id)->first();
             $currentCoursePoints = $courseUserPivot->pivot->points_earned ?? 0;
         }
 
-
         // LOGIKA BARU: Cek apakah SEMUA pelajaran sudah selesai
         $allLessonsCompleted = false;
-        if ($user && !$is_preview) {
+        if ($user && ! $is_preview) {
             $totalLessons = $course->lessons->count();
             $completedLessonsCount = count($completedLessonIds);
 
@@ -87,7 +86,7 @@ class CourseController extends Controller
 
         // LOGIKA BARU: Cek kelayakan untuk sertifikat
         $isEligibleForCertificate = false;
-        if ($user && !$is_preview) {
+        if ($user && ! $is_preview) {
             $totalLessons = $course->lessons->count();
             $completedLessonsCount = count($completedLessonIds);
             $hasReviewed = $course->reviews()->where('user_id', $user->id)->exists();
@@ -96,8 +95,6 @@ class CourseController extends Controller
                 $isEligibleForCertificate = true;
             }
         }
-
-
 
         // $course->load(['modules' => fn($q) => $q->orderBy('order'), 'modules.lessons' => fn($q) => $q->orderBy('order')]);
 
@@ -123,18 +120,19 @@ class CourseController extends Controller
             }
         }
 
-        if (!$canAccess) {
+        if (! $canAccess) {
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
         }
 
         // --- LOGIKA KUNCI MODUL ---
         $module = $lesson->module;
-        if ($module->points_required > 0 && !$request->query('preview')) {
+        if ($module->points_required > 0 && ! $request->query('preview')) {
             $courseUserPivot = $user->coursePoints()->where('course_id', $module->course_id)->first();
             $userPoints = $courseUserPivot->pivot->points_earned ?? 0;
 
             if ($userPoints < $module->points_required) {
                 $htmlContent = view('student.courses.partials._locked_content', ['module' => $module])->render();
+
                 return response()->json([
                     'success' => true, // Sukses memuat, tapi kontennya adalah pesan terkunci
                     'title' => 'Modul Terkunci',
@@ -144,8 +142,6 @@ class CourseController extends Controller
             }
         }
         // --- AKHIR LOGIKA KUNCI MODUL ---
-
-
 
         // --- LOGIKA BARU: Ambil data diskusi ---
         $discussions = $lesson->discussions()
@@ -161,7 +157,7 @@ class CourseController extends Controller
         $data = [
             'lesson' => $lesson,
             'is_preview' => $is_preview_for_view,
-            'discussions' => $discussions
+            'discussions' => $discussions,
         ];
 
         // 2. Render HTML untuk forum diskusi secara terpisah
@@ -203,7 +199,7 @@ class CourseController extends Controller
             // }
 
             // LOGIKA YANG DIPERBARUI
-            if ($user && !$is_preview_for_view) {
+            if ($user && ! $is_preview_for_view) {
                 // Ambil SEMUA percobaan, urutkan dari yang paling akhir (desc)
                 $allAttempts = $quiz->attempts()
                     ->where('student_id', $user->id)
@@ -224,16 +220,14 @@ class CourseController extends Controller
             }
             // AKHIR LOGIKA YANG DIPERBARUI
 
-
-
         } elseif ($lessonType === 'lessonpoint') {
             // Pastikan nama file Anda adalah '_lessonpoint.blade.php' (tanpa s)
             $viewName = 'instructor.lessons.previews._lessonpoint';
         } else {
-            $viewName = 'instructor.lessons.previews._' . $lessonType;
+            $viewName = 'instructor.lessons.previews._'.$lessonType;
         }
 
-        if (!view()->exists($viewName)) {
+        if (! view()->exists($viewName)) {
             return response()->json(['success' => false, 'message' => 'Tipe konten tidak ditemukan.'], 404);
         }
 
@@ -249,6 +243,17 @@ class CourseController extends Controller
         ]);
     }
 
+    private function canAccessCourse($user, $course): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        return $user->enrollments()->where('courses.id', $course->id)->exists()
+            || $course->instructor_id === $user->id
+            || $user->hasAnyRole(['admin', 'superadmin']);
+    }
+
     /**
      * Menandai sebuah pelajaran sebagai selesai.
      */
@@ -257,12 +262,9 @@ class CourseController extends Controller
         $user = Auth::user();
         $is_enrolled = $user->enrollments()->where('course_id', $lesson->module->course_id)->exists();
 
-        if (!$is_enrolled) {
+        if (! $is_enrolled) {
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
         }
-
-        // Cek apakah pelajaran ini sudah pernah diselesaikan untuk mencegah poin ganda
-        $alreadyCompleted = $user->completedLessons()->where('lesson_id', $lesson->id)->exists();
 
         // Prevent manual completion for types that auto-complete
         $lessonType = strtolower(class_basename($lesson->lessonable_type));
@@ -270,16 +272,28 @@ class CourseController extends Controller
             return response()->json(['success' => false, 'message' => 'Pelajaran ini akan otomatis ditandai selesai setelah Anda berpartisipasi.'], 403);
         }
 
-        $user->completedLessons()->syncWithoutDetaching($lesson->id);
-        // Berikan poin HANYA jika pelajaran ini BARU saja diselesaikan
-        if (!$alreadyCompleted) {
-            $lessonType = strtolower(class_basename($lesson->lessonable_type));
+        // Dikunci per siswa agar klik ganda tidak memberi poin dua kali
+        StudentWriteLock::run($user, function () use ($user, $lesson, $lessonType) {
+            // Cek apakah pelajaran ini sudah pernah diselesaikan untuk mencegah poin ganda
+            if ($user->completedLessons()->where('lesson_id', $lesson->id)->exists()) {
+                return;
+            }
+
+            $user->completedLessons()->syncWithoutDetaching($lesson->id);
+
+            // Berikan poin HANYA jika pelajaran ini BARU saja diselesaikan
             $activity = null;
             $course = $lesson->module->course;
 
-            if ($lessonType === 'lessonarticle') $activity = 'complete_article';
-            if ($lessonType === 'lessonvideo') $activity = 'complete_video';
-            if ($lessonType === 'lessondocument') $activity = 'complete_document';
+            if ($lessonType === 'lessonarticle') {
+                $activity = 'complete_article';
+            }
+            if ($lessonType === 'lessonvideo') {
+                $activity = 'complete_video';
+            }
+            if ($lessonType === 'lessondocument') {
+                $activity = 'complete_document';
+            }
 
             if ($activity) {
                 PointService::addPoints(
@@ -290,10 +304,10 @@ class CourseController extends Controller
                     description_meta: $lesson->title
                 );
             }
-        }
+        });
+
         return response()->json(['success' => true, 'message' => 'Pelajaran ditandai selesai.']);
     }
-
 
     /**
      * METODE BARU: Mengambil data leaderboard untuk kursus tertentu via AJAX.
@@ -302,7 +316,7 @@ class CourseController extends Controller
     // {
 
     //     $leaderboardRanks = $course->points()
-    //         ->whereHas('user') 
+    //         ->whereHas('user')
     //         ->with('user')
     //         ->orderBy('points_earned', 'desc')
     //         ->take(100)
@@ -362,9 +376,14 @@ class CourseController extends Controller
 
     public function getLeaderboard(Course $course)
     {
+        $user = Auth::user();
+        if (! $this->canAccessCourse($user, $course)) {
+            return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+        }
+
         try {
             $leaderboardRanks = $course->points()
-                ->with('user')
+                ->with('user.studentProfile')
                 // DIPERBARUI: Tambahkan filter untuk memastikan siswa masih terdaftar
                 ->whereHas('user.enrollments', function ($query) use ($course) {
                     $query->where('course_id', $course->id);
@@ -380,7 +399,6 @@ class CourseController extends Controller
             // ... (Logika error Anda sudah bagus, tidak perlu diubah)
         }
     }
-
 
     /**
      * Mengambil data leaderboard untuk modul tertentu via AJAX.
@@ -406,6 +424,11 @@ class CourseController extends Controller
 
     public function getModuleLeaderboard(Module $module)
     {
+        $user = Auth::user();
+        if (! $this->canAccessCourse($user, $module->course)) {
+            return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+        }
+
         // Ambil kursus dari modul untuk digunakan dalam filter
         $course = $module->course;
         $lessonIds = $module->lessons()->pluck('id');
@@ -419,7 +442,7 @@ class CourseController extends Controller
                 $query->where('course_id', $course->id);
             })
             ->orderBy('total_points', 'desc')
-            ->with('user') // Eager load data user
+            ->with('user.studentProfile') // Eager load data user
             ->take(100)
             ->get();
 
@@ -430,12 +453,17 @@ class CourseController extends Controller
 
     public function submitPolling(Request $request, Lesson $lesson)
     {
+        $user = Auth::user();
+        if (! $this->canAccessCourse($user, $lesson->module->course)) {
+            return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+        }
+
         $request->validate([
             'polling_option_id' => 'required',
         ]);
 
         $polling = $lesson->lessonable;
-        
+
         if (get_class($polling) !== 'App\Models\LessonPolling') {
             return response()->json(['success' => false, 'message' => 'Tipe pelajaran tidak valid.']);
         }
@@ -456,36 +484,49 @@ class CourseController extends Controller
             $isActive = false;
         }
 
-        if (!$isActive) {
+        if (! $isActive) {
             return response()->json(['success' => false, 'message' => 'Polling ini tidak aktif atau sudah ditutup.']);
         }
 
         $user = auth()->user();
-        
+
         $optionIds = is_array($request->polling_option_id) ? $request->polling_option_id : [$request->polling_option_id];
 
         if ($polling->allow_multiple && $polling->max_choices && count($optionIds) > $polling->max_choices) {
             return response()->json(['success' => false, 'message' => "Anda maksimal hanya boleh memilih {$polling->max_choices} opsi."]);
         }
 
-        foreach ($optionIds as $optionId) {
-            $polling->responses()->create([
-                'user_id' => $user->id,
-                'lesson_polling_option_id' => $optionId,
-            ]);
-        }
+        // Dikunci per siswa: klik ganda tidak menyimpan jawaban atau poin dua kali
+        $saved = StudentWriteLock::run($user, function () use ($polling, $user, $optionIds, $lesson) {
+            if ($polling->responses()->where('user_id', $user->id)->exists()) {
+                return false;
+            }
 
-        $alreadyCompleted = $user->completedLessons()->where('lesson_id', $lesson->id)->exists();
-        $user->completedLessons()->syncWithoutDetaching($lesson->id);
+            foreach ($optionIds as $optionId) {
+                $polling->responses()->create([
+                    'user_id' => $user->id,
+                    'lesson_polling_option_id' => $optionId,
+                ]);
+            }
 
-        if (!$alreadyCompleted) {
-            \App\Services\PointService::addPoints(
-                user: $user,
-                course: $lesson->module->course,
-                activity: 'complete_polling',
-                lesson: $lesson,
-                description_meta: $lesson->title
-            );
+            $alreadyCompleted = $user->completedLessons()->where('lesson_id', $lesson->id)->exists();
+            $user->completedLessons()->syncWithoutDetaching($lesson->id);
+
+            if (! $alreadyCompleted) {
+                \App\Services\PointService::addPoints(
+                    user: $user,
+                    course: $lesson->module->course,
+                    activity: 'complete_polling',
+                    lesson: $lesson,
+                    description_meta: $lesson->title
+                );
+            }
+
+            return true;
+        });
+
+        if (! $saved) {
+            return response()->json(['success' => false, 'message' => 'Anda sudah mengisi polling ini.']);
         }
 
         return response()->json(['success' => true]);
@@ -493,34 +534,48 @@ class CourseController extends Controller
 
     public function ajaxPollingResults(Lesson $lesson)
     {
+        $user = Auth::user();
+        if (! $this->canAccessCourse($user, $lesson->module->course)) {
+            if (request()->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+            }
+            abort(403, 'Akses ditolak.');
+        }
+
         $polling = $lesson->lessonable;
         if (get_class($polling) !== 'App\Models\LessonPolling') {
             abort(404);
         }
 
-        if (!$polling->show_results) {
+        if (! $polling->show_results) {
             abort(403, 'Hasil polling tidak ditampilkan.');
         }
 
         return view('instructor.lessons.previews._lessonpolling_results', compact('polling'));
     }
+
     public function submitWordcloud(Request $request, Lesson $lesson)
     {
+        $user = Auth::user();
+        if (! $this->canAccessCourse($user, $lesson->module->course)) {
+            return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+        }
+
         $request->validate([
             'word' => 'required|string|max:100',
         ]);
 
         $wordcloud = $lesson->lessonable;
-        
+
         if (get_class($wordcloud) !== 'App\Models\LessonWordcloud') {
             return response()->json(['success' => false, 'message' => 'Tipe pelajaran tidak valid.']);
         }
 
         $wordCount = count(preg_split('/\s+/', trim($request->word)));
         $maxWords = $wordcloud->max_words ?? 1;
-        
+
         if ($wordCount > $maxWords) {
-             return response()->json(['success' => false, 'message' => "Anda hanya boleh memasukkan maksimal {$maxWords} kata."]);
+            return response()->json(['success' => false, 'message' => "Anda hanya boleh memasukkan maksimal {$maxWords} kata."]);
         }
 
         // Check if already voted
@@ -539,28 +594,43 @@ class CourseController extends Controller
             $isActive = false;
         }
 
-        if (!$isActive) {
+        if (! $isActive) {
             return response()->json(['success' => false, 'message' => 'Word Cloud ini tidak aktif atau sudah ditutup.']);
         }
 
         $user = auth()->user();
-        
-        $wordcloud->responses()->create([
-            'user_id' => $user->id,
-            'word' => mb_strtolower(trim($request->word)),
-        ]);
 
-        $alreadyCompleted = $user->completedLessons()->where('lesson_id', $lesson->id)->exists();
-        $user->completedLessons()->syncWithoutDetaching($lesson->id);
+        $word = mb_strtolower(trim($request->word));
 
-        if (!$alreadyCompleted) {
-            \App\Services\PointService::addPoints(
-                user: $user,
-                course: $lesson->module->course,
-                activity: 'complete_wordcloud', // Will fallback to default points if not defined, or we can use 5 points by adding it to gamification settings. Let's add it if needed, or use complete_polling logic.
-                lesson: $lesson,
-                description_meta: $lesson->title
-            );
+        // Dikunci per siswa: klik ganda tidak menyimpan jawaban atau poin dua kali
+        $saved = StudentWriteLock::run($user, function () use ($wordcloud, $user, $word, $lesson) {
+            if ($wordcloud->responses()->where('user_id', $user->id)->exists()) {
+                return false;
+            }
+
+            $wordcloud->responses()->create([
+                'user_id' => $user->id,
+                'word' => $word,
+            ]);
+
+            $alreadyCompleted = $user->completedLessons()->where('lesson_id', $lesson->id)->exists();
+            $user->completedLessons()->syncWithoutDetaching($lesson->id);
+
+            if (! $alreadyCompleted) {
+                \App\Services\PointService::addPoints(
+                    user: $user,
+                    course: $lesson->module->course,
+                    activity: 'complete_wordcloud', // Will fallback to default points if not defined, or we can use 5 points by adding it to gamification settings. Let's add it if needed, or use complete_polling logic.
+                    lesson: $lesson,
+                    description_meta: $lesson->title
+                );
+            }
+
+            return true;
+        });
+
+        if (! $saved) {
+            return response()->json(['success' => false, 'message' => 'Anda sudah berpartisipasi dalam Word Cloud ini.']);
         }
 
         return response()->json(['success' => true]);
@@ -568,6 +638,14 @@ class CourseController extends Controller
 
     public function ajaxWordcloudResults(Lesson $lesson)
     {
+        $user = Auth::user();
+        if (! $this->canAccessCourse($user, $lesson->module->course)) {
+            if (request()->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+            }
+            abort(403, 'Akses ditolak.');
+        }
+
         $wordcloud = $lesson->lessonable;
         if (get_class($wordcloud) !== 'App\Models\LessonWordcloud') {
             abort(404);
@@ -579,7 +657,7 @@ class CourseController extends Controller
             ->orderByDesc('count')
             ->pluck('count', 'word')
             ->toArray();
-            
+
         $wordCloudList = [];
         foreach ($wordCounts as $word => $count) {
             $wordCloudList[] = [$word, $count];

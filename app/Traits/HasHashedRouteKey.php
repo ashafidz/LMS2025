@@ -32,10 +32,10 @@ trait HasHashedRouteKey
         if ($field !== null) {
             return parent::resolveRouteBinding($value, $field);
         }
-        
+
         // Decode value (support both hash dan integer untuk default ID binding)
         $id = HashIdService::decode($value);
-        
+
         if ($id === null) {
             return null;
         }

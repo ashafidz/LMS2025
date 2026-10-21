@@ -2,7 +2,7 @@
 
 <p align="left">
   <img src="https://img.shields.io/badge/PHP-8.3%2B-777BB4.svg?style=for-the-badge&logo=php&logoColor=white" alt="PHP">
-  <img src="https://img.shields.io/badge/Laravel-11.x-FF2D20.svg?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel">
+  <img src="https://img.shields.io/badge/Laravel-12.x-FF2D20.svg?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel">
   <img src="https://img.shields.io/badge/MySQL-8.0%2B-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL">
   <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="TailwindCSS">
   <img src="https://img.shields.io/badge/License-Proprietary-red.svg?style=for-the-badge" alt="License">
@@ -21,7 +21,7 @@
 
 ## 💻 Tech Stack
 
-- **Backend:** Laravel 11.x, PHP 8.3
+- **Backend:** Laravel 12.x, PHP 8.3
 - **Frontend:** Blade Templates, Tailwind CSS, Alpine.js
 - **Database:** MySQL
 - **Integrations:** Midtrans (Payment Gateway), Google reCAPTCHA v3

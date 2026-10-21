@@ -35,7 +35,6 @@ return new class extends Migration
             $table->dropColumn('category_temp');
         });
 
-
         // 2. Memperbarui tabel likert_answers agar course_id bisa kosong (nullable)
         Schema::table('likert_answers', function (Blueprint $table) {
             // Hapus foreign key constraint sementara untuk mengubah kolom

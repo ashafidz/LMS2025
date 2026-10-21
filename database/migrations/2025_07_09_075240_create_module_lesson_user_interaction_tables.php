@@ -22,7 +22,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-
         // The different types of lesson content (for the polymorphic relationship)
         Schema::create('lesson_articles', function (Blueprint $table) {
             $table->id();

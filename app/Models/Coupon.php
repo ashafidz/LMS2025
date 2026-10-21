@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
-use App\Traits\HasLocalDates;
 use App\Traits\HasHashedRouteKey;
-use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasLocalDates;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Coupon extends Model
 {
     use HasFactory;
-    use HasLocalDates;
     use HasHashedRouteKey;
+    use HasLocalDates;
 
     /**
      * The attributes that are mass assignable.
@@ -60,5 +60,66 @@ class Coupon extends Model
     public function users()
     {
         return $this->belongsToMany(User::class)->withPivot('uses_count')->withTimestamps();
+    }
+
+    /**
+     * Mendapatkan semua pesanan yang menggunakan kupon ini.
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public const RESERVATION_HOURS = 24; // Midtrans Snap default expiry
+
+    public function reservedCount(?User $user = null): int
+    {
+        $query = $this->orders()
+            ->where('status', 'pending')
+            ->where('created_at', '>=', now()->subHours(self::RESERVATION_HOURS));
+
+        if ($user !== null) {
+            $query->where('user_id', $user->id);
+        }
+
+        return $query->count();
+    }
+
+    /**
+     * Mendapatkan alasan mengapa kupon tidak dapat digunakan, atau null jika dapat digunakan.
+     */
+    public function unusableReasonFor(User $user): ?string
+    {
+        if (! $this->is_active || ($this->expires_at && $this->expires_at->isPast()) || ($this->starts_at && $this->starts_at->isFuture())) {
+            return 'Kode kupon tidak valid atau sudah tidak berlaku.';
+        }
+
+        if ($this->max_uses !== null && ($this->uses_count + $this->reservedCount()) >= $this->max_uses) {
+            return 'Kuota kupon ini sudah habis.';
+        }
+
+        if ($this->max_uses_per_user !== null) {
+            $userUsage = $user->coupons()->where('coupon_id', $this->id)->first();
+            $paidCount = $userUsage ? (int) $userUsage->pivot->uses_count : 0;
+            if (($paidCount + $this->reservedCount($user)) >= $this->max_uses_per_user) {
+                return 'Anda telah mencapai batas maksimal penggunaan untuk kupon ini.';
+            }
+        }
+
+        if ($this->course_id !== null) {
+            if (! $user->carts()->where('course_id', $this->course_id)->exists()) {
+                return 'Kupon ini tidak berlaku untuk kursus yang ada di keranjang Anda.';
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if the coupon is currently usable by the given user.
+     */
+    public function isUsableBy(User $user): bool
+    {
+        return $this->unusableReasonFor($user) === null;
     }
 }

@@ -1,0 +1,26 @@
+---
+description: Workflow orchestration, planning, and verification standards
+alwaysApply: true
+---
+
+# Workflow Rules
+
+## 1. Plan First
+- For any non-trivial task (3 or more steps, architectural decisions, or schema changes), write a step-by-step plan in `tasks/todo.md`.
+- Review previous patterns in `tasks/lessons.md` before writing implementation code.
+- Keep the user informed of key architectural decisions.
+
+## 2. Execute with Minimal Blast Radius
+- Simplicity first: Make every change as simple as possible.
+- Minimal impact: Only modify lines that are directly relevant to the task.
+- Preserve unrelated code, docstrings, and existing comments.
+- Find root causes: Never use temporary hacks or suppress errors without fixing the underlying problem.
+
+## 3. Verify Before Claiming Done
+- Always run `./scripts/verify.sh` (Pint, PHPUnit, Vite build) or the relevant individual step.
+- Never claim a task is completed without showing command output or proof of verification.
+- If a test fails, state the failure honestly and fix it.
+
+## 4. Self-Improvement Loop
+- After any bug resolution, merge conflict, or user correction, update `tasks/lessons.md`.
+- Include the symptom, root cause, and concrete prevention rule.

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB; // 1. Import DB facade
 
@@ -33,7 +32,6 @@ class GamificationController extends Controller
 
         // Ambil riwayat diamond, urutkan dari yang terbaru
         $diamondHistories = $user->diamondHistories()->latest()->simplePaginate(10);
-
 
         // --- LOGIKA BARU: Menyiapkan Data untuk Grafik ---
         $pointChanges = $user->pointHistories()

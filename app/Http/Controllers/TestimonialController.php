@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\PlatformReview;
-use Illuminate\Http\Request;
 
 class TestimonialController extends Controller
 {

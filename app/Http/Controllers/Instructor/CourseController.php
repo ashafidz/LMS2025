@@ -2,28 +2,30 @@
 
 namespace App\Http\Controllers\Instructor;
 
-use App\Models\Course;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use App\Models\CourseCategory;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Models\CourseCategory;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
-use App\Models\User;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class CourseController extends Controller
 {
     public function index()
     {
         $courses = Auth::user()->courses()->with('category')->latest()->get();
+
         return view('instructor.courses.index', compact('courses'));
     }
 
     public function create()
     {
         $categories = CourseCategory::orderBy('name')->get();
+
         return view('instructor.courses.create', compact('categories'));
     }
 
@@ -67,13 +69,17 @@ class CourseController extends Controller
 
     public function show(Course $course)
     {
+        Gate::authorize('manage', $course);
+
         return view('instructor.courses.show', compact('course'));
     }
 
     public function edit(Course $course)
     {
+        Gate::authorize('manage', $course);
 
         $categories = CourseCategory::orderBy('name')->get();
+
         return view('instructor.courses.edit', compact('course', 'categories'));
     }
 
@@ -82,13 +88,7 @@ class CourseController extends Controller
      */
     public function update(Request $request, Course $course)
     {
-
-        // Otorisasi: Pastikan instruktur hanya bisa meng-clone kursusnya sendiri
-        if ($course->instructor_id != Auth::id()) {
-            abort(403, 'Akses ditolak.');
-        }
-
-
+        Gate::authorize('manage', $course);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -124,16 +124,13 @@ class CourseController extends Controller
 
     public function destroy(Course $course)
     {
-        // Otorisasi: Pastikan instruktur hanya bisa meng-clone kursusnya sendiri
-        if ($course->instructor_id != Auth::id()) {
-            abort(403, 'Akses ditolak.');
-        }
-
+        Gate::authorize('manage', $course);
 
         if ($course->thumbnail_url) {
             Storage::disk('public')->delete($course->thumbnail_url);
         }
         $course->delete();
+
         return redirect()->route('instructor.courses.index')->with('success', 'Course deleted successfully.');
     }
 
@@ -142,12 +139,16 @@ class CourseController extends Controller
      */
     public function submitForReview(Course $course)
     {
+        Gate::authorize('manage', $course);
+
         // Hanya bisa diajukan jika statusnya draft atau ditolak
         if (in_array($course->status, ['draft', 'rejected'])) {
             $course->status = 'pending_review';
             $course->save();
+
             return back()->with('success', 'Kursus berhasil diajukan untuk direview.');
         }
+
         return back()->with('error', 'Aksi tidak valid.');
     }
 
@@ -156,31 +157,31 @@ class CourseController extends Controller
      */
     public function makePrivate(Course $course)
     {
+        Gate::authorize('manage', $course);
+
         // Hanya bisa dijadikan privat jika statusnya draft atau sudah dipublikasi
         if (in_array($course->status, ['draft', 'published'])) {
             $course->status = 'private';
             $course->save();
+
             return back()->with('success', 'Status kursus berhasil diubah menjadi privat.');
         }
+
         return back()->with('error', 'Aksi tidak valid.');
     }
-
 
     /**
      * Meng-clone sebuah kursus beserta seluruh modul dan pelajarannya.
      */
     public function clone(Course $course)
     {
-        // Otorisasi: Pastikan instruktur hanya bisa meng-clone kursusnya sendiri
-        if ($course->instructor_id != Auth::id()) {
-            abort(403, 'Akses ditolak.');
-        }
+        Gate::authorize('manage', $course);
 
         try {
             DB::transaction(function () use ($course) {
                 // 1. Replikasi data kursus utama
                 $newCourse = $course->replicate();
-                $newCourse->title = $course->title . ' (Salinan)';
+                $newCourse->title = $course->title.' (Salinan)';
 
                 // Generate unique slug
                 $baseSlug = Str::slug($newCourse->title);
@@ -189,7 +190,7 @@ class CourseController extends Controller
 
                 // Check if slug exists and add number suffix if needed
                 while (Course::withTrashed()->where('slug', $slug)->exists()) {
-                    $slug = $baseSlug . '-' . $counter;
+                    $slug = $baseSlug.'-'.$counter;
                     $counter++;
                 }
 
@@ -198,7 +199,7 @@ class CourseController extends Controller
 
                 // Copy thumbnail jika ada
                 if ($course->thumbnail_url && Storage::disk('public')->exists($course->thumbnail_url)) {
-                    $newThumbnailPath = 'thumbnails/' . Str::random(40) . '.' . pathinfo($course->thumbnail_url, PATHINFO_EXTENSION);
+                    $newThumbnailPath = 'thumbnails/'.Str::random(40).'.'.pathinfo($course->thumbnail_url, PATHINFO_EXTENSION);
                     Storage::disk('public')->copy($course->thumbnail_url, $newThumbnailPath);
                     $newCourse->thumbnail_url = $newThumbnailPath;
                 }
@@ -242,7 +243,7 @@ class CourseController extends Controller
             });
         } catch (\Exception $e) {
             // Jika terjadi error, kembalikan dengan pesan error
-            return redirect()->route('instructor.courses.index')->with('error', 'Terjadi kesalahan saat meng-clone kursus: ' . $e->getMessage());
+            return redirect()->route('instructor.courses.index')->with('error', 'Terjadi kesalahan saat meng-clone kursus: '.$e->getMessage());
         }
 
         return redirect()->route('instructor.courses.index')->with('success', 'Kursus berhasil di-clone.');
@@ -253,14 +254,11 @@ class CourseController extends Controller
      */
     public function studentProgress(\App\Models\Course $course, \App\Models\User $student)
     {
-        // Pastikan kursus milik instruktur yang sedang login
-        if ($course->instructor_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        Gate::authorize('manage', $course);
 
         // Pastikan siswa terdaftar di kursus ini
         $isEnrolled = $course->students()->where('user_id', $student->id)->exists();
-        if (!$isEnrolled) {
+        if (! $isEnrolled) {
             abort(404, 'Siswa tidak terdaftar di kursus ini.');
         }
 
@@ -286,10 +284,10 @@ class CourseController extends Controller
         $siteSettings = \App\Models\SiteSetting::firstOrNew();
 
         return view('instructor.courses.student-progress', compact(
-            'course', 
-            'student', 
-            'completedLessonIds', 
-            'pointHistories', 
+            'course',
+            'student',
+            'completedLessonIds',
+            'pointHistories',
             'assignmentSubmissions',
             'siteSettings'
         ));

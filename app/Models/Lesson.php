@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
-use App\Traits\HasLocalDates;
 use App\Traits\HasHashedRouteKey;
-use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasLocalDates;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Lesson extends Model
 {
     use HasFactory;
-    use HasLocalDates;
     use HasHashedRouteKey;
+    use HasLocalDates;
 
     protected $fillable = ['module_id', 'title', 'order', 'lessonable_id', 'lessonable_type'];
 
