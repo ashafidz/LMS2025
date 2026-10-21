@@ -9,3 +9,6 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('orders:sync-pending')->everyFifteenMinutes()->withoutOverlapping();
+
+// Shared hosting has no queue daemon: drain the database queue (verification / reset emails) once a minute.
+Schedule::command('queue:work --stop-when-empty --tries=3 --max-time=50')->everyMinute()->withoutOverlapping(5);

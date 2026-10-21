@@ -940,14 +940,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 const tempCanvas = document.createElement('canvas');
                 const tempCtx = tempCanvas.getContext('2d');
                 
-                // Set canvas size to match video
-                tempCanvas.width = cameraPreview.videoWidth;
-                tempCanvas.height = cameraPreview.videoHeight;
+                // Set canvas size to the video, scaled down so the longest side is at most 480px (smaller upload)
+                const maxSide = 480;
+                const scale = Math.min(1, maxSide / Math.max(cameraPreview.videoWidth, cameraPreview.videoHeight));
+                tempCanvas.width = Math.round(cameraPreview.videoWidth * scale);
+                tempCanvas.height = Math.round(cameraPreview.videoHeight * scale);
                 
                 // Draw current video frame
                 tempCtx.drawImage(cameraPreview, 0, 0, tempCanvas.width, tempCanvas.height);
                 
-                // Convert to blob (JPEG format, 0.8 quality)
+                // Convert to blob (JPEG format, 0.6 quality)
                 tempCanvas.toBlob((blob) => {
                     if (blob) {
                         console.log('📸 Screenshot captured:', blob.size, 'bytes');
@@ -955,7 +957,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     } else {
                         reject(new Error('Failed to create blob'));
                     }
-                }, 'image/jpeg', 0.8);
+                }, 'image/jpeg', 0.6);
                 
             } catch (error) {
                 console.error('❌ Screenshot capture failed:', error);

@@ -47,6 +47,19 @@
                                     <div class="card-header">
                                         <h5>List Student</h5>
                                         <p>List student yang terdaftar</p>
+                                        <form action="{{ url()->current() }}" method="GET" class="mt-3">
+                                            <div class="input-group" style="max-width: 480px;">
+                                                <input type="text" name="search" class="form-control"
+                                                    placeholder="Cari nama, email, atau NIM/NIP/NIDN..."
+                                                    value="{{ request('search') }}">
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-primary" type="submit">Cari</button>
+                                                    @if (request()->filled('search'))
+                                                        <a href="{{ url()->current() }}" class="btn btn-secondary">Reset</a>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </form>
                                         <div class="card-header-right">
                                             {{-- <ul class="list-unstyled card-option">
                                                 <li>
@@ -146,7 +159,7 @@
                                                                         <form
                                                                             action="{{ $actionRouteDeactive }}"
                                                                             method="POST"
-                                                                            onsubmit="return confirm('Apakah kamu yakin ingin deactive Instructor ini?');">
+                                                                            onsubmit="return confirm('Apakah kamu yakin ingin menonaktifkan student ini?');">
                                                                             @csrf
                                                                             @method('PATCH')
                                                                             <button type="submit"
@@ -158,7 +171,7 @@
                                                                         <form
                                                                             action="{{ $actionRouteReactivate }}"
                                                                             method="POST"
-                                                                            onsubmit="return confirm('Apakah kamu yakin ingin Re-active Instructor ini?');">
+                                                                            onsubmit="return confirm('Apakah kamu yakin ingin mengaktifkan kembali student ini?');">
                                                                             @csrf
                                                                             @method('PATCH')
                                                                             <button type="submit"
@@ -173,15 +186,25 @@
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="6" class="text-center">Tidak ada data.
+                                                            <td colspan="5" class="text-center">
+                                                                @if (request()->filled('search'))
+                                                                    Tidak ada student yang cocok dengan "{{ request('search') }}".
+                                                                @else
+                                                                    Tidak ada data.
+                                                                @endif
                                                             </td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <div class="card-footer">
-                                            {{ $students_status_data->links() }}
+                                        <div class="card-footer d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">
+                                                @if ($students_status_data->total() > 0)
+                                                    Menampilkan {{ $students_status_data->firstItem() }}-{{ $students_status_data->lastItem() }} dari {{ $students_status_data->total() }} student
+                                                @endif
+                                            </small>
+                                            {{ $students_status_data->links('pagination::bootstrap-4') }}
                                         </div>
                                     </div>
                                 </div>

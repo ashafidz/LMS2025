@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CertificateController extends Controller
@@ -125,13 +126,26 @@ class CertificateController extends Controller
             'settings' => $settings,
         ];
 
+        $fileName = 'sertifikat-'.Str::slug($course->title).'.pdf';
+
+        // PDF disimpan agar tidak di-render ulang (dompdf berat). Nama file berubah jika isi yang dicetak berubah.
+        $contentHash = md5(implode('|', [
+            $user->name,
+            $course->title,
+            $course->instructor->name ?? '',
+            optional($settings?->updated_at)->timestamp,
+        ]));
+        $cachedPath = 'certificates/'.$certificate->certificate_code.'-'.$contentHash.'.pdf';
+
         try {
-            $pdf = Pdf::loadView('student.certificates.pdf_template', $data)
-                ->setPaper('a4', 'landscape');
+            if (! Storage::disk('local')->exists($cachedPath)) {
+                $pdf = Pdf::loadView('student.certificates.pdf_template', $data)
+                    ->setPaper('a4', 'landscape');
 
-            $fileName = 'sertifikat-'.Str::slug($course->title).'.pdf';
+                Storage::disk('local')->put($cachedPath, $pdf->output());
+            }
 
-            return $pdf->download($fileName);
+            return Storage::disk('local')->download($cachedPath, $fileName);
         } catch (\Exception $e) {
             \Log::error('Certificate PDF generation failed: '.$e->getMessage());
 

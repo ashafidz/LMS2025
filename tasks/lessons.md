@@ -55,3 +55,13 @@ Record all solved bugs, merge conflicts, and user corrections here. Review this 
 - **Symptom**: `orders:sync-pending` with more than 100 pending orders left part of them unprocessed.
 - **Root Cause**: `chunk()` pages with OFFSET. The loop changes `status` away from `pending`, so the next page's offset skips rows that moved up.
 - **Rule**: When the loop body updates a column used in the query's WHERE, use `chunkById()` (or `lazyById()`), never `chunk()`. Cover it with a test of more than one chunk.
+
+### [2026-10-21] Shared view data must not depend on a DB query at boot
+- **Symptom**: after removing the `View::composer('*')`, views crashed with "Undefined variable $siteSettings" in tests.
+- **Root Cause**: `AppServiceProvider::boot` wraps `View::share('siteSettings', ...)` in try/catch. When the DB is not ready at boot (tests before migrations, a MySQL hiccup in production) the share is silently skipped.
+- **Rule**: Provide view-wide data from a `View::composer` that resolves lazily at render time and memoizes once per request. Never run per-view DB or schema queries (`Schema::hasTable`) inside a `'*'` composer.
+
+### [2026-10-21] Check-then-write without a lock breaks under double clicks
+- **Symptom**: 20 parallel requests from one student created 6 attempts on a `max_attempts = 1` quiz, stored one submit three times (60 answers for 20 questions) and returned 19 HTTP 500s (deadlocks, duplicate keys).
+- **Root Cause**: "already done?" checks (`exists()`, status checks) ran outside any lock, so concurrent requests all passed them.
+- **Rule**: Wrap a student's one-time actions in `StudentWriteLock::run()` and repeat the check inside it. Prove race fixes with `scripts/loadtest/race.sh` on MySQL; SQLite tests cannot show them.

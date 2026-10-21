@@ -66,6 +66,22 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasHashedRouteKey;
 
     /**
+     * Send the email verification through the queue (keeps SMTP out of the web request).
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new \App\Notifications\QueuedVerifyEmail);
+    }
+
+    /**
+     * Send the password reset link through the queue (keeps SMTP out of the web request).
+     */
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
+    {
+        $this->notify(new \App\Notifications\QueuedResetPassword($token));
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>

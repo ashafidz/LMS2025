@@ -85,7 +85,8 @@ class CatalogController extends Controller
         }
 
         // LOGIKA BARU: Ambil kursus lain dalam kategori yang sama
-        $relatedCourses = Course::where('status', 'published')
+        $relatedCourses = Course::with('instructor', 'category')
+            ->where('status', 'published')
             ->where('category_id', $course->category_id)
             ->where('id', '!=', $course->id) // Kecualikan kursus saat ini
             ->inRandomOrder()

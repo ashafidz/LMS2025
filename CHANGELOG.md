@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- **Student Management Search**: Halaman Manajemen Student (admin dan superadmin) kini memiliki kotak pencarian berdasarkan nama, email, atau NIM/NIP/NIDN, lengkap dengan tombol Reset dan pesan jelas saat tidak ada hasil.
+- **Load Test Tooling**: Skrip uji beban lokal `scripts/loadtest/run.sh` (k6, simulasi 150 siswa acak dengan batas mirip hosting: 1 core CPU, 20 proses PHP) dan `scripts/loadtest/race.sh` (20 request serentak dari satu siswa), beserta `LoadTestSeeder` yang menolak berjalan di production.
+
+### Changed
+
+- **Student Management Pagination**: Daftar student kini memakai pagination bernomor bergaya Bootstrap (10 per halaman) dengan keterangan "Menampilkan X-Y dari N student". Kata kunci pencarian tetap terbawa saat berpindah halaman.
+- **Document Preview Modal**: Modal pratinjau pelajaran Dokumen (PDF) di halaman Kelola Pelajaran instruktur kini lebih lebar (90% layar di desktop) dan viewer PDF lebih tinggi (70% tinggi layar), juga pada tampilan dokumen di halaman belajar siswa.
+
+### Performance
+
+- **Concurrent Users**: Mengurangi beban server agar lebih tahan saat banyak siswa aktif bersamaan (batas 20 proses hosting). Query per halaman siswa turun (mulai kuis 40 -> 11, submit kuis 74 -> 16), tidak ada lagi query skema per view, laporan pelanggaran kamera mengirim screenshot lebih kecil dan diproses lebih ringan, PDF sertifikat disimpan dan tidak dibuat ulang setiap unduhan.
+- **Leaderboard & Course Page Queries**: Leaderboard kursus dan modul tidak lagi menjalankan satu query per siswa (sebelumnya hingga 100 query), dan daftar kursus terkait di halaman detail kursus memuat instruktur dan kategori sekaligus.
+- **Deploy Cache**: Deploy kini juga menjalankan `php artisan event:cache`.
+- **Queued Auth Emails**: Email verifikasi dan reset password kini dikirim lewat antrean (dijalankan scheduler tiap menit), sehingga SMTP tidak menahan request. Membutuhkan cron `schedule:run` di server.
+
+### Fixed
+
+- **Double Click Protection**: Klik ganda atau request bersamaan dari siswa yang sama tidak lagi membuat attempt kuis ganda, menyimpan jawaban kuis berkali-kali, memberi poin dua kali (tandai selesai, polling, word cloud, tugas), atau memunculkan error 500. Submit ulang attempt yang sudah selesai kini diarahkan ke halaman hasil, dan klik "Mulai" pada kuis yang sedang dikerjakan selalu melanjutkan attempt yang ada.
+- **Student Status Confirmation**: Pesan konfirmasi tombol Deactive/Re-active di Manajemen Student sebelumnya menyebut "Instructor"; kini menyebut student dengan kalimat yang benar.
+
+### Deployment Notes
+
+- Wajib sebelum deploy: cron cPanel `* * * * * cd <path aplikasi> && php artisan schedule:run >> /dev/null 2>&1` (menjalankan antrean email dan `orders:sync-pending`).
+- Disarankan di `.env` production (hasil uji beban: antrean 17-27 detik hilang): `SESSION_DRIVER=file`, `CACHE_STORE=file`, `BCRYPT_ROUNDS=10`, `LOG_LEVEL=warning`, `LOG_STACK=daily`, lalu `php artisan config:cache`. Ganti driver session membuat semua pengguna logout sekali; lakukan di luar jam kelas. Pastikan ekstensi `opcache` aktif.
+
 ## [1.3.1] - 2026-10-14
 
 ### Fixed

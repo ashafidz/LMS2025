@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\LessonAssignment;
 use App\Services\PointService;
+use App\Services\StudentWriteLock;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,23 +36,6 @@ class StudentAssignmentController extends Controller
         ]);
 
         // Cek apakah siswa sudah pernah mengumpulkan untuk tugas ini
-        $existingSubmission = $assignment->submissions()->where('user_id', $user->id)->first();
-
-        if (! $existingSubmission) {
-            PointService::addPoints(
-                user: $user,
-                course: $assignment->lesson->module->course,
-                activity: 'pass_assignment',
-                lesson: $assignment->lesson,
-                description_meta: $assignment->lesson->title
-            );
-        }
-        if ($existingSubmission) {
-            // Jika sudah ada, hapus file lama dari storage sebelum menyimpan yang baru
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($existingSubmission->file_path);
-        }
-
-        // Cek apakah siswa sudah pernah mengumpulkan untuk tugas ini
         // $existingSubmission = $assignment->submissions()->where('user_id', $user->id)->first();
         // if ($existingSubmission) {
         //     // Jika sudah ada, kita bisa memilih untuk menimpanya atau menolak.
@@ -66,20 +50,43 @@ class StudentAssignmentController extends Controller
             'public'
         );
 
-        // Buat atau perbarui catatan pengumpulan di database
-        $assignment->submissions()->updateOrCreate(
-            ['user_id' => $user->id], // Kunci untuk mencari
-            [
-                'file_path' => $path,
-                'submitted_at' => now(),
-                'grade' => null,
-                'feedback' => null,
-                'status' => 'submitted',
-            ]
-        );
+        // Cek pengumpulan pertama, poin, dan simpan data dikunci per siswa agar klik ganda tidak memberi poin dua kali
+        $oldFilePath = StudentWriteLock::run($user, function () use ($assignment, $user, $path) {
+            // Cek apakah siswa sudah pernah mengumpulkan untuk tugas ini
+            $existingSubmission = $assignment->submissions()->where('user_id', $user->id)->first();
 
-        // Tandai lesson sebagai selesai saat submit (baik pertama kali maupun revisi)
-        $user->completedLessons()->syncWithoutDetaching($assignment->lesson->id);
+            if (! $existingSubmission) {
+                PointService::addPoints(
+                    user: $user,
+                    course: $assignment->lesson->module->course,
+                    activity: 'pass_assignment',
+                    lesson: $assignment->lesson,
+                    description_meta: $assignment->lesson->title
+                );
+            }
+
+            // Buat atau perbarui catatan pengumpulan di database
+            $assignment->submissions()->updateOrCreate(
+                ['user_id' => $user->id], // Kunci untuk mencari
+                [
+                    'file_path' => $path,
+                    'submitted_at' => now(),
+                    'grade' => null,
+                    'feedback' => null,
+                    'status' => 'submitted',
+                ]
+            );
+
+            // Tandai lesson sebagai selesai saat submit (baik pertama kali maupun revisi)
+            $user->completedLessons()->syncWithoutDetaching($assignment->lesson->id);
+
+            return $existingSubmission?->file_path;
+        });
+
+        // Jika sudah ada, hapus file lama dari storage setelah data baru tersimpan
+        if ($oldFilePath && $oldFilePath !== $path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($oldFilePath);
+        }
 
         return back()->with('success', 'Tugas Anda berhasil dikumpulkan!');
     }

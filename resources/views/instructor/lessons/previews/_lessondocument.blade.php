@@ -5,8 +5,8 @@
 
 @if($lesson->lessonable->file_path)
     {{-- Menggunakan <embed> untuk menampilkan PDF secara langsung di browser --}}
-    <div class="embed-responsive embed-responsive-4by3" style="border: 1px solid #ddd;">
-        <embed src="{{ Storage::url($lesson->lessonable->file_path) }}" type="application/pdf" width="100%" height="500px" />
+    <div style="border: 1px solid #ddd; height: 70vh;">
+        <embed src="{{ Storage::url($lesson->lessonable->file_path) }}" type="application/pdf" width="100%" height="100%" />
     </div>
     <p class="mt-2">
         <a href="{{ Storage::url($lesson->lessonable->file_path) }}" target="_blank">(Unduh Dokumen)</a>

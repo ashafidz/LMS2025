@@ -9,10 +9,12 @@ use App\Models\Question;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\QuizAttemptIntegritySummary;
+use App\Models\StudentAnswer;
 use App\Services\BadgeService;
 use App\Services\HashIdService;
 use App\Services\PointService;
 use App\Services\QuizShuffleService;
+use App\Services\StudentWriteLock;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -116,33 +118,86 @@ class StudentQuizController extends Controller
 
         abort_unless($this->canAccessCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
 
-        // LOGIKA BARU: Cek batas pengerjaan sebelum memulai
+        // Cek batas, attempt berjalan, dan pembuatan attempt dikunci per siswa agar klik ganda tidak membuat dua attempt
         $user = Auth::user();
-        if ($quiz->max_attempts) {
-            $attemptCount = $user->quizAttempts()->where('quiz_id', $quiz->id)->count();
-            if ($attemptCount >= $quiz->max_attempts) {
-                return redirect()->route('student.quiz.start', $quiz)->with('error', 'Anda telah mencapai batas maksimal pengerjaan untuk kuis ini.');
+        [$outcome, $payload] = StudentWriteLock::run($user, function () use ($request, $quiz, $user, $course, $student) {
+            // Attempt yang masih berjalan dilanjutkan dulu (sebelum cek batas), agar klik ganda tidak memunculkan pesan batas maksimal
+            // Cari percobaan (attempt) yang sedang berlangsung untuk kuis ini oleh siswa yang login.
+            $existingAttempt = QuizAttempt::where('quiz_id', $quiz->id)
+                ->where('student_id', Auth::id())
+                ->where('status', 'in_progress')
+                ->first();
+
+            // Jika ditemukan attempt yang masih 'in_progress'...
+            if ($existingAttempt) {
+                // ...langsung alihkan (redirect) pengguna ke halaman pengerjaan kuis yang sudah ada.
+                return ['take', $existingAttempt];
             }
+
+            // LOGIKA BARU: Cek batas pengerjaan sebelum memulai
+            if ($quiz->max_attempts) {
+                $attemptCount = $user->quizAttempts()->where('quiz_id', $quiz->id)->count();
+                if ($attemptCount >= $quiz->max_attempts) {
+                    return ['error', 'Anda telah mencapai batas maksimal pengerjaan untuk kuis ini.'];
+                }
+            }
+
+            // preview mode (tidak generate shuffle)
+            if ($request['is_preview'] === 'true') {
+                abort_unless($course->instructor_id === Auth::id() || $student->hasAnyRole(['admin', 'superadmin']), 403);
+
+                return ['preview', null];
+            }
+
+            // create quize attampt
+            // $attempt = QuizAttempt::create([
+            //     'quiz_id' => $quiz->id,
+            //     'student_id' => Auth::id(),
+            //     'status' => 'in_progress',
+            //     'start_time' => now()
+            // ]);
+
+            // =====================================================================
+            // FISHER-YATES SHUFFLE INTEGRATION
+            // =====================================================================
+
+            // Create quiz attempt
+            $attempt = QuizAttempt::create([
+                'quiz_id' => $quiz->id,
+                'student_id' => Auth::id(),
+                'status' => 'in_progress',
+                'start_time' => now(),
+            ]);
+
+            // Generate shuffled question order (Fisher-Yates Algorithm)
+            $shuffleService = new QuizShuffleService;
+            $shuffleResult = $shuffleService->generateShuffledOrder($attempt);
+
+            if (! $shuffleResult) {
+                // Jika shuffle gagal, rollback dan tampilkan error
+                $attempt->delete();
+                Log::error('Failed to generate shuffled order for attempt', [
+                    'attempt_id' => $attempt->id,
+                    'quiz_id' => $quiz->id,
+                    'student_id' => Auth::id(),
+                ]);
+
+                return ['error', 'Terjadi kesalahan saat memulai kuis. Silakan coba lagi.'];
+            }
+
+            // =====================================================================
+            // END FISHER-YATES INTEGRATION
+            // =====================================================================
+
+            return ['take', $attempt];
+        });
+
+        if ($outcome === 'error') {
+            return redirect()->route('student.quiz.start', $quiz)->with('error', $payload);
         }
 
-        // Cari percobaan (attempt) yang sedang berlangsung untuk kuis ini oleh siswa yang login.
-        $existingAttempt = QuizAttempt::where('quiz_id', $quiz->id)
-            ->where('student_id', Auth::id())
-            ->where('status', 'in_progress')
-            ->first();
-
-        // Jika ditemukan attempt yang masih 'in_progress'...
-        if ($existingAttempt) {
-            // ...langsung alihkan (redirect) pengguna ke halaman pengerjaan kuis yang sudah ada.
-            return redirect()->route('student.quiz.take', $existingAttempt->id);
-        }
-
-        // preview mode (tidak generate shuffle)
-        if ($request['is_preview'] === 'true') {
-            abort_unless($course->instructor_id === Auth::id() || $student->hasAnyRole(['admin', 'superadmin']), 403);
-
+        if ($outcome === 'preview') {
             $quiz->load('questions.options');
-            $is_preview = true;
             $attempt = new QuizAttempt(['quiz_id' => $quiz->id, 'id' => 0]);
             $attempt->setRelation('quiz', $quiz);
 
@@ -153,48 +208,7 @@ class StudentQuizController extends Controller
             ]);
         }
 
-        // create quize attampt
-        // $attempt = QuizAttempt::create([
-        //     'quiz_id' => $quiz->id,
-        //     'student_id' => Auth::id(),
-        //     'status' => 'in_progress',
-        //     'start_time' => now()
-        // ]);
-
-        // =====================================================================
-        // FISHER-YATES SHUFFLE INTEGRATION
-        // =====================================================================
-
-        // Create quiz attempt
-        $attempt = QuizAttempt::create([
-            'quiz_id' => $quiz->id,
-            'student_id' => Auth::id(),
-            'status' => 'in_progress',
-            'start_time' => now(),
-        ]);
-
-        // Generate shuffled question order (Fisher-Yates Algorithm)
-        $shuffleService = new QuizShuffleService;
-        $shuffleResult = $shuffleService->generateShuffledOrder($attempt);
-
-        if (! $shuffleResult) {
-            // Jika shuffle gagal, rollback dan tampilkan error
-            $attempt->delete();
-            Log::error('Failed to generate shuffled order for attempt', [
-                'attempt_id' => $attempt->id,
-                'quiz_id' => $quiz->id,
-                'student_id' => Auth::id(),
-            ]);
-
-            return redirect()->route('student.quiz.start', $quiz)
-                ->with('error', 'Terjadi kesalahan saat memulai kuis. Silakan coba lagi.');
-        }
-
-        // =====================================================================
-        // END FISHER-YATES INTEGRATION
-        // =====================================================================
-
-        return redirect()->route('student.quiz.take', $attempt);
+        return redirect()->route('student.quiz.take', $payload);
     }
 
     public function take($attemptId)
@@ -277,14 +291,18 @@ class StudentQuizController extends Controller
             $course = $attempt->quiz->lesson->module->course;
             abort_unless($this->canAccessCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
 
+            // Attempt yang sudah selesai (misalnya submit ulang lewat tombol back) diarahkan ke halaman hasil
             if ($attempt->status != 'in_progress') {
-                abort(403);
+                return redirect()->route('student.quiz.result', $attempt->id);
             }
         }
+        // Muat opsi semua soal sekaligus agar pengecekan jawaban tidak query per soal
+        $attempt->quiz->loadMissing('questions.options');
         $quizQuestions = $attempt->quiz->questions;
         $studentAnswersCollection = collect();
         $expelledByViolation = $request->input('expelled_by_violation') === '1';
-        DB::transaction(function () use ($quizQuestions, $userAnswers, $attempt, &$totalScore, $is_preview, &$studentAnswersCollection, $expelledByViolation) {
+        $grade = function () use ($quizQuestions, $userAnswers, $attempt, &$totalScore, $is_preview, &$studentAnswersCollection, $expelledByViolation) {
+            $answerRows = [];
             foreach ($quizQuestions as $question) {
                 $isCorrect = false;
                 $userAnswerForQuestion = $userAnswers[$question->id] ?? null;
@@ -295,10 +313,14 @@ class StudentQuizController extends Controller
                     $totalScore += $question->score;
                 }
                 if (! $is_preview) {
-                    $this->storeStudentAnswer($attempt, $question, $userAnswerForQuestion, $isCorrect);
+                    array_push($answerRows, ...$this->buildStudentAnswerRows($attempt, $question, $userAnswerForQuestion, $isCorrect));
                 } else {
                     $this->collectStudentAnswers($studentAnswersCollection, $question, $userAnswerForQuestion, $isCorrect);
                 }
+            }
+            if (! empty($answerRows)) {
+                // Simpan semua jawaban siswa dalam satu query
+                StudentAnswer::insert($answerRows);
             }
             if (! $is_preview) {
                 // 1. Kalkulasi Skor dan Status Kelulusan (Tidak berubah)
@@ -378,7 +400,27 @@ class StudentQuizController extends Controller
                     BadgeService::checkQuizCompletionBadges($student);
                 }
             }
-        });
+        };
+
+        if ($is_preview) {
+            DB::transaction($grade);
+        } else {
+            // Dikunci per siswa: submit ganda (klik ganda, auto-submit + submit manual) hanya dinilai sekali
+            $alreadySubmitted = StudentWriteLock::run(Auth::user(), function () use ($attempt, $grade) {
+                // Cek ulang di dalam kunci: request lain mungkin sudah menyelesaikan attempt ini
+                if (QuizAttempt::whereKey($attempt->id)->value('status') !== 'in_progress') {
+                    return true;
+                }
+                $grade();
+
+                return false;
+            });
+
+            if ($alreadySubmitted) {
+                return redirect()->route('student.quiz.result', $attempt->id);
+            }
+        }
+
         if ($is_preview) {
             $maxPossibleScore = $attempt->quiz->questions->sum('score');
             $percentageScore = ($maxPossibleScore > 0) ? ($totalScore / $maxPossibleScore) * 100 : 0;
@@ -490,21 +532,30 @@ class StudentQuizController extends Controller
         return false;
     }
 
-    private function storeStudentAnswer(QuizAttempt $attempt, Question $question, $userAnswer, bool $isCorrect)
+    private function buildStudentAnswerRows(QuizAttempt $attempt, Question $question, $userAnswer, bool $isCorrect): array
     {
+        $now = now();
+        $row = fn ($optionId) => [
+            'attempt_id' => $attempt->id,
+            'question_id' => $question->id,
+            'selected_option_id' => $optionId,
+            'is_correct' => $isCorrect,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
+
         if (is_array($userAnswer)) {
-            $answersToStore = [];
+            $rows = [];
             foreach ($userAnswer as $key => $value) {
                 if (! empty($value)) {
-                    $answersToStore[] = ['question_id' => $question->id, 'selected_option_id' => $value, 'is_correct' => $isCorrect];
+                    $rows[] = $row($value);
                 }
             }
-            if (! empty($answersToStore)) {
-                $attempt->answers()->createMany($answersToStore);
-            }
-        } elseif ($userAnswer) {
-            $attempt->answers()->create(['question_id' => $question->id, 'selected_option_id' => $userAnswer, 'is_correct' => $isCorrect]);
+
+            return $rows;
         }
+
+        return $userAnswer ? [$row($userAnswer)] : [];
     }
 
     private function collectStudentAnswers($collection, Question $question, $userAnswer, bool $isCorrect)
@@ -528,7 +579,7 @@ class StudentQuizController extends Controller
         try {
             $attemptId = HashIdService::decode($attemptId) ?? $attemptId;
             // Cari data percobaan kuis siswa
-            $attempt = QuizAttempt::findOrFail($attemptId);
+            $attempt = QuizAttempt::with('quiz.securitySetting')->findOrFail($attemptId);
 
             // Validasi: Pastikan yang mengirim log adalah siswa yang sedang mengerjakan kuis tersebut
             if ($attempt->student_id != Auth::id()) {
@@ -547,13 +598,11 @@ class StudentQuizController extends Controller
             }
 
             // Simpan detail log pelanggaran ke tabel 'monitoring_logs'
-            $log = MonitoringLog::create([
+            MonitoringLog::create([
                 'attempt_id' => $attempt->id,
                 'violation_type' => 'tab_switch', // Tipe: Pindah tab
                 'violation_timestamp' => now(), // Waktu kejadian
             ]);
-
-            Log::info('Pelanggaran tab dicatat', ['log_id' => $log->id, 'attempt_id' => $attempt->id]);
 
             // Ambil atau buat ringkasan integritas (summary) untuk percobaan kuis ini
             $summary = QuizAttemptIntegritySummary::firstOrCreate(
@@ -604,7 +653,7 @@ class StudentQuizController extends Controller
         try {
             $attemptId = HashIdService::decode($attemptId) ?? $attemptId;
             // Cari data percobaan kuis siswa
-            $attempt = QuizAttempt::findOrFail($attemptId);
+            $attempt = QuizAttempt::with('quiz.securitySetting')->findOrFail($attemptId);
 
             // Validasi: Pastikan yang mengirim data adalah pemilik sesi kuis
             if ($attempt->student_id != Auth::id()) {
@@ -644,11 +693,6 @@ class StudentQuizController extends Controller
 
                     // Simpan file ke storage publik
                     $screenshotPath = $screenshot->storeAs($directory, $filename, 'public');
-
-                    Log::info('Screenshot bukti berhasil disimpan', [
-                        'path' => $screenshotPath,
-                        'size' => $screenshot->getSize(),
-                    ]);
                 } catch (\Exception $e) {
                     Log::error('Gagal mengunggah screenshot', ['error' => $e->getMessage()]);
                     // Lanjut tanpa screenshot jika upload gagal
@@ -656,19 +700,13 @@ class StudentQuizController extends Controller
             }
 
             // Simpan log detail ke database
-            $log = MonitoringLog::create([
+            MonitoringLog::create([
                 'attempt_id' => $attempt->id,
                 'violation_type' => $violationType, // Jenis gerakan/pelanggaran
                 'violation_timestamp' => now(), // Waktu kejadian
                 'duration_seconds' => $request->input('duration_seconds'), // Berapa lama kejadian berlangsung
                 'screenshot_path' => $screenshotPath, // Path bukti foto
                 'additional_data' => $request->input('additional_data'),
-            ]);
-
-            Log::info('Pelanggaran kamera dicatat', [
-                'log_id' => $log->id,
-                'type' => $violationType,
-                'has_screenshot' => $screenshotPath ? 'Ya' : 'Tidak',
             ]);
 
             // Ambil atau inisialisasi ringkasan integritas (summary)
@@ -694,9 +732,13 @@ class StudentQuizController extends Controller
                 'look_up' => 'look_up_count',
             ];
 
-            $summary->increment($fieldMap[$violationType]);
-            $summary->increment('total_face_violations'); // Tambah total pelanggaran kamera secara umum
-            $summary->save();
+            // Tambah counter tipe pelanggaran dan total pelanggaran kamera dalam satu query
+            $field = $fieldMap[$violationType];
+            QuizAttemptIntegritySummary::whereKey($summary->getKey())
+                ->incrementEach([$field => 1, 'total_face_violations' => 1], ['updated_at' => now()]);
+            $summary->{$field} = (int) $summary->{$field} + 1;
+            $summary->total_face_violations = (int) $summary->total_face_violations + 1;
+            $summary->syncOriginalAttributes([$field, 'total_face_violations']);
 
             // Cek apakah total pelanggaran kamera melebihi batas yang diizinkan
             $threshold = $securitySetting->camera_violation_threshold ?? 10;

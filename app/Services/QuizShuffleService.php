@@ -51,25 +51,22 @@ class QuizShuffleService
                 $shuffledQuestions = $questions;
             }
 
-            // Simpan setiap soal dan urutannya ke tabel 'quiz_attempt_question_order'
+            // Simpan setiap soal dan urutannya ke tabel 'quiz_attempt_question_order' dalam satu query
             // Ini agar urutan soal tetap sama jika siswa me-refresh halaman
+            $now = now();
+            $rows = [];
             foreach ($shuffledQuestions as $index => $questionId) {
-                QuizAttemptQuestionOrder::create([
+                $rows[] = [
                     'attempt_id' => $attempt->id, // Hubungkan dengan percobaan kuis siswa
                     'question_id' => $questionId, // ID soal
                     'shuffled_order' => $index + 1, // Urutan (dimulai dari 1)
-                ]);
+                    'created_at' => $now,
+                ];
             }
+            QuizAttemptQuestionOrder::insert($rows);
 
             // Selesaikan transaksi database
             DB::commit();
-
-            // Catat ke log bahwa urutan soal berhasil dibuat
-            Log::info("Urutan soal berhasil dibuat untuk percobaan {$attempt->id}", [
-                'quiz_id' => $quiz->id,
-                'total_questions' => count($shuffledQuestions),
-                'is_shuffled' => $isShuffleEnabled,
-            ]);
 
             return true;
         } catch (\Exception $e) {
