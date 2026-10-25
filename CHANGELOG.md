@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.1] - 2026-10-25
+
+### Added
+
+- **Cek Keaslian Sertifikat**: Halaman publik `/verifikasi-sertifikat` (tautan "Cek Keaslian Sertifikat" di bagian bawah situs). Siapa pun, misalnya sekolah atau pemberi kerja, bisa memasukkan kode sertifikat untuk memastikan sertifikat benar diterbitkan Ruang Studi. Bila kode ditemukan, halaman menampilkan nama penerima, kursus, instruktur, dan tanggal terbit (sama seperti yang tercetak di sertifikat); email dan data pribadi lain tidak ditampilkan. Pengecekan dibatasi 30 kali per menit agar kode tidak bisa ditebak beruntun. Kode juga bisa dikirim lewat tautan, misalnya `/verifikasi-sertifikat?kode=LMS-...`.
+
 ## [1.5.0] - 2026-10-25
 
 ### Security
