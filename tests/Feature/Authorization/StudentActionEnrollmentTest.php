@@ -44,6 +44,7 @@ class StudentActionEnrollmentTest extends TestCase
         $this->seedRoles();
 
         Storage::fake('public');
+        Storage::fake('local');
 
         $this->instructor = $this->makeInstructor();
         $this->student = $this->makeStudent();

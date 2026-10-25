@@ -65,6 +65,8 @@ class OrderSettlementService
                     }
                 }
 
+                BadgeService::queueFor($user);
+
                 $courseIds = $lockedOrder->items->pluck('course_id');
                 if ($courseIds->isNotEmpty()) {
                     $user->carts()->whereIn('course_id', $courseIds)->delete();

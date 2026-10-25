@@ -4,37 +4,37 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Badge;
+use App\Services\BadgeService;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class StudentBadgeController extends Controller
 {
     /**
-     * Menampilkan halaman "Badge Saya".
+     * Menampilkan semua badge aktif beserta progres siswa menuju tiap syarat.
      */
     public function index()
     {
         $user = Auth::user();
 
-        // Ambil semua badge yang aktif, beserta informasi apakah user sudah memilikinya
-        $allBadges = Badge::where('is_active', true)
-            ->withExists(['users as has_badge' => function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            }])
-            ->get();
+        $badges = Badge::where('is_active', true)->with('rules')->orderBy('id')->get();
 
-        // Contoh data progres (Anda bisa membuatnya lebih dinamis nanti)
-        // Di sini kita akan menambahkan data progres secara manual untuk contoh
-        foreach ($allBadges as $badge) {
-            if (stripos($badge->title, 'Kuis') !== false) {
-                $passedQuizzesCount = $user->quizAttempts()->where('status', 'passed')->count();
-                $badge->progress_current = $passedQuizzesCount;
-                $badge->progress_target = 10; // Asumsi target dari deskripsi
-            } else {
-                $badge->progress_current = 0;
-                $badge->progress_target = 1;
-            }
+        // Tanggal diperoleh (disimpan UTC) per badge milik siswa
+        $earnedAt = $user->badges()->pluck('badge_user.created_at', 'badges.id');
+        $timezone = $user->timezone ?: config('app.timezone');
+
+        foreach ($badges as $badge) {
+            $badge->has_badge = $earnedAt->has($badge->id);
+            $badge->earned_at = $badge->has_badge && $earnedAt[$badge->id]
+                ? Carbon::parse($earnedAt[$badge->id], 'UTC')->setTimezone($timezone)
+                : null;
+
+            // Progres hanya dihitung untuk badge yang belum dimiliki dan punya syarat
+            $badge->progress = (! $badge->has_badge && $badge->rules->isNotEmpty())
+                ? BadgeService::progressFor($user, $badge, true)
+                : null;
         }
 
-        return view('student.my-badges.index', compact('allBadges'));
+        return view('student.my-badges.index', ['allBadges' => $badges]);
     }
 }

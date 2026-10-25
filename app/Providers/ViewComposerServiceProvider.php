@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Models\CourseCategory;
 use App\Models\SiteSetting;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -33,6 +35,33 @@ class ViewComposerServiceProvider extends ServiceProvider
                 $view->with('siteSettings', $this->siteSettings);
             } catch (\Exception $e) {
                 // Abaikan error (misalnya tabel belum ada saat instalasi awal)
+            }
+        });
+
+        // Badge yang baru didapat siswa ditampilkan sekali di halaman berikutnya, lalu ditandai sudah dilihat
+        View::composer('layouts.app-layout', function ($view) {
+            $user = Auth::user();
+
+            if (! $user || session('active_role', 'student') !== 'student' || ! $user->hasRole('student')) {
+                return;
+            }
+
+            try {
+                $unseen = $user->badges()->wherePivotNull('seen_at')->get();
+
+                if ($unseen->isEmpty()) {
+                    return;
+                }
+
+                DB::table('badge_user')->where('user_id', $user->id)->whereNull('seen_at')->update(['seen_at' => now()]);
+
+                $view->with('newBadges', $unseen->where('is_active', true)->take(3)->map(fn ($badge) => [
+                    'title' => $badge->title,
+                    'description' => $badge->description,
+                    'icon' => asset('storage/'.$badge->icon_path),
+                ])->values());
+            } catch (\Exception $e) {
+                // Notifikasi badge tidak boleh membuat halaman gagal tampil
             }
         });
 

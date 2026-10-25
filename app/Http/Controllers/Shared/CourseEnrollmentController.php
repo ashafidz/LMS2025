@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Shared;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\User;
+use App\Services\BadgeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -81,6 +82,10 @@ class CourseEnrollmentController extends Controller
 
         // Gunakan syncWithoutDetaching untuk menambahkan tanpa menghapus yang lama
         $course->students()->syncWithoutDetaching($validated['user_ids']);
+
+        foreach ($validated['user_ids'] as $userId) {
+            BadgeService::queueFor((int) $userId);
+        }
 
         return redirect()->route(Auth::user()->getRoleNames()->first().'.course-enrollments.show', $course)
             ->with('success', count($validated['user_ids']).' pengguna berhasil ditambahkan.');

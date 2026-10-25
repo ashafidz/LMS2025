@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\LikertQuestion;
+use App\Services\BadgeService;
+use App\Services\LessonAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +19,10 @@ class CourseReviewController extends Controller
     public function create(Course $course)
     {
         $user = Auth::user();
+        if (! LessonAccess::isEnrolled($user, $course)) {
+            return response()->json(['success' => false, 'message' => 'Anda hanya bisa memberi ulasan untuk kursus yang Anda ikuti.'], 403);
+        }
+
         // Logika untuk cek apakah user usah mengirimkan feedback terhadap kursus dan instructur di kursus tersebut
         $hasSentFeedback = false;
         if ($user) {
@@ -51,6 +57,10 @@ class CourseReviewController extends Controller
     public function store(Request $request, Course $course)
     {
         $user = Auth::user();
+
+        if (! LessonAccess::isEnrolled($user, $course)) {
+            return response()->json(['success' => false, 'message' => 'Anda hanya bisa memberi ulasan untuk kursus yang Anda ikuti.'], 403);
+        }
 
         // Validasi data yang masuk
         $validated = $request->validate([
@@ -97,6 +107,8 @@ class CourseReviewController extends Controller
             // Jika terjadi error, kembalikan respons error
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat menyimpan ulasan.'], 500);
         }
+
+        BadgeService::queueFor($user);
 
         // Jika berhasil, kembalikan respons sukses
         return response()->json(['success' => true, 'message' => 'Terima kasih atas ulasan Anda!']);

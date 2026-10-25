@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\AssignmentRevisionRequired;
 use App\Models\AssignmentSubmission;
 use App\Models\LessonAssignment;
+use App\Services\BadgeService;
 use App\Services\HashIdService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -133,6 +134,8 @@ class InstructorAssignmentController extends Controller
             'feedback' => $validated['feedback'],
             'status' => $newStatus,
         ]);
+
+        BadgeService::queueFor($student);
 
         // 3. LOGIKA BARU: Kirim email jika perlu revisi
         if ($newStatus === 'revision_required') {

@@ -18,7 +18,7 @@ class DiamondPurchaseController extends Controller
         $user = Auth::user();
 
         // 1. Validasi Awal
-        if ($course->payment_type !== 'diamonds') {
+        if (! $course->isBuyableWithDiamonds()) {
             return back()->with('error', 'Kursus ini tidak dapat dibeli dengan diamond.');
         }
         if ($user->diamond_balance < $course->diamond_price) {

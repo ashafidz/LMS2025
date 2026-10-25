@@ -67,6 +67,21 @@ class Course extends Model
         });
     }
 
+    public function isPublished(): bool
+    {
+        return $this->status === 'published';
+    }
+
+    public function isBuyableWithMoney(): bool
+    {
+        return $this->isPublished() && $this->payment_type === 'money';
+    }
+
+    public function isBuyableWithDiamonds(): bool
+    {
+        return $this->isPublished() && $this->payment_type === 'diamonds';
+    }
+
     /**
      * Get the category that the course belongs to.
      */

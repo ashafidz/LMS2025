@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\User;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\BadgeService;
+use App\Services\CertificateRenderer;
+use App\Services\CertificateTemplateService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -52,8 +55,18 @@ class CertificateController extends Controller
             ]
         );
 
+        BadgeService::queueFor($user);
+
         // Render partial view dan kirim sebagai respons
-        $html = view('student.courses.partials._certificate_preview', compact('course', 'user', 'certificate'))->render();
+        $template = app(CertificateTemplateService::class)->active();
+
+        $html = $template
+            ? view('certificates._student_preview', [
+                'canvas' => app(CertificateRenderer::class)->previewHtml($certificate, $template),
+                'course' => $course,
+                'user' => $user,
+            ])->render()
+            : view('student.courses.partials._certificate_preview', compact('course', 'user', 'certificate'))->render();
 
         return response()->json(['success' => true, 'html' => $html]);
     }
@@ -113,36 +126,31 @@ class CertificateController extends Controller
             ]
         );
 
-        // Pre-fetch settings untuk menghindari query di view
-        $settings = \App\Models\SiteSetting::first();
+        BadgeService::queueFor($user);
 
-        // Set timeout timeout yang lebih besar untuk PDF generation
+        // Pre-fetch settings untuk menghindari query di view
         set_time_limit(120);
 
-        $data = [
-            'user' => $user,
-            'course' => $course,
-            'certificate' => $certificate,
-            'settings' => $settings,
-        ];
+        $renderer = app(CertificateRenderer::class);
+        $template = app(CertificateTemplateService::class)->active();
 
         $fileName = 'sertifikat-'.Str::slug($course->title).'.pdf';
 
-        // PDF disimpan agar tidak di-render ulang (dompdf berat). Nama file berubah jika isi yang dicetak berubah.
-        $contentHash = md5(implode('|', [
-            $user->name,
-            $course->title,
-            $course->instructor->name ?? '',
-            optional($settings?->updated_at)->timestamp,
-        ]));
-        $cachedPath = 'certificates/'.$certificate->certificate_code.'-'.$contentHash.'.pdf';
+        // Kunci cache memuat versi template aktif, jadi mengaktifkan versi lain otomatis membuat PDF baru
+        $cachedPath = 'certificates/'.$certificate->certificate_code.'-'.$renderer->cacheKey($certificate, $template).'.pdf';
 
         try {
             if (! Storage::disk('local')->exists($cachedPath)) {
-                $pdf = Pdf::loadView('student.certificates.pdf_template', $data)
-                    ->setPaper('a4', 'landscape');
+                Storage::disk('local')->put($cachedPath, $renderer->pdf($certificate, $template)->output());
 
-                Storage::disk('local')->put($cachedPath, $pdf->output());
+                // Hapus PDF lama sertifikat ini (versi template sebelumnya) agar tidak menumpuk di disk.
+                // glob dengan awalan kode hanya menyentuh file sertifikat ini; tidak membaca seluruh isi folder.
+                $current = Storage::disk('local')->path($cachedPath);
+                foreach (File::glob(Storage::disk('local')->path('certificates/'.$certificate->certificate_code.'-*.pdf')) as $file) {
+                    if ($file !== $current) {
+                        File::delete($file);
+                    }
+                }
             }
 
             return Storage::disk('local')->download($cachedPath, $fileName);

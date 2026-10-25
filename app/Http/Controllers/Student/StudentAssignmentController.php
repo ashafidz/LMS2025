@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\LessonAssignment;
+use App\Services\BadgeService;
+use App\Services\LessonAccess;
 use App\Services\PointService;
 use App\Services\StudentWriteLock;
 use Carbon\Carbon;
@@ -28,7 +30,8 @@ class StudentAssignmentController extends Controller
 
         $user = Auth::user();
         $course = $assignment->lesson->module->course;
-        abort_unless($user && $user->enrollments()->where('courses.id', $course->id)->exists(), 403, 'Anda tidak terdaftar di kursus ini.');
+        abort_unless(LessonAccess::isEnrolled($user, $course), 403, 'Anda tidak terdaftar di kursus ini.');
+        abort_unless(LessonAccess::isModuleUnlocked($user, $assignment->lesson->module), 403, 'Modul ini masih terkunci. Kumpulkan poin yang dibutuhkan untuk membukanya.');
 
         // Validasi: pastikan file ada dan tipenya adalah pdf atau zip
         $validated = $request->validate([
@@ -47,7 +50,7 @@ class StudentAssignmentController extends Controller
         // Format path: assignment_submissions/{assignment_id}/{user_id}/nama_file.pdf
         $path = $validated['submission_file']->store(
             'assignment_submissions/'.$assignment->id.'/'.$user->id,
-            'public'
+            'local'
         );
 
         // Cek pengumpulan pertama, poin, dan simpan data dikunci per siswa agar klik ganda tidak memberi poin dua kali
@@ -83,8 +86,12 @@ class StudentAssignmentController extends Controller
             return $existingSubmission?->file_path;
         });
 
+        BadgeService::queueFor($user);
+
         // Jika sudah ada, hapus file lama dari storage setelah data baru tersimpan
         if ($oldFilePath && $oldFilePath !== $path) {
+            // File lama bisa masih di disk publik (sebelum files:move-private dijalankan)
+            \Illuminate\Support\Facades\Storage::disk('local')->delete($oldFilePath);
             \Illuminate\Support\Facades\Storage::disk('public')->delete($oldFilePath);
         }
 

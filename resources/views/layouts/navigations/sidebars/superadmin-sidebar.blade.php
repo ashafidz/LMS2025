@@ -67,6 +67,13 @@
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>
+                                    <li class="{{ Request::routeIs('superadmin.certificate-templates.*') ? 'active' : '' }}">
+                                        <a href="{{ route('superadmin.certificate-templates.index') }}" class="waves-effect waves-dark">
+                                            <span class="pcoded-micon"><i class="fa fa-certificate"></i><b>TS</b></span>
+                                            <span class="pcoded-mtext">Template Sertifikat</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
                                     <li class="{{ Request::routeIs('superadmin.point-sync.*') ? 'active' : '' }}">
                                         <a href="{{ route('superadmin.point-sync.index') }}" class="waves-effect waves-dark">
                                             <span class="pcoded-micon"><i class="fa fa-refresh"></i><b>S</b></span>

@@ -29,6 +29,14 @@ class Badge extends Model
      */
     public function users()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class)->withPivot('seen_at', 'created_at');
+    }
+
+    /**
+     * Syarat untuk mendapatkan badge ini (semua harus terpenuhi).
+     */
+    public function rules()
+    {
+        return $this->hasMany(BadgeRule::class)->orderBy('position')->orderBy('id');
     }
 }

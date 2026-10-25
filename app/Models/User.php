@@ -125,7 +125,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function badges()
     {
-        return $this->belongsToMany(Badge::class);
+        return $this->belongsToMany(Badge::class)->withPivot('seen_at', 'created_at');
     }
 
     /**

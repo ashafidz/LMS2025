@@ -207,29 +207,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!isPreview) {
         const timerEl = document.getElementById('quiz-timer');
-        const endTimeISO = '{{ $endTime }}';
+        // Batas waktu dari server. clockOffset = selisih jam server dan jam perangkat saat halaman dimuat, sehingga
+        // jam perangkat yang salah tidak berpengaruh. Date.now() tetap berjalan saat perangkat sleep (beda dengan
+        // performance.now() di sebagian perangkat), jadi sisa waktu tetap benar setelah layar dikunci.
+        const endTimeMs = @json($endTimeMs ?? null);
+        const clockOffset = endTimeMs === null ? 0 : @json($serverNowMs ?? 0) - Date.now();
         const allowExceedTime = {{ $attempt->quiz->allow_exceed_time_limit ? 'true' : 'false' }};
         let timerInterval;
 
         function startPersistentTimer() {
-            if (!endTimeISO) {
+            if (endTimeMs === null) {
                 timerEl.innerText = "Tanpa Batas Waktu";
                 return;
             }
-            const endTime = new Date(endTimeISO);
-            
+
             const updateTimer = () => {
-                const now = new Date();
-                const timeRemaining = Math.round((endTime - now) / 1000);
+                const serverNow = Date.now() + clockOffset;
+                const timeRemaining = Math.round((endTimeMs - serverNow) / 1000);
 
                 if (timeRemaining <= 0) {
                     if (!allowExceedTime) {
                         clearInterval(timerInterval);
                         timerEl.innerText = "00:00";
                         timerEl.classList.add('text-danger');
-                        
-                        // Tampilkan alert dan submit form
-                        alert('Waktu pengerjaan kuis telah habis. Jawaban Anda akan dikirim secara otomatis.');
+
+                        // Kirim langsung tanpa alert(): alert menahan pengiriman sampai siswa menekan OK,
+                        // sehingga jawaban bisa terlambat sampai di server.
+                        timerEl.innerText = "Waktu habis, mengirim jawaban...";
                         form.submit();
                         return;
                     }

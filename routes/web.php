@@ -5,6 +5,7 @@ use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\FileDownloadController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Instructor\CourseController;
 use App\Http\Controllers\Instructor\InstructorAssignmentController;
@@ -23,6 +24,8 @@ use App\Http\Controllers\MidtransCallbackController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PublicProfileController;
 use App\Http\Controllers\RoleSwitchController;
+use App\Http\Controllers\Shared\BadgeController;
+use App\Http\Controllers\Shared\CertificateTemplateController;
 use App\Http\Controllers\Shared\CouponController;
 use App\Http\Controllers\Shared\CourseCategoryController;
 use App\Http\Controllers\Shared\CourseEnrollmentController;
@@ -47,7 +50,6 @@ use App\Http\Controllers\Student\StudentQuizController;
 use App\Http\Controllers\Student\StudentReviewController;
 use App\Http\Controllers\Student\TransactionHistoryController;
 use App\Http\Controllers\Superadmin\AdminManagementController;
-use App\Http\Controllers\Superadmin\BadgeController;
 use App\Http\Controllers\Superadmin\PointSyncController; // Tambahkan ini
 use App\Http\Controllers\Superadmin\SiteSettingController;
 use App\Http\Controllers\Superadmin\SuperAdminDashboardController;
@@ -108,6 +110,11 @@ Route::post('/midtrans/notification', [MidtransCallbackController::class, 'handl
     ->name('midtrans.notification');
 
 Route::middleware(['auth'])->group(function () {
+    // File privat: dokumen lesson, tugas siswa, screenshot kuis
+    Route::get('/files/lessons/{lesson}/document', [FileDownloadController::class, 'lessonDocument'])->name('files.lesson.document');
+    Route::get('/files/submissions/{submission}', [FileDownloadController::class, 'submission'])->name('files.submission');
+    Route::get('/files/monitoring-logs/{log}/screenshot', [FileDownloadController::class, 'screenshot'])->name('files.monitoring.screenshot');
+
     Route::get('/switch-role/{role}', [RoleSwitchController::class, 'switch'])->name('role.switch');
 
     // profile index
@@ -138,10 +145,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/student/quiz/attempt/{attempt}/result', [StudentQuizController::class, 'result'])->name('student.quiz.result');
 
     // RUTE UNTUK LOG TAB VIOLATION
-    Route::post('/student/quiz/attempt/{attempt}/log-tab-violation', [StudentQuizController::class, 'logTabViolation'])->name('student.quiz.log_tab_violation');
+    Route::post('/student/quiz/attempt/{attempt}/log-tab-violation', [StudentQuizController::class, 'logTabViolation'])->middleware('throttle:30,1,quiz-tab')->name('student.quiz.log_tab_violation');
 
     // RUTE UNTUK LOG CAMERA VIOLATION
-    Route::post('/student/quiz/attempt/{attempt}/log-camera-violation', [StudentQuizController::class, 'logCameraViolation'])->name('student.quiz.log_camera_violation');
+    Route::post('/student/quiz/attempt/{attempt}/log-camera-violation', [StudentQuizController::class, 'logCameraViolation'])->middleware('throttle:30,1,quiz-camera')->name('student.quiz.log_camera_violation');
 });
 
 // * group route for superadmin
@@ -149,6 +156,17 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     Route::get('/superadmin/contact-messages', [AdminContactMessageController::class, 'index'])->name('superadmin.contact-messages.index');
     Route::get('/superadmin/contact-messages/{contactMessage}', [AdminContactMessageController::class, 'show'])->name('superadmin.contact-messages.show');
     Route::post('/superadmin/contact-messages/{contactMessage}/reply', [AdminContactMessageController::class, 'reply'])->name('superadmin.contact-messages.reply');
+
+    // Template sertifikat (versi, aktifkan, pratinjau PDF)
+    Route::get('/superadmin/certificate-templates', [CertificateTemplateController::class, 'index'])->name('superadmin.certificate-templates.index');
+    Route::get('/superadmin/certificate-templates/create', [CertificateTemplateController::class, 'create'])->name('superadmin.certificate-templates.create');
+    Route::post('/superadmin/certificate-templates', [CertificateTemplateController::class, 'store'])->name('superadmin.certificate-templates.store');
+    Route::post('/superadmin/certificate-templates/preview', [CertificateTemplateController::class, 'previewDraft'])->middleware('throttle:20,1,cert-preview')->name('superadmin.certificate-templates.preview-draft');
+    Route::patch('/superadmin/certificate-templates/deactivate', [CertificateTemplateController::class, 'deactivateAll'])->name('superadmin.certificate-templates.deactivate');
+    Route::get('/superadmin/certificate-templates/{template}/edit', [CertificateTemplateController::class, 'edit'])->whereNumber('template')->name('superadmin.certificate-templates.edit');
+    Route::get('/superadmin/certificate-templates/{template}/preview', [CertificateTemplateController::class, 'preview'])->whereNumber('template')->name('superadmin.certificate-templates.preview');
+    Route::patch('/superadmin/certificate-templates/{template}/activate', [CertificateTemplateController::class, 'activate'])->whereNumber('template')->name('superadmin.certificate-templates.activate');
+    Route::delete('/superadmin/certificate-templates/{template}', [CertificateTemplateController::class, 'destroy'])->whereNumber('template')->name('superadmin.certificate-templates.destroy');
 
     Route::get('/dashboard', [SuperAdminDashboardController::class, 'index'])->name('superadmin.dashboard');
     Route::get('/dashboard/search/instructors', [SuperAdminDashboardController::class, 'searchInstructors'])->name('superadmin.dashboard.search.instructors');
@@ -188,13 +206,16 @@ Route::middleware(['auth', 'verified', 'role:superadmin'])->group(function () {
     Route::put('/superadmin/likert-questions/{likertQuestion}', [LikertQuestionController::class, 'update'])->name('superadmin.likert-questions.update');
     Route::delete('/superadmin/likert-questions/{likertQuestion}', [LikertQuestionController::class, 'destroy'])->name('superadmin.likert-questions.destroy');
 
-    // --- RUTE BARU UNTUK MANAJEMEN BADGE ---
+    // Badge berbasis aturan (syarat disusun admin tanpa kode)
     Route::get('/superadmin/badges', [BadgeController::class, 'index'])->name('superadmin.badges.index');
     Route::get('/superadmin/badges/create', [BadgeController::class, 'create'])->name('superadmin.badges.create');
     Route::post('/superadmin/badges', [BadgeController::class, 'store'])->name('superadmin.badges.store');
+    Route::post('/superadmin/badges/preview-count', [BadgeController::class, 'previewCount'])->middleware('throttle:30,1,badge-preview')->name('superadmin.badges.preview-count');
     Route::get('/superadmin/badges/{badge}/edit', [BadgeController::class, 'edit'])->name('superadmin.badges.edit');
     Route::put('/superadmin/badges/{badge}', [BadgeController::class, 'update'])->name('superadmin.badges.update');
     Route::delete('/superadmin/badges/{badge}', [BadgeController::class, 'destroy'])->name('superadmin.badges.destroy');
+    Route::post('/superadmin/badges/{badge}/duplicate', [BadgeController::class, 'duplicate'])->name('superadmin.badges.duplicate');
+    Route::post('/superadmin/badges/{badge}/backfill', [BadgeController::class, 'backfill'])->middleware('throttle:5,1,badge-backfill')->name('superadmin.badges.backfill');
 
     // --- RUTE BARU UNTUK KELOLA USER KURSUS ---
     Route::get('/superadmin/course-enrollments', [CourseEnrollmentController::class, 'index'])->name('superadmin.course-enrollments.index');
@@ -227,6 +248,28 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/admin/contact-messages', [AdminContactMessageController::class, 'index'])->name('admin.contact-messages.index');
     Route::get('/admin/contact-messages/{contactMessage}', [AdminContactMessageController::class, 'show'])->name('admin.contact-messages.show');
     Route::post('/admin/contact-messages/{contactMessage}/reply', [AdminContactMessageController::class, 'reply'])->name('admin.contact-messages.reply');
+
+    // Template sertifikat (versi, aktifkan, pratinjau PDF)
+    Route::get('/admin/certificate-templates', [CertificateTemplateController::class, 'index'])->name('admin.certificate-templates.index');
+    Route::get('/admin/certificate-templates/create', [CertificateTemplateController::class, 'create'])->name('admin.certificate-templates.create');
+    Route::post('/admin/certificate-templates', [CertificateTemplateController::class, 'store'])->name('admin.certificate-templates.store');
+    Route::post('/admin/certificate-templates/preview', [CertificateTemplateController::class, 'previewDraft'])->middleware('throttle:20,1,cert-preview')->name('admin.certificate-templates.preview-draft');
+    Route::patch('/admin/certificate-templates/deactivate', [CertificateTemplateController::class, 'deactivateAll'])->name('admin.certificate-templates.deactivate');
+    Route::get('/admin/certificate-templates/{template}/edit', [CertificateTemplateController::class, 'edit'])->whereNumber('template')->name('admin.certificate-templates.edit');
+    Route::get('/admin/certificate-templates/{template}/preview', [CertificateTemplateController::class, 'preview'])->whereNumber('template')->name('admin.certificate-templates.preview');
+    Route::patch('/admin/certificate-templates/{template}/activate', [CertificateTemplateController::class, 'activate'])->whereNumber('template')->name('admin.certificate-templates.activate');
+    Route::delete('/admin/certificate-templates/{template}', [CertificateTemplateController::class, 'destroy'])->whereNumber('template')->name('admin.certificate-templates.destroy');
+
+    // Badge berbasis aturan (syarat disusun admin tanpa kode)
+    Route::get('/admin/badges', [BadgeController::class, 'index'])->name('admin.badges.index');
+    Route::get('/admin/badges/create', [BadgeController::class, 'create'])->name('admin.badges.create');
+    Route::post('/admin/badges', [BadgeController::class, 'store'])->name('admin.badges.store');
+    Route::post('/admin/badges/preview-count', [BadgeController::class, 'previewCount'])->middleware('throttle:30,1,badge-preview')->name('admin.badges.preview-count');
+    Route::get('/admin/badges/{badge}/edit', [BadgeController::class, 'edit'])->name('admin.badges.edit');
+    Route::put('/admin/badges/{badge}', [BadgeController::class, 'update'])->name('admin.badges.update');
+    Route::delete('/admin/badges/{badge}', [BadgeController::class, 'destroy'])->name('admin.badges.destroy');
+    Route::post('/admin/badges/{badge}/duplicate', [BadgeController::class, 'duplicate'])->name('admin.badges.duplicate');
+    Route::post('/admin/badges/{badge}/backfill', [BadgeController::class, 'backfill'])->middleware('throttle:5,1,badge-backfill')->name('admin.badges.backfill');
 
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/dashboard/search/instructors', [AdminDashboardController::class, 'searchInstructors'])->name('dashboard.search.instructors');
@@ -454,6 +497,9 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         ->name('instructor.quiz.monitoring.detail');
     Route::post('quiz/attempt/{attempt}/revise-score', [InstructorQuizController::class, 'reviseScore'])
         ->name('instructor.quiz.attempt.revise_score');
+    Route::post('quiz/attempt/{attempt}/approve-late', [InstructorQuizController::class, 'approveLate'])
+        ->middleware('throttle:30,1')
+        ->name('instructor.quiz.attempt.approve_late');
 });
 
 // * group route for student
