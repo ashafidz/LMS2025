@@ -14,6 +14,9 @@ class QuizAttempt extends Model
     use HasHashedRouteKey;
     use HasLocalDates;
 
+    // Toleransi detik setelah batas waktu (lag jaringan, server lambat, auto-submit dari browser)
+    public const SUBMIT_GRACE_SECONDS = 120;
+
     protected $fillable = [
         'quiz_id',
         'student_id',
@@ -27,6 +30,10 @@ class QuizAttempt extends Model
         'revised_at',
         'revision_note',
         'expelled_by_violation',
+        'failed_by_deadline',
+        'late_override_by',
+        'late_override_at',
+        'late_override_note',
     ];
 
     protected $casts = [
@@ -36,29 +43,66 @@ class QuizAttempt extends Model
         'end_time' => 'datetime',
         'revised_at' => 'datetime',
         'expelled_by_violation' => 'boolean',
+        'late_override_at' => 'datetime',
+        'failed_by_deadline' => 'boolean',
     ];
 
     /**
-     * Accessor: Skor efektif dalam skala 0-100.
-     * Prioritas: revised_score → scaled_score → kalkulasi manual (fallback data lama)
+     * Accessor: Skor efektif dalam skala 0-100 (sama dengan finalScaledScore()).
      */
     public function getEffectiveScoreAttribute()
     {
+        return $this->finalScaledScore();
+    }
+
+    /**
+     * Total skor maksimum kuis (jumlah skor soal).
+     */
+    public function maxScore(): float
+    {
+        return (float) $this->quiz?->questions()->sum('score');
+    }
+
+    /**
+     * Nilai akhir dalam skala 0-100. revised_score adalah SKOR MENTAH dari instruktur (formnya dibatasi skor maksimum
+     * kuis), jadi diskalakan terhadap skor maksimum. Tanpa revisi: scaled_score; data lama tanpa scaled_score dihitung
+     * dari skor mentah.
+     */
+    public function finalScaledScore(): ?float
+    {
         if ($this->revised_score !== null) {
-            return $this->revised_score;
+            $max = $this->maxScore();
+
+            return $max > 0 ? min(100.0, round((float) $this->revised_score / $max * 100, 2)) : 0.0;
         }
+
         if ($this->scaled_score !== null) {
-            return $this->scaled_score;
-        }
-        // Fallback untuk data lama yang belum punya scaled_score:
-        // Hitung dari skor mentah / skor maksimal quiz × 100
-        if ($this->score !== null && $this->relationLoaded('quiz')) {
-            $maxScore = $this->quiz->questions->sum('score');
-
-            return ($maxScore > 0) ? min(100, round(($this->score / $maxScore) * 100, 2)) : 0;
+            return (float) $this->scaled_score;
         }
 
-        return $this->score;
+        if ($this->score === null) {
+            return null;
+        }
+
+        $max = $this->maxScore();
+
+        return $max > 0 ? min(100.0, round((float) $this->score / $max * 100, 2)) : 0.0;
+    }
+
+    /**
+     * True jika instruktur boleh meluluskan percobaan ini: gagal hanya karena terlambat dan nilai akhirnya mencapai batas lulus.
+     */
+    public function canBeApprovedDespiteLate(): bool
+    {
+        return $this->failedBecauseLate() && (float) $this->finalScaledScore() >= (float) $this->quiz->pass_mark;
+    }
+
+    /**
+     * Relasi: Instruktur yang meluluskan percobaan yang terlambat
+     */
+    public function lateOverrideBy()
+    {
+        return $this->belongsTo(User::class, 'late_override_by');
     }
 
     /**
@@ -144,5 +188,39 @@ class QuizAttempt extends Model
     public function hasShuffledOrder(): bool
     {
         return $this->questionOrders()->exists();
+    }
+
+    /**
+     * True jika attempt dikirim setelah batas waktu kuis ditambah toleransi.
+     * Dipakai saat menilai (StudentQuizController::submit) dan saat menampilkan alasan di halaman hasil.
+     */
+    public function submittedAfterTimeLimit(): bool
+    {
+        $limit = (int) $this->quiz?->time_limit;
+        if ($limit <= 0 || ! $this->start_time || ! $this->end_time) {
+            return false;
+        }
+
+        return $this->end_time->greaterThan(
+            $this->start_time->copy()->addMinutes($limit)->addSeconds(self::SUBMIT_GRACE_SECONDS)
+        );
+    }
+
+    /**
+     * True jika attempt tidak lulus karena terlambat (kuis tidak mengizinkan jawaban terlambat).
+     */
+    public function failedBecauseLate(): bool
+    {
+        if ($this->status !== 'failed') {
+            return false;
+        }
+
+        // Dicatat saat pengiriman; pengaturan kuis yang diubah sesudahnya tidak berpengaruh
+        if ($this->failed_by_deadline !== null) {
+            return $this->failed_by_deadline;
+        }
+
+        // Data lama (sebelum kolom ada): hitung dari pengaturan kuis saat ini
+        return ! $this->quiz?->allow_exceed_time_limit && $this->submittedAfterTimeLimit();
     }
 }

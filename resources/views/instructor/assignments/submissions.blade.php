@@ -142,10 +142,10 @@
                             <h6 class="font-weight-bold">Pratinjau File</h6>
                             @if(Str::endsWith($submission->file_path, '.pdf'))
                                 {{-- <div class="embed-responsive embed-responsive-4by3" style="border: 1px solid #ddd;">
-                                    <embed src="{{ Storage::url($submission->file_path) }}" type="application/pdf" width="100%" height="800px" />
+                                    <embed src="{{ route('files.submission', $submission) }}" type="application/pdf" width="100%" height="800px" />
                                 </div> --}}
 <div class="pdf-viewer-container">
-    <iframe src="{{ Storage::url($submission->file_path) }}" 
+    <iframe src="{{ route('files.submission', $submission) }}" 
             width="100%" 
             height="100%" 
             frameborder="0"
@@ -160,7 +160,7 @@
                                     <p class="mt-2">Pratinjau tidak tersedia untuk file ZIP.</p>
                                 </div>
                             @endif
-                            <a href="{{ Storage::url($submission->file_path) }}" class="btn btn-secondary btn-block mt-3" download>
+                            <a href="{{ route('files.submission', $submission) }}" class="btn btn-secondary btn-block mt-3" download>
                                 <i class="fa fa-download"></i> Unduh File Tugas
                             </a>
                         </div>

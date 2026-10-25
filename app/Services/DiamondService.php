@@ -103,6 +103,8 @@ class DiamondService
                 $course->id => ['enrolled_at' => now()],
             ]);
 
+            BadgeService::queueFor($locked);
+
             $user->refresh();
 
             return true;

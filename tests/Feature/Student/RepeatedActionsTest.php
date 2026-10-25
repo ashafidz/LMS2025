@@ -118,7 +118,7 @@ class RepeatedActionsTest extends TestCase
 
     public function test_resubmitting_an_assignment_replaces_the_file_and_awards_points_once(): void
     {
-        Storage::fake('public');
+        Storage::fake('local');
         $assignment = LessonAssignment::create(['instructions' => 'Kerjakan', 'pass_mark' => 70]);
         $lesson = $this->lessonFor($assignment);
 
@@ -133,8 +133,8 @@ class RepeatedActionsTest extends TestCase
 
         $this->assertSame(1, $assignment->submissions()->count());
         $this->assertSame(1, $this->pointsFor($lesson));
-        Storage::disk('public')->assertMissing($firstPath);
-        Storage::disk('public')->assertExists($assignment->submissions()->first()->file_path);
+        Storage::disk('local')->assertMissing($firstPath);
+        Storage::disk('local')->assertExists($assignment->submissions()->first()->file_path);
     }
 
     public function test_quiz_begin_twice_reuses_the_attempt_and_double_submit_goes_to_result(): void

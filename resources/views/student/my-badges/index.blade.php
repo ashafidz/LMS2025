@@ -29,7 +29,7 @@
                             <div class="col-md-6 col-lg-4">
                                 <div class="card text-center {{ $badge->has_badge ? '' : 'bg-light' }}">
                                     <div class="card-block">
-                                        <img src="{{ Storage::url($badge->icon_path) }}" alt="{{ $badge->title }}" class="img-fluid rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover; {{ $badge->has_badge ? '' : 'filter: grayscale(100%);' }}">
+                                        <img src="{{ asset('storage/' . $badge->icon_path) }}" alt="{{ $badge->title }}" class="img-fluid rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover; {{ $badge->has_badge ? '' : 'filter: grayscale(100%);' }}">
                                         <h5 class="card-title font-weight-bold">{{ $badge->title }}</h5>
                                         <p class="card-text text-muted">{{ $badge->description }}</p>
                                         
@@ -37,15 +37,24 @@
                                             <div class="text-success font-weight-bold">
                                                 <i class="fa fa-check-circle"></i> Diperoleh
                                             </div>
-                                        @else
-                                            <div class="progress" style="height: 20px;">
-                                                @php
-                                                    $progress = ($badge->progress_target > 0) ? ($badge->progress_current / $badge->progress_target) * 100 : 0;
-                                                @endphp
-                                                <div class="progress-bar" role="progressbar" style="width: {{ $progress }}%;" aria-valuenow="{{ $progress }}" aria-valuemin="0" aria-valuemax="100">
-                                                    {{ $badge->progress_current }} / {{ $badge->progress_target }}
-                                                </div>
+                                            @if($badge->earned_at)
+                                                <small class="text-muted">Didapat pada {{ $badge->earned_at->format('d M Y') }}</small>
+                                            @endif
+                                        @elseif($badge->progress)
+                                            <div class="text-left">
+                                                @foreach($badge->progress['rules'] as $rule)
+                                                    @php
+                                                        $percent = $rule['target'] > 0 ? min(100, round($rule['current'] / $rule['target'] * 100)) : 0;
+                                                    @endphp
+                                                    <div class="small mb-1">{{ $rule['sentence'] }}</div>
+                                                    <div class="progress" style="height: 12px;">
+                                                        <div class="progress-bar {{ $rule['met'] ? 'bg-success' : '' }}" role="progressbar" style="width: {{ $percent }}%;" aria-valuenow="{{ $percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                    <div class="small text-muted mb-2">{{ min($rule['current'], $rule['target']) }} dari {{ $rule['target'] }} {{ $rule['unit'] }}</div>
+                                                @endforeach
                                             </div>
+                                        @else
+                                            <div class="text-muted"><i class="fa fa-user"></i> Diberikan oleh admin</div>
                                         @endif
                                     </div>
                                 </div>

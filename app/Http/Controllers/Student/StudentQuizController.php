@@ -12,6 +12,7 @@ use App\Models\QuizAttemptIntegritySummary;
 use App\Models\StudentAnswer;
 use App\Services\BadgeService;
 use App\Services\HashIdService;
+use App\Services\LessonAccess;
 use App\Services\PointService;
 use App\Services\QuizShuffleService;
 use App\Services\StudentWriteLock;
@@ -20,19 +21,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class StudentQuizController extends Controller
 {
-    private function canAccessCourse($user, $course): bool
-    {
-        if (! $user) {
-            return false;
-        }
+    private const SUBMIT_GRACE_SECONDS = QuizAttempt::SUBMIT_GRACE_SECONDS;
 
-        return $user->enrollments()->where('courses.id', $course->id)->exists()
-            || $course->instructor_id === $user->id
-            || $user->hasAnyRole(['admin', 'superadmin']);
-    }
+    private const MODULE_LOCKED_MESSAGE = 'Modul ini masih terkunci. Kumpulkan poin yang dibutuhkan untuk membukanya.';
 
     // ... (metode start, begin, take, submit, result, dan helper lainnya tidak ada perubahan) ...
     public function start(Request $request, Quiz $quiz)
@@ -41,13 +36,17 @@ class StudentQuizController extends Controller
         $student = Auth::user();
         $course = $quiz->lesson->module->course;
 
-        abort_unless($this->canAccessCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
+        abort_unless(LessonAccess::canViewCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
 
         if ($request->query('preview') === 'true') {
-            abort_unless(Auth::check() && ($course->instructor_id === Auth::id() || Auth::user()->hasAnyRole(['admin', 'superadmin'])), 403);
+            abort_unless(LessonAccess::isManager(Auth::user(), $course), 403);
             $is_preview = true;
         } else {
             $is_preview = false;
+        }
+
+        if (! $is_preview && ! LessonAccess::isModuleUnlocked($student, $quiz->lesson->module)) {
+            return redirect()->route('student.courses.show', $course->slug)->with('error', self::MODULE_LOCKED_MESSAGE);
         }
 
         $quiz->loadCount('questions');
@@ -116,7 +115,11 @@ class StudentQuizController extends Controller
         $student = Auth::user();
         $course = $quiz->lesson->module->course;
 
-        abort_unless($this->canAccessCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
+        abort_unless(LessonAccess::canViewCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
+
+        if ($request['is_preview'] !== 'true' && ! LessonAccess::isModuleUnlocked($student, $quiz->lesson->module)) {
+            return redirect()->route('student.courses.show', $course->slug)->with('error', self::MODULE_LOCKED_MESSAGE);
+        }
 
         // Cek batas, attempt berjalan, dan pembuatan attempt dikunci per siswa agar klik ganda tidak membuat dua attempt
         $user = Auth::user();
@@ -142,9 +145,19 @@ class StudentQuizController extends Controller
                 }
             }
 
+            // Jadwal kuis ditegakkan di server, bukan hanya disembunyikan di halaman mulai
+            if ($request['is_preview'] !== 'true') {
+                if ($quiz->available_from && now()->isBefore($quiz->available_from)) {
+                    return ['error', 'Kuis ini akan tersedia pada '.$quiz->available_from->format('d F Y, H:i')];
+                }
+                if ($quiz->available_to && now()->isAfter($quiz->available_to)) {
+                    return ['error', 'Waktu pengerjaan kuis ini telah berakhir pada '.$quiz->available_to->format('d F Y, H:i')];
+                }
+            }
+
             // preview mode (tidak generate shuffle)
             if ($request['is_preview'] === 'true') {
-                abort_unless($course->instructor_id === Auth::id() || $student->hasAnyRole(['admin', 'superadmin']), 403);
+                abort_unless(LessonAccess::isManager($student, $course), 403);
 
                 return ['preview', null];
             }
@@ -205,6 +218,8 @@ class StudentQuizController extends Controller
                 'attempt' => $attempt,
                 'is_preview' => true,
                 'endTime' => null,
+                'serverNowMs' => null,
+                'endTimeMs' => null,
             ]);
         }
 
@@ -221,7 +236,7 @@ class StudentQuizController extends Controller
         // Validasi: Pastikan siswa terdaftar di kursus ini
         $student = Auth::user();
         $course = $attempt->quiz->lesson->module->course;
-        abort_unless($this->canAccessCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
+        abort_unless(LessonAccess::canViewCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
 
         // $attempt = QuizAttempt::findOrFail($attemptId);
         if ($attempt->status !== 'in_progress') {
@@ -237,7 +252,7 @@ class StudentQuizController extends Controller
 
             // Hitung waktu berakhir: start_time + time_limit (dalam menit)
             // Carbon akan otomatis menangani objek DateTime
-            $endTime = $attempt->start_time->addMinutes($attempt->quiz->time_limit);
+            $endTime = $attempt->start_time->copy()->addMinutes($attempt->quiz->time_limit);
         }
         // --- AKHIR LOGIKA TAMBAHAN ---
 
@@ -265,6 +280,10 @@ class StudentQuizController extends Controller
             'attempt' => $attempt,
             'is_preview' => false,
             'endTime' => $endTime ? $endTime->toIso8601String() : null, // Kirim sebagai string ISO 8601
+            // Jam server dan batas waktu dalam milidetik. Browser menghitung selisih jam perangkat terhadap server
+            // saat halaman dimuat, jadi jam perangkat yang salah atau perangkat yang sempat sleep tidak memengaruhi sisa waktu.
+            'serverNowMs' => $endTime ? now()->getTimestampMs() : null,
+            'endTimeMs' => $endTime ? $endTime->getTimestampMs() : null,
         ]);
     }
 
@@ -276,7 +295,7 @@ class StudentQuizController extends Controller
         if ($is_preview) {
             $quiz = Quiz::with('questions.options')->findOrFail($request->input('quiz_id_preview'));
             $course = $quiz->lesson->module->course;
-            abort_unless($course->instructor_id === Auth::id() || Auth::user()->hasAnyRole(['admin', 'superadmin']), 403);
+            abort_unless(LessonAccess::isManager(Auth::user(), $course), 403);
 
             $attempt = new QuizAttempt(['quiz_id' => $quiz->id]);
             $attempt->setRelation('quiz', $quiz);
@@ -289,7 +308,7 @@ class StudentQuizController extends Controller
             // Validasi: Pastikan siswa terdaftar di kursus ini
             $student = Auth::user();
             $course = $attempt->quiz->lesson->module->course;
-            abort_unless($this->canAccessCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
+            abort_unless(LessonAccess::canViewCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
 
             // Attempt yang sudah selesai (misalnya submit ulang lewat tombol back) diarahkan ke halaman hasil
             if ($attempt->status != 'in_progress') {
@@ -300,8 +319,7 @@ class StudentQuizController extends Controller
         $attempt->quiz->loadMissing('questions.options');
         $quizQuestions = $attempt->quiz->questions;
         $studentAnswersCollection = collect();
-        $expelledByViolation = $request->input('expelled_by_violation') === '1';
-        $grade = function () use ($quizQuestions, $userAnswers, $attempt, &$totalScore, $is_preview, &$studentAnswersCollection, $expelledByViolation) {
+        $grade = function () use ($quizQuestions, $userAnswers, $attempt, &$totalScore, $is_preview, &$studentAnswersCollection) {
             $answerRows = [];
             foreach ($quizQuestions as $question) {
                 $isCorrect = false;
@@ -328,12 +346,34 @@ class StudentQuizController extends Controller
                 $percentageScore = ($maxPossibleScore > 0) ? ($totalScore / $maxPossibleScore) * 100 : 0;
                 $newStatus = $percentageScore >= $attempt->quiz->pass_mark ? 'passed' : 'failed';
 
+                // Batas waktu ditegakkan di server: lewat waktu (plus toleransi) dan kuis tidak mengizinkan
+                // jawaban terlambat -> jawaban tetap disimpan untuk instruktur, tetapi tidak lulus.
+                $timeLimit = (int) $attempt->quiz->time_limit;
+                $failedByDeadline = false;
+                if ($timeLimit > 0 && ! $attempt->quiz->allow_exceed_time_limit) {
+                    $deadline = $attempt->start_time->copy()->addMinutes($timeLimit)->addSeconds(self::SUBMIT_GRACE_SECONDS);
+                    if (now()->greaterThan($deadline)) {
+                        $newStatus = 'failed';
+                        $failedByDeadline = true;
+                    }
+                }
+
+                // Status dikeluarkan karena pelanggaran dihitung dari log server, bukan dari isian browser
+                $integrity = QuizAttemptIntegritySummary::where('attempt_id', $attempt->id)->first();
+                $security = $attempt->quiz->securitySetting;
+                $expelledByViolation = (bool) ($integrity && $security && (
+                    ($security->enable_tab_detection && $integrity->total_tab_switches >= ($security->tab_violation_threshold ?? 5))
+                    || ($security->enable_camera_detection && $integrity->total_face_violations >= ($security->camera_violation_threshold ?? 10))
+                ));
+
                 // 2. Set dan Simpan Hasil Attempt (Tidak berubah)
                 $attempt->score = $totalScore;
                 $attempt->scaled_score = round($percentageScore, 2); // Simpan skor skala 0-100 langsung di database
                 $attempt->status = $newStatus;
                 $attempt->end_time = now();
                 $attempt->expelled_by_violation = $expelledByViolation;
+                // Dicatat sekarang agar perubahan batas waktu kuis sesudahnya tidak mengubah alasan gagalnya
+                $attempt->failed_by_deadline = $failedByDeadline;
                 $attempt->save();
 
                 // // 3. Cek Kondisi Tambahan
@@ -349,7 +389,7 @@ class StudentQuizController extends Controller
 
                 // Lakukan pengecekan HANYA jika ada batas waktu yang valid (> 0)
                 if ($timeLimitInMinutes > 0) {
-                    $quizExceededTimeLimit = $attempt->end_time > $attempt->start_time->addMinutes($timeLimitInMinutes);
+                    $quizExceededTimeLimit = $attempt->end_time > $attempt->start_time->copy()->addMinutes($timeLimitInMinutes)->addSeconds(self::SUBMIT_GRACE_SECONDS);
                 }
 
                 $quizAllowExceedTimeLimit = (bool) $attempt->quiz->allow_exceed_time_limit;
@@ -382,22 +422,19 @@ class StudentQuizController extends Controller
                         description_meta: $attempt->quiz->title
                     );
 
-                    $student = Auth::user();
-                    $lesson = $attempt->quiz->lesson;
+                }
 
-                    // apabila lesson belum pernah dicomplete
-                    if (! $student->completedLessons->contains($attempt->quiz->lesson_id)) {
-                        // Tandai pelajaran sebagai selesai
-                        $student->completedLessons()->syncWithoutDetaching($lesson->id);
-                    }
+                // Lulus menandai lesson selesai, walaupun poinnya sudah pernah diberikan (misalnya dari
+                // sinkronisasi admin). Lewat waktu tetap dihitung selesai jika kuis mengizinkannya.
+                // Poin tetap hanya sekali dan hanya jika tepat waktu (blok di atas).
+                if ($newStatus === 'passed' && (! $quizExceededTimeLimit || $attempt->quiz->allow_exceed_time_limit)) {
+                    Auth::user()->completedLessons()->syncWithoutDetaching($attempt->quiz->lesson->id);
                 }
 
                 // 5. Logika Setelah Lulus (Tidak berubah)
                 if ($newStatus === 'passed') {
-                    $student = Auth::user();
-                    $lesson = $attempt->quiz->lesson;
-                    // Cek perolehan badge
-                    BadgeService::checkQuizCompletionBadges($student);
+                    // Cek perolehan badge (lulus ulang tanpa poin tetap bisa mengubah hitungan kuis sempurna)
+                    BadgeService::queueFor(Auth::user());
                 }
             }
         };
@@ -452,7 +489,7 @@ class StudentQuizController extends Controller
         // Validasi: Pastikan siswa terdaftar di kursus ini
         $student = Auth::user();
         $course = $attempt->quiz->lesson->module->course;
-        abort_unless($this->canAccessCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
+        abort_unless(LessonAccess::canViewCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
 
         if ($attempt->status === 'in_progress') {
             return redirect()->route('student.quiz.take', $attempt)->with('error', 'Anda harus menyelesaikan kuis terlebih dahulu.');
@@ -681,7 +718,13 @@ class StudentQuizController extends Controller
 
             // Proses upload bukti screenshot jika dilampirkan
             $screenshotPath = null;
-            if ($request->hasFile('screenshot')) {
+            // Screenshot yang bukan gambar atau terlalu besar diabaikan; pelanggarannya tetap dicatat
+            $screenshotIsValid = $request->hasFile('screenshot') && Validator::make(
+                $request->only('screenshot'),
+                ['screenshot' => ['file', 'image', 'mimes:jpeg,jpg,png,webp', 'max:1024']]
+            )->passes();
+
+            if ($screenshotIsValid) {
                 try {
                     $screenshot = $request->file('screenshot');
 
@@ -691,8 +734,8 @@ class StudentQuizController extends Controller
                     // Buat nama file unik (tipe_waktu_id.jpg)
                     $filename = $violationType.'_'.time().'_'.uniqid().'.jpg';
 
-                    // Simpan file ke storage publik
-                    $screenshotPath = $screenshot->storeAs($directory, $filename, 'public');
+                    // Simpan file ke storage privat (dibuka lewat FileDownloadController)
+                    $screenshotPath = $screenshot->storeAs($directory, $filename, 'local');
                 } catch (\Exception $e) {
                     Log::error('Gagal mengunggah screenshot', ['error' => $e->getMessage()]);
                     // Lanjut tanpa screenshot jika upload gagal

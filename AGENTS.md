@@ -46,7 +46,7 @@ Read both before starting any non-trivial task.
 ## Local Development Environment
 
 - PHP: 8.4 locally via `mise.toml` (CI runs 8.3; do not use syntax newer than 8.3)
-- Node.js: >= 20 (CI uses 20)
+- Node.js: >= 22 (CI uses 22)
 - Database: MySQL 8 via `docker-compose.yaml` on `localhost:3306`
 - Mail: MailHog via `docker-compose.yaml` (SMTP `1025`, web UI `http://localhost:8025`)
 - Tests: SQLite in-memory (configured in `phpunit.xml`), never the dev MySQL database

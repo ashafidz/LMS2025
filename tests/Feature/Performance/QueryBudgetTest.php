@@ -180,6 +180,7 @@ class QueryBudgetTest extends TestCase
     public function test_camera_violation_counts_and_stores_screenshot(): void
     {
         Storage::fake('public');
+        Storage::fake('local');
         $attempt = $this->startAttempt();
         $this->travelTo(now()->subMinutes(5));
         QuizAttemptIntegritySummary::create(['attempt_id' => $attempt->id]);
@@ -205,7 +206,7 @@ class QueryBudgetTest extends TestCase
             'look_left_count' => 1,
             'look_down_count' => 1,
         ]);
-        $this->assertCount(1, Storage::disk('public')->allFiles('screenshots/violations/'.$attempt->id));
+        $this->assertCount(1, Storage::disk('local')->allFiles('screenshots/violations/'.$attempt->id));
         $summary = QuizAttemptIntegritySummary::where('attempt_id', $attempt->id)->first();
         $this->assertTrue($summary->getRawOriginal('updated_at') > $summary->getRawOriginal('created_at'), 'updated_at not touched');
     }

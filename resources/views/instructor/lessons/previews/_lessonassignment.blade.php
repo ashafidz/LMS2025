@@ -46,7 +46,7 @@
             <div class="card-body">
                 <h5 class="font-weight-bold text-info mb-3"><i class="fa fa-file-alt mr-2"></i>Status Pengumpulan Anda</h5>
                 <ul class="list-unstyled mb-0">
-                    <li class="mb-2"><i class="fa fa-file-pdf-o text-danger mr-2"></i><strong>File Terakhir Diunggah:</strong> <code>{{ basename($submission->file_path) }}</code> <a href="{{ Storage::url($submission->file_path) }}" class="btn btn-sm btn-outline-primary ml-2 py-0 px-2" download><i class="fa fa-download"></i> Unduh</a></li>
+                    <li class="mb-2"><i class="fa fa-file-pdf-o text-danger mr-2"></i><strong>File Terakhir Diunggah:</strong> <code>{{ basename($submission->file_path) }}</code> <a href="{{ route('files.submission', $submission) }}" class="btn btn-sm btn-outline-primary ml-2 py-0 px-2" download><i class="fa fa-download"></i> Unduh</a></li>
                     <li><i class="fa fa-clock-o text-muted mr-2"></i><strong>Waktu Mengumpulkan:</strong> {{ $submission->submitted_at->format('d F Y, H:i') }}</li>
                 </ul>
             </div>

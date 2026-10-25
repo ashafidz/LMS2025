@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    // Google reCAPTCHA v3 untuk form kontak. Dibaca lewat config() agar tetap bekerja setelah `php artisan config:cache`.
+    'recaptcha' => [
+        'site_key' => env('RECAPTCHA_SITE_KEY'),
+        'secret_key' => env('RECAPTCHA_SECRET_KEY'),
+        'min_score' => (float) env('RECAPTCHA_MIN_SCORE', 0.5),
+        'action' => 'php_email_form_submit',
+    ],
+
 ];

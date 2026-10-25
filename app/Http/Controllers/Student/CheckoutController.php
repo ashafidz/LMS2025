@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\SiteSetting;
@@ -21,6 +22,11 @@ class CheckoutController extends Controller
     public function process(Request $request, MidtransService $midtransService, CartPricingService $pricingService)
     {
         $user = Auth::user();
+
+        if (Cart::pruneUnbuyableFor($user) > 0) {
+            return redirect()->route('student.cart.index')->with('error', 'Beberapa kursus dikeluarkan dari keranjang karena tidak lagi tersedia untuk dibeli. Silakan periksa keranjang Anda.');
+        }
+
         $cartItems = $user->carts()->with('course')->get();
         $settings = SiteSetting::first();
 
