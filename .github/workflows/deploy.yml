@@ -24,7 +24,7 @@ jobs:
       - name: 🛠️ Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
 
       - name: 🏗️ Menginstall & Membangun Aset CSS/JS (Vite)
         run: |
@@ -42,7 +42,7 @@ jobs:
           REMOTE_PORT: ${{ secrets.SSH_PORT }}
           TARGET: ${{ secrets.REMOTE_PATH }}
           # !! Kita kecualikan (exclude) file penting agar TIDAK ikut tertimpa/dihapus saat proses sinkronisasi:
-          EXCLUDE: "/node_modules/, /.git/, /tests/, /storage/, /bootstrap/cache/, .env, /phpunit.xml, README.md, .htaccess, /public/storage, /public/.htaccess"
+          EXCLUDE: "/node_modules/, /.git/, /tests/, /storage/, /bootstrap/cache/, .env, /phpunit.xml, README.md, .htaccess, /public/storage, /public/.htaccess, /tasks/, /docs/, /.claude/, /.cursor/, /.github/, /scripts/, AGENTS.md, CLAUDE.md, /docker-compose.yaml, /mise.toml"
 
       - name: 🚀 Memicu Skrip Refresh Pasca Deploy di Server (Zero Downtime Polish)
         uses: appleboy/ssh-action@v1.2.5
@@ -58,7 +58,7 @@ jobs:
             rm -f bootstrap/cache/*.php
 
             # 1. Matikan akses sementara
-            php artisan down --secret="edukasi-maintenance"
+            php artisan down --secret="${{ secrets.MAINTENANCE_SECRET }}"
 
             # 2. Hapus sisa cache 
             php artisan optimize:clear

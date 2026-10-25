@@ -12,6 +12,7 @@ use App\Models\LessonLinkCollection;
 use App\Models\LessonVideo;
 use App\Models\Module;
 use App\Models\Quiz;
+use App\Support\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -94,6 +95,7 @@ class LessonController extends Controller
                 switch ($lessonType) {
                     case 'article':
                         $validated = $request->validate(['content' => 'required|string']);
+                        $validated['content'] = HtmlSanitizer::clean($validated['content']);
                         $lessonable = LessonArticle::create($validated);
                         break;
 
@@ -173,7 +175,7 @@ class LessonController extends Controller
                         break;
 
                     case 'document': // Diperbarui dari 'powerpoint'
-                        $path = $documentFile->store('lesson_documents', 'public'); // Folder baru
+                        $path = $documentFile->store('lesson_documents', 'local'); // Disk privat, dibuka lewat FileDownloadController
                         $lessonable = LessonDocument::create(['file_path' => $path]);
                         break;
 
@@ -330,6 +332,7 @@ class LessonController extends Controller
             switch ($shortType) {
                 case 'lessonarticle':
                     $validated = $request->validate(['content' => 'required|string']);
+                    $validated['content'] = HtmlSanitizer::clean($validated['content']);
                     $lessonable->update($validated);
                     break;
 
@@ -422,8 +425,9 @@ class LessonController extends Controller
                 case 'lessondocument': // Diperbarui dari 'lessonpowerpoint'
                     if ($request->hasFile('document_file')) {
                         $validated = $request->validate(['document_file' => 'required|file|mimes:pdf|max:20480']);
+                        Storage::disk('local')->delete($lessonable->file_path);
                         Storage::disk('public')->delete($lessonable->file_path);
-                        $path = $validated['document_file']->store('lesson_documents', 'public');
+                        $path = $validated['document_file']->store('lesson_documents', 'local');
                         $lessonable->update(['file_path' => $path]);
                     }
                     break;
@@ -555,6 +559,7 @@ class LessonController extends Controller
                 if ($shortType === 'lessonvideo' && $lessonable->source_type === 'upload') {
                     Storage::disk('public')->delete($lessonable->video_path);
                 } elseif ($shortType === 'lessondocument') { // Diperbarui dari 'lessonpowerpoint'
+                    Storage::disk('local')->delete($lessonable->file_path);
                     Storage::disk('public')->delete($lessonable->file_path);
                 }
                 $lessonable->delete();

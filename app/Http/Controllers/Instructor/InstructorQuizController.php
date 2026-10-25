@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\PointHistory;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
+use App\Services\BadgeService;
+use App\Services\PointService;
+use App\Services\StudentWriteLock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -209,6 +213,70 @@ class InstructorQuizController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Revisi skor berhasil disimpan.');
+    }
+
+    /**
+     * Meluluskan percobaan yang gagal HANYA karena terlambat (mis. internet siswa putus), bila nilai akhirnya mencapai
+     * batas lulus. Efeknya sama dengan lulus normal: pelajaran selesai, poin sekali, badge diperiksa.
+     */
+    public function approveLate(Request $request, QuizAttempt $attempt)
+    {
+        $course = $attempt->quiz->lesson->module->course;
+        if ($course->instructor_id != Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'late_override_note' => 'required|string|max:500',
+        ], [
+            'late_override_note.required' => 'Tuliskan alasan meluluskan percobaan ini.',
+            'late_override_note.max' => 'Alasan maksimal 500 karakter.',
+        ]);
+
+        // Kunci yang sama dengan pengiriman kuis siswa (StudentWriteLock), lalu kunci baris attempt: dua klik instruktur,
+        // atau instruktur dan siswa yang lulus bersamaan, tidak bisa memberi poin pelajaran ini dua kali.
+        $result = StudentWriteLock::run($attempt->student, function () use ($request, $attempt, $course) {
+            $locked = QuizAttempt::whereKey($attempt->id)->lockForUpdate()->first();
+
+            if (! $locked || ! $locked->canBeApprovedDespiteLate()) {
+                return null;
+            }
+
+            $locked->update([
+                'status' => 'passed',
+                'late_override_by' => Auth::id(),
+                'late_override_at' => now(),
+                'late_override_note' => $request->input('late_override_note'),
+            ]);
+
+            $student = $locked->student;
+            $lesson = $locked->quiz->lesson;
+            $student->completedLessons()->syncWithoutDetaching($lesson->id);
+
+            // Poin lulus kuis hanya sekali per pelajaran (aturan yang sama dengan pengiriman normal)
+            $pointsQuery = PointHistory::where('user_id', $student->id)->where('lesson_id', $lesson->id);
+            if ($pointsQuery->exists()) {
+                $outcome = 'already_had_points';
+            } else {
+                PointService::addPoints(user: $student, course: $course, activity: 'pass_quiz', lesson: $lesson, description_meta: $locked->quiz->title);
+                // Poin kuis bisa diatur 0 di pengaturan situs; hanya sebut poin bila memang tercatat
+                $outcome = $pointsQuery->exists() ? 'points_given' : 'no_points';
+            }
+
+            BadgeService::queueFor($student);
+
+            return $outcome;
+        });
+
+        if ($result === null) {
+            return redirect()->back()->with('error', 'Percobaan ini tidak bisa diluluskan. Hanya percobaan yang gagal karena terlambat dan nilainya mencapai batas lulus yang bisa diluluskan.');
+        }
+
+        return redirect()->back()->with('success', match ($result) {
+            'points_given' => 'Percobaan diluluskan. Pelajaran ditandai selesai dan poin kuis diberikan ke siswa.',
+            'already_had_points' => 'Percobaan diluluskan. Pelajaran ditandai selesai (poin kuis untuk pelajaran ini sudah pernah diberikan).',
+            default => 'Percobaan diluluskan. Pelajaran ditandai selesai.',
+        });
     }
 
     /**

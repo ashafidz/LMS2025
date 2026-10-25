@@ -223,7 +223,7 @@
                                             <h5 class="mt-3">Pilih pelajaran dari daftar isi untuk memulai.</h5>
                                             <hr class="mt-4 mb-4">
                                             <p><strong>Deskripsi Kursus:</strong></p>
-                                            <div class="text-left mt-3">{!! $course->description !!}</div>
+                                            <div class="text-left mt-3">{!! \App\Support\HtmlSanitizer::clean($course->description) !!}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -295,6 +295,7 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/certificate-canvas-fallback.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
@@ -569,6 +570,8 @@
                         .then(data => {
                             if (data.success) {
                                 lessonContentEl.innerHTML = data.html;
+                                // Browser lama tanpa satuan cqw: ukuran huruf dihitung dari lebar kanvas
+                                if (window.fitCertificateCanvas) { window.fitCertificateCanvas(lessonContentEl); }
                             } else {
                                 lessonContentEl.innerHTML = `<p class="text-danger">${data.message || 'Gagal memuat pratinjau sertifikat.'}</p>`;
                             }

@@ -38,6 +38,12 @@
                     </div>
                     @endif
 
+                    @if(session('error'))
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fa fa-exclamation-circle"></i> {{ session('error') }}
+                    </div>
+                    @endif
+
                     @if($errors->any())
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <i class="fa fa-exclamation-circle"></i>
@@ -191,6 +197,65 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- Card Lulus Meski Terlambat (K5) --}}
+                    @php
+                        $finalScore = $attempt->finalScaledScore();
+                        $finalScoreText = $finalScore === null ? '-' : rtrim(rtrim(number_format($finalScore, 2, ',', '.'), '0'), ',');
+                    @endphp
+                    @if ($attempt->late_override_at)
+                        <div class="alert alert-info">
+                            <i class="fa fa-check-circle"></i>
+                            <strong>Diluluskan oleh {{ $attempt->lateOverrideBy->name ?? 'instruktur' }}</strong>
+                            pada {{ $attempt->late_override_at->format('d M Y H:i') }} walaupun dikirim terlambat.
+                            <div class="mt-1"><strong>Alasan:</strong> {{ $attempt->late_override_note }}</div>
+                        </div>
+                    @elseif ($attempt->failedBecauseLate())
+                        <div class="card">
+                            <div class="card-header bg-warning">
+                                <h5 class="mb-0"><i class="fa fa-clock-o"></i> Gagal karena terlambat</h5>
+                            </div>
+                            <div class="card-block">
+                                <p>
+                                    Jawaban dikirim setelah batas waktu kuis, sehingga percobaan ini otomatis tidak lulus.
+                                    Bila keterlambatan bukan kesalahan siswa (misalnya internet putus), Anda bisa meluluskannya.
+                                    Siswa akan mendapat tanda selesai dan poin kuis seperti lulus biasa.
+                                </p>
+                                @if ($attempt->expelled_by_violation)
+                                    <div class="alert alert-danger">
+                                        <i class="fa fa-exclamation-triangle"></i>
+                                        Percobaan ini juga ditandai dikeluarkan karena pelanggaran (pindah tab atau kamera).
+                                        Periksa log pelanggaran di halaman ini sebelum meluluskannya.
+                                    </div>
+                                @endif
+                                @if ($attempt->canBeApprovedDespiteLate())
+                                    <form action="{{ route('instructor.quiz.attempt.approve_late', $attempt) }}" method="POST">
+                                        @csrf
+                                        <div class="form-group">
+                                            <label for="late_override_note"><strong>Alasan <span class="text-danger">*</span></strong></label>
+                                            <textarea class="form-control {{ $errors->has('late_override_note') ? 'is-invalid' : '' }}"
+                                                      id="late_override_note" name="late_override_note" rows="2" maxlength="500" required
+                                                      placeholder="Contoh: internet sekolah putus saat ujian">{{ old('late_override_note') }}</textarea>
+                                            @if ($errors->has('late_override_note'))
+                                                <div class="invalid-feedback">{{ $errors->first('late_override_note') }}</div>
+                                            @endif
+                                        </div>
+                                        <div class="text-right">
+                                            <button type="submit" class="btn btn-warning"
+                                                    onclick="return confirm('Luluskan percobaan ini? Siswa akan dianggap lulus kuis ini.')">
+                                                <i class="fa fa-check"></i> Luluskan percobaan ini
+                                            </button>
+                                        </div>
+                                    </form>
+                                @else
+                                    <div class="alert alert-secondary mb-0">
+                                        Nilai {{ $finalScoreText }} di bawah batas lulus {{ $attempt->quiz->pass_mark }}, jadi percobaan ini tetap tidak lulus.
+                                        Bila perlu, revisi skor terlebih dahulu di bawah.
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
 
                     {{-- Card Revisi Skor --}}
                     <div class="card">
@@ -361,8 +426,8 @@
                                             </td>
                                             <td>
                                                 @if($log->screenshot_path)
-                                                    <a href="{{ asset('storage/' . $log->screenshot_path) }}" target="_blank" data-toggle="tooltip" title="Klik untuk lihat full size">
-                                                        <img src="{{ asset('storage/' . $log->screenshot_path) }}" 
+                                                    <a href="{{ route('files.monitoring.screenshot', $log) }}" target="_blank" data-toggle="tooltip" title="Klik untuk lihat full size">
+                                                        <img src="{{ route('files.monitoring.screenshot', $log) }}" 
                                                              alt="Screenshot Bukti Pelanggaran" 
                                                              class="img-thumbnail" 
                                                              style="max-width: 150px; max-height: 100px; cursor: pointer;">

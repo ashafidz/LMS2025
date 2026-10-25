@@ -37,7 +37,7 @@
 {{-- Menampilkan konten artikel --}}
 {{-- Menggunakan {!! !!} agar tag HTML seperti <p>, <b>, dll. bisa dirender dengan benar --}}
 <div class="article-content">
-    {!! $lesson->lessonable->content !!}
+    {!! \App\Support\HtmlSanitizer::clean($lesson->lessonable->content) !!}
 </div>
 
 {{-- Anda bisa menambahkan styling di sini jika perlu --}}

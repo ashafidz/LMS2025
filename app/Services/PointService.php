@@ -168,6 +168,9 @@ class PointService
                 ]);
             });
         }
+
+        // Dipanggil setiap kali siswa menyelesaikan aktivitas, termasuk yang bernilai 0 poin
+        BadgeService::queueFor($user);
     }
 
     /**
@@ -210,6 +213,8 @@ class PointService
                     'description' => $description,
                 ]);
             });
+
+            BadgeService::queueFor($user);
         }
     }
 }

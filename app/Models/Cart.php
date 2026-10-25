@@ -17,6 +17,30 @@ class Cart extends Model
     ];
 
     /**
+     * Hapus item keranjang milik user yang kursusnya tidak lagi bisa dibeli dengan uang
+     * (belum terbit, bukan kursus uang, sudah dihapus). Dengan $dropEnrolled, kursus yang
+     * sudah diikuti user juga dikeluarkan. Mengembalikan jumlah item yang dikeluarkan.
+     */
+    public static function pruneUnbuyableFor(User $user, bool $dropEnrolled = false): int
+    {
+        $enrolledIds = $dropEnrolled ? $user->enrollments()->pluck('courses.id') : collect();
+        $removed = 0;
+
+        foreach ($user->carts()->with('course')->get() as $item) {
+            if (! $item->course || ! $item->course->isBuyableWithMoney() || $enrolledIds->contains($item->course_id)) {
+                $item->delete();
+                $removed++;
+            }
+        }
+
+        if ($removed > 0 && $user->carts()->count() === 0) {
+            session()->forget('coupon');
+        }
+
+        return $removed;
+    }
+
+    /**
      * Mendapatkan pengguna yang memiliki item keranjang ini.
      */
     public function user()

@@ -118,7 +118,7 @@
         <div class="mb-4">
           <h5 class="fw-bold mb-3">Tentang Kursus Ini</h5>
           <div class="text-muted">
-            {!! $course->description !!}
+            {!! \App\Support\HtmlSanitizer::clean($course->description) !!}
           </div>
         </div>
 

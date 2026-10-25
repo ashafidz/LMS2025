@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Instructor;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\CourseCategory;
+use App\Support\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -53,7 +54,7 @@ class CourseController extends Controller
             'title' => $validated['title'],
             'slug' => Str::slug($validated['title']),
             'category_id' => $validated['category_id'],
-            'description' => $validated['description'],
+            'description' => filled($validated['description'] ?? null) ? HtmlSanitizer::clean($validated['description']) : null,
             'thumbnail_url' => $thumbnailPath,
             'status' => 'draft',
             'availability_type' => $validated['availability_type'],
@@ -103,6 +104,7 @@ class CourseController extends Controller
         ]);
 
         $courseData = $validated;
+        $courseData['description'] = filled($validated['description'] ?? null) ? HtmlSanitizer::clean($validated['description']) : null;
         $courseData['slug'] = Str::slug($validated['title']);
 
         if ($request->hasFile('thumbnail')) {

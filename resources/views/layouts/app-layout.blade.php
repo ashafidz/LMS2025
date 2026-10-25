@@ -408,6 +408,41 @@
         });
     </script>
 
+    @if (!empty($newBadges) && $newBadges->isNotEmpty())
+        <script>
+            // Notifikasi badge baru (judul dan deskripsi disisipkan sebagai teks, bukan HTML)
+            document.addEventListener('DOMContentLoaded', function () {
+                var badges = {{ \Illuminate\Support\Js::from($newBadges) }};
+                var box = document.createElement('div');
+                badges.forEach(function (badge) {
+                    var item = document.createElement('div');
+                    item.style.margin = '12px 0';
+                    var image = document.createElement('img');
+                    image.src = badge.icon;
+                    image.alt = '';
+                    image.style.cssText = 'width:72px;height:72px;object-fit:cover;border-radius:50%;';
+                    var title = document.createElement('div');
+                    title.style.fontWeight = '600';
+                    title.textContent = badge.title;
+                    var description = document.createElement('div');
+                    description.className = 'text-muted small';
+                    description.textContent = badge.description;
+                    item.appendChild(image);
+                    item.appendChild(title);
+                    item.appendChild(description);
+                    box.appendChild(item);
+                });
+                Swal.fire({
+                    title: 'Selamat! Kamu mendapat badge baru',
+                    html: box,
+                    confirmButtonText: 'Lihat Badge Saya'
+                }).then(function (result) {
+                    if (result.isConfirmed) { window.location.href = {{ \Illuminate\Support\Js::from(route('student.badges.index')) }}; }
+                });
+            });
+        </script>
+    @endif
+
     <!-- custom js -->
     @stack('scripts')
     {{-- <script type="text/javascript" src="{{ asset('pages/dashboard/custom-dashboard.js') }}"></script> --}}

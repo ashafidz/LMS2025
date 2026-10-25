@@ -67,6 +67,20 @@
                                             <span class="pcoded-mcaret"></span>
                                         </a>
                                     </li>
+                                    <li class="{{ Request::routeIs('admin.certificate-templates.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.certificate-templates.index') }}" class="waves-effect waves-dark">
+                                            <span class="pcoded-micon"><i class="fa fa-certificate"></i><b>TS</b></span>
+                                            <span class="pcoded-mtext">Template Sertifikat</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
+                                    <li class="{{ Request::routeIs('admin.badges.*') ? 'active' : '' }}">
+                                        <a href="{{ route('admin.badges.index') }}" class="waves-effect waves-dark">
+                                            <span class="pcoded-micon"><i class="fa fa-medal"></i><b>BG</b></span>
+                                            <span class="pcoded-mtext">Badge</span>
+                                            <span class="pcoded-mcaret"></span>
+                                        </a>
+                                    </li>
                                     <li class="{{ Request::routeIs('admin.point-sync.*') ? 'active' : '' }}">
                                         <a href="{{ route('admin.point-sync.index') }}" class="waves-effect waves-dark">
                                             <span class="pcoded-micon"><i class="fa fa-refresh"></i><b>S</b></span>

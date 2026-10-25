@@ -19,6 +19,9 @@ class CartController extends Controller
     public function index(CartPricingService $pricingService)
     {
         $user = Auth::user();
+        if (Cart::pruneUnbuyableFor($user, dropEnrolled: true) > 0) {
+            session()->now('error', 'Beberapa kursus dikeluarkan dari keranjang karena tidak lagi tersedia untuk dibeli.');
+        }
         $cartItems = $user->carts()->with('course')->get();
         $settings = SiteSetting::first();
 
@@ -84,6 +87,12 @@ class CartController extends Controller
     public function add(Course $course)
     {
         $user = Auth::user();
+        if (! $course->isPublished()) {
+            return back()->with('error', 'Kursus ini belum tersedia untuk dibeli.');
+        }
+        if ($course->payment_type !== 'money') {
+            return back()->with('error', 'Kursus ini hanya bisa didapat dengan diamond.');
+        }
         if ($user->carts()->where('course_id', $course->id)->exists()) {
             return back()->with('info', 'Kursus ini sudah ada di keranjang Anda.');
         }

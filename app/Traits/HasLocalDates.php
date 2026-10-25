@@ -90,6 +90,18 @@ trait HasLocalDates
     }
 
     /**
+     * Accessor untuk model CertificateTemplate (waktu versi diaktifkan).
+     */
+    public function getActivatedAtAttribute($value): ?Carbon
+    {
+        if (is_null($value)) {
+            return null;
+        }
+
+        return Carbon::parse($value)->tz($this->getLocalTimezone());
+    }
+
+    /**
      * Accessor untuk model Coupon (mulai berlaku).
      */
     public function getStartsAtAttribute($value): ?Carbon

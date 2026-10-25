@@ -7,6 +7,8 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Module;
 use App\Models\PointHistory;
+use App\Services\BadgeService;
+use App\Services\LessonAccess;
 use App\Services\PointService;
 use App\Services\StudentWriteLock;
 use Carbon\Carbon;
@@ -18,6 +20,8 @@ use Illuminate\Support\Facades\Log;
 
 class CourseController extends Controller
 {
+    private const MODULE_LOCKED_MESSAGE = 'Modul ini masih terkunci. Kumpulkan poin yang dibutuhkan untuk membukanya.';
+
     /**
      * Menampilkan halaman detail kursus, baik untuk siswa maupun pratinjau.
      */
@@ -26,13 +30,15 @@ class CourseController extends Controller
         $user = Auth::user();
         $is_preview = false;
 
-        $courseUserPivot = $user->coursePoints()->where('course_id', $course->id)->first();
-        $currentPointEarned = $courseUserPivot ? $courseUserPivot->pivot->points_earned : 0;
+        $currentPointEarned = 0;
+        if ($user) {
+            $courseUserPivot = $user->coursePoints()->where('course_id', $course->id)->first();
+            $currentPointEarned = $courseUserPivot ? $courseUserPivot->pivot->points_earned : 0;
+        }
 
-        if ($user && $request->query('preview') === 'true') {
-            if ($user->hasAnyRole(['admin', 'superadmin', 'instructor']) || $user->id === $course->instructor_id) {
-                $is_preview = true;
-            }
+        // Pratinjau hanya untuk pemilik kursus atau admin, bukan semua instruktur
+        if ($request->query('preview') === 'true' && LessonAccess::isManager($user, $course)) {
+            $is_preview = true;
         }
 
         if (! $is_preview && $course->status !== 'published') {
@@ -113,24 +119,17 @@ class CourseController extends Controller
         $lesson->load('lessonable', 'module.course.instructor');
         $user = Auth::user();
 
-        $canAccess = false;
-        if ($user) {
-            if ($user->hasAnyRole(['admin', 'superadmin', 'instructor']) || ($user->hasRole('instructor') && $lesson->module->course->instructor_id === $user->id) || $user->enrollments()->where('course_id', $lesson->module->course->id)->exists()) {
-                $canAccess = true;
-            }
-        }
-
-        if (! $canAccess) {
+        if (! LessonAccess::canViewCourse($user, $lesson->module->course)) {
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
         }
 
+        // Pratinjau hanya berlaku untuk pemilik kursus atau admin
+        $isPreview = $request->query('preview') === 'true' && LessonAccess::isManager($user, $lesson->module->course);
+
         // --- LOGIKA KUNCI MODUL ---
         $module = $lesson->module;
-        if ($module->points_required > 0 && ! $request->query('preview')) {
-            $courseUserPivot = $user->coursePoints()->where('course_id', $module->course_id)->first();
-            $userPoints = $courseUserPivot->pivot->points_earned ?? 0;
-
-            if ($userPoints < $module->points_required) {
+        if ($module->points_required > 0 && ! $isPreview) {
+            if (! LessonAccess::isModuleUnlocked($user, $module)) {
                 $htmlContent = view('student.courses.partials._locked_content', ['module' => $module])->render();
 
                 return response()->json([
@@ -151,7 +150,7 @@ class CourseController extends Controller
             ->get();
 
         $lessonType = strtolower(class_basename($lesson->lessonable_type));
-        $is_preview_for_view = $request->query('preview') === 'true';
+        $is_preview_for_view = $isPreview;
 
         // Variabel untuk data tambahan
         $data = [
@@ -243,33 +242,27 @@ class CourseController extends Controller
         ]);
     }
 
-    private function canAccessCourse($user, $course): bool
-    {
-        if (! $user) {
-            return false;
-        }
-
-        return $user->enrollments()->where('courses.id', $course->id)->exists()
-            || $course->instructor_id === $user->id
-            || $user->hasAnyRole(['admin', 'superadmin']);
-    }
-
     /**
      * Menandai sebuah pelajaran sebagai selesai.
      */
     public function markAsComplete(Request $request, Lesson $lesson)
     {
         $user = Auth::user();
-        $is_enrolled = $user->enrollments()->where('course_id', $lesson->module->course_id)->exists();
 
-        if (! $is_enrolled) {
+        if (! LessonAccess::isEnrolled($user, $lesson->module->course)) {
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
         }
 
-        // Prevent manual completion for types that auto-complete
+        if (! LessonAccess::isModuleUnlocked($user, $lesson->module)) {
+            return response()->json(['success' => false, 'message' => self::MODULE_LOCKED_MESSAGE], 403);
+        }
+
+        // Hanya jenis materi yang memang ditandai manual. Kuis, tugas, polling, dan wordcloud selesai
+        // otomatis lewat aktivitasnya sendiri, supaya tidak bisa dilewati untuk sertifikat dan diamond.
         $lessonType = strtolower(class_basename($lesson->lessonable_type));
-        if (in_array($lessonType, ['lessonpolling', 'lessonwordcloud'])) {
-            return response()->json(['success' => false, 'message' => 'Pelajaran ini akan otomatis ditandai selesai setelah Anda berpartisipasi.'], 403);
+        $manualTypes = ['lessonarticle', 'lessonvideo', 'lessondocument', 'lessonlinkcollection', 'lessonpoint'];
+        if (! in_array($lessonType, $manualTypes, true)) {
+            return response()->json(['success' => false, 'message' => 'Pelajaran ini otomatis ditandai selesai setelah Anda menyelesaikan aktivitasnya.'], 403);
         }
 
         // Dikunci per siswa agar klik ganda tidak memberi poin dua kali
@@ -303,6 +296,9 @@ class CourseController extends Controller
                     lesson: $lesson,
                     description_meta: $lesson->title
                 );
+            } else {
+                // Jenis materi tanpa poin (kumpulan tautan, sesi poin) tetap menambah hitungan pelajaran selesai
+                BadgeService::queueFor($user);
             }
         });
 
@@ -377,7 +373,7 @@ class CourseController extends Controller
     public function getLeaderboard(Course $course)
     {
         $user = Auth::user();
-        if (! $this->canAccessCourse($user, $course)) {
+        if (! LessonAccess::canViewCourse($user, $course)) {
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
         }
 
@@ -425,7 +421,7 @@ class CourseController extends Controller
     public function getModuleLeaderboard(Module $module)
     {
         $user = Auth::user();
-        if (! $this->canAccessCourse($user, $module->course)) {
+        if (! LessonAccess::canViewCourse($user, $module->course)) {
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
         }
 
@@ -454,8 +450,11 @@ class CourseController extends Controller
     public function submitPolling(Request $request, Lesson $lesson)
     {
         $user = Auth::user();
-        if (! $this->canAccessCourse($user, $lesson->module->course)) {
+        if (! LessonAccess::isEnrolled($user, $lesson->module->course)) {
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+        }
+        if (! LessonAccess::isModuleUnlocked($user, $lesson->module)) {
+            return response()->json(['success' => false, 'message' => self::MODULE_LOCKED_MESSAGE], 403);
         }
 
         $request->validate([
@@ -535,7 +534,7 @@ class CourseController extends Controller
     public function ajaxPollingResults(Lesson $lesson)
     {
         $user = Auth::user();
-        if (! $this->canAccessCourse($user, $lesson->module->course)) {
+        if (! LessonAccess::canViewCourse($user, $lesson->module->course)) {
             if (request()->expectsJson()) {
                 return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
             }
@@ -557,8 +556,11 @@ class CourseController extends Controller
     public function submitWordcloud(Request $request, Lesson $lesson)
     {
         $user = Auth::user();
-        if (! $this->canAccessCourse($user, $lesson->module->course)) {
+        if (! LessonAccess::isEnrolled($user, $lesson->module->course)) {
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+        }
+        if (! LessonAccess::isModuleUnlocked($user, $lesson->module)) {
+            return response()->json(['success' => false, 'message' => self::MODULE_LOCKED_MESSAGE], 403);
         }
 
         $request->validate([
@@ -639,7 +641,7 @@ class CourseController extends Controller
     public function ajaxWordcloudResults(Lesson $lesson)
     {
         $user = Auth::user();
-        if (! $this->canAccessCourse($user, $lesson->module->course)) {
+        if (! LessonAccess::canViewCourse($user, $lesson->module->course)) {
             if (request()->expectsJson()) {
                 return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
             }

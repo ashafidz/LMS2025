@@ -51,6 +51,16 @@
                                         </div>
                                     @endif
 
+                                    @if(!$is_preview && $attempt->failedBecauseLate())
+                                        <div class="alert alert-warning mt-3 mb-0">
+                                            <i class="fa fa-clock-o"></i>
+                                            <strong>Waktu pengerjaan sudah habis.</strong> Jawaban Anda terkirim setelah batas waktu kuis.
+                                            @if($attempt->scaled_score !== null && $attempt->scaled_score >= $attempt->quiz->pass_mark)
+                                                Karena itu kuis ini dinyatakan tidak lulus walaupun nilainya mencukupi.
+                                            @endif
+                                        </div>
+                                    @endif
+
                                     {{-- <h4>Skor Anda: <strong>{{ rtrim(rtrim(number_format($attempt->score, 2, ',', '.'), '0'), ',') }}</strong></h4> --}}
                                     
                                     <!-- Informasi Nilai Baru -->
