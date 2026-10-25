@@ -2,7 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.5.0] - Unreleased
+## [1.5.0] - 2026-10-25
+
+### Security
+
+- **Kursus Diamond dan Draft Tidak Bisa Didapat Gratis**: Kursus yang belum terbit, kursus berbayar diamond, dan kursus yang sudah dihapus tidak lagi bisa dimasukkan ke keranjang atau di-checkout. Item seperti itu otomatis dikeluarkan dari keranjang dengan pesan jelas, dan pembelian dengan diamond hanya berlaku untuk kursus yang sudah terbit.
+- **Kunci Modul Tidak Bisa Dilewati**: Menambah `?preview` di alamat halaman tidak lagi membuka modul yang terkunci poin. Tandai selesai, kuis, tugas, polling, word cloud, dan diskusi juga menghormati kunci modul.
+- **Akses Kursus Instruktur Lain**: Instruktur hanya bisa melihat dan mempratinjau kursusnya sendiri, tidak lagi semua kursus.
+- **Sertifikat dan Diamond**: Lesson kuis dan tugas tidak bisa lagi ditandai selesai manual. Kuis selesai hanya jika lulus, tugas hanya lewat pengumpulan tugas, sehingga sertifikat dan konversi diamond tidak bisa didapat tanpa menyelesaikannya.
+- **Ulasan Kursus**: Ulasan kursus dan instruktur hanya bisa dikirim oleh siswa yang terdaftar di kursus tersebut.
+- **Screenshot Kamera Kuis**: Screenshot bukti pelanggaran divalidasi (hanya gambar, maksimal 1 MB) dan pengiriman log pelanggaran dibatasi 30 kali per menit.
+- **Deploy**: Folder internal (tasks, docs, konfigurasi AI, scripts) tidak lagi dikirim ke server, kode maintenance dipindah ke GitHub secret `MAINTENANCE_SECRET`, CI memakai Node 22 dan menjalankan `composer audit`.
+
+- **Batas Waktu Kuis Ditegakkan Server**: Submit setelah batas waktu (toleransi 120 detik) dinyatakan tidak lulus kecuali kuis mengizinkan jawaban terlambat. Jadwal "tersedia dari/sampai" kini juga dicek saat memulai kuis. Status "dikeluarkan karena pelanggaran" dihitung dari log server, tidak lagi dari isian browser.
+- **File Privat**: Dokumen lesson, file tugas siswa, dan screenshot pelanggaran kuis kini disimpan privat dan hanya bisa dibuka lewat aplikasi oleh yang berhak (siswa terdaftar, pemilik kursus, admin). Perintah `php artisan files:move-private` memindahkan file lama. Video lesson tetap publik.
+- **Penyaringan HTML**: Isi artikel dan deskripsi kursus dibersihkan dari script dan atribut berbahaya saat disimpan dan saat ditampilkan.
+- **Form Kontak**: Perlindungan spam reCAPTCHA kini benar-benar aktif di production (sebelumnya kunci dibaca dengan `env()` yang kosong setelah `config:cache`, sehingga pemeriksaan terlewati). Pengirim tidak bisa lagi menandai pesannya sendiri sebagai sudah dibaca/dibalas, isi pesan dibatasi 5000 karakter, Google yang tidak bisa dihubungi tidak lagi menyebabkan error, dan pengunjung melihat pesan error singkat (bukan seluruh halaman). Tambahkan `RECAPTCHA_SITE_KEY` dan `RECAPTCHA_SECRET_KEY` di `.env` production bila belum ada.
+- **Dependency**: Seluruh dependency PHP dan Node diperbarui sehingga `composer audit` dan `npm audit` bersih (Laravel 12.70, Fortify 1.41, dompdf, symfony, vite, dll).
 
 ### Added
 
@@ -23,35 +39,15 @@ All notable changes to this project will be documented in this file.
 
 - **Luluskan Kuis yang Terlambat**: Di halaman detail monitoring kuis, instruktur kini bisa meluluskan percobaan yang gagal hanya karena dikirim terlambat (misalnya internet siswa putus), dengan alasan wajib diisi, bila nilainya mencapai batas lulus. Siswa mendapat tanda selesai dan poin kuis seperti lulus biasa; siapa, kapan, dan alasannya tercatat. Status terlambat dicatat saat siswa mengirim kuis, sehingga mengubah batas waktu kuis sesudahnya tidak mengubah hasil. Migrasi baru: kolom `failed_by_deadline` dan `late_override_*` di `quiz_attempts`.
 
+- Perintah `php artisan lms:audit-quiz-completions`: laporan (hanya baca) lesson kuis yang ditandai selesai tanpa attempt lulus.
+- Perintah `php artisan files:move-private [--dry-run]`.
+
 ### Changed
 
 - Badge "Lulus 10 Kuis" yang sudah ada dipindahkan otomatis ke sistem aturan baru (pemilik lama tetap memilikinya). Kuis yang sama yang dilulusi berulang kali kini dihitung satu kali.
 - Syarat badge "nilai kuis sempurna" menghitung skor revisi instruktur terhadap skor maksimum kuis (skor revisi adalah skor mentah, bukan 0-100).
 - Ikon badge menerima PNG, JPG, atau WEBP maksimal 1 MB. SVG tidak lagi diterima karena bisa memuat script.
 - Unduhan sertifikat siswa memakai template aktif; tanpa template aktif tampilannya sama seperti sebelumnya. PDF lama sertifikat yang sama dihapus saat desain berganti.
-
-## [1.4.1] - Unreleased
-
-### Security
-
-- **Kursus Diamond dan Draft Tidak Bisa Didapat Gratis**: Kursus yang belum terbit, kursus berbayar diamond, dan kursus yang sudah dihapus tidak lagi bisa dimasukkan ke keranjang atau di-checkout. Item seperti itu otomatis dikeluarkan dari keranjang dengan pesan jelas, dan pembelian dengan diamond hanya berlaku untuk kursus yang sudah terbit.
-- **Kunci Modul Tidak Bisa Dilewati**: Menambah `?preview` di alamat halaman tidak lagi membuka modul yang terkunci poin. Tandai selesai, kuis, tugas, polling, word cloud, dan diskusi juga menghormati kunci modul.
-- **Akses Kursus Instruktur Lain**: Instruktur hanya bisa melihat dan mempratinjau kursusnya sendiri, tidak lagi semua kursus.
-- **Sertifikat dan Diamond**: Lesson kuis dan tugas tidak bisa lagi ditandai selesai manual. Kuis selesai hanya jika lulus, tugas hanya lewat pengumpulan tugas, sehingga sertifikat dan konversi diamond tidak bisa didapat tanpa menyelesaikannya.
-- **Ulasan Kursus**: Ulasan kursus dan instruktur hanya bisa dikirim oleh siswa yang terdaftar di kursus tersebut.
-- **Screenshot Kamera Kuis**: Screenshot bukti pelanggaran divalidasi (hanya gambar, maksimal 1 MB) dan pengiriman log pelanggaran dibatasi 30 kali per menit.
-- **Deploy**: Folder internal (tasks, docs, konfigurasi AI, scripts) tidak lagi dikirim ke server, kode maintenance dipindah ke GitHub secret `MAINTENANCE_SECRET`, CI memakai Node 22 dan menjalankan `composer audit`.
-
-- **Batas Waktu Kuis Ditegakkan Server**: Submit setelah batas waktu (toleransi 120 detik) dinyatakan tidak lulus kecuali kuis mengizinkan jawaban terlambat. Jadwal "tersedia dari/sampai" kini juga dicek saat memulai kuis. Status "dikeluarkan karena pelanggaran" dihitung dari log server, tidak lagi dari isian browser.
-- **File Privat**: Dokumen lesson, file tugas siswa, dan screenshot pelanggaran kuis kini disimpan privat dan hanya bisa dibuka lewat aplikasi oleh yang berhak (siswa terdaftar, pemilik kursus, admin). Perintah `php artisan files:move-private` memindahkan file lama. Video lesson tetap publik.
-- **Penyaringan HTML**: Isi artikel dan deskripsi kursus dibersihkan dari script dan atribut berbahaya saat disimpan dan saat ditampilkan.
-- **Form Kontak**: Perlindungan spam reCAPTCHA kini benar-benar aktif di production (sebelumnya kunci dibaca dengan `env()` yang kosong setelah `config:cache`, sehingga pemeriksaan terlewati). Pengirim tidak bisa lagi menandai pesannya sendiri sebagai sudah dibaca/dibalas, isi pesan dibatasi 5000 karakter, Google yang tidak bisa dihubungi tidak lagi menyebabkan error, dan pengunjung melihat pesan error singkat (bukan seluruh halaman). Tambahkan `RECAPTCHA_SITE_KEY` dan `RECAPTCHA_SECRET_KEY` di `.env` production bila belum ada.
-- **Dependency**: Seluruh dependency PHP dan Node diperbarui sehingga `composer audit` dan `npm audit` bersih (Laravel 12.70, Fortify 1.41, dompdf, symfony, vite, dll).
-
-### Added
-
-- Perintah `php artisan lms:audit-quiz-completions`: laporan (hanya baca) lesson kuis yang ditandai selesai tanpa attempt lulus.
-- Perintah `php artisan files:move-private [--dry-run]`.
 
 ### Fixed
 
