@@ -98,6 +98,10 @@ Route::get('/contact', function () {
 Route::post('/contact', [\App\Http\Controllers\ContactMessageController::class, 'store'])
     ->middleware('throttle:5,1')
     ->name('contact.store');
+// Cek keaslian sertifikat (publik, dibatasi agar kode tidak bisa ditebak beruntun)
+Route::get('/verifikasi-sertifikat', [\App\Http\Controllers\CertificateVerificationController::class, 'show'])
+    ->middleware('throttle:30,1,certificate-verify')
+    ->name('certificates.verify');
 Route::get('/faqs', function () {
     return view('faq');
 })->name('faqs');

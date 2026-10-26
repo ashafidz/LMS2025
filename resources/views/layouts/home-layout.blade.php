@@ -167,6 +167,7 @@
                     <ul>
                         <li><a href="{{ url('/about/#features') }}">Fitur Unggulan</a></li>
                         <li><a href="{{ url('/#testimonials') }}">Testimoni Peserta</a></li>
+                        <li><a href="{{ route('certificates.verify') }}">Cek Keaslian Sertifikat</a></li>
                     </ul>
                 </div>
 
