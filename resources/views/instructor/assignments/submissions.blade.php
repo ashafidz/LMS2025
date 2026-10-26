@@ -141,26 +141,27 @@
                         <div class="col-md-10">
                             <h6 class="font-weight-bold">Pratinjau File</h6>
                             @if(Str::endsWith($submission->file_path, '.pdf'))
-                                {{-- <div class="embed-responsive embed-responsive-4by3" style="border: 1px solid #ddd;">
-                                    <embed src="{{ route('files.submission', $submission) }}" type="application/pdf" width="100%" height="800px" />
-                                </div> --}}
-<div class="pdf-viewer-container">
-    <iframe src="{{ route('files.submission', $submission) }}" 
-            width="100%" 
-            height="100%" 
-            frameborder="0"
-            style="display: block;">
-        This browser does not support PDFs. Please download the PDF to view it.
-    </iframe>
-</div>
-
+                                <div class="pdf-viewer-container position-relative">
+                                    <div class="pdf-loading-indicator text-center p-4 text-muted" style="position: absolute; top: 40%; left: 0; right: 0; display: none;">
+                                        <i class="fa fa-spinner fa-spin fa-2x"></i>
+                                        <p class="mt-2 mb-0">Memuat pratinjau dokumen...</p>
+                                    </div>
+                                    <iframe data-src="{{ route('files.submission', $submission) }}" 
+                                            src="about:blank" 
+                                            width="100%" 
+                                            height="100%" 
+                                            frameborder="0"
+                                            style="display: block; position: relative; z-index: 1;">
+                                        This browser does not support PDFs. Silakan unduh file untuk melihatnya.
+                                    </iframe>
+                                </div>
                             @else
                                 <div class="text-center p-5 bg-light">
                                     <i class="fa fa-file-zip-o fa-3x"></i>
                                     <p class="mt-2">Pratinjau tidak tersedia untuk file ZIP.</p>
                                 </div>
                             @endif
-                            <a href="{{ route('files.submission', $submission) }}" class="btn btn-secondary btn-block mt-3" download>
+                            <a href="{{ route('files.submission', ['submission' => $submission, 'download' => 1]) }}" class="btn btn-secondary btn-block mt-3">
                                 <i class="fa fa-download"></i> Unduh File Tugas
                             </a>
                         </div>
@@ -330,6 +331,52 @@ document.addEventListener('DOMContentLoaded', function () {
         if (m.parentElement !== document.body) {
             document.body.appendChild(m);
         }
+    });
+
+    // Lazy load PDF iframe hanya saat modal dibuka, dan bersihkan saat ditutup untuk menghemat resource
+    function loadPdfIframe(modal) {
+        if (!modal) return;
+        const iframe = modal.querySelector('iframe[data-src]');
+        const loader = modal.querySelector('.pdf-loading-indicator');
+        if (iframe && (!iframe.getAttribute('src') || iframe.getAttribute('src') === 'about:blank')) {
+            if (loader) {
+                loader.style.display = 'block';
+            }
+            iframe.onload = function () {
+                if (loader && iframe.getAttribute('src') !== 'about:blank') {
+                    loader.style.display = 'none';
+                }
+            };
+            iframe.src = iframe.getAttribute('data-src');
+        }
+    }
+
+    function unloadPdfIframe(modal) {
+        if (!modal) return;
+        const iframe = modal.querySelector('iframe[data-src]');
+        const loader = modal.querySelector('.pdf-loading-indicator');
+        if (iframe) {
+            iframe.src = 'about:blank';
+            if (loader) {
+                loader.style.display = 'none';
+            }
+        }
+    }
+
+    if (typeof jQuery !== 'undefined') {
+        jQuery(document).on('show.bs.modal', '.modal', function () {
+            loadPdfIframe(this);
+        });
+        jQuery(document).on('hidden.bs.modal', '.modal', function () {
+            unloadPdfIframe(this);
+        });
+    }
+
+    document.addEventListener('show.bs.modal', function (event) {
+        loadPdfIframe(event.target);
+    });
+    document.addEventListener('hidden.bs.modal', function (event) {
+        unloadPdfIframe(event.target);
     });
 
     ['submitted', 'passed'].forEach(function (tabId) {
