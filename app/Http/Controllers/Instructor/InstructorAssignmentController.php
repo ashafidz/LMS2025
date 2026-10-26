@@ -40,7 +40,7 @@ class InstructorAssignmentController extends Controller
 
         // 2. Ambil semua pengumpulan untuk tugas ini, diindeks berdasarkan user_id
         $submissions = $assignment->submissions()
-            ->with(['user', 'user.studentProfile'])
+            ->with(['assignment', 'user', 'user.studentProfile'])
             ->get()
             ->keyBy('user_id');
 

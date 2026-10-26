@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.2] - 2026-10-26
+
+### Fixed
+
+- **Pratinjau Pengumpulan Tugas**: Pratinjau PDF tugas siswa pada halaman instruktur kini dimuat secara bertahap (lazy load) saat modal dibuka, bukan serentak saat halaman pertama kali dibuka, untuk mencegah lonjakan koneksi dan error 508 (Resource Limit Is Reached) pada hosting server.
+- **Optimasi Query Pengumpulan**: Eager loading relasi assignment pada daftar pengumpulan tugas untuk mengeliminasi query N+1 saat mengecek status keterlambatan tugas.
+
 ## [1.5.1] - 2026-10-25
 
 ### Added
