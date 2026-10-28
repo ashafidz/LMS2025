@@ -17,8 +17,8 @@
 @endphp
 
 <div class="card mb-4 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
-    <div class="card-header text-white" style="background: linear-gradient(135deg, #6f42c1, #007bff); padding: 20px 25px;">
-        <h4 class="mb-0 text-white font-weight-bold" style="font-family: 'Inter', sans-serif;">
+    <div class="card-header text-white" style="background: linear-gradient(135deg, var(--rs-primary), var(--rs-accent)); padding: 20px 25px;">
+        <h4 class="mb-0 text-white font-weight-bold">
             <i class="bi bi-cloud-fill mr-2"></i> {{ $wordcloud->question }}
         </h4>
     </div>

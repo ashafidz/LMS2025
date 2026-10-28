@@ -1,4 +1,4 @@
-# ADR-002: Remove the BootstrapMade template from public, shop, account and error pages
+# ADR-004: Remove the BootstrapMade template from public, shop, account and error pages
 
 - **Status**: Accepted
 - **Date**: 2026-10-17
@@ -8,7 +8,7 @@
 
 ## Context and Problem Statement
 The BootstrapMade template license requires a "Designed by BootstrapMade" credit for as long as its files are used.
-After ADR-001 the public pages already had their own look ("Rak Buku"), but every page still loaded the template
+After ADR-003 the public pages already had their own look ("Rak Buku"), but every page still loaded the template
 `main.css`, `validate.js`, Bootstrap CSS/JS and template images, so the credit had to stay. Cart, checkout, error pages
 and the sign-in pages still used Bootstrap markup or the Guru Able admin template. The Guru Able template is now only
 needed on the dashboards.

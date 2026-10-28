@@ -56,7 +56,9 @@
 
                     <p class="rs-mt-4"><a class="rs-link" href="{{ route('contact') }}">Hubungi kami</a></p>
                 </div>
-                <div class="rs-plate" aria-hidden="true"><i class="bi bi-book"></i></div>
+                <div>
+                    <img src="{{ asset('images/tentang/beranda-tentang.jpg') }}" alt="Seorang peserta berhijab belajar di laptop dan mencatat di meja kayu, dengan rak buku dan sertifikat di dinding" width="1200" height="670" loading="lazy">
+                </div>
             </div>
         </div>
     </section><!-- /About Section -->
@@ -105,6 +107,17 @@
         </div>
     </section><!-- /Services Section -->
 
+    <!-- About CTA Section -->
+    <section class="rs-section">
+        <div class="rs-wrap">
+            <div class="rs-cta">
+                <h2>Kenali Lebih Dekat {{ $siteSettings->site_name }}</h2>
+                <p>Pelajari bagaimana kami membantu pelajar dan profesional meningkatkan keterampilan melalui kursus berkualitas dan mentor berpengalaman.</p>
+                <a class="rs-btn rs-btn--light" href="{{ route('about') }}">Tentang Kami</a>
+            </div>
+        </div>
+    </section><!-- /About CTA Section -->
+
     <!-- Pricing Section -->
     <section id="pricing" class="rs-section">
         <div class="rs-wrap">
@@ -136,8 +149,8 @@
     <section class="rs-band">
         <div class="rs-wrap rs-band__inner">
             <div>
-                <h2>Kenali Lebih Dekat {{ $siteSettings->site_name }}</h2>
-                <p>Pelajari bagaimana kami membantu ribuan pelajar dan profesional meningkatkan keterampilan melalui kursus berkualitas dan mentor berpengalaman.</p>
+                <h2>Cari Kursus Lainnya?</h2>
+                <p>Jelajahi berbagai pilihan kursus lainnya yang sesuai dengan minat dan kebutuhan belajarmu. Tingkatkan keterampilan dan kariermu sekarang.</p>
             </div>
             <a class="rs-btn rs-btn--light" href="{{ route('courses') }}">Lihat Semua Kursus</a>
         </div>

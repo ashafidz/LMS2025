@@ -69,6 +69,7 @@ class InstructorAssignmentSubmissionTest extends TestCase
         $response->assertSee('data-src="'.$fileUrl.'"', false);
         $response->assertSee('src="about:blank"', false);
         $response->assertDontSee('<iframe src="'.$fileUrl.'"', false);
+        $response->assertSee('rs-doc-viewer', false);
 
         // Verification: download link includes download=1 parameter
         $downloadUrl = route('files.submission', ['submission' => $submission, 'download' => 1]);

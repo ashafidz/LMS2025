@@ -14,7 +14,7 @@
 
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bitter:wght@500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,700;0,7..72,800;1,7..72,400&display=swap" rel="stylesheet">
 
     {{-- Page content still uses Bootstrap 4 and Guru Able classes until phase D. --}}
     <link href="{{ asset('pages/waves/css/waves.min.css') }}" rel="stylesheet">
@@ -77,6 +77,20 @@
                 @elseif ($navRole)
                     @include('layouts.dashboard.nav-' . $navRole)
                 @endif
+
+                <nav class="rs-dash-group" aria-labelledby="nav-profil">
+                    <h2 id="nav-profil">Profil</h2>
+                    <ul class="rs-dash-toc">
+                        <x-dash.link :href="route('user.profile.index')" :active="['user.profile.*']">Profil saya</x-dash.link>
+                        <x-dash.link :href="route('home')">Ke halaman depan</x-dash.link>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit">Keluar</button>
+                            </form>
+                        </li>
+                    </ul>
+                </nav>
             </aside>
 
             <div class="rs-dash-main">

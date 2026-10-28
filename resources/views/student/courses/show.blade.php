@@ -27,7 +27,7 @@
 
     /* Style for the active/open module title */
     .custom-accordion .module-title.active {
-        background-color: #4680ff;
+        background-color: var(--rs-primary);
         color: #fff;
     }
     .custom-accordion .module-title.active .badge-warning {
@@ -43,6 +43,16 @@
         transition: max-height 0.3s ease-out;
         background-color: #fff;
         padding: 0 20px; /* Add padding for a cleaner look when open */
+    }
+
+    @media (min-width: 992px) {
+        #course-learning-row.is-doc-wide #course-toc-col { display: none; }
+        #course-learning-row.is-doc-wide #course-content-col { flex: 0 0 100%; max-width: 100%; }
+    }
+
+    /* The wide toggle only has an effect at >= 992px */
+    @media (max-width: 991.98px) {
+        #toggle-doc-wide { display: none !important; }
     }
 </style>
 @endpush
@@ -94,9 +104,9 @@
                             <div class="alert alert-danger">{{ session('error') }}</div>
                         @endif
 
-                        <div class="row">
+                        <div class="row" id="course-learning-row">
                             {{-- Kolom Daftar Isi (Sidebar) --}}
-                            <div class="col-lg-4 order-1 order-lg-2">
+                            <div class="col-lg-4 order-1 order-lg-2" id="course-toc-col">
                                 <div class="card">
                                     <div class="card-header d-flex justify-content-between align-items-center" data-toggle="collapse" data-target="#toc-collapse" style="cursor: pointer;">
                                         <h5 class="card-header-text mb-0">Daftar Isi Kursus</h5>
@@ -212,10 +222,13 @@
                             </div>
                             
                             {{-- Kolom Konten Pelajaran (Utama) --}}
-                            <div class="col-lg-8 order-2 order-lg-1">
+                            <div class="col-lg-8 order-2 order-lg-1" id="course-content-col">
                                 <div class="card" id="main-content-card">
-                                    <div class="card-header">
+                                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                                         <h5 id="lesson-title">Selamat Datang di Kursus!</h5>
+                                        <button type="button" class="btn btn-sm btn-outline-primary d-none" id="toggle-doc-wide" aria-pressed="false">
+                                            <i class="bi bi-arrows-angle-expand" aria-hidden="true"></i> <span>Lebarkan dokumen</span>
+                                        </button>
                                     </div>
                                     <div class="card-block" id="lesson-content" style="min-height: 500px;">
                                         <div class="text-center text-muted mt-5">
@@ -347,6 +360,26 @@
                 title: link.innerText.trim()
             }));
 
+            // --- LEBARKAN DOKUMEN (sembunyikan daftar isi di layar lebar) ---
+            const learningRow = document.getElementById('course-learning-row');
+            const docWideButton = document.getElementById('toggle-doc-wide');
+
+            function setDocWide(on) {
+                learningRow.classList.toggle('is-doc-wide', on);
+                docWideButton.setAttribute('aria-pressed', on ? 'true' : 'false');
+                docWideButton.querySelector('i').className = on ? 'bi bi-arrows-angle-contract' : 'bi bi-arrows-angle-expand';
+                docWideButton.querySelector('span').textContent = on ? 'Tampilkan daftar isi' : 'Lebarkan dokumen';
+            }
+
+            function hideDocWideButton() {
+                setDocWide(false);
+                docWideButton.classList.add('d-none');
+            }
+
+            docWideButton.addEventListener('click', function() {
+                setDocWide(!learningRow.classList.contains('is-doc-wide'));
+            });
+
             // --- FUNGSI UNTUK MEMUAT KONTEN PELAJARAN ---
             function loadLessonContent(lessonId) {
                 lessonTitleEl.innerText = 'Memuat...';
@@ -413,6 +446,12 @@
 
                             lessonContentEl.innerHTML = data.html + completeButtonHtml + navHtml + discussionHtml;
 
+                            if (lessonContentEl.querySelector('[data-doc-viewer]')) {
+                                docWideButton.classList.remove('d-none');
+                            } else {
+                                hideDocWideButton();
+                            }
+
                             // Pasang event listener untuk navigasi baru
                             lessonContentEl.querySelectorAll('.load-lesson-nav').forEach(btn => {
                                 btn.addEventListener('click', function(e) {
@@ -424,12 +463,14 @@
                         } else {
                             lessonTitleEl.innerText = 'Gagal Memuat';
                             lessonContentEl.innerHTML = `<p class="text-danger">${data.message || 'Terjadi kesalahan.'}</p>`;
+                            hideDocWideButton();
                         }
                     })
                     .catch(error => {
                         console.error('Error fetching lesson content:', error);
                         lessonTitleEl.innerText = 'Gagal Memuat';
                         lessonContentEl.innerHTML = '<p class="text-danger">Terjadi kesalahan jaringan.</p>';
+                        hideDocWideButton();
                     });
             }
 

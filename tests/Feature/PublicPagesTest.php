@@ -36,6 +36,48 @@ class PublicPagesTest extends TestCase
         }
     }
 
+    public function test_public_layout_loads_literata_serif_font_only(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('family=Literata', false)
+            ->assertDontSee('Atkinson', false);
+    }
+
+    public function test_service_detail_uses_the_new_illustrations(): void
+    {
+        $page = $this->get('/detail-service')->assertOk();
+
+        foreach (['pelatihan-interaktif', 'kelas-beragam', 'materi-terbaru', 'evaluasi-sertifikat'] as $name) {
+            $page->assertSee('images/layanan/'.$name.'.jpg', false);
+            $this->assertFileExists(public_path('images/layanan/'.$name.'.jpg'));
+        }
+
+        $page->assertDontSee('images/layanan1.jpg', false);
+    }
+
+    public function test_home_shows_about_and_catalog_calls_to_action(): void
+    {
+        $this->get('/')->assertOk()
+            ->assertSee('class="rs-cta"', false)
+            ->assertSee('href="'.route('about').'"', false)
+            ->assertSeeInOrder(['Kenali Lebih Dekat', 'Tentang Kami', 'Kursus yang Sering Dibeli', 'Cari Kursus Lainnya?', 'Lihat Semua Kursus']);
+    }
+
+    public function test_home_and_about_use_the_new_illustrations(): void
+    {
+        $this->get('/')->assertOk()->assertSee('images/tentang/beranda-tentang.jpg', false);
+
+        $about = $this->get(route('about'))->assertOk();
+        foreach (['akses-kapan-saja', 'instruktur', 'karier'] as $name) {
+            $about->assertSee('images/tentang/'.$name.'.jpg', false);
+        }
+
+        foreach (['beranda-tentang', 'akses-kapan-saja', 'instruktur', 'karier'] as $name) {
+            $this->assertFileExists(public_path('images/tentang/'.$name.'.jpg'));
+        }
+    }
+
     public function test_home_without_data_shows_honest_empty_states(): void
     {
         $this->get('/')

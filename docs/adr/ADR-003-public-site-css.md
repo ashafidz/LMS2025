@@ -1,6 +1,6 @@
-# ADR-001: Static stylesheet for the public site
+# ADR-003: Static stylesheet for the public site
 
-- **Status**: Superseded in part by ADR-002
+- **Status**: Superseded in part by ADR-004 and ADR-006
 - **Date**: 2026-10-17
 - **Deciders**: Project owner
 
@@ -39,3 +39,8 @@ re-points the template CSS variables (fonts and colors) so the out-of-scope page
 ### Negative Consequences / Trade-offs
 - Bootstrap and `main.css` stay loaded until the remaining pages are restyled; after that they can be removed.
 - The stylesheet is not purged or minified.
+
+## Update 2026-10-29
+The owner asked for no sans-serif fonts. Literata replaces Bitter and Atkinson Hyperlegible on the public pages and
+the dashboard (one `--rs-serif` token for headings and body). PDFs (certificate, invoice, recap) keep their own fonts,
+because dompdf and the certificate editor manage those.

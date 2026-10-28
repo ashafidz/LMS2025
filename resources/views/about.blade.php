@@ -30,7 +30,9 @@
                         <li><i class="bi bi-check2" aria-hidden="true"></i> <span>Cocok untuk pelajar, mahasiswa, hingga profesional.</span></li>
                     </ul>
                 </div>
-                <div class="rs-plate" aria-hidden="true"><i class="bi bi-play-btn"></i></div>
+                <div>
+                    <img src="{{ asset('images/tentang/akses-kapan-saja.jpg') }}" alt="Seorang peserta menonton video pelajaran di tablet sambil bersantai di sofa pada malam hari, dengan laptop dan ponsel di meja" width="1200" height="670" loading="lazy">
+                </div>
             </div>
 
             <div class="rs-split rs-split--flip">
@@ -47,7 +49,9 @@
                         <li><i class="bi bi-check2" aria-hidden="true"></i> <span>Forum diskusi dan komunitas pembelajar.</span></li>
                     </ul>
                 </div>
-                <div class="rs-plate" aria-hidden="true"><i class="bi bi-people"></i></div>
+                <div>
+                    <img src="{{ asset('images/tentang/instruktur.jpg') }}" alt="Seorang instruktur berbaju batik menjelaskan studi kasus di papan tulis kepada empat peserta di meja diskusi" width="1200" height="670" loading="lazy">
+                </div>
             </div>
 
             <div class="rs-split">
@@ -63,7 +67,9 @@
                         {{ $siteSettings->site_name }} mendukung kariermu sejak proses belajar hingga siap terjun ke industri.
                     </p>
                 </div>
-                <div class="rs-plate" aria-hidden="true"><i class="bi bi-briefcase"></i></div>
+                <div>
+                    <img src="{{ asset('images/tentang/karier.jpg') }}" alt="Seorang mentor karier membahas CV bersama lulusan muda, dengan papan lowongan kerja di belakang mereka" width="1200" height="670" loading="lazy">
+                </div>
             </div>
         </div>
     </section><!-- /Features Section -->

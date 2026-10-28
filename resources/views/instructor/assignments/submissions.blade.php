@@ -138,23 +138,22 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-10">
+                        <div class="col-lg-9">
                             <h6 class="font-weight-bold">Pratinjau File</h6>
                             @if(Str::endsWith($submission->file_path, '.pdf'))
-                                <div class="pdf-viewer-container position-relative">
+                                <div class="rs-doc-viewer position-relative">
                                     <div class="pdf-loading-indicator text-center p-4 text-muted" style="position: absolute; top: 40%; left: 0; right: 0; display: none;">
                                         <i class="fa fa-spinner fa-spin fa-2x"></i>
                                         <p class="mt-2 mb-0">Memuat pratinjau dokumen...</p>
                                     </div>
                                     <iframe data-src="{{ route('files.submission', $submission) }}" 
                                             src="about:blank" 
-                                            width="100%" 
-                                            height="100%" 
                                             frameborder="0"
                                             style="display: block; position: relative; z-index: 1;">
                                         This browser does not support PDFs. Silakan unduh file untuk melihatnya.
                                     </iframe>
                                 </div>
+                                <a href="{{ route('files.submission', $submission) }}" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-block mt-3">Buka di tab baru</a>
                             @else
                                 <div class="text-center p-5 bg-light">
                                     <i class="fa fa-file-zip-o fa-3x"></i>
@@ -165,7 +164,7 @@
                                 <i class="fa fa-download"></i> Unduh File Tugas
                             </a>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-lg-3">
                             <h6 class="font-weight-bold">Form Penilaian</h6>
                             {{-- Tambahkan peringatan keterlambatan di sini --}}
                             @if ($submission->is_late)
@@ -178,7 +177,7 @@
                                 @csrf
                                 <div class="form-group">
                                     <label for="grade-{{ $submission->id }}">Nilai (0-100)</label>
-                                    <input type="number" name="grade" id="grade-{{ $submission->id }}" class="form-control" style="width: 30%;" value="{{ old('grade', $submission->grade) }}" min="0" max="100" required>
+                                    <input type="number" name="grade" id="grade-{{ $submission->id }}" class="form-control" style="max-width: 140px;" value="{{ old('grade', $submission->grade) }}" min="0" max="100" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="feedback-{{ $submission->id }}">Umpan Balik (Feedback)</label>
@@ -274,35 +273,8 @@
 </div>
 
 <style>
-.pdf-viewer-container {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 100%;
-    
-    /* Desktop: Large and wide */
-    height: 85vh;
-    min-height: 600px;
-    max-height: 1200px;
-}
-
-/* Tablet (medium screens) */
-@media (max-width: 768px) {
-    .pdf-viewer-container {
-        height: 70vh;
-        min-height: 500px;
-    }
-}
-
-/* Mobile (small screens) */
-@media (max-width: 576px) {
-    .pdf-viewer-container {
-        height: 60vh;
-        min-height: 400px;
-    }
-}
-
 .modal-pdf-viewer {
-    max-width: 95%;
+    max-width: calc(100vw - 2rem);
     margin: 1rem auto;
 }
 

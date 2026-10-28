@@ -1,4 +1,4 @@
-# ADR-003: Dashboard shell "Rak Buku" for all roles
+# ADR-005: Dashboard shell "Rak Buku" for all roles
 
 - **Status**: Accepted
 - **Date**: 2026-10-17
@@ -9,7 +9,7 @@
 ## Context and Problem Statement
 All 109 dashboard views (instructor, admin, superadmin, student) extend `layouts.app-layout`, which carried the
 Guru Able frame: pcoded navbar and sidebar, page loader, Roboto font. The public site already moved to the
-"Rak Buku" direction (ADR-001, ADR-002). The dashboard frame still looked like the purchased template, and the
+"Rak Buku" direction (ADR-003, ADR-004). The dashboard frame still looked like the purchased template, and the
 content views carry their own Bootstrap 4 / Guru Able markup that cannot be rewritten in one step.
 
 ---

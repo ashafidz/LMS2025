@@ -27,7 +27,7 @@
                     </p>
                 </div>
                 <div>
-                    <img src="{{ asset('images/layanan1.jpg') }}" alt="Pelatihan Interaktif">
+                    <img src="{{ asset('images/layanan/pelatihan-interaktif.jpg') }}" alt="Seorang pengajar menjelaskan peta materi kepada tiga peserta di meja belajar yang penuh buku" width="1200" height="805" loading="lazy">
                 </div>
             </div>
 
@@ -44,7 +44,7 @@
                     </p>
                 </div>
                 <div>
-                    <img src="{{ asset('images/layanan2.jpg') }}" alt="Kelas Beragam">
+                    <img src="{{ asset('images/layanan/kelas-beragam.jpg') }}" alt="Seorang peserta belajar di laptop di depan rak buku, dengan jadwal belajar di papan" width="1200" height="805" loading="lazy">
                 </div>
             </div>
 
@@ -61,7 +61,7 @@
                     </p>
                 </div>
                 <div>
-                    <img src="{{ asset('images/layanan3.jpg') }}" alt="Materi Up-to-Date">
+                    <img src="{{ asset('images/layanan/materi-terbaru.jpg') }}" alt="Seorang peserta belajar di laptop dengan daftar bacaan dan grafik kemajuan belajar" width="1200" height="670" loading="lazy">
                 </div>
             </div>
 
@@ -78,7 +78,7 @@
                     </p>
                 </div>
                 <div>
-                    <img src="{{ asset('images/layanan5.jpg') }}" alt="Evaluasi &amp; Sertifikat">
+                    <img src="{{ asset('images/layanan/evaluasi-sertifikat.jpg') }}" alt="Sertifikat kelulusan tampil di tablet, di samping tumpukan buku dan topi wisuda" width="1200" height="746" loading="lazy">
                 </div>
             </div>
         </div>
