@@ -24,6 +24,7 @@
     <link href="{{ asset('icon/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="{{ asset('vendor/select2/select2.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/ruang-studi-dashboard.css') }}" rel="stylesheet">
     @stack('styles')
 </head>
@@ -137,6 +138,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
     <script src="{{ asset('js/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('js/jquery-ui/jquery-ui.min.js') }}"></script>
+    <script src="{{ asset('vendor/select2/select2.min.js') }}"></script>
+    <script src="{{ asset('vendor/select2/id.js') }}"></script>
     <script src="{{ asset('js/popper.js/popper.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('pages/waves/js/waves.min.js') }}"></script>
