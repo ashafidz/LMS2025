@@ -163,3 +163,191 @@ body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; c
   border: 1px solid var(--rs-line); border-radius: 2px; background: #fff; }
 .rs-doc-viewer > embed, .rs-doc-viewer > iframe { display: block; width: 100%; height: 100%; border: 0; }
 @media (max-width: 575.98px) { .rs-doc-viewer { height: 70vh; min-height: 380px; } }
+
+/* ---------- Form Checks & Checkboxes in Dashboard ---------- */
+.rs-dash .form-check:not(.form-switch) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 0 !important;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.rs-dash .form-check:not(.form-switch) .form-check-input {
+  position: static !important;
+  margin-top: 0 !important;
+  margin-left: 0 !important;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  accent-color: var(--rs-primary, #5a2a1e);
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.rs-dash .form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.rs-dash .form-check:not(.form-switch) .form-check-label {
+  margin-bottom: 0;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--rs-ink, #2b1d17);
+  user-select: none;
+}
+
+.rs-dash .form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  color: var(--rs-slate, #6b5a4e);
+}
+
+.rs-dash input[type="checkbox"]:not(.form-check-input) {
+  accent-color: var(--rs-primary, #5a2a1e);
+  cursor: pointer;
+}
+
+/* ---------- Searchable Select2 Dropdown Styling for Ruang Studi ---------- */
+.rs-dash .select2-container {
+  display: block;
+  max-width: 100%;
+  font-family: var(--rs-serif);
+}
+
+.rs-dash .select2-container--default .select2-selection--single {
+  background-color: #fff !important;
+  border: 1px solid var(--rs-line, #e6d9c6) !important;
+  border-radius: 4px !important;
+  height: 42px !important;
+  color: var(--rs-ink, #2b1d17) !important;
+  outline: none;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+}
+
+.rs-dash .select2-container--default .select2-selection--single .select2-selection__rendered {
+  background-color: transparent !important;
+  color: var(--rs-ink, #2b1d17) !important;
+  line-height: 40px !important;
+  padding-left: 14px !important;
+  padding-right: 36px !important;
+  font-size: 14px;
+}
+
+.rs-dash .select2-container--default .select2-selection--single .select2-selection__placeholder {
+  color: var(--rs-muted, #9c8b7a) !important;
+}
+
+.rs-dash .select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 40px !important;
+  right: 12px !important;
+  top: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rs-dash .select2-container--default .select2-selection--single .select2-selection__arrow b {
+  border-color: var(--rs-slate, #6b5a4e) transparent transparent transparent !important;
+  border-width: 5px 4px 0 4px !important;
+}
+
+.rs-dash .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+  border-color: transparent transparent var(--rs-slate, #6b5a4e) transparent !important;
+  border-width: 0 4px 5px 4px !important;
+}
+
+.rs-dash .select2-container--default.select2-container--focus .select2-selection--single,
+.rs-dash .select2-container--default.select2-container--open .select2-selection--single {
+  border-color: var(--rs-accent, #a8492a) !important;
+  box-shadow: 0 0 0 1px var(--rs-accent, #a8492a) !important;
+}
+
+/* Dropdown Popup */
+.select2-dropdown {
+  background-color: #fff !important;
+  border: 1px solid var(--rs-line, #e6d9c6) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 6px 16px rgba(43, 29, 23, 0.12) !important;
+  font-family: var(--rs-serif);
+  z-index: 9999;
+}
+
+/* Search Box inside Dropdown */
+.select2-container--default .select2-search--dropdown {
+  padding: 8px 10px;
+  background-color: #fdfaf6;
+  border-bottom: 1px solid var(--rs-line, #e6d9c6);
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+  border: 1px solid var(--rs-line, #e6d9c6) !important;
+  border-radius: 4px !important;
+  padding: 6px 10px !important;
+  font-family: var(--rs-serif);
+  font-size: 13px;
+  color: var(--rs-ink, #2b1d17);
+  background-color: #fff;
+  outline: none;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field:focus {
+  border-color: var(--rs-accent, #a8492a) !important;
+  box-shadow: 0 0 0 1px var(--rs-accent, #a8492a) !important;
+}
+
+/* Option List */
+.select2-results__options {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.select2-container--default .select2-results__option {
+  padding: 8px 14px;
+  font-size: 14px;
+  color: var(--rs-ink, #2b1d17);
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+  background-color: var(--rs-select, #f3e6dc) !important;
+  color: var(--rs-ink, #2b1d17) !important;
+}
+
+.select2-container--default .select2-results__option[aria-selected="true"] {
+  background-color: var(--rs-paper, #f7f1e8);
+  font-weight: 700;
+  color: var(--rs-primary, #5a2a1e);
+}
+
+.select2-container--default .select2-results__group {
+  padding: 8px 14px 4px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--rs-primary, #5a2a1e);
+  background-color: #faf7f2;
+  border-top: 1px solid var(--rs-line, #e6d9c6);
+  border-bottom: 1px solid var(--rs-line, #e6d9c6);
+}
+
+/* Multiple Selects if needed */
+.select2-container--default .select2-selection--multiple {
+  background-color: #fff !important;
+  border: 1px solid var(--rs-line, #e6d9c6) !important;
+  border-radius: 4px !important;
+  min-height: 42px !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+  background-color: var(--rs-paper, #f7f1e8) !important;
+  border: 1px solid var(--rs-line, #e6d9c6) !important;
+  color: var(--rs-ink, #2b1d17) !important;
+  padding: 4px 10px !important;
+  font-size: 13px;
+  border-radius: 3px;
+}

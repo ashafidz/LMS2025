@@ -147,14 +147,14 @@
                                         </div>
                                         <div class="form-group" id="group-date-format">
                                             <label for="ctl-date-format">Format tanggal</label>
-                                            <select class="form-control" id="ctl-date-format">
+                                            <select class="form-control no-select2" id="ctl-date-format">
                                                 <option value="long">24 Oktober 2026</option>
                                                 <option value="short">24/10/2026</option>
                                             </select>
                                         </div>
                                         <div class="form-group">
                                             <label for="ctl-font">Jenis huruf</label>
-                                            <select class="form-control" id="ctl-font">
+                                            <select class="form-control no-select2" id="ctl-font">
                                                 @foreach ($fonts as $fontKey => $fontLabel)
                                                     <option value="{{ $fontKey }}">{{ $fontLabel }}</option>
                                                 @endforeach
