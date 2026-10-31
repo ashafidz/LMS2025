@@ -48,16 +48,18 @@
                                         <h5>List Student</h5>
                                         <p>List student yang terdaftar</p>
                                         <form action="{{ url()->current() }}" method="GET" class="mt-3">
-                                            <div class="input-group" style="max-width: 480px;">
-                                                <input type="text" name="search" class="form-control"
-                                                    placeholder="Cari nama, email, atau NIM/NIP/NIDN..."
-                                                    value="{{ request('search') }}">
-                                                <div class="input-group-append">
-                                                    <button class="btn btn-primary" type="submit">Cari</button>
-                                                    @if (request()->filled('search'))
-                                                        <a href="{{ url()->current() }}" class="btn btn-secondary">Reset</a>
-                                                    @endif
+                                            <div class="d-flex align-items-center" style="max-width: 480px; gap: 8px;">
+                                                <div class="input-group flex-grow-1">
+                                                    <input type="text" name="search" class="form-control"
+                                                        placeholder="Cari nama, email, atau NIM/NIP/NIDN..."
+                                                        value="{{ request('search') }}">
+                                                    <div class="input-group-append">
+                                                        <button class="btn btn-primary" type="submit">Cari</button>
+                                                    </div>
                                                 </div>
+                                                @if (request()->filled('search'))
+                                                    <a href="{{ url()->current() }}" class="btn btn-secondary" style="height: 40px; display: inline-flex; align-items: center; justify-content: center; padding: 0 16px; border-radius: 4px; font-size: 14px;">Reset</a>
+                                                @endif
                                             </div>
                                         </form>
                                         <div class="card-header-right">

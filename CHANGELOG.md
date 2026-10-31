@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.3] - 2026-10-31
+
+### Added
+
+- **Kolom Pencarian pada Dropdown (Searchable Select)**: Seluruh menu dropdown pilihan (seperti filter kursus pada bank soal, pemilihan kursus, kupon, dan kategori) kini dilengkapi kolom pencarian interaktif (Select2) berbahasa Indonesia dan diselaraskan dengan tema Ruang Studi, memudahkan pencarian dan pemilihan data pada daftar panjang.
+
+### Fixed
+
+- **Proporsi Kolom Pencarian Dasbor**: Kotak input pencarian dan tombol Cari serta Reset pada daftar siswa (dan form pencarian dasbor) kini memiliki tinggi dan perataan vertikal yang sama (40px) dan proporsional.
+- **Kontras Teks Nama pada Halaman Profil**: Teks nama pengguna dan peran pada bagian atas halaman profil kini menggunakan warna gelap yang kontras dengan latar belakang terang, memperbaiki teks putih yang sebelumnya sulit terbaca.
+- **Tampilan dan Perataan Checkbox Dasbor**: Kotak centang (checkbox) dan label di dasbor (termasuk pada editor template sertifikat) diperbaiki perataan vertikalnya, ukuran kotak diperbesar (18px), jarak diperjelas, dan menggunakan warna aksen Ruang Studi agar jelas dan mudah diklik.
+
 ## [1.6.2] - 2026-10-31
 
 ### Added

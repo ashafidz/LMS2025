@@ -4,17 +4,16 @@
     <div class="pcoded-content">
         <!-- Page-header start -->
         <div class="page-header">
-            <div class="page-block py-1">
-                <div class="bg-transparent d-inline-flex align-items-center px-4 py-3 rounded"
-                    style="background: rgba(0,0,0,0.1); backdrop-filter: blur(2px);">
+            <div class="page-block py-2">
+                <div class="d-inline-flex align-items-center">
                     <!-- Avatar -->
                     <img src="{{ Auth::user()->profile_picture_url ? asset(Auth::user()->profile_picture_url ) :  'https://placehold.co/32x32/EBF4FF/767676?text=SA' }}" alt="Avatar"
-                        class="rounded-circle mr-4" style="width: 80px; height: 80px; border: 3px solid white;">
+                        class="rounded-circle mr-3" style="width: 80px; height: 80px; border: 3px solid var(--rs-line, #e6d9c6); box-shadow: 0 2px 6px rgba(43,29,23,0.1);">
 
                     <!-- Nama & Sambutan -->
                     <div>
-                        <h4 class="text-white font-weight-bold mb-1">{{ $user->name }}</h4>
-                        <span class="text-white">Your current role is: {{ ucfirst(session('active_role')) }}</span>
+                        <h4 class="font-weight-bold mb-1" style="color: var(--rs-ink, #2b1d17);">{{ $user->name }}</h4>
+                        <span class="text-muted">Peran Anda saat ini: {{ ucfirst(session('active_role')) }}</span>
                     </div>
                 </div>
             </div>
