@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Security
+
+- Memperbarui dependensi `symfony/mime` ke versi 7.4.22 untuk menutup celah keamanan CVE-2026-45070 (injeksi header email).
+
 ### Changed
 
 - Dasbor semua peran (instruktur, admin, superadmin, siswa) memakai kerangka baru: menu daftar isi berkelompok, bar atas, serta huruf dan warna Ruang Studi. Isi halaman dasbor belum berubah.
