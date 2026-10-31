@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.1] - 2026-10-31
+
+### Fixed
+
+- **Kontras Tombol Kuning**: Seluruh tombol dan lencana kuning (btn-warning, badge-warning) kini memakai teks gelap (#212529) agar terbaca jelas dan kontras, menggantikan teks putih yang sulit terbaca.
+- **Pemberitahuan Kursus Diperbarui pada Halaman Sertifikat**: Bila instruktur menambahkan materi baru ke kursus yang sertifikatnya sudah pernah diterbitkan, kartu sertifikat siswa di halaman Sertifikat Saya menampilkan pemberitahuan bahwa kursus telah diperbarui dan menyediakan tombol Lanjutkan Kursus untuk menyelesaikan materi baru sebelum sertifikat dapat diunduh kembali. Pesan galat unduhan langsung juga diperjelas.
+
 ## [1.6.0] - 2026-10-31
 
 ### Security
@@ -35,7 +42,6 @@ All notable changes to this project will be documented in this file.
 - Waktu di halaman pembayaran berhasil kini memakai zona waktu pengguna, bukan jam UTC yang diberi label WIB.
 - Kolom alamat website di pendaftaran instruktur tidak lagi tampil sebagai opsional padahal wajib.
 - Status "tautan atur ulang kata sandi dikirim" kini terlihat di halaman lupa kata sandi (sebelumnya tersembunyi di modal).
-- Seluruh tombol dan lencana kuning (btn-warning, badge-warning) kini memakai teks gelap (#212529) agar terbaca jelas dan kontras, menggantikan teks putih.
 
 ## [1.5.2] - 2026-10-26
 

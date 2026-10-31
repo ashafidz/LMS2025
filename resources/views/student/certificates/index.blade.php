@@ -29,6 +29,16 @@
         <div class="main-body">
             <div class="page-wrapper">
                 <div class="page-body">
+                    @if (session('error'))
+                        <div class="alert alert-danger mb-4">
+                            <i class="fa fa-exclamation-circle mr-2"></i> {{ session('error') }}
+                        </div>
+                    @endif
+                    @if (session('success'))
+                        <div class="alert alert-success mb-4">
+                            <i class="fa fa-check-circle mr-2"></i> {{ session('success') }}
+                        </div>
+                    @endif
                     <div class="row">
                         @forelse ($certificates as $certificate)
                             <div class="col-sm-6 col-lg-4 mb-4">
@@ -48,9 +58,19 @@
                                                     <span title="Kode Sertifikat"><i class="fa fa-hashtag mr-1"></i> {{ $certificate->certificate_code }}</span>
                                                 </div>
                                             </div>
-                                            <a href="{{ route('student.certificate.download', $certificate->course_id) }}" class="btn btn-primary btn-sm btn-block btn-round download-cert-btn shadow-sm">
-                                                <i class="fa fa-download mr-1"></i> Unduh Sertifikat
-                                            </a>
+                                            @if ($certificate->has_incomplete_lessons ?? false)
+                                                <div class="alert alert-warning py-2 px-3 mb-2 text-left" style="font-size: 12px; line-height: 1.4;">
+                                                    <i class="fa fa-exclamation-triangle mr-1"></i>
+                                                    <strong>Kursus Diperbarui:</strong> Ada pelajaran baru yang belum selesai ({{ $certificate->completed_lessons_count }}/{{ $certificate->total_lessons_count }} selesai). Silakan selesaikan seluruh pelajaran untuk mengunduh sertifikat.
+                                                </div>
+                                                <a href="{{ route('student.courses.show', $certificate->course) }}" class="btn btn-warning btn-sm btn-block btn-round shadow-sm text-dark font-weight-bold">
+                                                    <i class="fa fa-book mr-1"></i> Lanjutkan Kursus
+                                                </a>
+                                            @else
+                                                <a href="{{ route('student.certificate.download', $certificate->course_id) }}" class="btn btn-primary btn-sm btn-block btn-round download-cert-btn shadow-sm">
+                                                    <i class="fa fa-download mr-1"></i> Unduh Sertifikat
+                                                </a>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
