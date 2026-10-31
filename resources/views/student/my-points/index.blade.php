@@ -279,6 +279,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('myLineChart');
     if (ctx) {
+        Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
         new Chart(ctx, {
             type: 'line',
             data: {

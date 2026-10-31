@@ -41,6 +41,13 @@ class CourseReviewController extends Controller
         $courseLikertQuestions = $likertQuestions->where('category', 'course');
         $instructorLikertQuestions = $likertQuestions->where('category', 'instructor');
 
+        // Tanpa pertanyaan Likert dari admin, ulasan belum bisa diisi
+        if ($courseLikertQuestions->isEmpty() && $instructorLikertQuestions->isEmpty()) {
+            $html = view('student.courses.partials._feedback_unavailable')->render();
+
+            return response()->json(['success' => true, 'html' => $html]);
+        }
+
         // Render partial view dan kirim sebagai respons
         $html = view('student.courses.partials._review_form', compact(
             'course',
@@ -62,18 +69,33 @@ class CourseReviewController extends Controller
             return response()->json(['success' => false, 'message' => 'Anda hanya bisa memberi ulasan untuk kursus yang Anda ikuti.'], 403);
         }
 
+        $questionIds = LikertQuestion::where('is_active', true)
+            ->whereIn('category', ['course', 'instructor'])
+            ->pluck('id');
+
+        if ($questionIds->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Ulasan belum bisa diisi karena pertanyaan penilaian belum disiapkan oleh admin.'], 422);
+        }
+
+        // Setiap pertanyaan Likert yang aktif wajib dijawab (1-4 sesuai opsi Likert)
+        $likertRules = ['likert_answers' => 'required|array'];
+        foreach ($questionIds as $questionId) {
+            $likertRules['likert_answers.'.$questionId] = 'required|integer|min:1|max:4';
+        }
+
         // Validasi data yang masuk
         $validated = $request->validate([
             'course_rating' => 'required|integer|min:1|max:5',
             'course_comment' => 'nullable|string',
             'instructor_rating' => 'required|integer|min:1|max:5',
             'instructor_comment' => 'nullable|string',
-            'likert_answers' => 'required|array',
-            'likert_answers.*' => 'required|integer|min:1|max:4', // 1-4 sesuai opsi Likert
+        ] + $likertRules, [
+            'likert_answers.required' => 'Jawab semua pertanyaan penilaian.',
+            'likert_answers.*.required' => 'Jawab semua pertanyaan penilaian.',
         ]);
 
         try {
-            DB::transaction(function () use ($validated, $course, $user) {
+            DB::transaction(function () use ($validated, $course, $user, $questionIds) {
                 // 1. Simpan ulasan untuk kursus
                 $course->reviews()->updateOrCreate(
                     ['user_id' => $user->id], // Kunci pencarian
@@ -93,10 +115,10 @@ class CourseReviewController extends Controller
                 );
 
                 // 3. Simpan jawaban skala Likert
-                foreach ($validated['likert_answers'] as $questionId => $answer) {
+                foreach ($questionIds as $questionId) {
                     $user->likertAnswers()->updateOrCreate(
                         ['course_id' => $course->id, 'likert_question_id' => $questionId],
-                        ['answer' => $answer]
+                        ['answer' => $validated['likert_answers'][$questionId]]
                     );
                 }
             });

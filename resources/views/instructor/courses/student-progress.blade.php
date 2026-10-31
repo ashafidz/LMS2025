@@ -30,7 +30,7 @@
                 <div class="page-body">
                     
                     {{-- Header Card --}}
-                    <div class="card mb-4 shadow-sm border-0" style="border-radius: 12px; background: linear-gradient(135deg, #1E88E5, #1565C0); color: white;">
+                    <div class="card mb-4 shadow-sm border-0" style="border-radius: 12px; background: linear-gradient(135deg, var(--rs-primary), var(--rs-primary-d)); color: white;">
                         <div class="card-block p-4 d-flex align-items-center justify-content-between flex-wrap">
                             <div class="d-flex flex-column align-items-start mb-2 mb-md-0">
                                 <h3 class="font-weight-bold mb-1"><i class="fa fa-user-circle" style="margin-right: 10px;"></i>{{ $student->name }}</h3>

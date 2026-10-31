@@ -102,6 +102,18 @@ class PrivateFileAccessTest extends TestCase
         $this->actingAs($this->makeInstructor())->get(route('files.lesson.document', $lesson))->assertForbidden();
     }
 
+    public function test_document_lesson_content_uses_the_wide_doc_viewer(): void
+    {
+        $lesson = $this->documentLesson();
+
+        $html = $this->actingAs($this->student)
+            ->getJson(route('student.lessons.content', $lesson))
+            ->assertOk()
+            ->json('html');
+
+        $this->assertStringContainsString('data-doc-viewer', $html);
+    }
+
     public function test_document_in_locked_module_is_forbidden_for_student(): void
     {
         $this->module->update(['points_required' => 100]);

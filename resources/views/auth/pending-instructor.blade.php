@@ -1,36 +1,18 @@
-@extends('layouts.home-layout')
+@extends('layouts.plain-layout')
+
+@section('title', 'Pendaftaran sedang ditinjau')
 
 @section('content')
-{{-- This wrapper uses flexbox to center the card vertically and horizontally --}}
-<div class="container d-flex justify-content-center align-items-center h-100 min-vh-100">
-
-    {{-- The card container for your message --}}
-    <div class="card shadow-sm border-0" style="max-width: 500px; width: 100%;">
-        <div class="card-body p-5 text-center">
-
-            {{-- Optional: Add an icon for visual flair --}}
-            <div class="mb-4" style="font-size: 3rem;">⏳</div>
-
-            <h3 class="card-title mb-3">Application Pending Review</h3>
-            
-            <p class="text-muted">
-                Thank you for verifying your email. Your instructor application is currently under review by our team. You will be notified by email once a decision has been made.
-            </p>
-            
-            <hr class="my-4">
-
-            <div class="d-grid gap-2">
-                <a href="{{ route('role.switch', 'student') }}" class="btn bg-primary text-white custom-btn-hover">Go to Student Dashboard</a>
-                <form method="POST" action="{{ route('logout') }}" class="d-grid">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-secondary">
-                        {{ __('Log Out') }}
-                    </button>
-                </form>
-            </div>
-
-        </div>
+<x-rs.status tone="wait" icon="bi-hourglass-split" title="Pendaftaran instruktur sedang ditinjau">
+    <p>
+        Terima kasih sudah memverifikasi email. Pendaftaran kamu sebagai instruktur sedang ditinjau oleh tim kami. Kami akan mengabari lewat email setelah ada keputusan.
+    </p>
+    <div class="rs-status__actions">
+        <a href="{{ route('role.switch', 'student') }}" class="rs-btn rs-btn--block">Buka dasbor siswa</a>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="rs-btn rs-btn--outline rs-btn--block">Keluar</button>
+        </form>
     </div>
-
-</div>
+</x-rs.status>
 @endsection

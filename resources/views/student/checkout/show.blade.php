@@ -3,81 +3,88 @@
 @section('title', 'Konfirmasi Pesanan')
 
 @section('content')
-<section class="py-5" style="margin-top: 60px; background-color: #f8f9fa;">
-    <div class="container">
-        <div class="row d-flex justify-content-center">
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-sm rounded-4">
-                    <div class="card-header bg-white text-center border-0 pt-4 pb-0">
-                        <i class="bi bi-receipt-cutoff fs-1 text-primary"></i>
-                        <h3 class="fw-bold mt-2">Ringkasan Pesanan Anda</h3>
-                        <p class="text-muted">Harap periksa kembali detail pesanan Anda sebelum melanjutkan ke pembayaran.</p>
+@php
+    $tz = auth()->user()->timezone ?: config('app.timezone');
+@endphp
+<div class="rs-page">
+    <section class="rs-pagehead">
+        <div class="rs-wrap">
+            <p class="rs-crumbs"><a href="{{ route('home') }}">Beranda</a> / <a href="{{ route('student.cart.index') }}">Keranjang</a> / Ringkasan pesanan</p>
+            <h1 class="rs-h1">Ringkasan Pesanan Anda</h1>
+            <p class="rs-lead">Harap periksa kembali detail pesanan Anda sebelum melanjutkan ke pembayaran.</p>
+        </div>
+    </section>
+
+    <section class="rs-section">
+        <div class="rs-wrap">
+            <div class="rs-receipt">
+                <dl class="rs-rows">
+                    <div>
+                        <dt>Kode Pesanan</dt>
+                        <dd>{{ $order->order_code }}</dd>
                     </div>
-                    <div class="card-body p-4">
-                        {{-- Detail Pesanan --}}
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Kode Pesanan:</span>
-                            <span class="fw-bold">{{ $order->order_code }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-3">
-                            <span class="text-muted">Tanggal:</span>
-                            <span>{{ $order->created_at->format('d F Y') }}</span>
-                        </div>
-
-                        <hr>
-                        
-                        {{-- Daftar Item --}}
-                        <h6 class="fw-bold mb-3">Item yang Dipesan:</h6>
-                        <ul class="list-group list-group-flush mb-3">
-                            @foreach($order->items as $item)
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                <span>{{ $item->course->title }}</span>
-                                <span>Rp{{ number_format($item->price_at_purchase, 0, ',', '.') }}</span>
-                            </li>
-                            @endforeach
-                        </ul>
-
-                        <hr>
-
-                        {{-- Rincian Harga --}}
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Subtotal</span>
-                            <span>Rp{{ number_format($order->total_amount, 0, ',', '.') }}</span>
-                        </div>
-                        @if($order->discount_amount > 0)
-                        <div class="d-flex justify-content-between text-success">
-                            <span class="text-muted">Diskon ({{ $order->coupon->code ?? '' }})</span>
-                            <span>- Rp{{ number_format($order->discount_amount, 0, ',', '.') }}</span>
-                        </div>
-                        @endif
-                        <hr>
-                        <div class="d-flex justify-content-between fw-bold fs-5">
-                            <span>Total Pembayaran</span>
-                            <span class="text-primary">Rp{{ number_format($order->final_amount, 0, ',', '.') }}</span>
-                        </div>
-                        
-                        <div class="text-center mt-4">
-                            <p class="text-muted">Anda akan melakukan transaksi sebesar <strong>Rp{{ number_format($order->final_amount, 0, ',', '.') }}</strong></p>
-                            
-                            {{-- Tombol ini sekarang akan memicu popup Midtrans --}}
-                            <button id="pay-button" class="btn btn-success btn-lg w-100">
-                                <i class="bi bi-shield-check"></i> Bayar Sekarang
-                            </button>
-                        </div>
+                    <div>
+                        <dt>Tanggal</dt>
+                        <dd>{{ $order->created_at->copy()->timezone($tz)->format('d/m/Y') }}</dd>
                     </div>
-                </div>
+                </dl>
+
+                <h2>Item yang dipesan</h2>
+                <ul class="rs-receipt__items">
+                    @foreach($order->items as $item)
+                        <li>
+                            <span>{{ $item->course->title }}</span>
+                            <span>Rp{{ number_format($item->price_at_purchase, 0, ',', '.') }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+
+                <dl class="rs-rows">
+                    <div>
+                        <dt>Subtotal</dt>
+                        <dd>Rp{{ number_format($order->total_amount, 0, ',', '.') }}</dd>
+                    </div>
+                    @if($order->discount_amount > 0)
+                        <div class="rs-rows__discount">
+                            <dt>Diskon ({{ $order->coupon->code ?? '' }})</dt>
+                            <dd>- Rp{{ number_format($order->discount_amount, 0, ',', '.') }}</dd>
+                        </div>
+                    @endif
+                    @if($order->vat_amount > 0)
+                        <div>
+                            <dt>PPN ({{ rtrim(rtrim($order->vat_percentage_at_purchase, '0'), '.') }}%)</dt>
+                            <dd>+ Rp{{ number_format($order->vat_amount, 0, ',', '.') }}</dd>
+                        </div>
+                    @endif
+                    @if($order->transaction_fee_amount > 0)
+                        <div>
+                            <dt>Biaya Layanan</dt>
+                            <dd>+ Rp{{ number_format($order->transaction_fee_amount, 0, ',', '.') }}</dd>
+                        </div>
+                    @endif
+                    <div class="rs-rows__total">
+                        <dt>Total Pembayaran</dt>
+                        <dd>Rp{{ number_format($order->final_amount, 0, ',', '.') }}</dd>
+                    </div>
+                </dl>
+
+                <p class="rs-note">Anda akan melakukan transaksi sebesar <strong>Rp{{ number_format($order->final_amount, 0, ',', '.') }}</strong></p>
+
+                {{-- Tombol ini sekarang akan memicu popup Midtrans --}}
+                <button type="button" id="pay-button" class="rs-btn rs-btn--ok rs-btn--block"><i class="bi bi-shield-check" aria-hidden="true"></i>Bayar Sekarang</button>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+</div>
 @endsection
 
 @push('scripts')
     {{-- 1. Muat library Midtrans Snap.js --}}
     <script type="text/javascript"
-            src="https://app.sandbox.midtrans.com/snap/snap.js"
+            src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
             data-client-key="{{ $midtransClientKey }}"></script>
-            
+
+
     {{-- 2. Skrip untuk memicu pembayaran --}}
     <script type="text/javascript">
       var payButton = document.getElementById('pay-button');

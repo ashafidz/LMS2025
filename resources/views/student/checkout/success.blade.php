@@ -3,109 +3,95 @@
 @section('title', 'Pembayaran Berhasil')
 
 @section('content')
-<section class="py-5" style="margin-top: 60px; background-color: #f8f9fa;">
-    <div class="container">
-        <div class="row d-flex justify-content-center">
-            <div class="col-lg-7">
-                <div class="card border-0 shadow-sm rounded-4">
-                    <div class="card-body p-4 p-md-5">
-                        @if ($order->status === 'paid')
-                        <div class="text-center mb-4">
-                            <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
-                            <h2 class="fw-bold mt-3">Pembelian Berhasil</h2>
-                            <p class="text-muted">Terima kasih! Berikut detail pembelian Anda.</p>
+@php
+    $tz = auth()->user()->timezone ?: config('app.timezone');
+@endphp
+<div class="rs-page">
+    <section class="rs-section rs-section--paper">
+        <div class="rs-wrap">
+            <div class="rs-stack">
+                @if ($order->status === 'paid')
+                    <x-rs.status tone="ok" icon="bi-check-circle-fill" title="Pembelian Berhasil">
+                        <p>Terima kasih! Berikut detail pembelian Anda.</p>
+                    </x-rs.status>
+                @else
+                    <x-rs.status tone="wait" icon="bi-clock-history" title="Pembayaran sedang diproses">
+                        <p>Kami sedang menunggu konfirmasi pembayaran Anda.</p>
+                    </x-rs.status>
+                @endif
+
+                <div class="rs-receipt">
+                    @if (session('success_message'))
+                        <div class="rs-alert rs-alert--ok" role="status">{{ session('success_message') }}</div>
+                    @endif
+
+                    <dl class="rs-rows">
+                        <div>
+                            <dt>No. Transaksi</dt>
+                            <dd>{{ $order->order_code }}</dd>
                         </div>
-                        @else
-                        <div class="text-center mb-4">
-                            <i class="bi bi-clock-history text-warning" style="font-size: 4rem;"></i>
-                            <h2 class="fw-bold mt-3">Pembayaran sedang diproses</h2>
-                            <p class="text-muted">Kami sedang menunggu konfirmasi pembayaran Anda.</p>
+                        <div>
+                            <dt>Tanggal</dt>
+                            <dd>{{ $order->updated_at->copy()->timezone($tz)->format('d/m/Y H:i T') }}</dd>
                         </div>
-                        @endif
-
-                        @if (session('success_message'))
-                            <div class="alert alert-success">{{ session('success_message') }}</div>
-                        @endif
-
-                        <div class="bg-light rounded p-3 mb-4">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">No. Transaksi:</span>
-                                <span class="fw-bold">{{ $order->order_code }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Tanggal:</span>
-                                <span>{{ $order->updated_at->format('d F Y, H:i') }} WIB</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span class="text-muted">Status Pembayaran:</span>
-                                @if ($order->status === 'paid')
-                                    <span class="fw-bold text-success">Lunas</span>
-                                @else
-                                    <span class="fw-bold text-warning">Menunggu Konfirmasi</span>
-                                @endif
-                            </div>
-                        </div>
-
-                        <h5 class="fw-bold mb-3">Detail Pembayaran</h5>
-                        
-                        @foreach($order->items as $item)
-                        <div class="d-flex justify-content-between">
-                            <span>1 &times; {{ $item->course->title }}</span>
-                            <span>Rp{{ number_format($item->price_at_purchase, 0, ',', '.') }}</span>
-                        </div>
-                        @endforeach
-                        
-                        <hr>
-
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Subtotal</span>
-                            <span>Rp{{ number_format($order->total_amount, 0, ',', '.') }}</span>
-                        </div>
-
-                        @if($order->discount_amount > 0)
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Diskon Kupon</span>
-                            <span>- Rp{{ number_format($order->discount_amount, 0, ',', '.') }}</span>
-                        </div>
-                        @endif
-
-                        @if($order->vat_amount > 0)
-                        <div class="d-flex justify-content-between">
-                            {{-- DIPERBARUI: Menggunakan kolom baru yang sudah pasti benar --}}
-                            <span class="text-muted">PPN ({{ rtrim(rtrim($order->vat_percentage_at_purchase, '0'), '.') }}%)</span>
-                            <span>+ Rp{{ number_format($order->vat_amount, 0, ',', '.') }}</span>
-                        </div>
-                        @endif
-
-                        @if($order->transaction_fee_amount > 0)
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">Biaya Layanan</span>
-                            <span>+ Rp{{ number_format($order->transaction_fee_amount, 0, ',', '.') }}</span>
-                        </div>
-                        @endif
-
-                        <hr>
-
-                        <div class="d-flex justify-content-between fw-bold fs-5">
-                            <span>Total Dibayar:</span>
-                            <span class="text-primary">Rp{{ number_format($order->final_amount, 0, ',', '.') }}</span>
-                        </div>
-
-                        <div class="mt-4">
+                        <div>
+                            <dt>Status Pembayaran</dt>
                             @if ($order->status === 'paid')
-                            <a href="{{ route('student.my_courses') }}" class="btn btn-primary w-100">
-                                <i class="bi bi-book-fill me-2"></i> Lihat Kursus Saya
-                            </a>
+                                <dd>Lunas</dd>
                             @else
-                            <a href="{{ route('student.transactions.index') }}" class="btn btn-primary w-100">
-                                <i class="bi bi-receipt me-2"></i> Lihat Riwayat Transaksi
-                            </a>
+                                <dd>Menunggu Konfirmasi</dd>
                             @endif
                         </div>
-                    </div>
+                    </dl>
+
+                    <h2>Detail Pembayaran</h2>
+                    <ul class="rs-receipt__items">
+                        @foreach($order->items as $item)
+                            <li>
+                                <span>1 &times; {{ $item->course->title }}</span>
+                                <span>Rp{{ number_format($item->price_at_purchase, 0, ',', '.') }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+
+                    <dl class="rs-rows">
+                        <div>
+                            <dt>Subtotal</dt>
+                            <dd>Rp{{ number_format($order->total_amount, 0, ',', '.') }}</dd>
+                        </div>
+                        @if($order->discount_amount > 0)
+                            <div class="rs-rows__discount">
+                                <dt>Diskon Kupon</dt>
+                                <dd>- Rp{{ number_format($order->discount_amount, 0, ',', '.') }}</dd>
+                            </div>
+                        @endif
+                        @if($order->vat_amount > 0)
+                            {{-- DIPERBARUI: Menggunakan kolom baru yang sudah pasti benar --}}
+                            <div>
+                                <dt>PPN ({{ rtrim(rtrim($order->vat_percentage_at_purchase, '0'), '.') }}%)</dt>
+                                <dd>+ Rp{{ number_format($order->vat_amount, 0, ',', '.') }}</dd>
+                            </div>
+                        @endif
+                        @if($order->transaction_fee_amount > 0)
+                            <div>
+                                <dt>Biaya Layanan</dt>
+                                <dd>+ Rp{{ number_format($order->transaction_fee_amount, 0, ',', '.') }}</dd>
+                            </div>
+                        @endif
+                        <div class="rs-rows__total">
+                            <dt>Total Dibayar</dt>
+                            <dd>Rp{{ number_format($order->final_amount, 0, ',', '.') }}</dd>
+                        </div>
+                    </dl>
+
+                    @if ($order->status === 'paid')
+                        <a href="{{ route('student.my_courses') }}" class="rs-btn rs-btn--block"><i class="bi bi-book-fill" aria-hidden="true"></i>Lihat Kursus Saya</a>
+                    @else
+                        <a href="{{ route('student.transactions.index') }}" class="rs-btn rs-btn--block"><i class="bi bi-receipt" aria-hidden="true"></i>Lihat Riwayat Transaksi</a>
+                    @endif
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+</div>
 @endsection
