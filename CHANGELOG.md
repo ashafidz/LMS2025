@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Proporsi Kolom Pencarian Dasbor**: Kotak input pencarian dan tombol Cari serta Reset pada daftar siswa (dan form pencarian dasbor) kini memiliki tinggi dan perataan vertikal yang sama (40px) dan proporsional.
 - **Kontras Teks Nama pada Halaman Profil**: Teks nama pengguna dan peran pada bagian atas halaman profil kini menggunakan warna gelap yang kontras dengan latar belakang terang, memperbaiki teks putih yang sebelumnya sulit terbaca.
 - **Tampilan dan Perataan Checkbox Dasbor**: Kotak centang (checkbox) dan label di dasbor (termasuk pada editor template sertifikat) diperbaiki perataan vertikalnya, ukuran kotak diperbesar (18px), jarak diperjelas, dan menggunakan warna aksen Ruang Studi agar jelas dan mudah diklik.
 
