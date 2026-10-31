@@ -21,7 +21,9 @@
                     <div class="rs-actions">
                         <a class="rs-btn" href="{{ route('student.dashboard') }}">Mulai</a>
                         <a class="rs-btn rs-btn--outline" href="{{ route('courses') }}">Lihat katalog</a>
-                        <a class="rs-link" href="https://www.youtube.com/watch?v=Y7f98aduVJ8" target="_blank" rel="noopener">Lihat video</a>
+                        @if (!empty($siteSettings->hero_video_url))
+                            <a class="rs-link" href="{{ $siteSettings->hero_video_url }}" target="_blank" rel="noopener">Lihat video</a>
+                        @endif
                     </div>
                 </div>
 

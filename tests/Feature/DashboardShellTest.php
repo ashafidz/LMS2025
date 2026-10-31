@@ -82,6 +82,7 @@ class DashboardShellTest extends TestCase
             'admin.point-sync.index',
             'admin.contact-messages.index',
             'admin.likert-questions.index',
+            'admin.settings.edit',
         ] as $name) {
             $response->assertSee('href="'.route($name).'"', false);
         }
