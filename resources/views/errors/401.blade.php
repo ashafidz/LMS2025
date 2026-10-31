@@ -1,33 +1,13 @@
-@extends('layouts.home-layout')
+@extends('layouts.plain-layout')
 
-@section('title', '401')
+@section('title', 'Kamu perlu masuk dulu')
 
 @section('content')
-<section class="d-flex flex-column justify-content-center align-items-center text-center" 
-         style="background: #f8f9fa; min-height: 100vh; padding: 20px;">
-
-    <!-- Illustration -->
-    <div class="mb-4">
-        <img src="https://static.domainesia.com/assets/slots/webcdn/server/img/error-code/svg/error-401.svg" 
-             alt="401 Unauthorized" 
-             style="max-width: 400px; width: 100%;">
+<x-rs.status icon="bi-lock" eyebrow="Kode 401" title="Kamu perlu masuk dulu">
+    <p>Halaman ini hanya bisa dibuka setelah kamu masuk ke akunmu.</p>
+    <div class="rs-status__actions">
+        <a href="{{ route('login') }}" class="rs-btn rs-btn--block">Masuk</a>
+        <a href="{{ url('/') }}" class="rs-btn rs-btn--outline rs-btn--block">Ke beranda</a>
     </div>
-
-    <!-- Title -->
-    <h1 class="fw-bold mb-2" style="font-size: 2.5rem; color: #012970;">
-        Tidak Diizinkan
-    </h1>
-
-    <!-- Message -->
-    <p class="mb-4" style="color: #5e5e5e; line-height: 1.5; font-size: 1.2rem;">
-        Anda belum login atau token tidak valid.  
-        Silakan login untuk melanjutkan akses.
-    </p>
-
-    <!-- Button -->
-    <a href="{{ route('login') }}" class="btn btn-primary btn-lg px-4" style="border-radius: 50px;">
-        Login Sekarang
-    </a>
-
-</section>
+</x-rs.status>
 @endsection

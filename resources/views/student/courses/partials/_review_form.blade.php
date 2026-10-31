@@ -125,7 +125,7 @@
     .star-rating input { display: none; }
     .star-rating label { font-size: 2.5rem; color: #ddd; cursor: pointer; }
     .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #f5b301; }
-    .likert-scale .btn-check:checked+.btn { background-color: #007bff; color: white; }
+    .likert-scale .btn-check:checked+.btn { background-color: var(--rs-primary); color: white; }
     .likert-question {
     font-size: 1rem !important; /* pastikan lebih besar */
     color: #555 !important;       /* warna hitam pekat */

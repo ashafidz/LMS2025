@@ -65,8 +65,8 @@
 {{-- Style untuk tampilan yang lebih modern --}}
 <style>
     :root {
-        --primary-color: #4680FF;
-        --light-primary: #e9efff;
+        --primary-color: var(--rs-primary);
+        --light-primary: var(--rs-select);
         --border-color: #e0e6ed;
         --card-shadow: 0 4px 24px 0 rgba(34, 41, 47, 0.1);
     }
@@ -125,7 +125,7 @@
     }
     .placeholder-card {
         border: 2px dashed var(--border-color);
-        background-color: #fbfcff;
+        background-color: var(--rs-paper);
         box-shadow: none;
         display: flex;
         align-items: center;

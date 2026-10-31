@@ -109,7 +109,7 @@
     .custom-card-header {
         background: #fff !important;
         border-bottom: 1px solid #e0e0e0;
-        border-left: 4px solid #1E88E5;
+        border-left: 4px solid var(--rs-shelf);
         padding: 12px 16px;
     }
     .table td {

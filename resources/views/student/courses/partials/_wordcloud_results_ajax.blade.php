@@ -35,7 +35,7 @@
         const canvas = document.getElementById('studentWordCloudCanvas');
         
         if (canvas) {
-            const colors = ['#007bff', '#28a745', '#17a2b8', '#ffc107', '#fd7e14', '#e83e8c', '#6f42c1'];
+            const colors = ['#5a2a1e', '#a8492a', '#3f6670', '#4e6b3a', '#7a4a1f', '#8f5e15', '#2e6b45'];
             
             let maxCount = 1;
             if (wordList.length > 0) {

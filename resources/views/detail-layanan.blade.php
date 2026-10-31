@@ -3,96 +3,85 @@
 @section('title', 'Detail Pelayanan')
 
 @section('content')
+<div class="rs-page">
+    {{-- Section Title --}}
+    <section class="rs-pagehead">
+        <div class="rs-wrap">
+            <p class="rs-crumbs"><a href="{{ route('home') }}">Beranda</a> / Detail Pelayanan</p>
+            <h1 class="rs-h1">Detail Pelayanan</h1>
+            <p class="rs-lead">Berikut adalah berbagai layanan yang kami sediakan untuk mendukung pengalaman belajar Anda.</p>
+        </div>
+    </section>
 
-{{-- Section Title --}}
-<section class="section light-background" style="padding-top: 120px; padding-bottom:5px;">
-  <div class="container section-title" data-aos="fade-up">
-    <h2 class="fw-bold">Detail Pelayanan</h2>
-    <p>Berikut adalah berbagai layanan yang kami sediakan untuk mendukung pengalaman belajar Anda.</p>
-  </div>
-</section>
+    <section class="rs-section">
+        <div class="rs-wrap">
+            {{-- Layanan 1: Pelatihan Interaktif --}}
+            <div id="pelatihan-interaktif" class="rs-split">
+                <div>
+                    <h2 class="rs-h2">Pelatihan Interaktif</h2>
+                    <p>
+                        Belajar jadi lebih seru dengan materi interaktif yang mudah dipahami.
+                        Setiap topik dilengkapi contoh nyata, latihan praktis, serta simulasi langsung sehingga peserta
+                        bisa menerapkan pengetahuan yang baru diperoleh dengan segera.
+                        Dengan pendekatan ini, proses belajar menjadi lebih hidup dan tidak membosankan.
+                    </p>
+                </div>
+                <div>
+                    <img src="{{ asset('images/layanan/pelatihan-interaktif.jpg') }}" alt="Seorang pengajar menjelaskan peta materi kepada tiga peserta di meja belajar yang penuh buku" width="1200" height="805" loading="lazy">
+                </div>
+            </div>
 
-{{-- Layanan 1: Pelatihan Interaktif --}}
-<section id="pelatihan-interaktif" class="section bg-white">
-  <div class="container">
-    <div class="row align-items-center" data-aos="fade-up">
-      <div class="col-lg-6">
-        <h3 class="fw-bold">Pelatihan Interaktif</h3>
-        <p>
-          Belajar jadi lebih seru dengan materi interaktif yang mudah dipahami.  
-          Setiap topik dilengkapi contoh nyata, latihan praktis, serta simulasi langsung sehingga peserta 
-          bisa menerapkan pengetahuan yang baru diperoleh dengan segera.  
-          Dengan pendekatan ini, proses belajar menjadi lebih hidup dan tidak membosankan.
-        </p>
-      </div>
-      <div class="col-lg-6 text-center">
-        <img src="{{ asset('images/layanan1.jpg') }}" class="img-fluid w-75 rounded shadow" alt="Pelatihan Interaktif">
-      </div>
-    </div>
-  </div>
-</section>
+            {{-- Layanan 2: Kelas Beragam --}}
+            <div id="kelas-beragam" class="rs-split rs-split--flip">
+                <div>
+                    <h2 class="rs-h2">Kelas Beragam</h2>
+                    <p>
+                        Tersedia ratusan kelas dalam berbagai bidang, mulai dari pemrograman, desain grafis,
+                        pemasaran digital, hingga pengembangan diri.
+                        Setiap kelas dirancang oleh instruktur berpengalaman agar peserta bisa belajar sesuai minat
+                        dan kebutuhan mereka.
+                        Dengan pilihan yang beragam, Anda dapat menyesuaikan perjalanan belajar sesuai tujuan pribadi atau karier.
+                    </p>
+                </div>
+                <div>
+                    <img src="{{ asset('images/layanan/kelas-beragam.jpg') }}" alt="Seorang peserta belajar di laptop di depan rak buku, dengan jadwal belajar di papan" width="1200" height="805" loading="lazy">
+                </div>
+            </div>
 
-{{-- Layanan 2: Kelas Beragam --}}
-<section id="kelas-beragam" class="section light-background">
-  <div class="container">
-    <div class="row align-items-center" data-aos="fade-up">
-      <div class="col-lg-6 order-lg-2">
-        <h3 class="fw-bold">Kelas Beragam</h3>
-        <p>
-          Tersedia ratusan kelas dalam berbagai bidang, mulai dari pemrograman, desain grafis, 
-          pemasaran digital, hingga pengembangan diri.  
-          Setiap kelas dirancang oleh instruktur berpengalaman agar peserta bisa belajar sesuai minat 
-          dan kebutuhan mereka.  
-          Dengan pilihan yang beragam, Anda dapat menyesuaikan perjalanan belajar sesuai tujuan pribadi atau karier.
-        </p>
-      </div>
-      <div class="col-lg-6 order-lg-1 text-center">
-        <img src="{{ asset('images/layanan2.jpg') }}" class="img-fluid w-75 rounded shadow" alt="Kelas Beragam">
-      </div>
-    </div>
-  </div>
-</section>
+            {{-- Layanan 3: Materi Up-to-Date --}}
+            <div id="materi-up-to-date" class="rs-split">
+                <div>
+                    <h2 class="rs-h2">Materi Up-to-Date</h2>
+                    <p>
+                        Kami selalu memperbarui materi pembelajaran agar tetap relevan dengan perkembangan industri.
+                        Konten disusun berdasarkan tren terbaru, standar internasional, serta kebutuhan pasar kerja.
+                        Dengan begitu, peserta tidak hanya mendapatkan ilmu teoritis, tetapi juga pengetahuan
+                        yang siap diterapkan di dunia nyata.
+                        Hal ini memastikan bahwa setiap peserta selalu selangkah lebih maju dalam menghadapi tantangan profesional.
+                    </p>
+                </div>
+                <div>
+                    <img src="{{ asset('images/layanan/materi-terbaru.jpg') }}" alt="Seorang peserta belajar di laptop dengan daftar bacaan dan grafik kemajuan belajar" width="1200" height="670" loading="lazy">
+                </div>
+            </div>
 
-{{-- Layanan 3: Materi Up-to-Date --}}
-<section id="materi-up-to-date" class="section bg-white">
-  <div class="container">
-    <div class="row align-items-center" data-aos="fade-up">
-      <div class="col-lg-6">
-        <h3 class="fw-bold">Materi Up-to-Date</h3>
-        <p>
-          Kami selalu memperbarui materi pembelajaran agar tetap relevan dengan perkembangan industri.  
-          Konten disusun berdasarkan tren terbaru, standar internasional, serta kebutuhan pasar kerja.  
-          Dengan begitu, peserta tidak hanya mendapatkan ilmu teoritis, tetapi juga pengetahuan 
-          yang siap diterapkan di dunia nyata.  
-          Hal ini memastikan bahwa setiap peserta selalu selangkah lebih maju dalam menghadapi tantangan profesional.
-        </p>
-      </div>
-      <div class="col-lg-6 text-center">
-        <img src="{{ asset('images/layanan3.jpg') }}" class="img-fluid w-75 rounded shadow" alt="Materi Up-to-Date">
-      </div>
-    </div>
-  </div>
-</section>
-
-{{-- Layanan 4: Evaluasi & Sertifikat --}}
-<section id="evaluasi-sertifikat" class="section light-background">
-  <div class="container">
-    <div class="row align-items-center" data-aos="fade-up">
-      <div class="col-lg-6 order-lg-2">
-        <h3 class="fw-bold">Evaluasi & Sertifikat</h3>
-        <p>
-          Setiap peserta akan mendapatkan evaluasi berupa kuis, tugas, atau proyek untuk mengukur pemahaman.  
-          Setelah menyelesaikan kelas, peserta berhak menerima sertifikat resmi sebagai bukti pencapaian.  
-          Sertifikat ini bisa dijadikan portofolio untuk melamar pekerjaan, meningkatkan kredibilitas, 
-          atau sekadar menunjukkan pencapaian pribadi.  
-          Dengan adanya evaluasi, peserta dapat mengetahui kekuatan dan area yang perlu ditingkatkan.
-        </p>
-      </div>
-      <div class="col-lg-6 order-lg-1 text-center">
-        <img src="{{ asset('images/layanan5.jpg') }}" class="img-fluid w-75 rounded shadow" alt="Evaluasi & Sertifikat">
-      </div>
-    </div>
-  </div>
-</section>
-
+            {{-- Layanan 4: Evaluasi & Sertifikat --}}
+            <div id="evaluasi-sertifikat" class="rs-split rs-split--flip">
+                <div>
+                    <h2 class="rs-h2">Evaluasi &amp; Sertifikat</h2>
+                    <p>
+                        Setiap peserta akan mendapatkan evaluasi berupa kuis, tugas, atau proyek untuk mengukur pemahaman.
+                        Setelah menyelesaikan kelas, peserta berhak menerima sertifikat resmi sebagai bukti pencapaian.
+                        Sertifikat ini bisa dijadikan portofolio untuk melamar pekerjaan, meningkatkan kredibilitas,
+                        atau sekadar menunjukkan pencapaian pribadi.
+                        Dengan adanya evaluasi, peserta dapat mengetahui kekuatan dan area yang perlu ditingkatkan.
+                    </p>
+                </div>
+                <div>
+                    <img src="{{ asset('images/layanan/evaluasi-sertifikat.jpg') }}" alt="Sertifikat kelulusan tampil di tablet, di samping tumpukan buku dan topi wisuda" width="1200" height="746" loading="lazy">
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
 @endsection

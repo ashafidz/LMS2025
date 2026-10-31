@@ -48,13 +48,13 @@
                     background-color: #ffffff;
                 }
                 .poll-option-card:hover {
-                    border-color: #b8daff;
-                    background-color: #f1f7fd;
+                    border-color: var(--rs-shelf);
+                    background-color: var(--rs-paper);
                 }
                 .poll-radio-input:checked + .poll-option-card {
-                    border-color: #007bff;
-                    background-color: #eaf4ff;
-                    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+                    border-color: var(--rs-accent);
+                    background-color: var(--rs-select);
+                    box-shadow: 0 4px 12px rgba(168, 73, 42, 0.15);
                 }
                 .poll-radio-circle {
                     width: 22px;
@@ -66,7 +66,7 @@
                     transition: all 0.2s ease-in-out;
                 }
                 .poll-radio-input:checked + .poll-option-card .poll-radio-circle {
-                    border-color: #007bff;
+                    border-color: var(--rs-accent);
                 }
                 .poll-radio-input[type="checkbox"] + .poll-option-card .poll-radio-circle {
                     border-radius: 4px; /* Square for checkbox */
@@ -79,7 +79,7 @@
                     transform: translate(-50%, -50%);
                     width: 12px;
                     height: 12px;
-                    background-color: #007bff;
+                    background-color: var(--rs-accent);
                     border-radius: 50%;
                 }
                 .poll-radio-input[type="checkbox"]:checked + .poll-option-card .poll-radio-circle::after {
@@ -88,7 +88,7 @@
                     top: 50%;
                     left: 50%;
                     transform: translate(-50%, -50%);
-                    color: #007bff;
+                    color: var(--rs-accent);
                     font-size: 16px;
                     font-weight: bold;
                     background-color: transparent;

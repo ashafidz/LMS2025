@@ -48,4 +48,35 @@ class CourseReviewAccessTest extends TestCase
 
         $this->assertDatabaseHas('course_reviews', ['user_id' => $student->id, 'course_id' => $course->id, 'rating' => 5]);
     }
+
+    public function test_review_form_is_closed_until_admin_adds_likert_questions(): void
+    {
+        $course = $this->makeCourse($this->makeInstructor());
+        $student = $this->makeStudent();
+        $this->enroll($student, $course);
+
+        $this->actingAs($student)->getJson(route('student.course.review.create', $course))
+            ->assertOk()->assertSee('Ulasan Belum Bisa Diisi');
+
+        $this->actingAs($student)->postJson(route('student.course.review.store', $course), [
+            'course_rating' => 5,
+            'instructor_rating' => 4,
+        ])->assertStatus(422)->assertJson(['success' => false]);
+
+        $this->assertDatabaseMissing('course_reviews', ['user_id' => $student->id]);
+    }
+
+    public function test_every_active_likert_question_must_be_answered(): void
+    {
+        $course = $this->makeCourse($this->makeInstructor());
+        $student = $this->makeStudent();
+        $this->enroll($student, $course);
+        $payload = $this->payload();
+        LikertQuestion::create(['question_text' => 'Instruktur ramah', 'category' => 'instructor', 'is_active' => true]);
+
+        $this->actingAs($student)->postJson(route('student.course.review.store', $course), $payload)
+            ->assertStatus(422)->assertJsonFragment(['message' => 'Jawab semua pertanyaan penilaian.']);
+
+        $this->assertDatabaseMissing('course_reviews', ['user_id' => $student->id]);
+    }
 }
