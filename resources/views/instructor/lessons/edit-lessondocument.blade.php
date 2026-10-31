@@ -43,17 +43,17 @@
 
                                             {{-- Bagian Pratinjau PDF --}}
                                             <div class="form-group row">
-                                                <label class="col-sm-2 col-form-label">Pratinjau File Saat Ini</label>
-                                                <div class="col-sm-10">
+                                                <label class="col-12 col-form-label">Pratinjau File Saat Ini</label>
+                                                <div class="col-12">
                                                     @if($lesson->lessonable->file_path)
-                                                        <div class="embed-responsive embed-responsive-4by3" style="max-width: 800px; border: 1px solid #ddd;">
+                                                        <div class="rs-doc-viewer">
                                                             {{-- Menggunakan tag <embed> untuk menampilkan PDF secara langsung --}}
-                                                            <embed src="{{ route('files.lesson.document', $lesson) }}" type="application/pdf" width="100%" height="500px" />
+                                                            <embed src="{{ route('files.lesson.document', $lesson) }}" type="application/pdf" />
                                                         </div>
                                                         <p class="mt-2">
                                                             <i class="fa fa-file-pdf-o"></i>
                                                             <code>{{ basename($lesson->lessonable->file_path) }}</code>
-                                                            <a href="{{ route('files.lesson.document', $lesson) }}" target="_blank" class="ml-2">(Unduh)</a>
+                                                            <a href="{{ route('files.lesson.document', $lesson) }}" target="_blank" rel="noopener" class="ml-2">Buka di tab baru</a>
                                                         </p>
                                                     @else
                                                         <p class="text-muted">Tidak ada file yang diunggah.</p>

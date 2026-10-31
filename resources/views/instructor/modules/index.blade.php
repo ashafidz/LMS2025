@@ -141,7 +141,7 @@
     .sortable-ghost {
         opacity: 0.4;
         background-color: #f8f9fa;
-        border: 2px dashed #007bff !important;
+        border: 2px dashed var(--rs-accent) !important;
     }
     .sortable-chosen {
         background-color: #e9ecef;

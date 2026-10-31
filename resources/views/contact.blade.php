@@ -1,128 +1,103 @@
 @extends('layouts.home-layout')
 
-@section('title', 'Ruang Studi')
+@section('title', 'Kontak')
 
 @section('content')
-<!-- Contact Section -->
-    <section id="contact" class="contact section light-background" style="padding-top: 120px;">
-
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
-        <h2>Hubungi Kami</h2>
-        <p>Punya pertanyaan atau butuh bantuan? Tim kami siap membantu kapan saja!</p>
-      </div><!-- End Section Title -->
-
-      <div class="container" data-aos="fade-up" data-aos-delay="100">
-
-        <div class="row g-4 g-lg-5">
-          <div class="col-lg-5">
-            <div class="info-box" data-aos="fade-up" data-aos-delay="200">
-              <h3>Informasi Kontak</h3>
-              <p>Kami siap membantu keluhan kamu. Silakan hubungi kami lewat informasi di bawah ini.</p>
-
-              <div class="info-item" data-aos="fade-up" data-aos-delay="300">
-                <div class="icon-box">
-                  <i class="bi bi-geo-alt"></i>
-                </div>
-                <div class="content">
-                  <h4>Lokasi Kami</h4>
-                  <p>Jl. Merah Putih 16</p>
-                  <p>Kabupaten Kediri, Jawa Timur</p>
-                </div>
-              </div>
-
-              <div class="info-item" data-aos="fade-up" data-aos-delay="400">
-                <div class="icon-box">
-                  <i class="bi bi-telephone"></i>
-                </div>
-                <div class="content">
-                  <h4>Nomor Telepon</h4>
-                  <p>+62 1234 1234 12</p>
-                  <p>+62 1234 1234 12</p>
-                </div>
-              </div>
-
-              <div class="info-item" data-aos="fade-up" data-aos-delay="500">
-                <div class="icon-box">
-                  <i class="bi bi-envelope"></i>
-                </div>
-                <div class="content">
-                  <h4>Alamat Email</h4>
-                  <p>wahanamediadigital@gmail.com</p>
-                  <p>wahanamediadigital@gmail.com</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-7">
-            <div class="contact-form" data-aos="fade-up" data-aos-delay="300">
-              <h3>Kirim Pesan</h3>
-              <p>Isi form di bawah ini, dan kami akan segera menghubungi kamu kembali.</p>
-
-              <form action="{{ route('contact.store') }}" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200" data-recaptcha-site-key="{{ config('services.recaptcha.site_key') }}">
-                @csrf
-                <div class="row gy-4">
-
-                  <div class="col-md-6">
-                    <input type="text" name="name" class="form-control" placeholder="Nama" required="">
-                  </div>
-
-                  <div class="col-md-6 ">
-                    <input type="email" class="form-control" name="email" placeholder="Alamat Email" required="">
-                  </div>
-
-                  <div class="col-12">
-                    <input type="text" class="form-control" name="subject" placeholder="Judul Pertanyaan" required="">
-                  </div>
-
-                  <div class="col-12">
-                    <textarea class="form-control" name="message" rows="6" placeholder="Detail Pertanyaan" required="" maxlength="5000"></textarea>
-                  </div>
-
-                  <div class="col-12 text-center">
-                    <div class="loading">Memuat</div>
-                    <div class="error-message"></div>
-                    <div class="sent-message">Pesan kamu berhasil terkirim. Terima kasih!</div>
-
-                    <button type="submit" class="btn">Kirim Pesan</button>
-                  </div>
-
-                </div>
-              </form>
-
-            </div>
-            
-            <!-- Google reCAPTCHA v3 Script -->
-            @if(config('services.recaptcha.site_key'))
-                <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
-            @endif
-          </div>
-
+<div class="rs-page">
+    <section class="rs-pagehead">
+        <div class="rs-wrap">
+            <p class="rs-crumbs"><a href="{{ route('home') }}">Beranda</a> / Kontak</p>
+            <h1 class="rs-h1">Hubungi Kami</h1>
+            <p class="rs-lead">Punya pertanyaan atau butuh bantuan? Tim kami siap membantu kapan saja!</p>
         </div>
+    </section>
 
-      </div>
+    <!-- Contact Section -->
+    <section id="contact" class="rs-section">
+        <div class="rs-wrap">
+            <div class="rs-contact">
+                <div>
+                    <h2 class="rs-h2">Informasi Kontak</h2>
+                    <p class="rs-muted">Kami siap membantu keluhan kamu. Silakan hubungi kami lewat informasi di bawah ini.</p>
 
+                    <dl>
+                        @if ($siteSettings->address)
+                            <div>
+                                <dt>Alamat</dt>
+                                <dd>{{ $siteSettings->address }}</dd>
+                            </div>
+                        @endif
+                        @if ($siteSettings->phone)
+                            <div>
+                                <dt>Telepon</dt>
+                                <dd>{{ $siteSettings->phone }}</dd>
+                            </div>
+                        @endif
+                        @if ($siteSettings->email)
+                            <div>
+                                <dt>Email</dt>
+                                <dd>{{ $siteSettings->email }}</dd>
+                            </div>
+                        @endif
+                    </dl>
+                </div>
+
+                <div>
+                    <h2 class="rs-h2">Kirim Pesan</h2>
+                    <p class="rs-muted">Isi form di bawah ini, dan kami akan segera menghubungi kamu kembali.</p>
+
+                    <form action="{{ route('contact.store') }}" method="post" class="rs-form" data-rs-contact data-recaptcha-site-key="{{ config('services.recaptcha.site_key') }}">
+                        @csrf
+                        <div class="rs-form__row">
+                            <div class="rs-field">
+                                <label for="contact-name">Nama</label>
+                                <input id="contact-name" type="text" name="name" class="rs-input" required="">
+                            </div>
+                            <div class="rs-field">
+                                <label for="contact-email">Alamat email</label>
+                                <input id="contact-email" type="email" class="rs-input" name="email" required="">
+                            </div>
+                        </div>
+
+                        <div class="rs-field">
+                            <label for="contact-subject">Judul pertanyaan</label>
+                            <input id="contact-subject" type="text" class="rs-input" name="subject" required="">
+                        </div>
+
+                        <div class="rs-field">
+                            <label for="contact-message">Detail pertanyaan</label>
+                            <textarea id="contact-message" class="rs-input" name="message" rows="6" required="" maxlength="5000"></textarea>
+                        </div>
+
+                        <div>
+                            <div class="rs-form-status rs-form-status--wait" data-rs-status="wait" role="status">Sedang mengirim pesan...</div>
+                            <div class="rs-form-status rs-form-status--error" data-rs-status="error" role="alert"></div>
+                            <div class="rs-form-status rs-form-status--ok" data-rs-status="ok" role="status">Pesan kamu berhasil terkirim. Terima kasih!</div>
+
+                            <button type="submit" class="rs-btn">Kirim Pesan</button>
+                        </div>
+                    </form>
+
+                    <!-- Google reCAPTCHA v3 Script -->
+                    @if(config('services.recaptcha.site_key'))
+                        <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+                    @endif
+                </div>
+            </div>
+        </div>
     </section><!-- /Contact Section -->
 
-    
     @guest
-          <!-- Call To Action 2 Section -->
-    <section id="call-to-action-2" class="call-to-action-2 section dark-background">
-
-      <div class="container">
-        <div class="row justify-content-center" data-aos="zoom-in" data-aos-delay="100">
-          <div class="col-xl-10">
-            <div class="text-center">
-              <h3>Ayo Mulai Sekarang!</h3>
-              <p>Jangan tunggu nanti. Ayo, wujudkan ide dan tujuan kamu bersama kami. Tim kami siap membantu dari awal sampai sukses!</p>
-              <a class="cta-btn" href="{{ route('register') }}">Daftar Sekarang</a>
+        <!-- Call To Action 2 Section -->
+        <section class="rs-band">
+            <div class="rs-wrap rs-band__inner">
+                <div>
+                    <h2>Ayo Mulai Sekarang!</h2>
+                    <p>Jangan tunggu nanti. Ayo, wujudkan ide dan tujuan kamu bersama kami. Tim kami siap membantu dari awal sampai sukses!</p>
+                </div>
+                <a class="rs-btn rs-btn--light" href="{{ route('register') }}">Daftar Sekarang</a>
             </div>
-          </div>
-        </div>
-      </div>
-
-    </section><!-- /Call To Action 2 Section -->
-
+        </section><!-- /Call To Action 2 Section -->
     @endguest
+</div>
 @endsection

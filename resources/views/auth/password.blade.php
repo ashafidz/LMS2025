@@ -1,107 +1,60 @@
-@extends('layouts.home-layout')
+@extends('layouts.plain-layout')
+
+@section('title', 'Ganti kata sandi')
 
 @section('content')
-    <div class="pcoded-content">
-        <div class="pcoded-inner-content px-3 mt-4">
-            <div class="row g-4 px-2">
-                <div class="col-md-12 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>Ganti Password</h5>
-                        </div>
-                        <div class="card-block">
-                            @if (session('status') == 'password-updated')
-                                <div class="alert alert-success">
-                                    Password updated successfully.
-                                </div>
-                            @endif
-                            <form method="POST" action="{{ route('user-password.update') }}">
-                                @csrf
-                                @method('PUT')
+<div class="rs-auth">
+    <h1 class="rs-h2">Ganti kata sandi</h1>
+    <p class="rs-auth__lead">Isi kata sandi lama, lalu tulis kata sandi baru.</p>
 
-                                <!-- Current Password -->
-                                <div class="form-group">
-                                    <label for="current_password">Password Lama</label>
-                                    <div class="input-group">
-                                        <input type="password" class="form-control" id="current_password"
-                                            name="current_password" required autocomplete="current-password">
-                                        <div class="input-group-append">
-                                            <button type="button" class="btn btn-outline-secondary"
-                                                onclick="togglePassword('current_password', this)">
-                                                <i class="fa fa-eye-slash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    @error('current_password', 'updatePassword')
-                                        <div class="text-danger mt-2">{{ $message }}</div>
-                                    @enderror
-                                </div>
+    @if (session('status') == 'password-updated')
+        <div class="rs-alert rs-alert--ok" role="status">Kata sandi berhasil diganti.</div>
+    @endif
 
-                                <!-- New Password -->
-                                <div class="form-group">
-                                    <label for="password">Password Baru</label>
-                                    <div class="input-group">
-                                        <input type="password" class="form-control" id="password" name="password"
-                                            required autocomplete="new-password">
-                                        <div class="input-group-append">
-                                            <button type="button" class="btn btn-outline-secondary"
-                                                onclick="togglePassword('password', this)">
-                                                <i class="fa fa-eye-slash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    @error('password', 'updatePassword')
-                                        <div class="text-danger mt-2">{{ $message }}</div>
-                                    @enderror
-                                </div>
+    <form method="POST" action="{{ route('user-password.update') }}" class="rs-form">
+        @csrf
+        @method('PUT')
 
-                                <!-- Confirm New Password -->
-                                <div class="form-group">
-                                    <label for="password_confirmation">Konfirmasi Password Baru</label>
-                                    <div class="input-group">
-                                        <input type="password" class="form-control" id="password_confirmation"
-                                            name="password_confirmation" required autocomplete="new-password">
-                                        <div class="input-group-append">
-                                            <button type="button" class="btn btn-outline-secondary"
-                                                onclick="togglePassword('password_confirmation', this)">
-                                                <i class="fa fa-eye-slash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    @error('password_confirmation', 'updatePassword')
-                                        <div class="text-danger mt-2">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- Tombol Simpan -->
-                                <div class="mt-4 text-right">
-                                    <a href="{{ route('user.profile.index') }}" class="btn btn-outline-secondary btn-sm">Batal</a>
-                                    <button type="submit" class="btn btn-primary btn-sm">Simpan Perubahan</button>
-                                </div>
-                            </form>
-
-                        </div>
-                    </div>
-                </div>
+        <div class="rs-field">
+            <label for="current_password">Kata sandi lama</label>
+            <div class="rs-password">
+                <input id="current_password" class="rs-input" type="password" name="current_password" required autocomplete="current-password"
+                    @error('current_password', 'updatePassword') aria-invalid="true" aria-describedby="current_password-error" @enderror>
+                <button type="button" data-rs-toggle-password="current_password" aria-label="Tampilkan kata sandi" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
             </div>
+            @error('current_password', 'updatePassword')
+                <p id="current_password-error" class="rs-field__error">{{ $message }}</p>
+            @enderror
         </div>
-    </div>
-@endsection
 
-@push('scripts')
-    <script>
-        function togglePassword(id, button) {
-            var input = document.getElementById(id);
-            var icon = button.querySelector('i');
-            if (input.type === "password") {
-                input.type = "text";
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            } else {
-                input.type = "password";
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            }
-        }
-    </script>
-@endpush
+        <div class="rs-field">
+            <label for="password">Kata sandi baru</label>
+            <div class="rs-password">
+                <input id="password" class="rs-input" type="password" name="password" required autocomplete="new-password"
+                    @error('password', 'updatePassword') aria-invalid="true" aria-describedby="password-error" @enderror>
+                <button type="button" data-rs-toggle-password="password" aria-label="Tampilkan kata sandi" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
+            </div>
+            @error('password', 'updatePassword')
+                <p id="password-error" class="rs-field__error">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div class="rs-field">
+            <label for="password_confirmation">Ulangi kata sandi baru</label>
+            <div class="rs-password">
+                <input id="password_confirmation" class="rs-input" type="password" name="password_confirmation" required autocomplete="new-password"
+                    @error('password_confirmation', 'updatePassword') aria-invalid="true" aria-describedby="password_confirmation-error" @enderror>
+                <button type="button" data-rs-toggle-password="password_confirmation" aria-label="Tampilkan kata sandi" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
+            </div>
+            @error('password_confirmation', 'updatePassword')
+                <p id="password_confirmation-error" class="rs-field__error">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div class="rs-actions">
+            <button type="submit" class="rs-btn">Simpan perubahan</button>
+            <a href="{{ route('user.profile.index') }}" class="rs-link">Batal</a>
+        </div>
+    </form>
+</div>
+@endsection

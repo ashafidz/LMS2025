@@ -123,6 +123,7 @@
             'rgba(255, 159, 64, 0.7)'
         ];
 
+        Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
         new Chart(ctx, {
             type: 'pie',
             data: {

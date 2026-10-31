@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Security
+
+- Memperbarui dependensi `symfony/mime` ke versi 7.4.22 untuk menutup celah keamanan CVE-2026-45070 (injeksi header email).
+
+### Changed
+
+- Dasbor semua peran (instruktur, admin, superadmin, siswa) memakai kerangka baru: menu daftar isi berkelompok, bar atas, serta huruf dan warna Ruang Studi. Isi halaman dasbor belum berubah.
+- Judul modal detail pengumpulan tugas instruktur kini menyertakan nomor induk/NRP siswa ("Detail Pengumpulan: [NRP] - [Nama Siswa]").
+- Dasbor semua peran kini memakai huruf Literata (serif) dan warna hangat yang sama dengan halaman publik.
+- Ikon situs (favicon) memakai warna baru.
+- Menu samping dasbor kini juga berisi "Profil saya", "Ke halaman depan", dan "Keluar" (grup Profil), sama seperti menu di nama pengguna.
+- Gambar di halaman Detail Layanan diganti dengan ilustrasi baru bertema rak buku (gambar template lama dihapus).
+- Beranda (bagian Tentang Kami) dan halaman Tentang kini memakai ilustrasi bertema rak buku, menggantikan kotak ikon sementara.
+- Beranda kembali punya dua ajakan: "Kenali Lebih Dekat" (ke halaman Tentang) setelah Layanan Kami, dan "Cari Kursus Lainnya?" (ke katalog) setelah kursus populer.
+- Tampilan halaman publik diperbarui (beranda, katalog, detail kursus, tentang, kontak, FAQ, testimoni, detail layanan, profil publik): huruf Literata (serif) untuk judul dan isi, warna hangat (krem, cokelat kayu, terakota), kursus ditampilkan seperti sampul buku.
+- Template BootstrapMade dihapus dari halaman publik, keranjang, checkout, halaman galat, halaman status akun, login, dan daftar. Kredit "Designed by BootstrapMade" dihapus, folder `public/home-page` dihapus, dan halaman-halaman tersebut memakai tampilan Rak Buku yang sama (modal diganti dialog bawaan peramban).
+
+### Fixed
+
+- Form ulasan kursus kini ditutup dengan pesan "Ulasan Belum Bisa Diisi" selama admin belum membuat pertanyaan penilaian (Likert), sehingga siswa tidak lagi melihat galat "The likert answers field is required". Setiap pertanyaan penilaian yang aktif wajib dijawab.
+- Kartu kursus berbayar diamond tidak lagi tampil sebagai Gratis di katalog dan detail kursus.
+- Angka peserta 0 tidak lagi ditampilkan sebagai 0+ Siswa.
+- Teks halaman galat 400 dan 404 yang tertukar sudah diperbaiki.
+- Pesan galat kupon di keranjang kini terlihat (sebelumnya tidak tampil).
+- Label PPN di keranjang kini memakai persentase asli dari pengaturan, bukan selalu 11%.
+- Kupon potongan tetap kini tampil sebagai "Potongan Rp..." (sebelumnya selalu "Diskon ...%").
+- Ringkasan pesanan di checkout kini menampilkan PPN dan Biaya Layanan sehingga rinciannya sesuai total.
+- Snap.js memakai alamat produksi saat `midtrans.is_production` aktif (sebelumnya selalu sandbox).
+- Waktu di halaman pembayaran berhasil kini memakai zona waktu pengguna, bukan jam UTC yang diberi label WIB.
+- Kolom alamat website di pendaftaran instruktur tidak lagi tampil sebagai opsional padahal wajib.
+- Status "tautan atur ulang kata sandi dikirim" kini terlihat di halaman lupa kata sandi (sebelumnya tersembunyi di modal).
+
 ## [1.5.2] - 2026-10-26
 
 ### Fixed

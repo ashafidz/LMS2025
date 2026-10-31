@@ -1,28 +1,13 @@
-@extends('layouts.home-layout')
+@extends('layouts.plain-layout')
 
-@section('title', '400')
+@section('title', 'Halaman tidak ditemukan')
 
 @section('content')
-<section class="d-flex flex-column justify-content-center align-items-center text-center"
-         style="background: #f8f9fa; min-height: 100vh; padding: 20px;">
-
-    <div class="mb-4">
-        <img src="https://static.domainesia.com/assets/slots/webcdn/server/img/error-code/svg/error-400.svg"
-             alt="400 Bad Request"
-             style="max-width: 400px; width: 100%;">
+<x-rs.status icon="bi-signpost-split" eyebrow="Kode 404" title="Halaman tidak ditemukan">
+    <p>Halaman yang kamu cari tidak ada atau sudah dipindahkan.</p>
+    <div class="rs-status__actions">
+        <a href="{{ url('/') }}" class="rs-btn rs-btn--block">Ke beranda</a>
+        <a href="{{ route('courses') }}" class="rs-btn rs-btn--outline rs-btn--block">Lihat katalog kursus</a>
     </div>
-
-    <h1 class="fw-bold mb-2" style="font-size: 2.5rem; color: #012970;">
-        Permintaan Tidak Valid
-    </h1>
-
-    <p class="mb-4" style="color: #5e5e5e; font-size: 1.2rem;">
-        Server tidak dapat memproses permintaan Anda karena format atau parameter tidak valid.  
-        Silakan periksa kembali dan coba lagi.
-    </p>
-
-    <a href="{{ url()->previous() }}" class="btn btn-primary btn-lg px-4" style="border-radius: 50px;">
-        Kembali ke Beranda
-    </a>
-</section>
+</x-rs.status>
 @endsection

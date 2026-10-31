@@ -372,7 +372,7 @@ input:checked + .slider-modern:before {
     width: 20px;
     height: 20px;
     margin-right: 0.5rem;
-    border: 2px solid #1E88E5;
+    border: 2px solid var(--rs-primary);
     border-radius: 3px;
     background-color: #fff;
     transition: all 0.3s ease;
@@ -380,8 +380,8 @@ input:checked + .slider-modern:before {
 }
 
 .checkbox-fade input[type="checkbox"]:checked + .cr {
-    background-color: #1E88E5;
-    border-color: #1E88E5;
+    background-color: var(--rs-primary);
+    border-color: var(--rs-primary);
 }
 
 .checkbox-fade .cr .cr-icon {
@@ -396,13 +396,13 @@ input:checked + .slider-modern:before {
 }
 
 .checkbox-fade:hover .cr {
-    border-color: #0D47A1;
+    border-color: var(--rs-primary-d);
     background-color: #f5f5f5;
 }
 
 .checkbox-fade input[type="checkbox"]:checked:hover + .cr {
-    background-color: #0D47A1;
-    border-color: #0D47A1;
+    background-color: var(--rs-primary-d);
+    border-color: var(--rs-primary-d);
 }
 
 .checkbox-fade span:not(.cr) {

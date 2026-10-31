@@ -13,8 +13,8 @@
     margin-bottom: 1rem;
 }
 .upload-zone:hover, .upload-zone.dragover {
-    border-color: #3b82f6;
-    background-color: #eff6ff;
+    border-color: var(--rs-accent);
+    background-color: var(--rs-select);
 }
 .upload-zone i.upload-icon {
     font-size: 3.5rem;
@@ -23,7 +23,7 @@
     transition: color 0.3s;
 }
 .upload-zone:hover i.upload-icon, .upload-zone.dragover i.upload-icon {
-    color: #3b82f6;
+    color: var(--rs-accent);
 }
 .upload-zone input[type="file"] {
     position: absolute;

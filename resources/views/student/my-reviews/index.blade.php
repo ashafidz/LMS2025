@@ -204,7 +204,7 @@
     .star-rating input { display: none; }
     .star-rating label { font-size: 2.5rem; color: #ddd; cursor: pointer; }
     .star-rating input:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #f5b301; }
-    .likert-scale .btn-check:checked+.btn { background-color: #007bff; color: white; }
+    .likert-scale .btn-check:checked+.btn { background-color: var(--rs-primary); color: white; }
     
     /* Styling for Vertical Pills Navigation */
     .custom-v-pills .nav-link {
@@ -220,8 +220,8 @@
         color: #333;
     }
     .custom-v-pills .nav-link.active {
-        background-color: #e3f2fd !important;
-        color: #1E88E5 !important;
+        background-color: var(--rs-select) !important;
+        color: var(--rs-primary) !important;
         font-weight: 600;
         border: none !important;
     }

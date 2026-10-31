@@ -41,6 +41,7 @@ class CartController extends Controller
         $vatAmount = $pricing['vat_amount'];
         $transactionFee = $pricing['transaction_fee'];
         $finalTotal = $pricing['final_total'];
+        $vatPercentage = $pricing['vat_percentage'];
 
         // --- LOGIKA BARU: Ambil Kupon Publik ---
         $courseIdsInCart = $cartItems->pluck('course_id');
@@ -73,6 +74,7 @@ class CartController extends Controller
             'coupon',
             'discount',
             'vatAmount',
+            'vatPercentage',
             'transactionFee',
             'finalTotal',
             'publicCoupons',
