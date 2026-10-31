@@ -75,7 +75,7 @@
                                                             <a href="{{ route('instructor.quiz.security.edit', $lesson->lessonable) }}" class="btn btn-secondary btn-sm d-none d-lg-inline-block" title="Opsi Keamanan">
                                                                 <i class="fa fa-shield"></i> <span class="d-none d-xl-inline ms-1">Keamanan</span>
                                                             </a>
-                                                            <a href="{{ route('instructor.quiz.monitoring.review', $lesson->lessonable) }}" class="btn btn-warning btn-sm text-white d-none d-lg-inline-block" title="Hasil Pelanggaran">
+                                                            <a href="{{ route('instructor.quiz.monitoring.review', $lesson->lessonable) }}" class="btn btn-warning btn-sm text-dark d-none d-lg-inline-block" title="Hasil Pelanggaran">
                                                                 <i class="fa fa-eye"></i> <span class="d-none d-xl-inline ms-1">Pelanggaran</span>
                                                             </a>
                                                             <a href="{{ route('instructor.quizzes.manage_questions', $lesson->lessonable) }}" class="btn btn-primary btn-sm" title="Kelola Soal">

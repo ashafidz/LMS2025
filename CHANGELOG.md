@@ -35,6 +35,7 @@ All notable changes to this project will be documented in this file.
 - Waktu di halaman pembayaran berhasil kini memakai zona waktu pengguna, bukan jam UTC yang diberi label WIB.
 - Kolom alamat website di pendaftaran instruktur tidak lagi tampil sebagai opsional padahal wajib.
 - Status "tautan atur ulang kata sandi dikirim" kini terlihat di halaman lupa kata sandi (sebelumnya tersembunyi di modal).
+- Seluruh tombol dan lencana kuning (btn-warning, badge-warning) kini memakai teks gelap (#212529) agar terbaca jelas dan kontras, menggantikan teks putih.
 
 ## [1.5.2] - 2026-10-26
 
