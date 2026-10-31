@@ -61,7 +61,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="d-flex align-items-center flex-shrink-0" style="gap: 5px;">
-                                                        <button class="btn btn-warning btn-sm leaderboard-btn d-none d-md-inline-block text-white" type="button" data-url="{{ route('instructor.module.leaderboard', $module) }}" title="Papan Peringkat">
+                                                        <button class="btn btn-warning btn-sm leaderboard-btn d-none d-md-inline-block text-dark" type="button" data-url="{{ route('instructor.module.leaderboard', $module) }}" title="Papan Peringkat">
                                                             <i class="fa fa-bar-chart"></i> <span class="d-none d-lg-inline ms-1">Papan Peringkat</span>
                                                         </button>
                                                         <a href="{{ route('instructor.modules.lessons.index', $module) }}" class="btn btn-primary btn-sm" title="Kelola Pelajaran">

@@ -107,6 +107,20 @@ body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; c
 .rs-dash .btn-info { background-color: var(--rs-info); border-color: var(--rs-info); color: #fff; }
 .rs-dash .btn-info:hover, .rs-dash .btn-info:focus { background-color: var(--rs-info-d); border-color: var(--rs-info-d); color: #fff; }
 .rs-dash .badge-info { background-color: var(--rs-info); color: #fff; }
+.rs-dash .btn-warning,
+.rs-dash a.btn-warning,
+.rs-dash button.btn-warning,
+.rs-dash .btn-warning.text-white,
+.rs-dash .btn-warning *,
+.rs-dash .badge-warning,
+.rs-dash .badge-warning * {
+  color: #212529 !important;
+}
+.rs-dash .btn-warning:hover,
+.rs-dash .btn-warning:focus,
+.rs-dash .btn-warning:active {
+  color: #212529 !important;
+}
 .rs-dash .alert-info { background-color: var(--rs-info-bg); border-color: #c4d8db; color: var(--rs-info); }
 .rs-dash .pcoded-content a:not(.btn):hover { color: var(--rs-primary); }
 .rs-dash .text-info { color: var(--rs-info) !important; }

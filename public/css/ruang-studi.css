@@ -472,3 +472,11 @@ textarea.rs-input { min-height: 160px; resize: vertical; }
 .rs-verify__result dt { font-weight: 700; }
 .rs-verify__result dd { margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 575.98px) { .rs-verify__result dl > div { grid-template-columns: minmax(0, 1fr); gap: 2px; } }
+
+/* Warning buttons */
+.btn-warning,
+.btn-warning:hover,
+.btn-warning:focus,
+.btn-warning:active {
+  color: #212529 !important;
+}
