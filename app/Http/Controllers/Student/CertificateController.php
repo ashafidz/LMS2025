@@ -115,6 +115,15 @@ class CertificateController extends Controller
         $course->load('instructor', 'modules.lessons');
 
         if (! $this->isEligibleForCertificate($user, $course)) {
+            $totalLessons = $course->modules->flatMap->lessons->count();
+            $completedLessons = $user->completedLessons()
+                ->whereIn('lesson_id', $course->modules->flatMap->lessons->pluck('id'))
+                ->count();
+
+            if ($totalLessons > 0 && $completedLessons < $totalLessons) {
+                return redirect()->back()->with('error', 'Kursus telah diperbarui dengan materi baru. Silakan selesaikan seluruh pelajaran untuk mengunduh sertifikat kembali.');
+            }
+
             return redirect()->back()->with('error', 'Anda belum memenuhi syarat untuk mengunduh sertifikat.');
         }
 

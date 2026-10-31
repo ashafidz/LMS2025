@@ -170,4 +170,45 @@ class StudentCertificateTemplateTest extends TestCase
         $html = $this->actingAs($this->student)->getJson(route('student.certificate.preview', $this->course))->json('html');
         $this->assertMatchesRegularExpression('/data-font-fraction="0\.\d{5}"/', $html);
     }
+
+    public function test_certificate_index_shows_warning_and_continue_button_when_course_has_new_lessons(): void
+    {
+        // Berikan sertifikat ke siswa
+        Certificate::create([
+            'user_id' => $this->student->id,
+            'course_id' => $this->course->id,
+            'certificate_code' => 'LMS-'.$this->course->id.'-'.$this->student->id.'-123456',
+            'issued_at' => now(),
+        ]);
+
+        // Instruktur menambahkan pelajaran baru sehingga progres tidak lagi 100%
+        $this->makeArticleLesson($this->course->modules->first());
+
+        $response = $this->actingAs($this->student)->get(route('student.certificates.index'));
+        $response->assertOk();
+        $response->assertSee('Kursus Diperbarui', false);
+        $response->assertSee('Lanjutkan Kursus', false);
+        $response->assertSee(route('student.courses.show', $this->course), false);
+
+        // Jika mencoba unduh langsung, diarahkan kembali dengan pesan error spesifik
+        $downloadResponse = $this->actingAs($this->student)->get(route('student.certificate.download', $this->course));
+        $downloadResponse->assertRedirect();
+        $downloadResponse->assertSessionHas('error', 'Kursus telah diperbarui dengan materi baru. Silakan selesaikan seluruh pelajaran untuk mengunduh sertifikat kembali.');
+    }
+
+    public function test_certificate_index_shows_download_button_when_all_lessons_are_completed(): void
+    {
+        Certificate::create([
+            'user_id' => $this->student->id,
+            'course_id' => $this->course->id,
+            'certificate_code' => 'LMS-'.$this->course->id.'-'.$this->student->id.'-123456',
+            'issued_at' => now(),
+        ]);
+
+        $response = $this->actingAs($this->student)->get(route('student.certificates.index'));
+        $response->assertOk();
+        $response->assertDontSee('Kursus Diperbarui', false);
+        $response->assertSee('Unduh Sertifikat', false);
+        $response->assertSee(route('student.certificate.download', $this->course->id), false);
+    }
 }
