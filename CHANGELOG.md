@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Dasbor semua peran (instruktur, admin, superadmin, siswa) memakai kerangka baru: menu daftar isi berkelompok, bar atas, serta huruf dan warna Ruang Studi. Isi halaman dasbor belum berubah.
+- Judul modal detail pengumpulan tugas instruktur kini menyertakan nomor induk/NRP siswa ("Detail Pengumpulan: [NRP] - [Nama Siswa]").
 - Dasbor semua peran kini memakai huruf Literata (serif) dan warna hangat yang sama dengan halaman publik.
 - Ikon situs (favicon) memakai warna baru.
 - Menu samping dasbor kini juga berisi "Profil saya", "Ke halaman depan", dan "Keluar" (grup Profil), sama seperti menu di nama pengguna.
