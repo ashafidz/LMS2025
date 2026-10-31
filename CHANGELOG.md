@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.2] - 2026-10-31
+
+### Added
+
+- **Pengaturan Tautan Video Beranda**: Tautan tombol "Lihat video" pada bagian awal (hero) beranda kini dapat dikonfigurasi melalui menu Pengaturan Situs yang dapat diakses oleh Admin dan Superadmin. Jika kolom dikosongkan, tombol "Lihat video" otomatis disembunyikan di beranda publik.
+
 ## [1.6.1] - 2026-10-31
 
 ### Fixed

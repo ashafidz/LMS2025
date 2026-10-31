@@ -64,6 +64,27 @@ class PublicPagesTest extends TestCase
             ->assertSeeInOrder(['Kenali Lebih Dekat', 'Tentang Kami', 'Kursus yang Sering Dibeli', 'Cari Kursus Lainnya?', 'Lihat Semua Kursus']);
     }
 
+    public function test_home_shows_hero_video_button_when_url_configured(): void
+    {
+        SiteSetting::first()->update(['hero_video_url' => 'https://www.youtube.com/watch?v=customHeroTest']);
+        cache()->forget('site_settings');
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('href="https://www.youtube.com/watch?v=customHeroTest"', false)
+            ->assertSee('Lihat video');
+    }
+
+    public function test_home_hides_hero_video_button_when_url_is_null(): void
+    {
+        SiteSetting::first()->update(['hero_video_url' => null]);
+        cache()->forget('site_settings');
+
+        $this->get('/')
+            ->assertOk()
+            ->assertDontSee('Lihat video');
+    }
+
     public function test_home_and_about_use_the_new_illustrations(): void
     {
         $this->get('/')->assertOk()->assertSee('images/tentang/beranda-tentang.jpg', false);

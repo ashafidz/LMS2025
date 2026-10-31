@@ -35,3 +35,9 @@
         <x-dash.link :href="route('admin.likert-questions.index')" :active="['admin.likert-questions.*']">Pertanyaan ulasan</x-dash.link>
     </ul>
 </nav>
+<nav class="rs-dash-group" aria-labelledby="nav-sistem">
+    <h2 id="nav-sistem">Sistem</h2>
+    <ul class="rs-dash-toc">
+        <x-dash.link :href="route('admin.settings.edit')" :active="['admin.settings.*']">Pengaturan situs</x-dash.link>
+    </ul>
+</nav>

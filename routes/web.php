@@ -328,6 +328,10 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::post('/admin/point-sync/courses/{course}/mass-sync', [PointSyncController::class, 'massSyncExecute'])->name('admin.point-sync.mass-sync.execute');
     Route::get('/admin/point-sync/courses/{course}/students/{student}/progress', [PointSyncController::class, 'studentProgress'])->name('admin.point-sync.student-progress');
     Route::post('/admin/point-sync/courses/{course}/students/{student}/sync', [PointSyncController::class, 'syncPoints'])->name('admin.point-sync.sync-points');
+
+    // --- RUTE PENGATURAN SITUS (ADMIN) ---
+    Route::get('/admin/settings', [SiteSettingController::class, 'edit'])->name('admin.settings.edit');
+    Route::put('/admin/settings', [SiteSettingController::class, 'update'])->name('admin.settings.update');
 });
 
 // Group route for instructor

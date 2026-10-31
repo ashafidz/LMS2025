@@ -21,6 +21,7 @@ class SiteSettingSeeder extends Seeder
                 'twitter_url' => '#', // Tambahkan ini
                 'instagram_url' => '#', // Tambahkan ini
                 'youtube_url' => '#', // Tambahkan ini
+                'hero_video_url' => 'https://www.youtube.com/watch?v=Y7f98aduVJ8',
                 'logo_path' => null,
                 'vat_percentage' => 11.00,
                 'transaction_fee_fixed' => 0,

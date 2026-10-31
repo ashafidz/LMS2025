@@ -56,6 +56,7 @@ class SiteSettingController extends Controller
             'twitter_url' => 'nullable|url|max:255',
             'instagram_url' => 'nullable|url|max:255',
             'youtube_url' => 'nullable|url|max:255',
+            'hero_video_url' => 'nullable|url|max:255',
         ]);
 
         // Logika untuk menangani unggahan logo

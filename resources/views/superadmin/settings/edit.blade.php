@@ -14,8 +14,7 @@
                     </div>
                     <div class="col-md-12 d-flex mt-3">
                         <ul class="breadcrumb-title">
-                            {{-- DIUBAH: Route sekarang langsung ke superadmin.dashboard --}}
-                            <li class="breadcrumb-item"><a href="{{ route('superadmin.dashboard') }}"><i
+                            <li class="breadcrumb-item"><a href="{{ auth()->user()->hasRole('superadmin') ? route('superadmin.dashboard') : route('admin.dashboard') }}"><i
                                         class="fa fa-home"></i></a></li>
                             <li class="breadcrumb-item"><a href="#!">Pengaturan</a></li>
                         </ul>
@@ -49,8 +48,7 @@
                                             </div>
                                         @endif
 
-                                        {{-- DIUBAH: Action form sekarang langsung ke superadmin.settings.update --}}
-                                        <form action="{{ route('superadmin.settings.update') }}" method="POST"
+                                        <form action="{{ auth()->user()->hasRole('superadmin') ? route('superadmin.settings.update') : route('admin.settings.update') }}" method="POST"
                                             enctype="multipart/form-data">
                                             @csrf
                                             @method('PUT')
@@ -148,6 +146,14 @@
                                                 <div class="col-sm-9">
                                                     <input type="url" name="youtube_url" class="form-control" placeholder="https://www.youtube.com/"
                                                         value="{{ old('youtube_url', $settings->youtube_url) }}">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="col-sm-3 col-form-label">Link Video Beranda (Lihat Video)</label>
+                                                <div class="col-sm-9">
+                                                    <input type="url" name="hero_video_url" class="form-control" placeholder="https://www.youtube.com/watch?v=..."
+                                                        value="{{ old('hero_video_url', $settings->hero_video_url) }}">
+                                                    <small class="form-text text-muted">Tautan video untuk tombol "Lihat video" pada hero beranda publik. Kosongkan jika tidak ingin menampilkan tombol.</small>
                                                 </div>
                                             </div>
 

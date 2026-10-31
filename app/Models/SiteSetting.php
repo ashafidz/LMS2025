@@ -21,6 +21,7 @@ class SiteSetting extends Model
         'twitter_url', // Tambahkan ini
         'instagram_url', // Tambahkan ini
         'youtube_url', // Tambahkan ini
+        'hero_video_url',
         'npwp',
         'logo_path',
         'vat_percentage',
