@@ -1,6 +1,6 @@
 # ADR-006: Warm color palette for the public site and dashboard shell
 
-- **Status**: Accepted
+- **Status**: Superseded by ADR-008
 - **Date**: 2026-10-29
 - **Deciders**: Project owner
 

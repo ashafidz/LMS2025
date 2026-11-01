@@ -158,7 +158,7 @@
         const canvas = document.getElementById('wordCloudCanvas');
         
         // Define color palette matching rich aesthetics
-        const colors = ['#5a2a1e', '#a8492a', '#3f6670', '#4e6b3a', '#7a4a1f', '#8f5e15', '#2e6b45'];
+        const colors = ['#136cf1', '#73548e', '#0e4fb1', '#292940', '#825e32', '#8f5e15', '#2e6b45'];
         
         let maxCount = 1;
         if (wordList.length > 0) {

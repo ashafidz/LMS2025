@@ -14,9 +14,9 @@
                     </div>
                     <div class="col-md-12 d-flex mt-3">
                         <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="#!"><i class="fa fa-home"></i> </a></li>
-                            <li class="breadcrumb-item"><a href="#!">Kursus Saya</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Modul Saya</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('instructor.courses.index') }}">Kursus Saya</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $quiz->lesson->module->course) }}">Modul Saya</a></li>
                             <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $quiz->lesson->module) }}">Daftar Pelajaran</a></li>
                             <li class="breadcrumb-item"><a href="#!">Kelola Soal</a></li>
                         </ul>
