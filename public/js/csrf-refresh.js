@@ -44,8 +44,8 @@ function refreshCsrfToken() {
 
 // Detect 419 responses and automatically refresh the token
 document.addEventListener('DOMContentLoaded', function() {
-    // Add a global AJAX error handler
-    $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+    // Add a global AJAX error handler (public pages do not load jQuery)
+    if (window.jQuery) $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
         if (jqXHR.status === 419) {
             console.log('CSRF token mismatch detected. Refreshing token...');
             refreshCsrfToken().then(() => {

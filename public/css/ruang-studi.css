@@ -228,11 +228,19 @@ legend { padding: 0; }
 .rs-input { width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid #9c8b7a; border-radius: 4px; font: inherit; color: var(--rs-ink); background: #fff; }
 .rs-input:focus { outline: 3px solid rgba(168, 73, 42, .35); outline-offset: 0; border-color: var(--rs-accent); }
 textarea.rs-input { min-height: 160px; resize: vertical; }
-.rs-form-status { display: none; padding: 12px 14px; border-radius: 4px; font-size: 15px; }
+.rs-form-status { display: none; margin-bottom: 12px; padding: 12px 14px; border-radius: 4px; font-size: 15px; }
 .rs-form-status.is-shown { display: block; }
 .rs-form-status--wait { background: var(--rs-paper); color: var(--rs-slate); }
 .rs-form-status--error { background: var(--rs-danger-bg); color: var(--rs-danger); }
 .rs-form-status--ok { background: var(--rs-ok-bg); color: var(--rs-ok); }
+.rs-form-done { background: var(--rs-ok-bg); border-radius: 4px; padding: 24px; }
+.rs-form-done[hidden] { display: none; }
+.rs-form-done:focus { outline: none; }
+.rs-form-done i { display: block; font-size: 32px; line-height: 1; color: var(--rs-ok); margin-bottom: 8px; }
+.rs-form-done .rs-h3 { color: var(--rs-ok); margin-bottom: 8px; }
+.rs-form-done p { margin: 0 0 16px; }
+.rs-form-legal { margin: 12px 0 0; font-size: 13px; color: var(--rs-slate); }
+.grecaptcha-badge { visibility: hidden; }
 .rs-search { display: flex; max-width: 520px; border: 2px solid var(--rs-primary); border-radius: 4px; background: #fff; }
 .rs-search input { flex: 1; min-width: 0; border: 0; padding: 11px 12px; font: inherit; color: var(--rs-ink); background: transparent; }
 .rs-search input:focus { outline: none; }

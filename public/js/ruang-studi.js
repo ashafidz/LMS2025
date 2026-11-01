@@ -127,8 +127,53 @@
       }
       return 'Pesan belum terkirim. Coba lagi beberapa saat lagi.';
     };
+    var fieldsBox = contactForm.querySelector('[data-rs-fields]');
+    var doneBox = contactForm.querySelector('[data-rs-done]');
+    var submitButton = contactForm.querySelector('[data-rs-submit]');
+    var submitLabel = submitButton ? submitButton.textContent : '';
+    var setSending = function (sending) {
+      if (!submitButton) {
+        return;
+      }
+      submitButton.disabled = sending;
+      submitButton.textContent = sending ? 'Mengirim...' : submitLabel;
+    };
+    var showDone = function (name, email) {
+      if (!doneBox || !fieldsBox) {
+        setStatus('ok');
+        return;
+      }
+      var nameBox = doneBox.querySelector('[data-rs-done-name]');
+      var emailBox = doneBox.querySelector('[data-rs-done-email]');
+      if (nameBox) {
+        nameBox.textContent = name ? ', ' + name : '';
+      }
+      if (emailBox) {
+        emailBox.textContent = email;
+      }
+      setStatus('none');
+      fieldsBox.hidden = true;
+      doneBox.hidden = false;
+      doneBox.focus();
+      doneBox.scrollIntoView({ block: 'center' });
+    };
+    var againButton = contactForm.querySelector('[data-rs-again]');
+    if (againButton) {
+      againButton.addEventListener('click', function () {
+        doneBox.hidden = true;
+        fieldsBox.hidden = false;
+        setStatus('none');
+        setSending(false);
+        var nameInput = contactForm.querySelector('#contact-name');
+        if (nameInput) {
+          nameInput.focus();
+        }
+      });
+    }
     var send = function (token) {
       var data = new FormData(contactForm);
+      var sentName = String(data.get('name') || '').trim();
+      var sentEmail = String(data.get('email') || '').trim();
       if (token) {
         data.set('recaptcha-response', token);
       }
@@ -140,31 +185,36 @@
         .then(function (response) {
           return response.text().then(function (body) {
             if (response.ok && body.trim() === 'OK') {
-              setStatus('ok');
               contactForm.reset();
+              showDone(sentName, sentEmail);
             } else {
+              setSending(false);
               setStatus('error', messageFor(response.status, body));
             }
           });
         })
         .catch(function () {
+          setSending(false);
           setStatus('error', 'Pesan belum terkirim. Periksa koneksi internet lalu coba lagi.');
         });
     };
     contactForm.addEventListener('submit', function (event) {
       event.preventDefault();
       setStatus('wait');
+      setSending(true);
       var siteKey = contactForm.getAttribute('data-recaptcha-site-key');
       if (!siteKey) {
         send(null);
         return;
       }
       if (typeof grecaptcha === 'undefined') {
+        setSending(false);
         setStatus('error', 'Pemeriksaan keamanan belum siap. Muat ulang halaman lalu coba lagi.');
         return;
       }
       grecaptcha.ready(function () {
         grecaptcha.execute(siteKey, { action: 'php_email_form_submit' }).then(send, function () {
+          setSending(false);
           setStatus('error', 'Pemeriksaan keamanan gagal. Muat ulang halaman lalu coba lagi.');
         });
       });

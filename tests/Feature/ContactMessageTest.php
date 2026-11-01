@@ -143,4 +143,21 @@ class ContactMessageTest extends TestCase
             ->assertSee('data-recaptcha-site-key="KUNCI-SITUS"', false)
             ->assertSee('recaptcha/api.js?render=KUNCI-SITUS', false);
     }
+
+    public function test_contact_page_renders_sent_panel_and_send_another_button(): void
+    {
+        $this->get(route('contact'))
+            ->assertOk()
+            ->assertSee('data-rs-done', false)
+            ->assertSee('data-rs-again', false);
+    }
+
+    public function test_contact_page_shows_recaptcha_notice_only_when_site_key_is_set(): void
+    {
+        config(['services.recaptcha.site_key' => 'KUNCI-SITUS']);
+        $this->get(route('contact'))->assertOk()->assertSee('Form ini dilindungi reCAPTCHA');
+
+        config(['services.recaptcha.site_key' => null]);
+        $this->get(route('contact'))->assertOk()->assertDontSee('Form ini dilindungi reCAPTCHA');
+    }
 }
