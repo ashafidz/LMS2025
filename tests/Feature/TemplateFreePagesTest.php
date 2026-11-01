@@ -139,13 +139,14 @@ class TemplateFreePagesTest extends TestCase
             ->assertDontSee('data-bs-', false);
     }
 
-    public function test_checkout_summary_lists_tax_and_fee_and_picks_snap_url(): void
+    public function test_checkout_summary_lists_tax_and_fee_and_links_to_xendit(): void
     {
         $student = $this->makeStudent();
         $order = Order::factory()->create([
             'user_id' => $student->id,
             'status' => 'pending',
-            'snap_token' => 'dummy-snap-token',
+            'xendit_invoice_id' => 'inv_dummy',
+            'payment_url' => 'https://checkout-staging.xendit.co/web/inv_dummy',
             'vat_amount' => 1100,
             'vat_percentage_at_purchase' => 11,
             'transaction_fee_amount' => 500,
@@ -154,17 +155,28 @@ class TemplateFreePagesTest extends TestCase
 
         $this->actingAs($student)->withSession(['active_role' => 'student']);
 
-        config(['midtrans.is_production' => false]);
         $this->get(route('checkout.show', $order))
             ->assertOk()
             ->assertSee('Biaya Layanan')
             ->assertSee('PPN (11%)', false)
-            ->assertSee('app.sandbox.midtrans.com', false);
+            ->assertSee('href="https://checkout-staging.xendit.co/web/inv_dummy"', false)
+            ->assertDontSee('snap.js', false);
+    }
 
-        config(['midtrans.is_production' => true]);
+    public function test_checkout_without_payment_url_redirects_with_expired_session_message(): void
+    {
+        $student = $this->makeStudent();
+        $order = Order::factory()->create([
+            'user_id' => $student->id,
+            'status' => 'pending',
+            'payment_url' => null,
+        ]);
+
+        $this->actingAs($student)->withSession(['active_role' => 'student']);
+
         $this->get(route('checkout.show', $order))
-            ->assertOk()
-            ->assertSee('https://app.midtrans.com/snap/snap.js', false);
+            ->assertRedirect(route('student.transactions.index'))
+            ->assertSessionHas('error', 'Sesi pembayaran untuk pesanan ini sudah tidak berlaku. Silakan pesan ulang dari keranjang.');
     }
 
     public function test_account_status_page_uses_plain_layout(): void

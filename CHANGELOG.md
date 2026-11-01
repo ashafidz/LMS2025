@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- **Payment Gateway ke Xendit**: Pembayaran kursus kini memakai Xendit (Invoice). Tombol "Bayar Sekarang" membuka halaman pembayaran aman Xendit, tempat pembeli memilih metode bayar. Status pembayaran tetap hanya berubah lewat notifikasi resmi Xendit (diverifikasi token rahasia dan pencocokan nominal) atau pengecekan server ke Xendit, termasuk pengecekan otomatis berkala untuk pesanan yang masih menunggu.
+- **Form Kontak**: Setelah pesan terkirim, form diganti panel "Pesan terkirim" berisi nama dan email pengirim beserta tombol "Kirim pesan lain". Tombol kirim terkunci saat pengiriman berlangsung sehingga tidak ada pesan ganda. Logo reCAPTCHA yang tertutup tombol WhatsApp diganti keterangan perlindungan di bawah tombol kirim.
+
+### Fixed
+
+- **Error Skrip di Halaman Publik**: `csrf-refresh.js` memanggil jQuery di halaman yang tidak memuat jQuery, sehingga muncul error "$ is not defined" di konsol peramban dan sisa skrip berhenti. Bagian jQuery kini hanya berjalan bila jQuery tersedia.
+
+### Removed
+
+- **Midtrans**: Integrasi, konfigurasi, endpoint notifikasi (`/midtrans/notification`), dan paket `midtrans/midtrans-php` dihapus. Pesanan Midtrans lama yang masih menunggu pembayaran otomatis dibatalkan lewat migrasi data dan perlu dipesan ulang.
+
 ## [1.6.3] - 2026-10-31
 
 ### Added

@@ -117,7 +117,7 @@
             <tbody>
                 <tr>
                     <td>{{ $order->updated_at->format('d F Y, H:i') }}</td>
-                    <td>Midtrans</td>
+                    <td>Xendit</td>
                     <td class="text-right">Rp{{ number_format($order->final_amount, 0, ',', '.') }}</td>
                 </tr>
             </tbody>

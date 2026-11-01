@@ -16,7 +16,7 @@
 - **Quizzes & Assignments:** Interactive quiz system and drag-and-drop assignment submissions with client-side & server-side size validation.
 - **User Roles & Permissions:** Robust role management using Spatie (Instructor, Student, Admin).
 - **Gamification:** Badges, leaderboards, and an integrated point-to-diamond reward system.
-- **Secure Payments:** Integrated payment gateway (Midtrans) for course purchases.
+- **Secure Payments:** Integrated payment gateway (Xendit) for course purchases.
 - **Modern UI/UX:** Fully responsive design built with modern CSS frameworks and smooth user interactions.
 
 ## 💻 Tech Stack
@@ -24,7 +24,7 @@
 - **Backend:** Laravel 12.x, PHP 8.3
 - **Frontend:** Blade Templates, Tailwind CSS, Alpine.js
 - **Database:** MySQL
-- **Integrations:** Midtrans (Payment Gateway), Google reCAPTCHA v3
+- **Integrations:** Xendit (Payment Gateway), Google reCAPTCHA v3
 - **Development Tools:** Laravel Pint (Code Style), PHPUnit (Testing), Docker
 
 ## 📋 Requirements

@@ -6,7 +6,7 @@ use App\Models\Course;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\SiteSetting;
-use App\Services\MidtransService;
+use App\Services\XenditService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Tests\TestCase;
@@ -34,7 +34,8 @@ class PaymentReturnTest extends TestCase
         $order = Order::factory()->create([
             'user_id' => $owner->id,
             'status' => 'pending',
-            'snap_token' => 'dummy-snap-token',
+            'xendit_invoice_id' => 'inv_dummy',
+            'payment_url' => 'https://checkout-staging.xendit.co/web/inv_dummy',
         ]);
 
         $this->actingAs($otherStudent);
@@ -64,15 +65,15 @@ class PaymentReturnTest extends TestCase
             'price_at_purchase' => 100000,
         ]);
 
-        $mockMidtrans = Mockery::mock(MidtransService::class);
-        $mockMidtrans->shouldReceive('fetchStatus')
+        $mockXendit = Mockery::mock(XenditService::class);
+        $mockXendit->shouldReceive('fetchStatus')
             ->once()
-            ->with($order->order_code)
+            ->with(Mockery::on(fn ($arg) => $arg->is($order)))
             ->andReturn([
-                'transaction_status' => 'pending',
-                'gross_amount' => '100000.00',
+                'status' => 'pending',
+                'amount' => 100000,
             ]);
-        $this->app->instance(MidtransService::class, $mockMidtrans);
+        $this->app->instance(XenditService::class, $mockXendit);
 
         $this->actingAs($owner);
         session(['active_role' => 'student']);
@@ -102,16 +103,15 @@ class PaymentReturnTest extends TestCase
             'price_at_purchase' => 100000,
         ]);
 
-        $mockMidtrans = Mockery::mock(MidtransService::class);
-        $mockMidtrans->shouldReceive('fetchStatus')
+        $mockXendit = Mockery::mock(XenditService::class);
+        $mockXendit->shouldReceive('fetchStatus')
             ->once()
-            ->with($order->order_code)
+            ->with(Mockery::on(fn ($arg) => $arg->is($order)))
             ->andReturn([
-                'transaction_status' => 'settlement',
-                'fraud_status' => 'accept',
-                'gross_amount' => '100000.00',
+                'status' => 'paid',
+                'amount' => 100000,
             ]);
-        $this->app->instance(MidtransService::class, $mockMidtrans);
+        $this->app->instance(XenditService::class, $mockXendit);
 
         $this->actingAs($owner);
         session(['active_role' => 'student']);

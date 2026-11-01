@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\Order;
-use App\Services\MidtransService;
 use App\Services\OrderSettlementService;
+use App\Services\XenditService;
 use Illuminate\Console\Command;
 
 class SyncPendingOrders extends Command
@@ -21,12 +21,12 @@ class SyncPendingOrders extends Command
      *
      * @var string
      */
-    protected $description = 'Cek status order pending ke Midtrans dan selesaikan yang sudah dibayar';
+    protected $description = 'Cek status order pending ke Xendit dan selesaikan yang sudah dibayar';
 
     /**
      * Execute the console command.
      */
-    public function handle(MidtransService $midtransService, OrderSettlementService $settlementService)
+    public function handle(XenditService $xendit, OrderSettlementService $settlementService)
     {
         $minutes = (int) $this->option('minutes');
         $hours = (int) $this->option('hours');
@@ -34,6 +34,7 @@ class SyncPendingOrders extends Command
         $query = Order::query()
             ->where('status', 'pending')
             ->where('final_amount', '>', 0)
+            ->whereNotNull('xendit_invoice_id')
             ->whereBetween('created_at', [
                 now()->subHours($hours),
                 now()->subMinutes($minutes),
@@ -44,10 +45,10 @@ class SyncPendingOrders extends Command
         $failed = 0;
         $unchanged = 0;
 
-        $query->chunkById(100, function ($orders) use ($midtransService, $settlementService, &$checked, &$paid, &$failed, &$unchanged) {
+        $query->chunkById(100, function ($orders) use ($xendit, $settlementService, &$checked, &$paid, &$failed, &$unchanged) {
             foreach ($orders as $order) {
                 $checked++;
-                $status = $midtransService->fetchStatus($order->order_code);
+                $status = $xendit->fetchStatus($order);
                 if (empty($status)) {
                     $unchanged++;
 

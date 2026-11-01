@@ -20,7 +20,6 @@ use App\Http\Controllers\Instructor\QuestionController;
 use App\Http\Controllers\Instructor\QuestionTopicController;
 use App\Http\Controllers\Instructor\QuizQuestionController;
 use App\Http\Controllers\Instructor\QuizSecurityController;
-use App\Http\Controllers\MidtransCallbackController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PublicProfileController;
 use App\Http\Controllers\RoleSwitchController;
@@ -55,6 +54,7 @@ use App\Http\Controllers\Superadmin\SiteSettingController;
 use App\Http\Controllers\Superadmin\SuperAdminDashboardController;
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\XenditCallbackController;
 use Illuminate\Http\Request; // Tambahkan ini
 use Illuminate\Support\Facades\Auth; // Tambahkan ini
 use Illuminate\Support\Facades\Route;
@@ -109,9 +109,9 @@ Route::get('/detail-service', function () {
     return view('detail-layanan');
 })->name('services.detail');
 
-Route::post('/midtrans/notification', [MidtransCallbackController::class, 'handle'])
+Route::post('/xendit/callback', [XenditCallbackController::class, 'handle'])
     ->middleware('throttle:60,1')
-    ->name('midtrans.notification');
+    ->name('xendit.callback');
 
 Route::middleware(['auth'])->group(function () {
     // File privat: dokumen lesson, tugas siswa, screenshot kuis
