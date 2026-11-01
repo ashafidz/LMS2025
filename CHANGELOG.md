@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- **Palet Warna Baru**: Warna situs publik dan dasbor diganti ke biru (Hadfield Blue), abu kebiruan, dan aksen oranye. Ikon situs (favicon) ikut berubah.
+
+### Fixed
+
+- **Breadcrumb Kuis Instruktur**: Breadcrumb Kursus Saya dan Modul Saya (serta ikon beranda) di halaman Kelola Soal Kuis dan Hasil Kuis kini bisa diklik.
+
 ## [1.6.3] - 2026-10-31
 
 ### Added

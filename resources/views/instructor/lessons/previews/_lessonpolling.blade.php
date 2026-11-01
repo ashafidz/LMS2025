@@ -54,7 +54,7 @@
                 .poll-radio-input:checked + .poll-option-card {
                     border-color: var(--rs-accent);
                     background-color: var(--rs-select);
-                    box-shadow: 0 4px 12px rgba(168, 73, 42, 0.15);
+                    box-shadow: 0 4px 12px rgba(21, 114, 254, 0.15);
                 }
                 .poll-radio-circle {
                     width: 22px;
