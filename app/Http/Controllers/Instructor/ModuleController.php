@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Instructor;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Module;
+use App\Services\CourseMediaCleanupService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 class ModuleController extends Controller
@@ -75,7 +77,10 @@ class ModuleController extends Controller
         Gate::authorize('manage', $module->course);
 
         $course = $module->course;
-        $module->delete();
+        DB::transaction(function () use ($module) {
+            app(CourseMediaCleanupService::class)->cleanupModuleAndDeleteLessonables($module);
+            $module->delete();
+        });
 
         return redirect()->route('instructor.courses.modules.index', $course)->with('success', 'Module deleted successfully.');
     }
