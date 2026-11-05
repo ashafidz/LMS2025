@@ -28,7 +28,7 @@
                     <dl class="rs-rows">
                         <div>
                             <dt>No. Transaksi</dt>
-                            <dd>{{ $order->order_code }}</dd>
+                            <dd class="rs-mono">{{ $order->order_code }}</dd>
                         </div>
                         <div>
                             <dt>Tanggal</dt>

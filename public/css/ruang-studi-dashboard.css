@@ -3,7 +3,7 @@
    Shell classes use the rs-dash prefix. */
 
 :root {
-  --rs-primary: #136cf1;
+  --rs-primary: #1266e4;
   --rs-primary-d: #0e4fb1;
   --rs-accent: #1572FE;
   --rs-ink: #292940;
@@ -18,14 +18,18 @@
   --rs-info-bg: #E8F1FF;
   --rs-warn: #8f5e15;
   --rs-select: #F3EAFD;
-  --rs-serif: "Literata", Georgia, "Times New Roman", serif;
+  --rs-font: "Nunito Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --rs-font-head: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --rs-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --rs-dash-side: 272px;
 }
 
 /* ---------- Base (replaces the Guru Able body look) ---------- */
 body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; color: var(--rs-ink);
-  font-family: var(--rs-serif); font-size: 15px; line-height: 1.5; }
-.rs-dash .tooltip, .rs-dash .popover, .swal2-popup { font-family: var(--rs-serif); }
+  font-family: var(--rs-font); font-size: 15px; line-height: 1.5; }
+.rs-dash .tooltip, .rs-dash .popover, .swal2-popup { font-family: var(--rs-font); }
+.rs-dash h1, .rs-dash h2, .rs-dash h3, .rs-dash h4, .rs-dash h5, .rs-dash h6 { font-family: var(--rs-font-head); }
+.rs-dash code, .rs-dash pre, .rs-dash kbd, .rs-dash samp, .rs-dash .rs-mono { font-family: var(--rs-font-mono); }
 .rs-dash a:focus-visible, .rs-dash button:focus-visible, .rs-dash summary:focus-visible { outline: 3px solid var(--rs-accent); outline-offset: 2px; }
 .rs-dash-skip { position: absolute; left: -9999px; top: 8px; z-index: 2000; padding: 8px 14px; background: var(--rs-primary); color: #fff; }
 .rs-dash-skip:focus { left: 8px; color: #fff; }
@@ -34,7 +38,11 @@ body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; c
 .rs-dash-shell { display: grid; grid-template-columns: var(--rs-dash-side) minmax(0, 1fr); min-height: 100vh; }
 .rs-dash-side { position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; gap: 18px;
   padding: 20px 20px 24px; background: #fff; border-right: 1px solid var(--rs-line); }
-.rs-dash-logo { font-family: var(--rs-serif); font-weight: 800; font-size: 20px; line-height: 1.2; color: var(--rs-primary); text-decoration: none; }
+.rs-dash-side__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.rs-dash-side-close { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 36px; height: 36px;
+  padding: 0; background: #fff; border: 1px solid var(--rs-line); border-radius: 2px; color: var(--rs-slate); font-size: 16px; }
+.rs-dash-side-close:hover { background: var(--rs-paper); color: var(--rs-primary); border-color: var(--rs-primary); }
+.rs-dash-logo { font-family: var(--rs-font-head); font-weight: 800; font-size: 20px; line-height: 1.2; color: var(--rs-primary); text-decoration: none; }
 .rs-dash-logo:hover { color: var(--rs-primary-d); text-decoration: none; }
 .rs-dash-role { display: inline-flex; width: max-content; border: 1px solid var(--rs-line); border-radius: 2px; font-size: 14px; }
 .rs-dash-role a, .rs-dash-role span { padding: 5px 12px; text-decoration: none; }
@@ -46,7 +54,7 @@ body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; c
 .rs-dash-btn:hover { background: var(--rs-primary-d); border-color: var(--rs-primary-d); color: #fff; text-decoration: none; }
 
 /* ---------- Table-of-contents menu ---------- */
-.rs-dash-group h2 { margin: 0 0 2px; padding-bottom: 4px; border-bottom: 2px solid var(--rs-ink); font-family: var(--rs-serif);
+.rs-dash-group h2 { margin: 0 0 2px; padding-bottom: 4px; border-bottom: 2px solid var(--rs-ink); font-family: var(--rs-font-head);
   font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--rs-slate); }
 .rs-dash-toc { list-style: none; margin: 0; padding: 0; }
 .rs-dash-toc a, .rs-dash-toc button { display: flex; align-items: baseline; gap: 6px; padding: 6px 0; color: var(--rs-ink); font-size: 15px; text-decoration: none; }
@@ -91,12 +99,12 @@ body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; c
 .rs-dash .page-header { margin: 0 0 20px; background: none; color: var(--rs-ink); border-bottom: 2px solid var(--rs-ink); }
 .rs-dash .page-header:before { content: none; }
 .rs-dash .page-header .page-block { padding: 0 0 14px; }
-.rs-dash .page-header-title h5 { margin: 0 0 4px; font-family: var(--rs-serif); font-weight: 800; font-size: clamp(24px, 3vw, 30px); color: var(--rs-ink); }
+.rs-dash .page-header-title h5 { margin: 0 0 4px; font-family: var(--rs-font-head); font-weight: 800; font-size: clamp(24px, 3vw, 30px); color: var(--rs-ink); }
 .rs-dash .page-header-title p { color: var(--rs-slate); }
 .rs-dash .page-header .page-block .breadcrumb-title { font-size: 14px; }
 .rs-dash .page-header .page-block .breadcrumb-title a { color: var(--rs-slate); }
 .rs-dash .card { border: 1px solid var(--rs-line); border-radius: 2px; box-shadow: none; }
-.rs-dash .card .card-header h5 { font-family: var(--rs-serif); font-weight: 700; color: var(--rs-ink); }
+.rs-dash .card .card-header h5 { font-family: var(--rs-font-head); font-weight: 700; color: var(--rs-ink); }
 .rs-dash .btn-primary { background-color: var(--rs-primary); border-color: var(--rs-primary); }
 .rs-dash .btn-primary:hover, .rs-dash .btn-primary:focus { background-color: var(--rs-primary-d); border-color: var(--rs-primary-d); }
 .rs-dash .btn-outline-primary { color: var(--rs-primary); border-color: var(--rs-primary); }
@@ -187,6 +195,13 @@ body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; c
   .rs-dash-user > summary > span { display: none; }
 }
 
+/* ---------- Large screens: the << button in the sidebar hides it; the Menu button (shown only then) brings it back ---------- */
+@media (min-width: 992px) {
+  body.rs-dash.is-side-closed .rs-dash-menu-btn { display: inline-flex; }
+  body.rs-dash.is-side-closed .rs-dash-shell { grid-template-columns: minmax(0, 1fr); }
+  body.rs-dash.is-side-closed .rs-dash-side { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rs-dash-side { transition: none; }
 }
@@ -214,7 +229,7 @@ body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; c
   width: 18px;
   height: 18px;
   min-width: 18px;
-  accent-color: var(--rs-primary, #136cf1);
+  accent-color: var(--rs-primary, #1266e4);
   cursor: pointer;
   vertical-align: middle;
 }
@@ -239,7 +254,7 @@ body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; c
 }
 
 .rs-dash input[type="checkbox"]:not(.form-check-input) {
-  accent-color: var(--rs-primary, #136cf1);
+  accent-color: var(--rs-primary, #1266e4);
   cursor: pointer;
 }
 
@@ -247,7 +262,7 @@ body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; c
 .rs-dash .select2-container {
   display: block;
   max-width: 100%;
-  font-family: var(--rs-serif);
+  font-family: var(--rs-font);
 }
 
 .rs-dash .select2-container--default .select2-selection--single {
@@ -272,7 +287,7 @@ body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; c
 }
 
 .rs-dash .select2-container--default .select2-selection--single .select2-selection__placeholder {
-  color: var(--rs-muted, #8a8fa3) !important;
+  color: var(--rs-slate, #5c5d78) !important;
 }
 
 .rs-dash .select2-container--default .select2-selection--single .select2-selection__arrow {
@@ -306,7 +321,7 @@ body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; c
   border: 1px solid var(--rs-line, #E2E6EE) !important;
   border-radius: 4px !important;
   box-shadow: 0 6px 16px rgba(41, 41, 64, 0.12) !important;
-  font-family: var(--rs-serif);
+  font-family: var(--rs-font);
   z-index: 9999;
 }
 
@@ -321,7 +336,7 @@ body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; c
   border: 1px solid var(--rs-line, #E2E6EE) !important;
   border-radius: 4px !important;
   padding: 6px 10px !important;
-  font-family: var(--rs-serif);
+  font-family: var(--rs-font);
   font-size: 13px;
   color: var(--rs-ink, #292940);
   background-color: #fff;
@@ -353,7 +368,7 @@ body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; c
 .select2-container--default .select2-results__option[aria-selected="true"] {
   background-color: var(--rs-paper, #EEF1F6);
   font-weight: 700;
-  color: var(--rs-primary, #136cf1);
+  color: var(--rs-primary, #1266e4);
 }
 
 .select2-container--default .select2-results__group {
@@ -362,7 +377,7 @@ body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; c
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .05em;
-  color: var(--rs-primary, #136cf1);
+  color: var(--rs-primary, #1266e4);
   background-color: #F5F7FB;
   border-top: 1px solid var(--rs-line, #E2E6EE);
   border-bottom: 1px solid var(--rs-line, #E2E6EE);
@@ -384,3 +399,9 @@ body.rs-dash { margin: 0; background: var(--rs-paper); background-image: none; c
   font-size: 13px;
   border-radius: 3px;
 }
+
+/* ---------- Article editor (Jodit): the template's global "ul { list-style: none }" also hits the editor area ---------- */
+.rs-dash .jodit-wysiwyg ul { list-style-type: disc; padding-left: 2em; }
+.rs-dash .jodit-wysiwyg ol { list-style-type: decimal; padding-left: 2em; }
+.rs-dash .jodit-wysiwyg ul ul { list-style-type: circle; }
+.rs-dash .jodit-wysiwyg li { margin-bottom: .25rem; }

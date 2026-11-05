@@ -36,11 +36,15 @@ class PublicPagesTest extends TestCase
         }
     }
 
-    public function test_public_layout_loads_literata_serif_font_only(): void
+    public function test_public_layout_loads_the_sans_font_only(): void
     {
         $this->get('/')
             ->assertOk()
-            ->assertSee('family=Literata', false)
+            ->assertSee('family=Poppins', false)
+            ->assertSee('family=Nunito+Sans', false)
+            ->assertSee('family=JetBrains+Mono', false)
+            ->assertDontSee('family=Literata', false)
+            ->assertDontSee('family=Onest', false)
             ->assertDontSee('Atkinson', false);
     }
 

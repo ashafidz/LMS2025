@@ -64,7 +64,7 @@
                                                                     </div>
                                                                     <div>
                                                                         <span class="text-uppercase text-muted font-weight-bold" style="font-size: 11px;">KODE PESANAN</span>
-                                                                        <h6 class="font-weight-bold mb-1">{{ $order->order_code }}</h6>
+                                                                        <h6 class="font-weight-bold mb-1 rs-mono">{{ $order->order_code }}</h6>
                                                                         <span class="text-muted small"><i class="fa fa-clock-o mr-1"></i> {{ $order->created_at->format('d M Y, H:i') }}</span>
                                                                     </div>
                                                                 </div>

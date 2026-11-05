@@ -64,7 +64,7 @@
                                                 @forelse ($coupons as $coupon)
                                                     <tr>
                                                         <th scope="row">{{ $loop->iteration + $coupons->firstItem() - 1 }}</th>
-                                                        <td><strong>{{ $coupon->code }}</strong></td>
+                                                        <td><strong class="rs-mono">{{ $coupon->code }}</strong></td>
                                                         <td>{{ ucfirst($coupon->type) }}</td>
                                                         <td>
                                                             @if($coupon->type == 'percent')

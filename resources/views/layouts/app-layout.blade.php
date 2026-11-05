@@ -14,7 +14,7 @@
 
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,700;0,7..72,800;1,7..72,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,500;0,6..12,600;0,6..12,700;0,6..12,800;1,6..12,400&family=Poppins:wght@500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
     {{-- Page content still uses Bootstrap 4 and Guru Able classes until phase D. --}}
     <link href="{{ asset('pages/waves/css/waves.min.css') }}" rel="stylesheet">
@@ -30,6 +30,14 @@
 </head>
 
 <body class="rs-dash">
+    {{-- Apply the saved "menu hidden" choice before the page paints (desktop only), so the sidebar does not flash --}}
+    <script>
+        try {
+            if (localStorage.getItem('rs-dash-side') === 'closed' && window.matchMedia('(min-width: 992px)').matches) {
+                document.body.classList.add('is-side-closed');
+            }
+        } catch (e) {}
+    </script>
     @auth
         @php
             $user = Auth::user();
@@ -59,7 +67,12 @@
 
         <div class="rs-dash-shell">
             <aside id="rs-dash-side" class="rs-dash-side" aria-label="Menu">
-                <a href="{{ route('home') }}" class="rs-dash-logo">{{ $siteName }}</a>
+                <div class="rs-dash-side__head">
+                    <a href="{{ route('home') }}" class="rs-dash-logo">{{ $siteName }}</a>
+                    <button type="button" class="rs-dash-side-close" aria-controls="rs-dash-side" title="Sembunyikan menu">
+                        <i class="bi bi-chevron-double-left" aria-hidden="true"></i><span class="sr-only">Sembunyikan menu</span>
+                    </button>
+                </div>
 
                 @if ($switchTo)
                     <div class="rs-dash-role" role="group" aria-label="Ganti peran">
@@ -96,7 +109,7 @@
 
             <div class="rs-dash-main">
                 <header class="rs-dash-top">
-                    <button type="button" class="rs-dash-menu-btn" aria-controls="rs-dash-side" aria-expanded="false">
+                    <button type="button" class="rs-dash-menu-btn" aria-controls="rs-dash-side" aria-expanded="false" title="Tampilkan menu">
                         <i class="bi bi-list" aria-hidden="true"></i>Menu
                     </button>
                     <span class="rs-dash-top__sp"></span>

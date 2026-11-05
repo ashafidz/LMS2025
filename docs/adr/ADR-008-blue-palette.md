@@ -18,7 +18,7 @@ Keep the role-based tokens of ADR-006 and change only their values. Text pairs m
 
 | Token | New value | Use |
 |---|---|---|
-| `--rs-primary` | `#136cf1` | buttons, links, bands |
+| `--rs-primary` | `#1266e4` | buttons, links, bands |
 | `--rs-primary-d` | `#0e4fb1` | hover |
 | `--rs-accent` | `#1572FE` | focus outline, progress, tabs (non-text) |
 | `--rs-ink` | `#292940` | main text, footer |
@@ -32,7 +32,7 @@ Keep the role-based tokens of ADR-006 and change only their values. Text pairs m
 | `--rs-select` | `#F3EAFD` | selected item background |
 
 Three deliberate departures from the owner's hex values, all for contrast:
-- Text on blue uses `#136cf1` (4.73 on white) instead of `#1572FE` (4.31). `#1572FE` stays for non-text elements.
+- Text on blue uses `#1266e4` (5.19 on white, 5.06 on Wash Me, 4.58 on `#EEF1F6`) instead of `#1572FE` (4.31 on white). `#1572FE` stays for non-text elements.
 - `#EEAC5C` and `#C08CEE` cannot hold white text (1.96 and 2.55), so they are decoration or tinted backgrounds only.
 - Section background `#EEF1F6` sits between Wash Me and Ghostly Tuna, because Wash Me is almost white and cards would
   not stand out.
@@ -43,5 +43,4 @@ Three deliberate departures from the owner's hex values, all for contrast:
 - Public site, dashboard shell and the Bootstrap bridge follow the tokens. Status colors, star rating, WhatsApp button,
   PDFs, certificates and emails are unchanged.
 - The bookshelf illustrations in `public/images/layanan/` keep their warm wood tones and may look less matched.
-- `#136cf1` text on `#EEF1F6` is 4.17:1, below 4.5:1 for small text. Prefer white or Wash Me behind link text, or use
-  `--rs-primary-d` there.
+- `#1266e4` text on Ghostly Tuna `#E2E6EE` is 4.15:1; avoid small link text on that background.

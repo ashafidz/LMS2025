@@ -75,51 +75,23 @@
 @endsection
 
 @push('scripts')
-    {{-- 1. Tambahkan script TinyMCE dari CDN --}}
-    <script src="https://cdn.tiny.cloud/1/fl2a5lp7k46s1mglp4rekz1mbeugac2hok87g2ca88v4mwja/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-
-    {{-- 2. Inisialisasi TinyMCE pada textarea dengan ID 'article-content' --}}
+    @include('instructor.lessons.partials._article-editor-scripts')
     <script>
-        tinymce.init({
-            selector: 'textarea#article-content',
-            plugins: 'code table lists image link',
-            toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | code | table | image link'
-        });
-
+        // Kembalikan tombol simpan bila isi artikel ditolak (lihat partial editor)
         document.addEventListener('DOMContentLoaded', function () {
-            const form = document.querySelector('form[action="{{ route('instructor.lessons.update', $lesson) }}"]');
-            if (form) {
-                form.addEventListener('submit', function (e) {
-                    // Ambil konten dari TinyMCE
-                    var content = tinymce.get('article-content').getContent().trim();
-                    
-                    // Cek jika konten kosong atau hanya tag kosong
-                    if (content === '' || content === '<p>&nbsp;</p>' || content === '<p></p>') {
-                        e.preventDefault(); // Hentikan proses submit
-                        
-                        // Tampilkan SweetAlert2 peringatan
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Peringatan',
-                            text: 'Konten artikel tidak boleh kosong!',
-                            confirmButtonText: 'Tutup',
-                            allowOutsideClick: true
-                        });
-                        
-                        // Kembalikan tombol ke keadaan semula agar bisa diklik lagi
-                        const button = form.querySelector('button[type="submit"]');
-                        if (button) {
-                            setTimeout(() => {
-                                button.disabled = false;
-                                // Jika ada loading state, kembalikan teksnya
-                                if (button.textContent === 'Menyimpan...') {
-                                    button.textContent = 'Simpan Perubahan';
-                                }
-                            }, 10);
+            var form = document.getElementById('article-content').closest('form');
+            form.addEventListener('article:blocked', function () {
+                const button = form.querySelector('button[type="submit"]');
+                if (button) {
+                    setTimeout(() => {
+                        button.disabled = false;
+                        // Jika ada loading state, kembalikan teksnya
+                        if (button.textContent === 'Menyimpan...') {
+                            button.textContent = 'Simpan Perubahan';
                         }
-                    }
-                });
-            }
+                    }, 10);
+                }
+            });
         });
     </script>
 @endpush

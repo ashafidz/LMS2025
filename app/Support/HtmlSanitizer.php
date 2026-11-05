@@ -16,7 +16,7 @@ class HtmlSanitizer
     private const MAX_CACHEABLE_BYTES = 200000;
 
     // Naikkan versinya setiap kali allowlist di purifier() diubah, supaya hasil lama di cache tidak dipakai lagi
-    private const CACHE_PREFIX = 'html_sanitized:v1:';
+    private const CACHE_PREFIX = 'html_sanitized:v2:';
 
     private static ?HTMLPurifier $purifier = null;
 
@@ -58,7 +58,13 @@ class HtmlSanitizer
                 'text-align', 'color', 'background-color', 'font-weight', 'font-style', 'text-decoration',
                 'padding-left', 'margin-left', 'width', 'height', 'border-collapse', 'border', 'border-style',
                 'border-width', 'border-color',
+                // Image alignment from the article editor (Jodit): centre = display:block + margin auto, left/right = float
+                'margin', 'margin-top', 'margin-right', 'margin-bottom', 'float', 'display', 'vertical-align',
             ]);
+            // `display` is only available in HTMLPurifier with AllowTricky; AllowedProperties above still limits the list
+            $config->set('CSS.AllowTricky', true);
+            // Without this HTMLPurifier copies the src "file name" into alt, which for a data URI is the whole image again
+            $config->set('Attr.DefaultImageAlt', '');
             $config->set('HTML.SafeIframe', true);
             $config->set('URI.SafeIframeRegexp', '%^https://(www\.youtube\.com/embed/|www\.youtube-nocookie\.com/embed/|player\.vimeo\.com/video/)%');
             $config->set('Attr.AllowedFrameTargets', ['_blank']);

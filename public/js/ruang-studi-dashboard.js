@@ -1,18 +1,62 @@
-// Ruang Studi dashboard shell: small-screen menu and the account menu.
+// Ruang Studi dashboard shell: sidebar show/hide (slide-in on small screens, hide/show on large screens) and the account menu.
 (function () {
   var body = document.body;
   var button = document.querySelector('.rs-dash-menu-btn');
   var side = document.getElementById('rs-dash-side');
 
+  var closeBtn = document.querySelector('.rs-dash-side-close');
+
   if (button && side) {
+    var wide = window.matchMedia('(min-width: 992px)');
     var setOpen = function (open) {
       body.classList.toggle('is-menu-open', open);
       button.setAttribute('aria-expanded', open ? 'true' : 'false');
     };
+    // Large screens: the sidebar is part of the page. The << button in the sidebar hides it, the Menu button in the
+    // top bar (only shown while it is hidden) brings it back, and the choice is remembered.
+    var setSideClosed = function (closed) {
+      body.classList.toggle('is-side-closed', closed);
+      button.setAttribute('aria-expanded', closed ? 'false' : 'true');
+      if (closeBtn) {
+        closeBtn.setAttribute('aria-expanded', closed ? 'false' : 'true');
+      }
+      try {
+        localStorage.setItem('rs-dash-side', closed ? 'closed' : 'open');
+      } catch (e) {}
+    };
+    var syncExpanded = function () {
+      var expanded = wide.matches ? !body.classList.contains('is-side-closed') : body.classList.contains('is-menu-open');
+      button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      if (closeBtn) {
+        closeBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      }
+    };
+    syncExpanded();
+    if (wide.addEventListener) {
+      wide.addEventListener('change', syncExpanded);
+    }
     button.addEventListener('click', function (event) {
       event.stopPropagation();
+      if (wide.matches) {
+        setSideClosed(false);
+        if (closeBtn) {
+          closeBtn.focus();
+        }
+        return;
+      }
       setOpen(!body.classList.contains('is-menu-open'));
     });
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function (event) {
+        event.stopPropagation();
+        if (wide.matches) {
+          setSideClosed(true);
+        } else {
+          setOpen(false);
+        }
+        button.focus();
+      });
+    }
     document.addEventListener('click', function (event) {
       if (body.classList.contains('is-menu-open') && !side.contains(event.target)) {
         setOpen(false);

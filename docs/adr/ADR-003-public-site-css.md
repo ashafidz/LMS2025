@@ -44,3 +44,6 @@ re-points the template CSS variables (fonts and colors) so the out-of-scope page
 The owner asked for no sans-serif fonts. Literata replaces Bitter and Atkinson Hyperlegible on the public pages and
 the dashboard (one `--rs-serif` token for headings and body). PDFs (certificate, invoice, recap) keep their own fonts,
 because dompdf and the certificate editor manage those.
+
+## Update 2026-11-01
+Literata replaced by Poppins (sans-serif), see ADR-009.

@@ -81,7 +81,7 @@
                         <h2 id="ringkasan-judul">Ringkasan Belanja</h2>
 
                         @if ($coupon)
-                            <p class="rs-mb-0">Kupon diterapkan: <strong>{{ $coupon->code }}</strong></p>
+                            <p class="rs-mb-0">Kupon diterapkan: <strong class="rs-mono">{{ $coupon->code }}</strong></p>
                             <form action="{{ route('student.cart.remove_coupon') }}" method="POST">
                                 @csrf
                                 <button type="submit" class="rs-btn rs-btn--sm rs-btn--danger-outline rs-btn--block">Hapus Kupon</button>

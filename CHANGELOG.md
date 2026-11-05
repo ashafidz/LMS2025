@@ -4,16 +4,25 @@ All notable changes to this project will be documented in this file.
 
 ## [1.7.0] - 2026-11-01
 
+### Added
+
+- **Sembunyikan Menu Dasbor**: Sidebar dasbor kini punya tombol "<<" di sebelah nama situs untuk menyembunyikannya agar isi halaman lebih lega. Saat tersembunyi, tombol "Menu" muncul di kiri atas untuk menampilkannya lagi. Pilihan ini diingat oleh peramban. Di layar HP, tombol yang sama menutup menu geser.
+
 ### Changed
 
 - **Payment Gateway ke Xendit**: Pembayaran kursus kini memakai Xendit (Invoice). Tombol "Bayar Sekarang" membuka halaman pembayaran aman Xendit, tempat pembeli memilih metode bayar. Status pembayaran tetap hanya berubah lewat notifikasi resmi Xendit (diverifikasi token rahasia dan pencocokan nominal) atau pengecekan server ke Xendit, termasuk pengecekan otomatis berkala untuk pesanan yang masih menunggu.
 - **Form Kontak**: Setelah pesan terkirim, form diganti panel "Pesan terkirim" berisi nama dan email pengirim beserta tombol "Kirim pesan lain". Tombol kirim terkunci saat pengiriman berlangsung sehingga tidak ada pesan ganda. Logo reCAPTCHA yang tertutup tombol WhatsApp diganti keterangan perlindungan di bawah tombol kirim.
 - **Palet Warna Baru**: Warna situs publik dan dasbor diganti ke biru (Hadfield Blue), abu kebiruan, dan aksen oranye. Ikon situs (favicon) ikut berubah.
+- **Font Baru**: Huruf situs publik dan dasbor diganti dari Literata (berkait) ke pasangan font tanpa kait: Poppins untuk judul, Nunito Sans untuk teks isi agar nyaman dibaca lama, dan JetBrains Mono untuk kode pesanan, kode kupon, dan potongan kode.
+- **Editor Artikel**: Editor teks artikel pelajaran kini memakai Jodit yang tersimpan di server sendiri (tidak lagi bergantung pada layanan Tiny Cloud). Tombol kode HTML dihapus agar editor lebih mudah dipakai, daftar poin/angka di dalam editor tampil dengan titik dan nomornya, dan gambar dengan format yang tidak didukung (misalnya WebP) atau terlalu besar (lebih dari 2 MB) ditolak dengan pesan yang jelas sebelum disimpan agar tidak hilang diam-diam.
 
 ### Fixed
 
 - **Error Skrip di Halaman Publik**: `csrf-refresh.js` memanggil jQuery di halaman yang tidak memuat jQuery, sehingga muncul error "$ is not defined" di konsol peramban dan sisa skrip berhenti. Bagian jQuery kini hanya berjalan bila jQuery tersedia.
 - **Breadcrumb Kuis Instruktur**: Breadcrumb Kursus Saya dan Modul Saya (serta ikon beranda) di halaman Kelola Soal Kuis dan Hasil Kuis kini bisa diklik.
+- **Perataan Gambar di Artikel**: Gambar yang diratakan ke tengah (atau ke kiri/kanan dengan teks mengalir) lewat editor kini tetap pada posisinya setelah disimpan. Sebelumnya pembersih HTML membuang gaya perataan itu. Gambar tanpa teks alternatif juga tidak lagi menyimpan isi gambarnya dua kali. Gambar di artikel lama yang dulu diratakan ke tengah perlu diratakan dan disimpan ulang sekali.
+- **Error Skrip di Dasbor Siswa**: Dasbor siswa tidak lagi memuat skrip grafik contoh dari template lama yang memunculkan error "AmCharts is not defined" di konsol peramban.
+- **Placeholder Dropdown Pencarian**: Teks petunjuk seperti "-- Pilih Kategori --" pada dropdown pencarian di dasbor kini berwarna lebih gelap agar mudah dibaca.
 
 ### Removed
 

@@ -64,7 +64,3 @@
 </div>
 
 @endsection
-
-@push('scripts')
-    <script type="text/javascript" src="{{ asset('pages/dashboard/custom-dashboard.js') }}"></script>
-@endpush
