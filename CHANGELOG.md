@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.4] - 2026-11-05
+
+### Added
+
+- **Perintah Pembersihan Media Kursus (`php artisan files:prune-course-media`)**: Menambahkan perintah Artisan (beserta penjadwalan otomatis harian) untuk menghapus file fisik (thumbnail, dokumen PDF, video upload, file tugas siswa, screenshot pengawasan kuis, dan cache PDF sertifikat) dari kursus yang sudah di-soft-delete atau record yatim tanpa menghapus data riwayat di database.
+
+### Fixed
+
+- **Pembaruan Dokumen Materi (PDF) dan Cache Browser**: Menambahkan parameter versi file (`?v=...`) pada tautan dan pratinjau dokumen pelajaran agar browser langsung memuat PDF terbaru setelah diperbarui oleh instruktur, memvalidasi unggahan file sebelum pengecekan `hasFile()` agar kegagalan upload di level PHP tertangkap sebagai pesan galat, serta menampilkan pesan galat validasi pada halaman buat/edit pelajaran dokumen.
+- **Pembersihan File Media Saat Menghapus Kursus, Modul, dan Pelajaran**: Menghapus kursus (soft-delete), modul, atau pelajaran kini ikut membersihkan seluruh file media fisik terkait (dokumen PDF, video upload, pengumpulan tugas siswa, screenshot pengawasan kuis, dan cache PDF sertifikat) dari penyimpanan dengan tetap menjaga file dokumen/video yang masih dipakai bersama oleh kursus hasil salinan (clone) yang aktif.
+
 ## [1.6.3] - 2026-10-31
 
 ### Added

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Instructor;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\CourseCategory;
+use App\Services\CourseMediaCleanupService;
 use App\Support\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -107,10 +108,8 @@ class CourseController extends Controller
         $courseData['description'] = filled($validated['description'] ?? null) ? HtmlSanitizer::clean($validated['description']) : null;
         $courseData['slug'] = Str::slug($validated['title']);
 
+        $oldThumbnail = $course->thumbnail_url;
         if ($request->hasFile('thumbnail')) {
-            if ($course->thumbnail_url) {
-                Storage::disk('public')->delete($course->thumbnail_url);
-            }
             $courseData['thumbnail_url'] = $request->file('thumbnail')->store('thumbnails', 'public');
         }
 
@@ -120,6 +119,9 @@ class CourseController extends Controller
         }
 
         $course->update($courseData);
+        if ($request->hasFile('thumbnail') && $oldThumbnail && $oldThumbnail !== $course->thumbnail_url) {
+            app(CourseMediaCleanupService::class)->deleteThumbnailIfUnused($oldThumbnail, $course->id);
+        }
 
         return redirect()->route('instructor.courses.index')->with('success', 'Kursus berhasil diperbarui.');
     }
@@ -128,10 +130,10 @@ class CourseController extends Controller
     {
         Gate::authorize('manage', $course);
 
-        if ($course->thumbnail_url) {
-            Storage::disk('public')->delete($course->thumbnail_url);
-        }
-        $course->delete();
+        DB::transaction(function () use ($course) {
+            app(CourseMediaCleanupService::class)->cleanupCourseMedia($course);
+            $course->delete();
+        });
 
         return redirect()->route('instructor.courses.index')->with('success', 'Course deleted successfully.');
     }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\User;
 use App\Services\BadgeService;
+use App\Services\CourseMediaCleanupService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -159,17 +160,20 @@ class CourseEnrollmentController extends Controller
         $lessonIdsInCourse = $course->lessons()->pluck('lessons.id');
 
         DB::transaction(function () use ($course, $usersToDelete, $lessonIdsInCourse) {
+            $cleanup = app(CourseMediaCleanupService::class);
             foreach ($usersToDelete as $user) {
-                // 1. Hapus data kuis (quiz_attempts)
-                $user->quizAttempts()
+                // 1. Hapus data kuis (quiz_attempts) beserta file screenshot monitoring-nya
+                $attemptsQuery = $user->quizAttempts()
                     ->whereIn('quiz_id', function ($query) use ($lessonIdsInCourse) {
                         $query->select('lessonable_id')
                             ->from('lessons')
                             ->where('lessonable_type', \App\Models\Quiz::class)
                             ->whereIn('id', $lessonIdsInCourse);
-                    })->delete();
+                    });
+                $cleanup->deleteAttemptMonitoringScreenshots($attemptsQuery->pluck('id'));
+                $attemptsQuery->delete();
 
-                // 2. Hapus data tugas (assignment_submissions) beserta filenya
+                // 2. Hapus data tugas (assignment_submissions) beserta filenya di disk local & public
                 $submissions = $user->assignmentSubmissions()
                     ->whereIn('assignment_id', function ($query) use ($lessonIdsInCourse) {
                         $query->select('lessonable_id')
@@ -179,7 +183,7 @@ class CourseEnrollmentController extends Controller
                     })->get();
                 foreach ($submissions as $submission) {
                     if ($submission->file_path) {
-                        Storage::disk('public')->delete($submission->file_path);
+                        $cleanup->deletePathFromDisks($submission->file_path, ['local', 'public']);
                     }
                     $submission->delete();
                 }
