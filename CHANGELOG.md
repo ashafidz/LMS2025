@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [1.6.4] - 2026-11-05
 
+### Security
+
+- Memperbarui dependensi `symfony/http-foundation`, `symfony/http-kernel`, `symfony/routing`, `symfony/serializer`, dan `symfony/yaml` ke versi 7.4.23 untuk menutup celah keamanan yang dilaporkan pada advisory Symfony 2026-11-04 (CVE-2026-118514, CVE-2026-118515, CVE-2026-118516).
+
 ### Added
 
 - **Perintah Pembersihan Media Kursus (`php artisan files:prune-course-media`)**: Menambahkan perintah Artisan (beserta penjadwalan otomatis harian) untuk menghapus file fisik (thumbnail, dokumen PDF, video upload, file tugas siswa, screenshot pengawasan kuis, dan cache PDF sertifikat) dari kursus yang sudah di-soft-delete atau record yatim tanpa menghapus data riwayat di database.
