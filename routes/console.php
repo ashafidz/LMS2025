@@ -16,3 +16,5 @@ Schedule::command('queue:work --stop-when-empty --tries=3 --max-time=50')->every
 Schedule::command('badges:award')->dailyAt('02:00')->withoutOverlapping();
 
 Schedule::command('certificates:prune-files')->dailyAt('02:30')->withoutOverlapping();
+
+Schedule::command('files:prune-course-media')->dailyAt('03:00')->withoutOverlapping();

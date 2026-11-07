@@ -12,6 +12,7 @@ use App\Models\LessonLinkCollection;
 use App\Models\LessonVideo;
 use App\Models\Module;
 use App\Models\Quiz;
+use App\Services\CourseMediaCleanupService;
 use App\Support\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -19,7 +20,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 
 class LessonController extends Controller
 {
@@ -343,19 +343,17 @@ class LessonController extends Controller
                         'video_path' => 'nullable|required_if:source_type,youtube|url',
                     ]);
                     $sourceType = $validated['source_type'];
+                    $oldVideoPath = $lessonable->source_type === 'upload' ? $lessonable->video_path : null;
                     $path = $lessonable->video_path;
                     if ($sourceType === 'upload' && $request->hasFile('video_file')) {
-                        if ($lessonable->source_type === 'upload' && $lessonable->video_path) {
-                            Storage::disk('public')->delete($lessonable->video_path);
-                        }
                         $path = $validated['video_file']->store('lesson_videos', 'public');
                     } elseif ($sourceType === 'youtube') {
-                        if ($lessonable->source_type === 'upload' && $lessonable->video_path) {
-                            Storage::disk('public')->delete($lessonable->video_path);
-                        }
                         $path = $validated['video_path'];
                     }
                     $lessonable->update(['source_type' => $sourceType, 'video_path' => $path]);
+                    if ($oldVideoPath && $oldVideoPath !== $path) {
+                        app(CourseMediaCleanupService::class)->deleteVideoPathIfUnused($oldVideoPath, $lessonable->id);
+                    }
                     break;
 
                 case 'quiz':
@@ -423,12 +421,14 @@ class LessonController extends Controller
                     break;
 
                 case 'lessondocument': // Diperbarui dari 'lessonpowerpoint'
+                    $validated = $request->validate(['document_file' => 'nullable|file|mimes:pdf|max:20480']);
                     if ($request->hasFile('document_file')) {
-                        $validated = $request->validate(['document_file' => 'required|file|mimes:pdf|max:20480']);
-                        Storage::disk('local')->delete($lessonable->file_path);
-                        Storage::disk('public')->delete($lessonable->file_path);
+                        $oldPath = $lessonable->file_path;
                         $path = $validated['document_file']->store('lesson_documents', 'local');
                         $lessonable->update(['file_path' => $path]);
+                        if ($oldPath && $oldPath !== $path) {
+                            app(CourseMediaCleanupService::class)->deleteDocumentPathIfUnused($oldPath, $lessonable->id);
+                        }
                     }
                     break;
 
@@ -553,17 +553,7 @@ class LessonController extends Controller
         Gate::authorize('manage', $lesson->module->course);
 
         DB::transaction(function () use ($lesson) {
-            $lessonable = $lesson->lessonable;
-            if ($lessonable) {
-                $shortType = strtolower(class_basename($lessonable));
-                if ($shortType === 'lessonvideo' && $lessonable->source_type === 'upload') {
-                    Storage::disk('public')->delete($lessonable->video_path);
-                } elseif ($shortType === 'lessondocument') { // Diperbarui dari 'lessonpowerpoint'
-                    Storage::disk('local')->delete($lessonable->file_path);
-                    Storage::disk('public')->delete($lessonable->file_path);
-                }
-                $lessonable->delete();
-            }
+            app(CourseMediaCleanupService::class)->cleanupLessonAndDeleteLessonable($lesson);
             $lesson->delete();
         });
 

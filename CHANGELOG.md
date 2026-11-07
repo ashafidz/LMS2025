@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.0.0] - 2026-11-01
+## [2.0.0] - 2026-11-07
 
 ### Added
 - **Peringatan Waktu Kuis**: Timer kuis berubah kuning di sisa 5 menit dan merah di sisa 1 menit, dengan pemberitahuan sekali. Centang pelajaran selesai kini muncul dengan animasi kecil, dan isi pelajaran yang sedang dimuat tampil sebagai kerangka, bukan ikon berputar.
@@ -72,6 +72,20 @@ All notable changes to this project will be documented in this file.
 - **Tampilan Pembuatan Pelajaran dan Kursus**: Formulir pelajaran (9 jenis) dan kursus dibagi per bagian dengan label di atas isian, daftar modul dan pelajaran berbentuk baris kartu dengan label jenis berbahasa Indonesia, kotak angka laporan kuis berbentuk kartu, dan tombol Pratinjau/Hasil berwarna lembut.
 - **Dasbor Admin, Profil, dan Pesan Galat Bahasa Indonesia**: Kartu angka dasbor admin dan superadmin, baris pencarian yang sejajar, tombol profil satu baris, form edit profil per bagian, judul kursus yang rapi di halaman publik, kotak galat di semua form pelajaran dan modul, pesan validasi berbahasa Indonesia (atur `APP_LOCALE=id` di `.env`, lalu `php artisan config:cache`), dan pesan sukses modul, soal, kursus, dan profil berbahasa Indonesia.
 
+## [1.6.4] - 2026-11-05
+
+### Security
+
+- Memperbarui dependensi `symfony/http-foundation`, `symfony/http-kernel`, `symfony/routing`, `symfony/serializer`, dan `symfony/yaml` ke versi 7.4.23 untuk menutup celah keamanan yang dilaporkan pada advisory Symfony 2026-11-04 (CVE-2026-118514, CVE-2026-118515, CVE-2026-118516).
+
+### Added
+
+- **Perintah Pembersihan Media Kursus (`php artisan files:prune-course-media`)**: Menambahkan perintah Artisan (beserta penjadwalan otomatis harian) untuk menghapus file fisik (thumbnail, dokumen PDF, video upload, file tugas siswa, screenshot pengawasan kuis, dan cache PDF sertifikat) dari kursus yang sudah di-soft-delete atau record yatim tanpa menghapus data riwayat di database.
+
+### Fixed
+
+- **Pembaruan Dokumen Materi (PDF) dan Cache Browser**: Menambahkan parameter versi file (`?v=...`) pada tautan dan pratinjau dokumen pelajaran agar browser langsung memuat PDF terbaru setelah diperbarui oleh instruktur, memvalidasi unggahan file sebelum pengecekan `hasFile()` agar kegagalan upload di level PHP tertangkap sebagai pesan galat, serta menampilkan pesan galat validasi pada halaman buat/edit pelajaran dokumen.
+- **Pembersihan File Media Saat Menghapus Kursus, Modul, dan Pelajaran**: Menghapus kursus (soft-delete), modul, atau pelajaran kini ikut membersihkan seluruh file media fisik terkait (dokumen PDF, video upload, pengumpulan tugas siswa, screenshot pengawasan kuis, dan cache PDF sertifikat) dari penyimpanan dengan tetap menjaga file dokumen/video yang masih dipakai bersama oleh kursus hasil salinan (clone) yang aktif.
 
 ## [1.6.3] - 2026-10-31
 
