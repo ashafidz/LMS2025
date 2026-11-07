@@ -52,12 +52,14 @@ class PublicPagesTest extends TestCase
     {
         $page = $this->get('/detail-service')->assertOk();
 
-        foreach (['pelatihan-interaktif', 'kelas-beragam', 'materi-terbaru', 'evaluasi-sertifikat'] as $name) {
-            $page->assertSee('images/layanan/'.$name.'.jpg', false);
-            $this->assertFileExists(public_path('images/layanan/'.$name.'.jpg'));
+        // The brown library photos were replaced by the site's own Irasutoya set (ADR-013), in a soft panel
+        foreach (['rs-12-instruktur-mulai', 'rs-07-cari-kursus', 'rs-03-masuk', 'rs-15-sertifikat-terbit'] as $name) {
+            $page->assertSee('images/illustrations/'.$name.'.webp', false);
         }
 
-        $page->assertDontSee('images/layanan1.jpg', false);
+        $page->assertSee('class="rs-illu-panel"', false)
+            ->assertDontSee('images/layanan/', false)
+            ->assertDontSee('images/layanan1.jpg', false);
     }
 
     public function test_home_shows_about_and_catalog_calls_to_action(): void
@@ -94,13 +96,11 @@ class PublicPagesTest extends TestCase
         $this->get('/')->assertOk()->assertSee('images/illustrations/rs-02-tentang-tim.webp', false);
 
         $about = $this->get(route('about'))->assertOk();
-        foreach (['akses-kapan-saja', 'instruktur', 'karier'] as $name) {
-            $about->assertSee('images/tentang/'.$name.'.jpg', false);
+        foreach (['rs-01-hero-belajar', 'rs-12-instruktur-mulai', 'rs-04-daftar'] as $name) {
+            $about->assertSee('images/illustrations/'.$name.'.webp', false);
         }
 
-        foreach (['beranda-tentang', 'akses-kapan-saja', 'instruktur', 'karier'] as $name) {
-            $this->assertFileExists(public_path('images/tentang/'.$name.'.jpg'));
-        }
+        $about->assertDontSee('images/tentang/', false);
     }
 
     public function test_home_without_data_shows_honest_empty_states(): void

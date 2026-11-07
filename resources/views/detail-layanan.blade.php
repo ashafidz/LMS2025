@@ -27,7 +27,7 @@
                     </p>
                 </div>
                 <div>
-                    <img src="{{ asset('images/layanan/pelatihan-interaktif.jpg') }}" alt="Seorang pengajar menjelaskan peta materi kepada tiga peserta di meja belajar yang penuh buku" width="1200" height="805" loading="lazy">
+                    <div class="rs-illu-panel"><x-rs.illustration name="rs-12-instruktur-mulai" size="lg" /></div>
                 </div>
             </div>
 
@@ -44,7 +44,7 @@
                     </p>
                 </div>
                 <div>
-                    <img src="{{ asset('images/layanan/kelas-beragam.jpg') }}" alt="Seorang peserta belajar di laptop di depan rak buku, dengan jadwal belajar di papan" width="1200" height="805" loading="lazy">
+                    <div class="rs-illu-panel"><x-rs.illustration name="rs-07-cari-kursus" size="lg" /></div>
                 </div>
             </div>
 
@@ -61,7 +61,7 @@
                     </p>
                 </div>
                 <div>
-                    <img src="{{ asset('images/layanan/materi-terbaru.jpg') }}" alt="Seorang peserta belajar di laptop dengan daftar bacaan dan grafik kemajuan belajar" width="1200" height="670" loading="lazy">
+                    <div class="rs-illu-panel"><x-rs.illustration name="rs-03-masuk" size="lg" /></div>
                 </div>
             </div>
 
@@ -78,7 +78,7 @@
                     </p>
                 </div>
                 <div>
-                    <img src="{{ asset('images/layanan/evaluasi-sertifikat.jpg') }}" alt="Sertifikat kelulusan tampil di tablet, di samping tumpukan buku dan topi wisuda" width="1200" height="746" loading="lazy">
+                    <div class="rs-illu-panel"><x-rs.illustration name="rs-15-sertifikat-terbit" size="lg" /></div>
                 </div>
             </div>
         </div>

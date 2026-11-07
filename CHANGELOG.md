@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **Gambar Halaman Tentang Kami dan Detail Layanan**: Tujuh gambar bergaya perpustakaan cokelat diganti ilustrasi situs yang sama dengan halaman lain, di panel biru muda, sehingga warnanya sejalan dengan palet biru. File foto lama dihapus.
 - **Tata Letak Form**: Form di dasbor kini berada di kolom tengah dan isiannya selebar kartu, sehingga tidak ada ruang kosong besar di layar lebar. Dua isian pendek ditampilkan berdampingan; checkbox rata dengan isian. Form bank soal kini memakai tata letak yang sama (label di atas isian). Di laptop (lebar 768-1439 px, mis. 1280x720) huruf, tombol, dan sidebar dasbor satu tingkat lebih kecil.
 - **Pesan Berhasil Jadi Pop-up**: Pesan berhasil (simpan, hapus, kirim, dan lainnya) kini muncul sebagai pop-up di pojok kanan atas di semua halaman, termasuk halaman yang sebelumnya diam saja. Pesan gagal tetap tampil di halaman.
 - **Tampilan Dasbor Lebih Besar**: Huruf, tombol, kolom isian, kartu, dan menu dasbor diperbesar dua tingkat (teks isi 18 px, tombol 52 px, menu 300 px; di HP kira-kira satu tingkat) agar nyaman dibaca. Tabel sengaja satu tingkat lebih kecil agar tetap muat di laptop. Situs publik dan halaman masuk tidak berubah.

@@ -34,7 +34,7 @@
                     </ul>
                 </div>
                 <div>
-                    <img src="{{ asset('images/tentang/akses-kapan-saja.jpg') }}" alt="Seorang peserta menonton video pelajaran di tablet sambil bersantai di sofa pada malam hari, dengan laptop dan ponsel di meja" width="1200" height="670" loading="lazy">
+                    <div class="rs-illu-panel"><x-rs.illustration name="rs-01-hero-belajar" size="lg" /></div>
                 </div>
             </div>
 
@@ -53,7 +53,7 @@
                     </ul>
                 </div>
                 <div>
-                    <img src="{{ asset('images/tentang/instruktur.jpg') }}" alt="Seorang instruktur berbaju batik menjelaskan studi kasus di papan tulis kepada empat peserta di meja diskusi" width="1200" height="670" loading="lazy">
+                    <div class="rs-illu-panel"><x-rs.illustration name="rs-12-instruktur-mulai" size="lg" /></div>
                 </div>
             </div>
 
@@ -71,7 +71,7 @@
                     </p>
                 </div>
                 <div>
-                    <img src="{{ asset('images/tentang/karier.jpg') }}" alt="Seorang mentor karier membahas CV bersama lulusan muda, dengan papan lowongan kerja di belakang mereka" width="1200" height="670" loading="lazy">
+                    <div class="rs-illu-panel"><x-rs.illustration name="rs-04-daftar" size="lg" /></div>
                 </div>
             </div>
         </div>

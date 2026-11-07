@@ -29,21 +29,21 @@ Irasutoya to make them friendlier for non-technical users.
 ## The 20 files and where they are used
 | File | Used in |
 |---|---|
-| rs-01-hero-belajar | Home hero |
+| rs-01-hero-belajar | Home hero, About "Akses Materi Kapan Saja" |
 | rs-02-tentang-tim | Home "Tentang Kami" and the About page header |
-| rs-03-masuk | Sign in (art panel) |
-| rs-04-daftar | Register (art panel) |
+| rs-03-masuk | Sign in (art panel), Service detail "Materi Up-to-Date" |
+| rs-04-daftar | Register (art panel), About "Siap Menghadapi Dunia Kerja" |
 | rs-05-lupa-sandi | Forgot and reset password (art panel) |
 | rs-06-verifikasi-email | Verify email |
-| rs-07-cari-kursus | Student dashboard and "Kursus saya" with no course |
+| rs-07-cari-kursus | Student dashboard and "Kursus saya" with no course, Service detail "Kelas Beragam" |
 | rs-08-semua-selesai | Student dashboard when all courses are finished |
 | rs-09-sertifikat-kosong | Certificates, empty |
 | rs-10-transaksi-kosong | Transactions, empty |
 | rs-11-keranjang-kosong | Cart, empty |
-| rs-12-instruktur-mulai | Instructor courses, empty |
+| rs-12-instruktur-mulai | Instructor courses, empty; Service detail "Pelatihan Interaktif"; About "Instruktur Berpengalaman" |
 | rs-13-kuis-lulus | Quiz result, passed |
 | rs-14-kuis-coba-lagi | Quiz result, not passed |
-| rs-15-sertifikat-terbit | Certificates page, top card when there are certificates |
+| rs-15-sertifikat-terbit | Certificates page, top card when there are certificates; Service detail "Evaluasi & Sertifikat" |
 | rs-16-bayar-berhasil | Checkout success |
 | rs-17-bayar-menunggu | Checkout pending and processing, instructor application under review |
 | rs-18-bayar-gagal | Checkout failed and cancelled |
