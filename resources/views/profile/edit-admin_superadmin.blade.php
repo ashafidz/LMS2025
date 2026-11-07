@@ -2,8 +2,8 @@
 
 @section('content')
 <div class="pcoded-content" >
-    <div class="pcoded-inner-content px-3" style="padding-top: 32px;">
-        <div class="row g-4 px-2">
+    <div class="pcoded-inner-content" style="padding-top: 32px;">
+        <div class="row g-4">
             <form action="{{ route('user.profile.update') }}" method="POST" enctype="multipart/form-data" class="row col-12">
                 @csrf
                 @method('PUT')

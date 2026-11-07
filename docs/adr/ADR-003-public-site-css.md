@@ -44,3 +44,17 @@ re-points the template CSS variables (fonts and colors) so the out-of-scope page
 The owner asked for no sans-serif fonts. Literata replaces Bitter and Atkinson Hyperlegible on the public pages and
 the dashboard (one `--rs-serif` token for headings and body). PDFs (certificate, invoice, recap) keep their own fonts,
 because dompdf and the certificate editor manage those.
+
+## Update 2026-11-01
+Literata replaced by Poppins (sans-serif), see ADR-009.
+
+**Update 2026-11-06**: the look described here (shelf, flat square cards) is superseded by [ADR-012](ADR-012-soft-rounded-ui.md). Colours and fonts are unchanged.
+
+## Motion
+Animations (home intro, scroll reveal, progress bars, count-up, confetti) obey `prefers-reduced-motion: reduce`: with
+it on, nothing animates (no intro, content visible at once, final numbers, no confetti). Elements are hidden for an
+animation only under the `rs-motion` class that JS puts on `<html>`, and never when motion is reduced, so without JS
+all content stays visible. Only `transform` and `opacity` are animated, with no library (confetti is a small canvas in
+`public/js/rs-motion.js`). Count-up is visual only: the server text is the final value and what screen readers read.
+The one Swal modal that opens at page load (new badge) holds the toast queue back through `window.rsModalGate`, so a toast never replaces it.
+Stage two (learning and quiz pages): the quiz timer pill turns yellow at 5 minutes and red at 1 minute left (colour and text stay under reduced motion; only the pulse is motion), each toast shows once per attempt via `sessionStorage`; a lesson that is marked done pops its tick and bumps the progress numbers; lesson content loads as a grey skeleton (shimmer only without reduced motion).

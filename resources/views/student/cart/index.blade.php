@@ -13,12 +13,6 @@
 
     <section class="rs-section">
         <div class="rs-wrap">
-            @if (session('success'))
-                <div class="rs-alert rs-alert--ok" role="status">{{ session('success') }}</div>
-            @endif
-            @if (session('info'))
-                <div class="rs-alert rs-alert--info" role="status">{{ session('info') }}</div>
-            @endif
             @if (session('error'))
                 <div class="rs-alert rs-alert--danger" role="alert">{{ session('error') }}</div>
             @endif
@@ -34,6 +28,7 @@
 
             @if($cartItems->isEmpty())
                 <div class="rs-empty">
+                    <x-rs.illustration name="rs-11-keranjang-kosong" size="md" />
                     <h2 class="rs-h3">Keranjang Anda Kosong</h2>
                     <p>Sepertinya Anda belum menambahkan kursus apapun ke keranjang.</p>
                     <a href="{{ route('courses') }}" class="rs-btn">Jelajahi Kursus</a>
@@ -81,7 +76,7 @@
                         <h2 id="ringkasan-judul">Ringkasan Belanja</h2>
 
                         @if ($coupon)
-                            <p class="rs-mb-0">Kupon diterapkan: <strong>{{ $coupon->code }}</strong></p>
+                            <p class="rs-mb-0">Kupon diterapkan: <strong class="rs-mono">{{ $coupon->code }}</strong></p>
                             <form action="{{ route('student.cart.remove_coupon') }}" method="POST">
                                 @csrf
                                 <button type="submit" class="rs-btn rs-btn--sm rs-btn--danger-outline rs-btn--block">Hapus Kupon</button>

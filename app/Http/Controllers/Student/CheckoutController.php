@@ -8,8 +8,8 @@ use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\SiteSetting;
 use App\Services\CartPricingService;
-use App\Services\MidtransService;
 use App\Services\OrderSettlementService;
+use App\Services\XenditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +19,7 @@ class CheckoutController extends Controller
     /**
      * Memproses item di keranjang menjadi sebuah pesanan (order).
      */
-    public function process(Request $request, MidtransService $midtransService, CartPricingService $pricingService)
+    public function process(Request $request, XenditService $xendit, CartPricingService $pricingService)
     {
         $user = Auth::user();
 
@@ -74,16 +74,18 @@ class CheckoutController extends Controller
             return redirect()->route('payment.success', $order)->with('success_message', 'Anda berhasil mendapatkan kursus secara gratis!');
         }
 
-        // Buat pesanan terlebih dahulu, LALU buat snap token
+        // Buat pesanan terlebih dahulu, LALU buat invoice Xendit
         $order = $this->createOrderRecord($user, $cartItems, $subtotal, $discount, $vatAmount, $vatPercentage, $transactionFee, $finalTotal, $couponId);
 
-        // Request Snap Token ke Midtrans via MidtransService
+        // Buat invoice di Xendit via XenditService
         try {
-            $snapToken = $midtransService->createSnapToken($order);
-            $order->snap_token = $snapToken;
-            $order->save();
-        } catch (\Exception $e) {
-            // Jika gagal membuat token, hapus order yang baru dibuat agar tidak jadi sampah
+            $invoice = $xendit->createInvoice($order);
+            $order->update([
+                'xendit_invoice_id' => $invoice['id'],
+                'payment_url' => $invoice['invoice_url'],
+            ]);
+        } catch (\Throwable $e) {
+            // Jika gagal membuat invoice, hapus order yang baru dibuat agar tidak jadi sampah
             $order->delete();
 
             return redirect()->route('student.cart.index')->with('error', 'Gagal memulai sesi pembayaran. Silakan coba lagi.');
@@ -110,19 +112,13 @@ class CheckoutController extends Controller
             return redirect()->route('student.transactions.index')->with('info', 'Status pesanan ini adalah '.$order->status.'.');
         }
 
-        // Cek apakah snap_token ada. Jika tidak, redirect dengan error.
-        if (! $order->snap_token) {
-            return redirect()->route('student.transactions.index')->with('error', 'Sesi pembayaran untuk pesanan ini tidak ditemukan atau rusak.');
+        // Cek apakah ada link pembayaran. Order dari gateway sebelumnya tidak punya.
+        if (! $order->payment_url) {
+            return redirect()->route('student.transactions.index')->with('error', 'Sesi pembayaran untuk pesanan ini sudah tidak berlaku. Silakan pesan ulang dari keranjang.');
         }
 
-        // Ambil client key dari config
-        $midtransClientKey = config('midtrans.client_key');
-
-        // Langsung tampilkan view dengan data yang sudah ada
         return view('student.checkout.show', [
             'order' => $order,
-            'snapToken' => $order->snap_token, // Gunakan token dari DB
-            'midtransClientKey' => $midtransClientKey,
         ]);
     }
 
@@ -141,7 +137,7 @@ class CheckoutController extends Controller
                 'final_amount' => $finalTotal,
                 'coupon_id' => $couponId,
                 'status' => 'pending',
-                // snap_token akan diisi nanti
+                // xendit_invoice_id dan payment_url diisi nanti
             ]);
 
             foreach ($cartItems as $cartItem) {

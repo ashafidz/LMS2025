@@ -70,7 +70,7 @@ class Coupon extends Model
         return $this->hasMany(Order::class);
     }
 
-    public const RESERVATION_HOURS = 24; // Midtrans Snap default expiry
+    public const RESERVATION_HOURS = 24; // sama dengan masa berlaku invoice Xendit
 
     public function reservedCount(?User $user = null): int
     {

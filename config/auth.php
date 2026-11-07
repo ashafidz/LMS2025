@@ -112,4 +112,7 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    // Registration attempts allowed per minute per IP address (see FortifyServiceProvider, ProtectAuthForms).
+    'register_per_minute' => (int) env('AUTH_REGISTER_PER_MINUTE', 5),
+
 ];

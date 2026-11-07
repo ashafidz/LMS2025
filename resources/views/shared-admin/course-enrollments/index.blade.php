@@ -2,24 +2,10 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Kelola Pengguna Kursus</h5>
-                        <p class="m-b-0">Pilih kursus untuk mengelola pengguna yang terdaftar.</p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route(Auth::user()->getRoleNames()->first() . '.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Kelola Pengguna</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route(Auth::user()->getRoleNames()->first() . '.dashboard')], ['Kelola Pengguna', null]]">
+        <x-slot:title>Kelola Pengguna Kursus</x-slot:title>
+        <x-slot:subtitle>Pilih kursus untuk mengelola pengguna yang terdaftar.</x-slot:subtitle>
+    </x-dash.page-head>
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
@@ -60,7 +46,7 @@
                                                                 ];
                                                             @endphp
                                                             <label class="label {{ $statusClasses[$course->status] ?? 'label-default' }}">
-                                                                {{ ucfirst(str_replace('_', ' ', $course->status)) }}
+                                                                {{ $course->status_label }}
                                                             </label>
                                                         </td>
                                                         <td>{{ $course->students->count() }} Siswa</td>

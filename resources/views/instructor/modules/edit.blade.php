@@ -1,27 +1,12 @@
 @extends('layouts.app-layout')
 
 @section('content')
-    <div class="pcoded-content">
+    <div class="pcoded-content rs-page-form">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">Edit Modul</h5>
-                            <p class="m-b-0">Perbarui Detail Modul Anda.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.courses.index') }}">Kursus Saya</a></li>
-                             <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $module->course) }}">Modul Saya</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Edit</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Kursus Saya', route('instructor.courses.index')], [\Illuminate\Support\Str::limit($module->course->title, 30), route('instructor.courses.modules.index', $module->course)], ['Edit', null]]">
+            <x-slot:title>Edit Modul</x-slot:title>
+            <x-slot:subtitle>Perbarui Detail Modul Anda.</x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
         <div class="pcoded-inner-content">
             <!-- Main-body start -->
@@ -37,8 +22,9 @@
                                         <span>Perbarui Judul Modul Anda.</span>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.modules.update', $module) }}" method="POST">
+                                        <form action="{{ route('instructor.modules.update', $module) }}" method="POST" class="rs-form">
                                             @csrf
+                                            @include('instructor.lessons.partials._form-errors', ['title' => 'Modul belum tersimpan.'])
                                             @method('PUT')
 
                                             {{-- Title --}}
@@ -61,12 +47,9 @@
                                                 </div>
                                             </div>
 
-                                            <div class="form-group row">
-                                                <label class="col-sm-2"></label>
-                                                <div class="col-sm-10">
-                                                    <a href="{{ route('instructor.courses.modules.index', $module->course) }}" class="btn btn-secondary">Batal</a>
-                                                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                                                </div>
+                                                                                        <div class="rs-form-actions">
+                                                <a href="{{ route('instructor.courses.modules.index', $module->course) }}" class="btn btn-secondary">Batal</a>
+                                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                                             </div>
                                         </form>
                                     </div>

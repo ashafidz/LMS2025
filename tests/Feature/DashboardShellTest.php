@@ -42,7 +42,11 @@ class DashboardShellTest extends TestCase
                 ->assertSee('aria-labelledby="nav-profil"', false)
                 ->assertSee('href="'.route('user.profile.index').'"', false)
                 ->assertSee('Ruang Studi Uji', false)
-                ->assertSee('family=Literata', false)
+                ->assertSee('family=Poppins', false)
+                ->assertSee('family=Nunito+Sans', false)
+                ->assertSee('family=JetBrains+Mono', false)
+                ->assertDontSee('family=Literata', false)
+                ->assertDontSee('family=Onest', false)
                 ->assertDontSee('Atkinson', false)
                 ->assertDontSee('pcoded.min.js', false)
                 ->assertDontSee('vertical-layout.min.js', false)
@@ -123,6 +127,28 @@ class DashboardShellTest extends TestCase
             ->get(route('student.dashboard'))
             ->assertOk()
             ->assertDontSee('/switch-role/', false);
+    }
+
+    public function test_dashboard_has_menu_button_that_can_hide_the_sidebar(): void
+    {
+        $this->actingAs($this->makeInstructor())
+            ->withSession(['active_role' => 'instructor'])
+            ->get(route('instructor.dashboard'))
+            ->assertOk()
+            ->assertSee('class="rs-dash-menu-btn" aria-controls="rs-dash-side"', false)
+            ->assertSee('class="rs-dash-side-close" aria-controls="rs-dash-side"', false)
+            ->assertSee('Sembunyikan menu', false)
+            ->assertSee("localStorage.getItem('rs-dash-side') === 'closed'", false);
+    }
+
+    public function test_student_dashboard_does_not_load_template_demo_charts(): void
+    {
+        // custom-dashboard.js needs AmCharts, which is not loaded: it threw "AmCharts is not defined".
+        $this->actingAs($this->makeStudent())
+            ->withSession(['active_role' => 'student'])
+            ->get(route('student.dashboard'))
+            ->assertOk()
+            ->assertDontSee('custom-dashboard.js', false);
     }
 
     public function test_role_switch_only_for_instructors_who_are_also_students(): void

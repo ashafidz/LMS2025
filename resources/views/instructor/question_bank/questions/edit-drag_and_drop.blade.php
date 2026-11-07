@@ -1,28 +1,12 @@
 @extends('layouts.app-layout')
 
 @section('content')
-    <div class="pcoded-content">
+    <div class="pcoded-content rs-page-form">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Edit Pertanyaan</h5>
-                            <p class="m-b-0">Tipe Soal: Drag and Drop (Isi Bagian yang Kosong)</p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.topics.index') }}">Bank</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.questions.index', $question->topic) }}">{{ Str::limit($question->topic->name, 20) }}</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Edit Pertanyaan</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Bank', route('instructor.question-bank.topics.index')], [(Str::limit($question->topic->name, 20)), route('instructor.question-bank.questions.index', $question->topic)], ['Edit Pertanyaan', null]]">
+            <x-slot:title>Edit Pertanyaan</x-slot:title>
+            <x-slot:subtitle>Tipe Soal: Drag and Drop (Isi Bagian yang Kosong)</x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
 
         <div class="pcoded-inner-content">
@@ -37,16 +21,17 @@
                                         <span>Ubah detail pertanyaan di bawah ini.</span>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.question-bank.questions.update', $question) }}" method="POST">
+                                        <form action="{{ route('instructor.question-bank.questions.update', $question) }}" method="POST" class="rs-form rs-form--bank">
                                             @csrf
+                                            @include('instructor.question_bank.questions.partials._form-errors')
                                             @method('PUT')
 
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Teks Pertanyaan</label>
                                                 <div class="col-sm-10">
-                                                    <textarea rows="5" name="question_text" class="form-control" required>{{ old('question_text', $question->question_text) }}</textarea>
+                                                    <textarea rows="5" name="question_text" class="form-control" data-rich="question">{{ old('question_text', $question->editorText()) }}</textarea>
                                                     <small class="form-text text-muted">
-                                                        <strong>Penting:</strong> Gunakan contoh seperti <code>[[BLANK_1]]</code>, <code>[[BLANK_2]]</code>, dan sebagainya.
+                                                        <strong>Penting:</strong> Gunakan contoh seperti <code>[[BLANK_1]]</code>, <code>[[BLANK_2]]</code>, dan sebagainya. Ketik penanda tanpa format tebal/miring.
                                                     </small>
                                                 </div>
                                             </div>
@@ -61,7 +46,7 @@
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Keterangan (Opsional)</label>
                                                 <div class="col-sm-10">
-                                                    <textarea rows="3" name="explanation" class="form-control">{{ old('explanation', $question->explanation) }}</textarea>
+                                                    <textarea rows="3" name="explanation" class="form-control" data-rich="explanation">{{ old('explanation', $question->editorExplanation()) }}</textarea>
                                                 </div>
                                             </div>
 
@@ -143,6 +128,7 @@
 @endsection
 
 @push('scripts')
+@include('instructor.question_bank.questions.partials._question-editor-scripts')
 <script>
     document.getElementById('add-option-btn').addEventListener('click', function() {
         // Get the template content

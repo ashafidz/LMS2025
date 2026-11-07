@@ -1,27 +1,11 @@
 @extends('layouts.app-layout')
 
 @section('content')
-    <div class="pcoded-content">
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Pengaturan Keamanan Kuis</h5>
-                            <p class="m-b-0">{{ $quiz->title }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $quiz->lesson->module->course) }}">Modul</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $quiz->lesson->module) }}">{{ Str::limit($quiz->lesson->module->title, 20) }}</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Keamanan Kuis</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="pcoded-content rs-page-form">
+        <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Modul', route('instructor.courses.modules.index', $quiz->lesson->module->course)], [(Str::limit($quiz->lesson->module->title, 20)), route('instructor.modules.lessons.index', $quiz->lesson->module)], ['Keamanan Kuis', null]]">
+            <x-slot:title>Pengaturan Keamanan Kuis</x-slot:title>
+            <x-slot:subtitle>{{ $quiz->title }}</x-slot:subtitle>
+        </x-dash.page-head>
         <div class="pcoded-inner-content">
             <div class="main-body">
                 <div class="page-wrapper">
@@ -44,7 +28,7 @@
                                         <span>Aktifkan fitur keamanan untuk mencegah kecurangan selama kuis berlangsung.</span>
                                     </div>
                                     <div class="card-block">
-                                        <form id="securitySettingsForm">
+                                        <form id="securitySettingsForm" class="rs-form">
                                             @csrf
 
                                             <!-- 1. Deteksi Kamera -->
@@ -252,19 +236,18 @@
                                             </div>
 
                                             <!-- Buttons -->
-                                            <div class="form-group row mt-4">
-                                                <div class="col-sm-12 text-right">
+                                            <div class="rs-form-actions">
                                                     <a href="{{ route('instructor.modules.lessons.index', $quiz->lesson->module) }}" 
                                                        class="btn btn-secondary">
                                                         <i class="fa fa-arrow-left"></i> Kembali
                                                     </a>
-                                                    <button type="button" class="btn btn-danger" id="btnReset">
+                                                    <button type="button" class="btn btn-outline-danger" id="btnReset">
                                                         <i class="fa fa-undo"></i> Reset ke Default
                                                     </button>
                                                     <button type="submit" class="btn btn-primary">
                                                         <i class="fa fa-save"></i> Simpan Pengaturan
                                                     </button>
-                                                </div>
+                                                
                                             </div>
                                         </form>
                                     </div>

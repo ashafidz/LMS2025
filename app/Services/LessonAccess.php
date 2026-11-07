@@ -16,6 +16,20 @@ use App\Models\User;
  */
 class LessonAccess
 {
+    /**
+     * Home and list crumbs for preview pages, following the active role (admins cannot open instructor pages).
+     *
+     * @return array{0: array{0: string, 1: string}, 1: array{0: string, 1: string}} [[home label, url], [list label, url]]
+     */
+    public static function previewCrumbs(?string $activeRole): array
+    {
+        return match ($activeRole) {
+            'superadmin' => [['__home', route('superadmin.dashboard')], ['Publikasi Kursus', route('superadmin.publication.index')]],
+            'admin' => [['__home', route('admin.dashboard')], ['Publikasi Kursus', route('admin.publication.index')]],
+            default => [['__home', route('instructor.dashboard')], ['Kursus Saya', route('instructor.courses.index')]],
+        };
+    }
+
     public static function isManager(?User $user, Course $course): bool
     {
         return $user !== null
@@ -43,9 +57,17 @@ class LessonAccess
         }
 
         $pivot = $user->coursePoints()->where('course_id', $module->course_id)->first();
-        $points = (int) ($pivot->pivot->points_earned ?? 0);
 
-        return $points >= (int) $module->points_required;
+        return self::meetsPointsRequirement((int) ($pivot->pivot->points_earned ?? 0), $module);
+    }
+
+    /**
+     * The lock rule itself: a module with points_required > 0 stays closed until the student has that many course points.
+     * Used by isModuleUnlocked() and by pages that already hold the points (for example the student home).
+     */
+    public static function meetsPointsRequirement(int $pointsEarned, Module $module): bool
+    {
+        return (int) $module->points_required <= 0 || $pointsEarned >= (int) $module->points_required;
     }
 
     public static function canAccessLesson(?User $user, Lesson $lesson): bool

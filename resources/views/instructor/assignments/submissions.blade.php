@@ -3,25 +3,10 @@
 @section('content')
 <div class="pcoded-content">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Pengumpulan Tugas</h5>
-                        <p class="m-b-0">Tugas: <strong>{{ $assignment->lesson->title }}</strong></p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $assignment->lesson->module) }}">Daftar Pelajaran</a></li>
-                        <li class="breadcrumb-item"><a href="#!">Pengumpulan</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Daftar Pelajaran', route('instructor.modules.lessons.index', $assignment->lesson->module)], ['Pengumpulan', null]]">
+        <x-slot:title>Pengumpulan Tugas</x-slot:title>
+        <x-slot:subtitle>Tugas: <strong>{{ $assignment->lesson->title }}</strong></x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">
@@ -36,9 +21,6 @@
                                     <span>Berikut adalah daftar semua siswa baik yang telah mengumpulkan tugas ini atau belum.</span>
                                 </div>
                                 <div class="card-block">
-                                    @if (session('success'))
-                                        <div class="alert alert-success">{{ session('success') }}</div>
-                                    @endif
                                     
                                     <!-- Nav tabs -->
                                     <ul class="nav nav-tabs md-tabs" role="tablist">
@@ -60,7 +42,7 @@
                                         </li>
                                     </ul>
                                     <!-- Tab panes -->
-                                    <div class="tab-content card-block">
+                                    <div class="tab-content pt-3">
                                         {{-- TAB: Menunggu Dinilai --}}
                                         <div class="tab-pane active" id="submitted" role="tabpanel">
                                             @include('instructor.assignments.partials._submission_table', [
@@ -102,7 +84,7 @@
                                                     <tbody>
                                                         @forelse ($notSubmittedStudents as $student)
                                                             <tr>
-                                                                <td class="text-center">{{ $student->studentProfile->unique_id_number ? $student->studentProfile->unique_id_number : '-' }}</td>
+                                                                <td class="text-center">{{ $student->studentProfile?->unique_id_number ? $student->studentProfile?->unique_id_number : '-' }}</td>
                                                                 <td>{{ $student->name }}</td>
                                                                 <td>{{ $student->email }}</td>
                                                             </tr>
@@ -131,7 +113,7 @@
 <div class="modal-dialog modal-pdf-viewer" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Detail Pengumpulan: {{ $submission->user->studentProfile?->unique_id_number ? $submission->user->studentProfile->unique_id_number . ' - ' : '' }}{{ $submission->user->name }}</h5>
+                    <h5 class="modal-title">Detail Pengumpulan: {{ $submission->user->studentProfile?->unique_id_number ? $submission->user->studentProfile?->unique_id_number . ' - ' : '' }}{{ $submission->user->name }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -166,6 +148,15 @@
                         </div>
                         <div class="col-lg-3">
                             <h6 class="font-weight-bold">Form Penilaian</h6>
+                            <div class="alert alert-info small py-2 mb-3 rs-grade-help" role="note">
+                                <strong>Cara penilaian</strong>
+                                <ul class="mb-0 pl-3 mt-1">
+                                    <li>Nilai <strong>{{ rtrim(rtrim(number_format((float) $assignment->pass_mark, 2, ',', '.'), '0'), ',') }}</strong> atau lebih: tugas <strong>Lulus</strong> dan pelajaran ditandai selesai.</li>
+                                    <li>Di bawah itu: tugas <strong>Perlu Revisi</strong>, tanda selesai dicabut, siswa mendapat email dan bisa mengunggah ulang.</li>
+                                    <li>Poin tugas sudah diberikan saat siswa pertama kali mengumpulkan; nilai tidak mengubah poin.</li>
+                                    <li>Umpan balik ditampilkan ke siswa bersama nilainya.</li>
+                                </ul>
+                            </div>
                             {{-- Tambahkan peringatan keterlambatan di sini --}}
                             @if ($submission->is_late)
                                 <div class="alert alert-warning bg-warning text-dark" role="alert">
@@ -177,7 +168,8 @@
                                 @csrf
                                 <div class="form-group">
                                     <label for="grade-{{ $submission->id }}">Nilai (0-100)</label>
-                                    <input type="number" name="grade" id="grade-{{ $submission->id }}" class="form-control" style="max-width: 140px;" value="{{ old('grade', $submission->grade) }}" min="0" max="100" required>
+                                    <input type="number" name="grade" id="grade-{{ $submission->id }}" class="form-control" style="max-width: 140px;" value="{{ old('grade', $submission->grade) }}" min="0" max="100" required data-pass-mark="{{ (float) $assignment->pass_mark }}" aria-describedby="grade-status-{{ $submission->id }}">
+                                    <small class="form-text text-muted" id="grade-status-{{ $submission->id }}" aria-live="polite">Isi nilai untuk melihat hasilnya.</small>
                                 </div>
                                 <div class="form-group">
                                     <label for="feedback-{{ $submission->id }}">Umpan Balik (Feedback)</label>
@@ -224,7 +216,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-warning" id="btn-submit-bulk-revise-submitted">
+                    <button type="submit" class="btn btn-secondary" id="btn-submit-bulk-revise-submitted">
                         <i class="fa fa-undo"></i> Ya, Minta Revisi
                     </button>
                 </div>
@@ -263,7 +255,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-warning" id="btn-submit-bulk-revise-passed">
+                    <button type="submit" class="btn btn-secondary" id="btn-submit-bulk-revise-passed">
                         <i class="fa fa-undo"></i> Ya, Minta Revisi
                     </button>
                 </div>
@@ -297,6 +289,26 @@
 
 @push('scripts')
 <script>
+    // Grading form: say right away whether the typed grade passes or asks for a revision.
+    document.addEventListener('input', function (e) {
+        var input = e.target;
+        if (!input.matches || !input.matches('input[data-pass-mark]')) { return; }
+        var hint = document.getElementById(input.getAttribute('aria-describedby'));
+        if (!hint) { return; }
+        var pass = parseFloat(input.getAttribute('data-pass-mark'));
+        var grade = parseFloat(input.value);
+        hint.classList.remove('text-success', 'text-danger', 'text-muted');
+        if (input.value === '' || isNaN(grade)) {
+            hint.textContent = 'Isi nilai untuk melihat hasilnya.';
+            hint.classList.add('text-muted');
+        } else if (grade >= pass) {
+            hint.textContent = 'Hasil: Lulus (nilai minimum ' + pass + ').';
+            hint.classList.add('text-success');
+        } else {
+            hint.textContent = 'Hasil: Perlu Revisi (nilai minimum ' + pass + ').';
+            hint.classList.add('text-danger');
+        }
+    });
 document.addEventListener('DOMContentLoaded', function () {
     // Pindahkan semua modal ke direct child dari body agar tidak terkurung oleh stacking context / transform container
     document.querySelectorAll('.modal').forEach(function (m) {
@@ -431,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const hiddenInputs = form.querySelectorAll('input[name="submission_ids[]"]');
                 if (hiddenInputs.length === 0) {
                     e.preventDefault();
-                    alert('Silakan pilih setidaknya satu tugas siswa terlebih dahulu.');
+                    rsAlert({ text: 'Silakan pilih setidaknya satu tugas siswa terlebih dahulu.', icon: 'warning' });
                     return false;
                 }
                 submitBtn.disabled = true;

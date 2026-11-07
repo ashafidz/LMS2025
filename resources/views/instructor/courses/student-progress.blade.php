@@ -3,25 +3,10 @@
 @section('content')
 <div class="pcoded-content">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Progres Siswa: {{ $student->name }}</h5>
-                        <p class="m-b-0">Melihat detail progres untuk kursus <strong>{{ $course->title }}</strong></p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.courses.index') }}">Kursus Saya</a></li>
-                        <li class="breadcrumb-item"><a href="#!">Progres Siswa</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Kursus Saya', route('instructor.courses.index')], ['Progres Siswa', null]]">
+        <x-slot:title>Progres Siswa: {{ $student->name }}</x-slot:title>
+        <x-slot:subtitle>Melihat detail progres untuk kursus <strong>{{ $course->title }}</strong></x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">
@@ -36,7 +21,7 @@
                                 <h3 class="font-weight-bold mb-1"><i class="fa fa-user-circle" style="margin-right: 10px;"></i>{{ $student->name }}</h3>
                                 <div class="mt-2">
                                     <p class="mb-1 text-white-50" style="line-height: 1.2;"><i class="fa fa-envelope" style="margin-right: 8px;"></i>{{ $student->email }}</p>
-                                    <p class="mb-0 text-white-50" style="line-height: 1.2;"><i class="fa fa-id-card" style="margin-right: 8px;"></i>NIM: {{ $student->studentProfile->unique_id_number ?? '-' }}</p>
+                                    <p class="mb-0 text-white-50" style="line-height: 1.2;"><i class="fa fa-id-card" style="margin-right: 8px;"></i>NIM: {{ $student->studentProfile?->unique_id_number ?? '-' }}</p>
                                 </div>
                             </div>
                             <div class="text-md-end text-center p-3 rounded" style="background: rgba(255,255,255,0.1);">

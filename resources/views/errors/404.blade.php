@@ -3,7 +3,7 @@
 @section('title', 'Halaman tidak ditemukan')
 
 @section('content')
-<x-rs.status icon="bi-signpost-split" eyebrow="Kode 404" title="Halaman tidak ditemukan">
+<x-rs.status illustration="rs-20-tersesat" icon="bi-signpost-split" eyebrow="Kode 404" title="Halaman tidak ditemukan">
     <p>Halaman yang kamu cari tidak ada atau sudah dipindahkan.</p>
     <div class="rs-status__actions">
         <a href="{{ url('/') }}" class="rs-btn rs-btn--block">Ke beranda</a>

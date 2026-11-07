@@ -1,29 +1,13 @@
 @extends('layouts.app-layout')
 
 @section('content')
-    <div class="pcoded-content">
+    <div class="pcoded-content rs-page-form">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Course: {{ $lesson->module->course->title }} | Modul: {{ $lesson->module->title }}</h5>
-                            <p class="m-b-10 fw-bolder" style="font-size: 2rem;">Edit Pelajaran</p>
-                            <p class="m-b-0">Tipe: Kumpulan Link</p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $lesson->module->course) }}">Modul Saya</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}">{{ Str::limit($lesson->module->title, 20) }}</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Edit Link</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], [\Illuminate\Support\Str::limit($lesson->module->course->title, 30), route('instructor.courses.modules.index', $lesson->module->course)], [(Str::limit($lesson->module->title, 20)), route('instructor.modules.lessons.index', $lesson->module)], ['Edit Link', null]]">
+            <x-slot:context>Kursus: {{ $lesson->module->course->title }}  >  Modul: {{ $lesson->module->title }}</x-slot:context>
+            <x-slot:title>Edit Pelajaran</x-slot:title>
+            <x-slot:subtitle>Tipe: Kumpulan Link</x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
 
         <div class="pcoded-inner-content">
@@ -37,8 +21,9 @@
                                         <h5>Edit Detail Pelajaran Kumpulan Link</h5>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.lessons.update', $lesson) }}" method="POST">
+                                        <form action="{{ route('instructor.lessons.update', $lesson) }}" method="POST" class="rs-form">
                                             @csrf
+                                            @include('instructor.lessons.partials._form-errors')
                                             @method('PUT')
 
                                             <div class="form-group row">
@@ -48,9 +33,7 @@
                                                 </div>
                                             </div>
 
-                                            <hr>
-
-                                            <h5 class="mt-4">Daftar Tautan</h5>
+                                            <div class="rs-form-section"><h3>Daftar Tautan</h3></div>
                                             <p class="mb-4">Ubah, hapus, atau tambahkan tautan referensi untuk pelajaran ini.</p>
 
                                             <div id="links-container">
@@ -72,7 +55,7 @@
                                                             </div>
                                                             <div class="col-sm-2">
                                                                 <label>&nbsp;</label>
-                                                                <button type="button" class="btn btn-danger btn-block" onclick="this.closest('.link-row').remove()">
+                                                                <button type="button" class="btn btn-outline-danger btn-block" onclick="this.closest('.link-row').remove()">
                                                                     <i class="fa fa-trash"></i> Hapus
                                                                 </button>
                                                             </div>
@@ -83,17 +66,15 @@
 
                                             <div class="row mt-3">
                                                 <div class="col-sm-12">
-                                                    <button type="button" class="btn btn-success" id="add-link-btn">
+                                                    <button type="button" class="btn btn-secondary" id="add-link-btn">
                                                         <i class="fa fa-plus"></i> Tambah Tautan Lain
                                                     </button>
                                                 </div>
                                             </div>
 
-                                            <div class="form-group row mt-5">
-                                                <div class="col-sm-12 text-right">
-                                                    <a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}" class="btn btn-secondary">Batal</a>
-                                                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                                                </div>
+                                                                                        <div class="rs-form-actions">
+                                                <a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}" class="btn btn-secondary">Batal</a>
+                                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                                             </div>
                                         </form>
                                     </div>
@@ -119,7 +100,7 @@
             </div>
             <div class="col-sm-2">
                 <label>&nbsp;</label>
-                <button type="button" class="btn btn-danger btn-block" onclick="this.closest('.link-row').remove()">
+                <button type="button" class="btn btn-outline-danger btn-block" onclick="this.closest('.link-row').remove()">
                     <i class="fa fa-trash"></i> Hapus
                 </button>
             </div>

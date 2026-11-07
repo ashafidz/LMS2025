@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\ContactMessage;
-use Illuminate\Http\Client\ConnectionException;
+use App\Services\Recaptcha;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ContactMessageController extends Controller
@@ -53,7 +51,7 @@ class ContactMessageController extends Controller
             return $this->plain($validator->errors()->first());
         }
 
-        if ($secretKey && ($problem = $this->recaptchaProblem($secretKey, $request))) {
+        if ($secretKey && ($problem = $this->recaptchaProblem($request))) {
             return $this->plain($problem);
         }
 
@@ -65,37 +63,17 @@ class ContactMessageController extends Controller
 
     /**
      * Null jika lolos; selain itu pesan untuk pengunjung. Gagal tertutup: bila Google tidak bisa dihubungi
-     * atau jawabannya tidak dikenali, pesan tidak disimpan.
+     * atau jawabannya tidak dikenali, pesan tidak disimpan. Logika verifikasi ada di App\Services\Recaptcha.
      */
-    private function recaptchaProblem(string $secretKey, Request $request): ?string
+    private function recaptchaProblem(Request $request): ?string
     {
-        try {
-            $response = Http::asForm()->timeout(10)->post('https://www.google.com/recaptcha/api/siteverify', [
-                'secret' => $secretKey,
-                'response' => $request->input('recaptcha-response'),
-                'remoteip' => $request->ip(),
-            ]);
-        } catch (ConnectionException $e) {
-            Log::warning('reCAPTCHA tidak bisa dihubungi: '.$e->getMessage());
+        $failure = Recaptcha::failure($request->input('recaptcha-response'), config('services.recaptcha.action'), $request->ip());
 
-            return 'Verifikasi anti-spam sedang tidak bisa dihubungi. Silakan coba lagi beberapa saat lagi.';
-        }
-
-        $result = $response->json();
-        if (! $response->successful() || ! is_array($result) || ! array_key_exists('success', $result)) {
-            Log::warning('Jawaban reCAPTCHA tidak dikenali', ['status' => $response->status()]);
-
-            return 'Verifikasi anti-spam sedang tidak bisa dihubungi. Silakan coba lagi beberapa saat lagi.';
-        }
-
-        // reCAPTCHA v3 selalu mengirim score dan action; tanpa keduanya (kunci salah jenis) dianggap tidak lolos
-        $score = $result['score'] ?? null;
-        $action = $result['action'] ?? null;
-        $passed = $result['success'] === true
-            && is_numeric($score) && (float) $score >= (float) config('services.recaptcha.min_score', 0.5)
-            && $action === config('services.recaptcha.action');
-
-        return $passed ? null : self::SPAM_MESSAGE;
+        return match ($failure) {
+            null => null,
+            'unreachable' => 'Verifikasi anti-spam sedang tidak bisa dihubungi. Silakan coba lagi beberapa saat lagi.',
+            default => self::SPAM_MESSAGE,
+        };
     }
 
     private function plain(string $text): Response

@@ -80,7 +80,10 @@ class BadgeAdminTest extends TestCase
             ->assertSee('Lulus kuis minimal 10 kuis di semua kursus')
             ->assertDontSee('quiz_passed');
 
-        $this->as($role)->get(route("$role.badges.create"))->assertOk()->assertSee('Syarat mendapatkan badge');
+        $this->as($role)->get(route("$role.badges.create"))->assertOk()->assertSee('Syarat mendapatkan badge')
+            ->assertSee('data-rs-shrink', false)
+            ->assertSee('data-max-bytes="1048576"', false)
+            ->assertSee('js/rs-image-shrink.js', false);
         $this->as($role)->get(route("$role.badges.edit", $badge))->assertOk()->assertSee('Jago Kuis');
     }
 
@@ -106,7 +109,8 @@ class BadgeAdminTest extends TestCase
         $this->as('admin')->post(route('admin.badges.store'), $this->payload(['icon' => $svg]))->assertSessionHasErrors('icon');
 
         $big = UploadedFile::fake()->image('besar.png', 100, 100)->size(1500);
-        $this->as('admin')->post(route('admin.badges.store'), $this->payload(['icon' => $big]))->assertSessionHasErrors('icon');
+        $this->as('admin')->post(route('admin.badges.store'), $this->payload(['icon' => $big]))
+            ->assertSessionHasErrors(['icon' => 'Ukuran ikon maksimal 1 MB.']);
 
         $this->assertDatabaseCount('badges', 0);
     }
@@ -174,7 +178,8 @@ class BadgeAdminTest extends TestCase
         $this->assertSame('Badge diperbarui. Syarat tidak diubah karena badge sudah dimiliki siswa.', session('warning'));
         $this->assertNull(session('success'));
         $this->as('admin')->get(route('admin.badges.index'))
-            ->assertSee('<div class="alert alert-warning">Badge diperbarui. Syarat tidak diubah karena badge sudah dimiliki siswa.</div>', false);
+            ->assertSee('Badge diperbarui. Syarat tidak diubah karena badge sudah dimiliki siswa.', false)
+            ->assertDontSee('alert alert-warning', false);
         $this->assertSame('Judul Baru', $badge->title);
         $this->assertFalse($badge->is_active);
         $this->assertSame(['quiz_passed'], $badge->rules->pluck('metric')->all());

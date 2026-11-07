@@ -3,24 +3,10 @@
 @section('content')
 <div class="pcoded-content">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Publikasi Kursus</h5>
-                        <p class="m-b-0">Review dan kelola kursus yang diajukan oleh instruktur.</p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Publikasi</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('admin.dashboard')], ['Publikasi', null]]">
+        <x-slot:title>Publikasi Kursus</x-slot:title>
+        <x-slot:subtitle>Review dan kelola kursus yang diajukan oleh instruktur.</x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">
@@ -35,9 +21,6 @@
                                     <span>Daftar kursus dengan status "Pending Review".</span>
                                 </div>
                                 <div class="card-block table-border-style">
-                                    @if (session('success'))
-                                        <div class="alert alert-success">{{ session('success') }}</div>
-                                    @endif
                                     @if (session('error'))
                                         <div class="alert alert-danger">{{ session('error') }}</div>
                                     @endif
@@ -67,13 +50,13 @@
                                                         <td>{{ $course->updated_at->format('d F Y') }}</td>
                                                         <td class="text-center">
                                                             {{-- Tombol Pratinjau (akan kita fungsikan nanti) --}}
-                                                            <a href="{{ route('student.courses.show', ['course' => $course->slug, 'preview' => 'true']) }}" class="btn btn-inverse btn-sm" target="_blank">Pratinjau</a>
+                                                            <a href="{{ route('student.courses.show', ['course' => $course->slug, 'preview' => 'true']) }}" class="btn btn-secondary btn-sm" target="_blank">Pratinjau</a>
                                                             {{-- Tombol Setujui --}}
                                                             <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#approveModal-{{ $course->id }}">
                                                                 Setujui
                                                             </button>
                                                             {{-- Tombol Tolak --}}
-                                                            <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#rejectModal-{{ $course->id }}">
+                                                            <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#rejectModal-{{ $course->id }}">
                                                                 Tolak
                                                             </button>
                                                         </td>

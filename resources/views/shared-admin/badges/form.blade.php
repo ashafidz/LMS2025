@@ -7,34 +7,16 @@
 @endphp
 
 @section('content')
-<div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">{{ $pageTitle }}</h5>
-                        <p class="m-b-0">Tentukan tampilan badge dan syarat yang harus dipenuhi siswa.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route($routePrefix . '.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route($routePrefix . '.badges.index') }}">Badge</a></li>
-                        <li class="breadcrumb-item"><a href="#!">{{ $pageTitle }}</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="pcoded-content rs-page-form">
+    <x-dash.page-head :crumbs="[['__home', route($routePrefix . '.dashboard')], ['Badge', route($routePrefix . '.badges.index')], [($pageTitle), null]]">
+        <x-slot:title>{{ $pageTitle }}</x-slot:title>
+        <x-slot:subtitle>Tentukan tampilan badge dan syarat yang harus dipenuhi siswa.</x-slot:subtitle>
+    </x-dash.page-head>
 
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
                 <div class="page-body">
-                    @if (session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
-                    @endif
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <strong>Badge belum bisa disimpan:</strong>
@@ -46,7 +28,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ $formAction }}" method="POST" enctype="multipart/form-data" id="badge-form">
+                    <form action="{{ $formAction }}" method="POST" enctype="multipart/form-data" id="badge-form" class="rs-form">
                         @csrf
                         @if ($isEdit) @method('PUT') @endif
 
@@ -71,7 +53,9 @@
                                         @if ($isEdit && $badge->icon_path)
                                             <img src="{{ asset('storage/' . $badge->icon_path) }}" alt="{{ $badge->title }}" style="width: 64px; height: 64px; object-fit: cover;" class="mb-2 d-block">
                                         @endif
-                                        <input type="file" id="icon" name="icon" class="form-control" accept="image/png,image/jpeg,image/webp" {{ $isEdit ? '' : 'required' }}>
+                                        <input type="file" id="icon" name="icon" class="form-control" accept="image/png,image/jpeg,image/webp" {{ $isEdit ? '' : 'required' }}
+                                            data-rs-shrink data-max-bytes="1048576" data-max-side="512" data-alpha-type="image/webp"
+                                            data-accept="image/jpeg,image/png,image/webp" data-label="Ikon">
                                         <small class="form-text text-muted">
                                             Gambar PNG, JPG, atau WEBP, maksimal 1 MB. Sebaiknya persegi (rasio 1:1).
                                             @if ($isEdit) Kosongkan jika tidak ingin mengganti ikon. @endif
@@ -119,8 +103,8 @@
                             </div>
                         </div>
 
-                        <div class="text-right">
-                            <a href="{{ route($routePrefix . '.badges.index') }}" class="btn btn-default">Batal</a>
+                        <div class="rs-form-actions">
+                            <a href="{{ route($routePrefix . '.badges.index') }}" class="btn btn-secondary">Batal</a>
                             <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Simpan Badge</button>
                         </div>
                     </form>
@@ -133,6 +117,7 @@
 
 @unless ($locked)
 @push('scripts')
+<script src="{{ asset('js/rs-image-shrink.js') }}"></script>
 <script>
     (function () {
         var catalog = {{ \Illuminate\Support\Js::from($catalog) }};

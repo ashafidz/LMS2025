@@ -101,32 +101,24 @@ class OrderSettlementService
     }
 
     /**
-     * Apply gateway status payload to order.
+     * Apply a normalized gateway status to the order.
      *
+     * @param  array{status?: string, amount?: int}  $status
      * @return 'paid'|'failed'|'ignored'|'amount_mismatch'
      */
     public function applyGatewayStatus(Order $order, array $status): string
     {
-        $payloadGrossAmount = (int) round((float) ($status['gross_amount'] ?? 0));
-        $orderFinalAmount = (int) round((float) $order->final_amount);
-
-        if ($payloadGrossAmount !== $orderFinalAmount) {
+        if ((int) ($status['amount'] ?? 0) !== (int) round((float) $order->final_amount)) {
             return 'amount_mismatch';
         }
 
-        $transactionStatus = $status['transaction_status'] ?? '';
-        $fraudStatus = $status['fraud_status'] ?? '';
-
-        if (
-            ($transactionStatus === 'capture' && $fraudStatus === 'accept')
-            || $transactionStatus === 'settlement'
-        ) {
+        if (($status['status'] ?? '') === 'paid') {
             $this->markPaid($order);
 
             return 'paid';
         }
 
-        if (in_array($transactionStatus, ['deny', 'cancel', 'failure', 'expire'], true)) {
+        if (($status['status'] ?? '') === 'failed') {
             $this->markFailed($order, 'failed');
 
             return 'failed';

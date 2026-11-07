@@ -1,29 +1,12 @@
 @extends('layouts.app-layout')
 
 @section('content')
-    <div class="pcoded-content">
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Course: {{ $module->course->title }} | Modul: {{ $module->title }}</h5>
-                            <p class="m-b-10 fw-bolder" style="font-size: 2rem;">Buat Pelajaran Baru</p>
-                            <p class="m-b-0">Tipe: Kuis</p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $module->course) }}">Modul Saya</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $module) }}">{{ Str::limit($module->title, 20) }}</a>
-                            </li>
-                            <li class="breadcrumb-item"><a href="#!">Buat Kuis</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="pcoded-content rs-page-form">
+        <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], [\Illuminate\Support\Str::limit($module->course->title, 30), route('instructor.courses.modules.index', $module->course)], [(Str::limit($module->title, 20)), route('instructor.modules.lessons.index', $module)], ['Buat Kuis', null]]">
+            <x-slot:context>Kursus: {{ $module->course->title }}  >  Modul: {{ $module->title }}</x-slot:context>
+            <x-slot:title>Buat Pelajaran Baru</x-slot:title>
+            <x-slot:subtitle>Tipe: Kuis</x-slot:subtitle>
+        </x-dash.page-head>
         <div class="pcoded-inner-content">
             <div class="main-body">
                 <div class="page-wrapper">
@@ -38,8 +21,9 @@
                                     </div>
                                     <div class="card-block">
                                         <form action="{{ route('instructor.modules.lessons.store', $module) }}"
-                                            method="POST" data-lesson-submit="true">
+                                            method="POST" data-lesson-submit="true" class="rs-form">
                                             @csrf
+                                            @include('instructor.lessons.partials._form-errors')
                                             <input type="hidden" name="lesson_type" value="quiz">
 
                                             {{-- <h6 class="font-weight-bold">Informasi Pelajaran Umum</h6>
@@ -62,7 +46,6 @@
                                                 required
                                             >
 
-                                            <h6 class="font-weight-bold mt-4">Informasi Spesifik Kuis</h6>
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Judul Kuis</label>
                                                 <div class="col-sm-9">
@@ -92,6 +75,7 @@
                                                         max="100">
                                                 </div>
                                             </div>
+                                            <div class="rs-form-section"><h3>Waktu & Percobaan</h3></div>
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Batas Waktu (Menit)</label>
                                                 <div class="col-sm-9">
@@ -166,6 +150,7 @@
                                                 </div>
                                             </div>
 
+                                            <div class="rs-form-section"><h3>Jadwal</h3></div>
                                             <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Jadwal Ketersediaan
                                                     (Opsional)</label>
@@ -187,15 +172,13 @@
                                                 </div>
                                             </div>
 
-                                            <div class="form-group row mt-4">
-                                                <div class="col-sm-12 text-right">
-                                                    <a href="{{ route('instructor.modules.lessons.index', $module) }}"
-                                                        class="btn btn-secondary">Batal</a>
-                                                    <button type="submit" class="btn btn-primary js-lesson-submit-btn">
-                                                        <span class="js-lesson-submit-text">Simpan & Lanjutkan</span>
-                                                        <span class="spinner-border spinner-border-sm ms-2 d-none js-lesson-submit-spinner" role="status" aria-hidden="true"></span>
-                                                    </button>
-                                                </div>
+                                                                                        <div class="rs-form-actions">
+                                                <a href="{{ route('instructor.modules.lessons.index', $module) }}"
+                                                class="btn btn-secondary">Batal</a>
+                                                <button type="submit" class="btn btn-primary js-lesson-submit-btn">
+                                                <span class="js-lesson-submit-text">Simpan & Lanjutkan</span>
+                                                <span class="spinner-border spinner-border-sm ms-2 d-none js-lesson-submit-spinner" role="status" aria-hidden="true"></span>
+                                                </button>
                                             </div>
                                         </form>
                                     </div>

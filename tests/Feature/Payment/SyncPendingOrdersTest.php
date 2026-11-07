@@ -5,7 +5,7 @@ namespace Tests\Feature\Payment;
 use App\Models\Course;
 use App\Models\Order;
 use App\Models\SiteSetting;
-use App\Services\MidtransService;
+use App\Services\XenditService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Tests\TestCase;
@@ -38,6 +38,7 @@ class SyncPendingOrdersTest extends TestCase
             'total_amount' => 100000,
             'final_amount' => 100000,
             'status' => 'pending',
+            'xendit_invoice_id' => 'inv_test',
             'created_at' => now()->subMinutes(20),
         ]);
         $order->items()->create([
@@ -45,15 +46,15 @@ class SyncPendingOrdersTest extends TestCase
             'price_at_purchase' => $course->price,
         ]);
 
-        $mockMidtrans = Mockery::mock(MidtransService::class);
-        $mockMidtrans->shouldReceive('fetchStatus')
+        $mockXendit = Mockery::mock(XenditService::class);
+        $mockXendit->shouldReceive('fetchStatus')
             ->once()
-            ->with($order->order_code)
+            ->with(Mockery::on(fn ($arg) => $arg->is($order)))
             ->andReturn([
-                'gross_amount' => '100000.00',
-                'transaction_status' => 'settlement',
+                'status' => 'paid',
+                'amount' => 100000,
             ]);
-        $this->app->instance(MidtransService::class, $mockMidtrans);
+        $this->app->instance(XenditService::class, $mockXendit);
 
         $this->artisan('orders:sync-pending')
             ->expectsOutput('Checked: 1, paid: 1, failed: 0, unchanged: 0')
@@ -73,6 +74,7 @@ class SyncPendingOrdersTest extends TestCase
             'total_amount' => 100000,
             'final_amount' => 100000,
             'status' => 'pending',
+            'xendit_invoice_id' => 'inv_test',
             'created_at' => now()->subMinutes(5),
         ]);
         $order->items()->create([
@@ -80,9 +82,9 @@ class SyncPendingOrdersTest extends TestCase
             'price_at_purchase' => $course->price,
         ]);
 
-        $mockMidtrans = Mockery::mock(MidtransService::class);
-        $mockMidtrans->shouldReceive('fetchStatus')->never();
-        $this->app->instance(MidtransService::class, $mockMidtrans);
+        $mockXendit = Mockery::mock(XenditService::class);
+        $mockXendit->shouldReceive('fetchStatus')->never();
+        $this->app->instance(XenditService::class, $mockXendit);
 
         $this->artisan('orders:sync-pending')
             ->expectsOutput('Checked: 0, paid: 0, failed: 0, unchanged: 0')
@@ -101,6 +103,7 @@ class SyncPendingOrdersTest extends TestCase
             'total_amount' => 100000,
             'final_amount' => 100000,
             'status' => 'pending',
+            'xendit_invoice_id' => 'inv_test',
             'created_at' => now()->subMinutes(20),
         ]);
         $order->items()->create([
@@ -108,15 +111,15 @@ class SyncPendingOrdersTest extends TestCase
             'price_at_purchase' => $course->price,
         ]);
 
-        $mockMidtrans = Mockery::mock(MidtransService::class);
-        $mockMidtrans->shouldReceive('fetchStatus')
+        $mockXendit = Mockery::mock(XenditService::class);
+        $mockXendit->shouldReceive('fetchStatus')
             ->once()
-            ->with($order->order_code)
+            ->with(Mockery::on(fn ($arg) => $arg->is($order)))
             ->andReturn([
-                'gross_amount' => '100000.00',
-                'transaction_status' => 'expire',
+                'status' => 'failed',
+                'amount' => 100000,
             ]);
-        $this->app->instance(MidtransService::class, $mockMidtrans);
+        $this->app->instance(XenditService::class, $mockXendit);
 
         $this->artisan('orders:sync-pending')
             ->expectsOutput('Checked: 1, paid: 0, failed: 1, unchanged: 0')
@@ -135,6 +138,7 @@ class SyncPendingOrdersTest extends TestCase
             'total_amount' => 100000,
             'final_amount' => 100000,
             'status' => 'pending',
+            'xendit_invoice_id' => 'inv_test',
             'created_at' => now()->subMinutes(20),
         ]);
         $order->items()->create([
@@ -142,12 +146,12 @@ class SyncPendingOrdersTest extends TestCase
             'price_at_purchase' => $course->price,
         ]);
 
-        $mockMidtrans = Mockery::mock(MidtransService::class);
-        $mockMidtrans->shouldReceive('fetchStatus')
+        $mockXendit = Mockery::mock(XenditService::class);
+        $mockXendit->shouldReceive('fetchStatus')
             ->once()
-            ->with($order->order_code)
+            ->with(Mockery::on(fn ($arg) => $arg->is($order)))
             ->andReturn([]);
-        $this->app->instance(MidtransService::class, $mockMidtrans);
+        $this->app->instance(XenditService::class, $mockXendit);
 
         $this->artisan('orders:sync-pending')
             ->expectsOutput('Checked: 1, paid: 0, failed: 0, unchanged: 1')
@@ -166,6 +170,7 @@ class SyncPendingOrdersTest extends TestCase
             'total_amount' => 100000,
             'final_amount' => 100000,
             'status' => 'pending',
+            'xendit_invoice_id' => 'inv_test',
             'created_at' => now()->subMinutes(20),
         ]);
         $order->items()->create([
@@ -173,15 +178,15 @@ class SyncPendingOrdersTest extends TestCase
             'price_at_purchase' => $course->price,
         ]);
 
-        $mockMidtrans = Mockery::mock(MidtransService::class);
-        $mockMidtrans->shouldReceive('fetchStatus')
+        $mockXendit = Mockery::mock(XenditService::class);
+        $mockXendit->shouldReceive('fetchStatus')
             ->once()
-            ->with($order->order_code)
+            ->with(Mockery::on(fn ($arg) => $arg->is($order)))
             ->andReturn([
-                'gross_amount' => '50000.00',
-                'transaction_status' => 'settlement',
+                'status' => 'paid',
+                'amount' => 50000,
             ]);
-        $this->app->instance(MidtransService::class, $mockMidtrans);
+        $this->app->instance(XenditService::class, $mockXendit);
 
         $this->artisan('orders:sync-pending')
             ->expectsOutput('Checked: 1, paid: 0, failed: 0, unchanged: 1')
@@ -199,22 +204,47 @@ class SyncPendingOrdersTest extends TestCase
             'total_amount' => 100000,
             'final_amount' => 100000,
             'status' => 'pending',
+            'xendit_invoice_id' => 'inv_test',
             'created_at' => now()->subMinutes(20),
         ]);
 
-        $mockMidtrans = Mockery::mock(MidtransService::class);
-        $mockMidtrans->shouldReceive('fetchStatus')
+        $mockXendit = Mockery::mock(XenditService::class);
+        $mockXendit->shouldReceive('fetchStatus')
             ->times(150)
             ->andReturn([
-                'gross_amount' => '100000.00',
-                'transaction_status' => 'expire',
+                'status' => 'failed',
+                'amount' => 100000,
             ]);
-        $this->app->instance(MidtransService::class, $mockMidtrans);
+        $this->app->instance(XenditService::class, $mockXendit);
 
         $this->artisan('orders:sync-pending')
             ->expectsOutput('Checked: 150, paid: 0, failed: 150, unchanged: 0')
             ->assertSuccessful();
 
         $this->assertSame(0, Order::where('status', 'pending')->count());
+    }
+
+    public function test_order_without_xendit_invoice_id_is_skipped(): void
+    {
+        $student = $this->makeStudent();
+
+        $order = Order::factory()->create([
+            'user_id' => $student->id,
+            'total_amount' => 100000,
+            'final_amount' => 100000,
+            'status' => 'pending',
+            'xendit_invoice_id' => null,
+            'created_at' => now()->subMinutes(20),
+        ]);
+
+        $mockXendit = Mockery::mock(XenditService::class);
+        $mockXendit->shouldReceive('fetchStatus')->never();
+        $this->app->instance(XenditService::class, $mockXendit);
+
+        $this->artisan('orders:sync-pending')
+            ->expectsOutput('Checked: 0, paid: 0, failed: 0, unchanged: 0')
+            ->assertSuccessful();
+
+        $this->assertSame('pending', $order->fresh()->status);
     }
 }

@@ -29,6 +29,7 @@ class BadgeRequest extends BadgeRulesRequest
             'icon.required' => 'Pilih gambar ikon untuk badge ini.',
             'icon.mimes' => 'Ikon harus berupa gambar PNG, JPG, atau WEBP.',
             'icon.max' => 'Ukuran ikon maksimal 1 MB.',
+            'icon.uploaded' => 'Ikon gagal diunggah. Ukuran ikon maksimal 1 MB.',
         ]);
     }
 

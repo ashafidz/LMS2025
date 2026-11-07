@@ -26,6 +26,8 @@ class OrderFactory extends Factory
             'coupon_id' => null,
             'status' => 'pending',
             'snap_token' => null,
+            'xendit_invoice_id' => null,
+            'payment_url' => null,
         ];
     }
 

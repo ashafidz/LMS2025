@@ -4,34 +4,10 @@
 @section('content')
     <div class="pcoded-content">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">
-                                Dashboard
-                            </h5>
-                            <p class="m-b-0">
-                                Selamat datang di Dashboard Admin
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item">
-                                <a href="{{ route('home') }}">
-                                    <i class="fa fa-home"></i>
-                                </a>
-                            </li>
-                            <li class="breadcrumb-item">
-                                <a href="#!">Instructor Application</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-dash.page-head :crumbs="[['__home', route('home')], ['Pendaftaran Instruktur', null]]">
+            <x-slot:title>Pendaftaran Instruktur</x-slot:title>
+            <x-slot:subtitle>Tinjau pendaftaran instruktur, lalu setujui atau tolak.</x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
         <div class="pcoded-inner-content">
             <!-- Main-body start -->
@@ -45,7 +21,7 @@
                             <div class="col-sm-12">
                                 <div class="card table-card">
                                     <div class="card-header">
-                                        <h5>Instructor Application</h5>
+                                        <h5>Pendaftaran Instruktur</h5>
                                         <p>List pendaftaran sebagai Instructor</p>
                                         <div class="card-header-right">
                                             {{-- <ul class="list-unstyled card-option">
@@ -148,7 +124,7 @@
                                                                     @if ($application->application_status == 'pending') bg-warning text-dark 
                                                                     @elseif($application->application_status == 'approved') bg-success 
                                                                     @else bg-danger @endif">
-                                                                    {{ ucfirst($application->application_status) }}
+                                                                    {{ ['pending' => 'Menunggu', 'approved' => 'Disetujui', 'rejected' => 'Ditolak', 'deactive' => 'Nonaktif'][$application->application_status] ?? ucfirst($application->application_status) }}
                                                                 </span>
                                                             </td>
                                                             <td>
@@ -157,7 +133,7 @@
                                                                         <form
                                                                             action="{{ $actionRouteApprove }}"
                                                                             method="POST"
-                                                                            onsubmit="return confirm('Apakah kamu yakin ingin Approve pendaftaran instructor ini');">
+                                                                            data-confirm="Apakah kamu yakin ingin menyetujui pendaftaran instructor ini?" data-confirm-ok="Ya, setujui">
                                                                             @csrf
                                                                             @method('PATCH')
                                                                             <button type="submit"
@@ -166,12 +142,12 @@
                                                                         <form
                                                                             action="{{ $actionRouteReject }}"
                                                                             method="POST"
-                                                                            onsubmit="return confirm('Apakah kamu yakin ingin Reject pendaftaran instructor ini?');"
+                                                                            data-confirm="Apakah kamu yakin ingin menolak pendaftaran instructor ini?" data-confirm-danger data-confirm-ok="Ya, tolak"
                                                                             class="ms-1">
                                                                             @csrf
                                                                             @method('PATCH')
                                                                             <button type="submit"
-                                                                                class="btn btn-sm btn-danger">Reject</button>
+                                                                                class="btn btn-sm btn-outline-danger">Reject</button>
                                                                         </form>
                                                                     </div>
                                                                 @elseif ($application->application_status === 'approved') 
@@ -179,11 +155,11 @@
                                                                         <form
                                                                             action="{{ $actionRouteDeactive }}"
                                                                             method="POST"
-                                                                            onsubmit="return confirm('Apakah kamu yakin ingin deactive Instructor ini?');">
+                                                                            data-confirm="Apakah kamu yakin ingin menonaktifkan instructor ini?" data-confirm-danger data-confirm-ok="Ya, nonaktifkan">
                                                                             @csrf
                                                                             @method('PATCH')
                                                                             <button type="submit"
-                                                                                class="btn btn-sm btn-danger">Deactive</button>
+                                                                                class="btn btn-sm btn-outline-danger">Deactive</button>
                                                                         </form>
                                                                     </div>
                                                                 @elseif ($application->application_status === 'deactive')
@@ -191,11 +167,11 @@
                                                                         <form
                                                                             action="{{ $actionRouteReactivate }}"
                                                                             method="POST"
-                                                                            onsubmit="return confirm('Apakah kamu yakin ingin Ractive Instructor ini?');">
+                                                                            data-confirm="Apakah kamu yakin ingin mengaktifkan kembali instructor ini?" data-confirm-ok="Ya, aktifkan">
                                                                             @csrf
                                                                             @method('PATCH')
                                                                             <button type="submit"
-                                                                                class="btn btn-sm btn-success">Ractive</button>
+                                                                                class="btn btn-sm btn-secondary">Ractive</button>
                                                                         </form>
                                                                     </div>
 

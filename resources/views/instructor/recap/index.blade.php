@@ -2,18 +2,10 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Rekap Nilai Kursus</h5>
-                        <p class="m-b-0" style="font-size: 2rem;"><strong>{{ $course->title }}</strong></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head>
+        <x-slot:title>Rekap Nilai Kursus</x-slot:title>
+        <x-slot:subtitle><strong>{{ $course->title }}</strong></x-slot:subtitle>
+    </x-dash.page-head>
 
     <div class="pcoded-inner-content">
         <div class="main-body">
@@ -116,6 +108,8 @@
     }
     .module-title {
         flex-grow: 1;
+        min-width: 0;
+        overflow-wrap: anywhere;
     }
     .arrow-icon {
         transition: transform 0.2s ease;

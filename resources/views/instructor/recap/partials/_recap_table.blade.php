@@ -2,10 +2,10 @@
     <div class="card-header custom-card-header d-flex justify-content-between align-items-center">
         <h6 class="mb-0 fw-bold text-dark">Rekap Nilai: {{ $module->title }}</h6>
         <div>
-            <a href="{{ route('instructor.recap.download_pdf', $module) }}" class="btn btn-sm btn-danger me-2">
+            <a href="{{ route('instructor.recap.download_pdf', $module) }}" class="btn btn-sm btn-outline-danger me-2">
                 <i class="fa fa-file-pdf-o"></i> PDF
             </a>
-            <a href="{{ route('instructor.recap.download_excel', $module) }}" class="btn btn-sm btn-success">
+            <a href="{{ route('instructor.recap.download_excel', $module) }}" class="btn btn-sm btn-secondary">
                 <i class="fa fa-file-excel-o"></i> Excel
             </a>
         </div>
@@ -38,7 +38,7 @@
                 <tbody>
                     @forelse ($students as $student)
                     <tr>
-                        <td class="text-center">{{ $student->studentProfile->unique_id_number ?? '-' }}</td>
+                        <td class="text-center">{{ $student->studentProfile?->unique_id_number ?? '-' }}</td>
                         <td><a href="{{ route('profile.show', $student->id) }}">{{ $student->name }}</a></td>
                         <td class="text-center">{{ $scores[$student->id]['total_course_points'] }}</td>
                         <td class="text-center">{{ $scores[$student->id]['total_module_points'] }}</td>

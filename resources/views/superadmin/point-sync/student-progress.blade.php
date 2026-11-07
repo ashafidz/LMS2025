@@ -3,26 +3,10 @@
 @section('content')
 <div class="pcoded-content">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Progres Siswa: {{ $student->name }}</h5>
-                        <p class="m-b-0">Melihat detail progres untuk kursus <strong>{{ $course->title }}</strong></p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ auth()->user()->hasRole('superadmin') ? route('superadmin.dashboard') : route('admin.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('superadmin.point-sync.index') }}">Sinkronisasi Poin</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('superadmin.point-sync.courses', $course->instructor) }}">{{ $course->instructor->name ?? 'Instruktur' }}</a></li>
-                        <li class="breadcrumb-item"><a href="#!">Progres Siswa</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', auth()->user()->hasRole('superadmin') ? route('superadmin.dashboard') : route('admin.dashboard')], ['Sinkronisasi Poin', route('superadmin.point-sync.index')], [($course->instructor->name ?? 'Instruktur'), route('superadmin.point-sync.courses', $course->instructor)], ['Progres Siswa', null]]">
+        <x-slot:title>Progres Siswa: {{ $student->name }}</x-slot:title>
+        <x-slot:subtitle>Melihat detail progres untuk kursus <strong>{{ $course->title }}</strong></x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">
@@ -37,7 +21,7 @@
                                 <h3 class="font-weight-bold mb-1"><i class="fa fa-user-circle me-2"></i> {{ $student->name }}</h3>
                                 <div class="ms-3 ms-md-4">
                                     <p class="mb-0 text-white-50" style="line-height: 1.2;"><i class="fa fa-envelope me-1"></i> {{ $student->email }}</p>
-                                    <p class="mb-0 text-white-50" style="line-height: 1.2;"><i class="fa fa-id-card me-1"></i> NIM: {{ $student->studentProfile->unique_id_number ?? '-' }}</p>
+                                    <p class="mb-0 text-white-50" style="line-height: 1.2;"><i class="fa fa-id-card me-1"></i> NIM: {{ $student->studentProfile?->unique_id_number ?? '-' }}</p>
                                 </div>
                             </div>
                             <div class="text-md-end text-center p-3 rounded" style="background: rgba(255,255,255,0.1);">

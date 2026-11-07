@@ -2,24 +2,10 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Kelola Kategori Kursus</h5>
-                        <p class="m-b-0">Buat, lihat, dan kelola semua kategori untuk kursus.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route(Auth::user()->getRoleNames()->first() . '.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Kategori Kursus</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route(Auth::user()->getRoleNames()->first() . '.dashboard')], ['Kategori Kursus', null]]">
+        <x-slot:title>Kelola Kategori Kursus</x-slot:title>
+        <x-slot:subtitle>Buat, lihat, dan kelola semua kategori untuk kursus.</x-slot:subtitle>
+    </x-dash.page-head>
 
     <div class="pcoded-inner-content">
         <div class="main-body"><div class="page-wrapper"><div class="page-body">
@@ -34,7 +20,6 @@
                             </div>
                         </div>
                         <div class="card-block table-border-style">
-                            @if (session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
                             @if (session('error')) <div class="alert alert-danger">{{ session('error') }}</div> @endif
                             <div class="table-responsive">
                                 <table class="table table-hover">
@@ -51,8 +36,8 @@
                                                 <td><strong>{{ $category->name }}</strong></td>
                                                 <td>{{ $category->courses_count }} Kursus</td>
                                                 <td class="text-center">
-                                                    <a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-categories.edit', $category->id) }}" class="btn btn-info btn-sm"><i class="fa fa-pencil"></i> </a>
-                                                    <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal-{{ $category->id }}" {{ $categories->count() <= 1 ? 'disabled' : '' }}>
+                                                    <a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-categories.edit', $category->id) }}" class="btn btn-secondary btn-sm"><i class="fa fa-pencil"></i> </a>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteModal-{{ $category->id }}" {{ $categories->count() <= 1 ? 'disabled' : '' }}>
                                                         <i class="fa fa-trash"></i> 
                                                     </button>
                                                 </td>

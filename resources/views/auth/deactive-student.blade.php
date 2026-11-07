@@ -3,7 +3,7 @@
 @section('title', 'Akun tidak aktif')
 
 @section('content')
-<x-rs.status tone="danger" icon="bi-person-x" title="Akun siswa tidak aktif">
+<x-rs.status illustration="rs-19-status-akun" tone="danger" icon="bi-person-x" title="Akun siswa tidak aktif">
     <p>
         Hai, kami ingin memberi tahu bahwa akun belajar Anda saat ini tidak aktif.
         Hal ini dilakukan demi menjaga kenyamanan dan keamanan semua pengguna.

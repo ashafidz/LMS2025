@@ -1,6 +1,6 @@
 {{-- 
 
-<h4 class="font-weight-bold">{{ $lesson->title }}</h4>
+<h4 class="font-weight-bold rs-lesson-heading">{{ $lesson->title }}</h4>
 <hr>
 
 <div class="card">

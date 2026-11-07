@@ -3,24 +3,10 @@
 @section('content')
 <div class="pcoded-content">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Manajemen Pertanyaan Ulasan</h5>
-                        <p class="m-b-0">Kelola pertanyaan skala Likert untuk ulasan kursus dan instruktur.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route(Auth::user()->getRoleNames()->first() . '.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Pertanyaan Ulasan</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route(Auth::user()->getRoleNames()->first() . '.dashboard')], ['Pertanyaan Ulasan', null]]">
+        <x-slot:title>Manajemen Pertanyaan Ulasan</x-slot:title>
+        <x-slot:subtitle>Kelola pertanyaan skala Likert untuk ulasan kursus dan instruktur.</x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">
@@ -37,9 +23,6 @@
                                     </div>
                                 </div>
                                 <div class="card-block table-border-style">
-                                    @if (session('success'))
-                                        <div class="alert alert-success">{{ session('success') }}</div>
-                                    @endif
                                     <div class="table-responsive">
                                         <table class="table table-hover">
                                             <thead>
@@ -73,13 +56,13 @@
                                                             @endif
                                                         </td>
                                                         <td class="text-center">
-                                                            <a href="{{ route(Auth::user()->getRoleNames()->first() . '.likert-questions.edit', $question->id) }}" class="btn btn-info btn-sm">
+                                                            <a href="{{ route(Auth::user()->getRoleNames()->first() . '.likert-questions.edit', $question->id) }}" class="btn btn-secondary btn-sm">
                                                                 <i class="fa fa-pencil"></i> 
                                                             </a>
-                                                            <form action="{{ route(Auth::user()->getRoleNames()->first() . '.likert-questions.destroy', $question->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pertanyaan ini?');">
+                                                            <form action="{{ route(Auth::user()->getRoleNames()->first() . '.likert-questions.destroy', $question->id) }}" method="POST" class="d-inline" data-confirm="Apakah Anda yakin ingin menghapus pertanyaan ini?" data-confirm-danger data-confirm-ok="Ya, hapus">
                                                                 @csrf
                                                                 @method('DELETE')
-                                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                                <button type="submit" class="btn btn-outline-danger btn-sm">
                                                                     <i class="fa fa-trash"></i> 
                                                                 </button>
                                                             </form>

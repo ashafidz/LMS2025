@@ -1,5 +1,9 @@
 @extends('layouts.home-layout')
 
+@section('intro')
+    <x-rs.intro />
+@endsection
+
 @section('content')
 <div class="rs-page">
     @php $shelf = collect([$mostPopularCourse, $secondMostPopularCourse, $thirdMostPopularCourse])->filter(); @endphp
@@ -7,10 +11,11 @@
     <!-- Hero Section -->
     <section id="hero" class="rs-hero">
         <div class="rs-wrap">
-            <div class="rs-hero__grid {{ $shelf->isEmpty() ? 'rs-hero__grid--solo' : '' }}">
+            <div class="rs-hero__grid">
                 <div class="rs-hero__text">
+                    <span class="rs-pill">Platform belajar online</span>
                     <h1 class="rs-h1">
-                        Raih Impian <br>
+                        Raih <em>Impian</em> <br>
                         Kembangkan Potensi <br>
                         Bersama Kami
                     </h1>
@@ -25,22 +30,28 @@
                             <a class="rs-link" href="{{ $siteSettings->hero_video_url }}" target="_blank" rel="noopener">Lihat video</a>
                         @endif
                     </div>
+                    <ul class="rs-ticks">
+                        <li>Sertifikat resmi</li>
+                        <li>Akses seumur hidup</li>
+                        <li>Studi kasus nyata</li>
+                    </ul>
                 </div>
 
-                @if ($shelf->isNotEmpty())
-                    <div class="rs-shelf" aria-hidden="true">
-                        @foreach ($shelf as $c)
-                            <a class="rs-spine rs-cover--c{{ $c->category_id % 5 }}" href="{{ route('courses.show', $c->slug) }}" tabindex="-1">{{ Str::limit($c->title, 26) }}</a>
-                        @endforeach
-                    </div>
-                @endif
+                <div class="rs-hero__art" aria-hidden="true">
+                    <span class="rs-blob rs-blob--blue"></span>
+                    <span class="rs-blob rs-blob--lav"></span>
+                    <span class="rs-blob rs-blob--sun"></span>
+                    <x-rs.illustration name="rs-01-hero-belajar" size="lg" class="rs-hero__illu" loading="eager" fetchpriority="high" />
+                    <div class="rs-float rs-float--1"><i class="bi bi-play-circle"></i><div><b>Materi video</b><span>dan bacaan lengkap</span></div></div>
+                    <div class="rs-float rs-float--2"><i class="bi bi-award"></i><div><b>Sertifikat resmi</b><span>setelah kursus selesai</span></div></div>
+                </div>
             </div>
         </div>
     </section><!-- /Hero Section -->
 
     <!-- About Section -->
     <section id="about" class="rs-section">
-        <div class="rs-wrap">
+        <div data-rs-reveal class="rs-wrap">
             <div class="rs-split">
                 <div>
                     <p class="rs-eyebrow">Tentang Kami</p>
@@ -59,7 +70,7 @@
                     <p class="rs-mt-4"><a class="rs-link" href="{{ route('contact') }}">Hubungi kami</a></p>
                 </div>
                 <div>
-                    <img src="{{ asset('images/tentang/beranda-tentang.jpg') }}" alt="Seorang peserta berhijab belajar di laptop dan mencatat di meja kayu, dengan rak buku dan sertifikat di dinding" width="1200" height="670" loading="lazy">
+                    <x-rs.illustration name="rs-02-tentang-tim" size="lg" />
                 </div>
             </div>
         </div>
@@ -76,7 +87,7 @@
 
     <!-- Services Section -->
     <section id="services" class="rs-section rs-section--paper">
-        <div class="rs-wrap">
+        <div data-rs-reveal class="rs-wrap">
             <div class="rs-section-head">
                 <div>
                     <h2 class="rs-h2">Layanan Kami</h2>
@@ -111,7 +122,7 @@
 
     <!-- About CTA Section -->
     <section class="rs-section">
-        <div class="rs-wrap">
+        <div data-rs-reveal class="rs-wrap">
             <div class="rs-cta">
                 <h2>Kenali Lebih Dekat {{ $siteSettings->site_name }}</h2>
                 <p>Pelajari bagaimana kami membantu pelajar dan profesional meningkatkan keterampilan melalui kursus berkualitas dan mentor berpengalaman.</p>
@@ -122,7 +133,7 @@
 
     <!-- Pricing Section -->
     <section id="pricing" class="rs-section">
-        <div class="rs-wrap">
+        <div data-rs-reveal class="rs-wrap">
             <div class="rs-section-head">
                 <div>
                     <h2 class="rs-h2">Kursus yang Sering Dibeli</h2>
@@ -149,7 +160,7 @@
 
     <!-- Call To Action Section -->
     <section class="rs-band">
-        <div class="rs-wrap rs-band__inner">
+        <div data-rs-reveal class="rs-wrap rs-band__inner">
             <div>
                 <h2>Cari Kursus Lainnya?</h2>
                 <p>Jelajahi berbagai pilihan kursus lainnya yang sesuai dengan minat dan kebutuhan belajarmu. Tingkatkan keterampilan dan kariermu sekarang.</p>
@@ -160,7 +171,7 @@
 
     <!-- Testimonials Section -->
     <section id="testimonials" class="rs-section rs-section--paper">
-        <div class="rs-wrap">
+        <div data-rs-reveal class="rs-wrap">
             <div class="rs-section-head">
                 <div>
                     <h2 class="rs-h2">Testimoni Peserta</h2>

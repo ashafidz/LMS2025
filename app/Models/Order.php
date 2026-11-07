@@ -25,6 +25,8 @@ class Order extends Model
         'coupon_id',
         'status',
         'snap_token',
+        'xendit_invoice_id',
+        'payment_url',
     ];
 
     protected $casts = [

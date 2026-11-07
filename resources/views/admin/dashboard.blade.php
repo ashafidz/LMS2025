@@ -3,54 +3,24 @@
 @section('content')
 <div class="pcoded-content">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">
-                            Dashboard
-                        </h5>
-                        <p class="m-b-0">
-                            Selamat datang di Dashboard Admin {{ Auth::user()->name }}
-                        </p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item">
-                            <a href="{{ route('home') }}">
-                                <i class="fa fa-home"></i>
-                            </a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="#!">Dashboard</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('home')], ['Dashboard', null]]">
+        <x-slot:title>Dashboard</x-slot:title>
+        <x-slot:subtitle>Selamat datang di Dashboard Admin {{ Auth::user()->name }}</x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
-    <div class="container-fluid mt-5 px-4 pb-5">
+    <div class="container-fluid px-0 pb-5">
 
         <!-- Baris Kartu Statistik -->
-        <div class="row gy-4 gx-4">
+        <div class="row">
 
             <!-- Total Instruktur -->
-            <div class="col-xl-3 col-md-6">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body py-4 px-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h3 class="text-primary mb-1">{{ number_format($totalInstructors) }}</h3>
-                                <p class="text-muted mb-0">Total Instruktur</p>
-                            </div>
-                            <i class="fa fa-users fa-2x text-primary"></i>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-primary text-white d-flex justify-content-between align-items-center py-2 px-4">
-                        <small>
+            <div class="col-xl-3 col-md-6 col-12 mb-3">
+                <div class="rs-stat h-100">
+                    <span class="rs-tile" aria-hidden="true"><i class="fa fa-users"></i></span>
+                    <div>
+                        <strong>{{ number_format($totalInstructors) }}</strong>
+                        <span>Total Instruktur</span>
+                        <span class="rs-stat__note">
                             @if($instructorGrowth > 0)
                                 +{{ $instructorGrowth }}% bulan ini
                             @elseif($instructorGrowth < 0)
@@ -58,45 +28,31 @@
                             @else
                                 Tidak ada perubahan
                             @endif
-                        </small>
-                        <i class="fa fa-line-chart"></i>
+                        </span>
                     </div>
                 </div>
             </div>
 
             <!-- Total Kursus -->
-            <div class="col-xl-3 col-md-6">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body py-4 px-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h3 class="text-danger mb-1">{{ number_format($totalCourses) }}</h3>
-                                <p class="text-muted mb-0">Total Kursus</p>
-                            </div>
-                            <i class="fa fa-book fa-2x text-danger"></i>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-danger text-white d-flex justify-content-between align-items-center py-2 px-4">
-                        <small>+{{ $newCoursesThisMonth }} kursus baru bulan ini</small>
-                        <i class="fa fa-line-chart"></i>
+            <div class="col-xl-3 col-md-6 col-12 mb-3">
+                <div class="rs-stat h-100">
+                    <span class="rs-tile" aria-hidden="true"><i class="fa fa-book"></i></span>
+                    <div>
+                        <strong>{{ number_format($totalCourses) }}</strong>
+                        <span>Total Kursus</span>
+                        <span class="rs-stat__note">+{{ $newCoursesThisMonth }} kursus baru bulan ini</span>
                     </div>
                 </div>
             </div>
 
             <!-- Total Unique Students -->
-            <div class="col-xl-3 col-md-6">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body py-4 px-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h3 class="text-success mb-1">{{ number_format($totalStudentsAllCourses) }}</h3>
-                                <p class="text-muted mb-0">Total Student Unik</p>
-                            </div>
-                            <i class="fa fa-user-check fa-2x text-success"></i>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-success text-white d-flex justify-content-between align-items-center py-2 px-4">
-                        <small>
+            <div class="col-xl-3 col-md-6 col-12 mb-3">
+                <div class="rs-stat h-100">
+                    <span class="rs-tile" aria-hidden="true"><i class="fa fa-user-check"></i></span>
+                    <div>
+                        <strong>{{ number_format($totalStudentsAllCourses) }}</strong>
+                        <span>Total Siswa Unik</span>
+                        <span class="rs-stat__note">
                             @if($enrollmentGrowth > 0)
                                 +{{ $enrollmentGrowth }}% dibanding bulan lalu
                             @elseif($enrollmentGrowth < 0)
@@ -104,27 +60,19 @@
                             @else
                                 Tidak ada perubahan
                             @endif
-                        </small>
-                        <i class="fa fa-line-chart"></i>
+                        </span>
                     </div>
                 </div>
             </div>
 
             <!-- Total Enrollments -->
-            <div class="col-xl-3 col-md-6">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body py-4 px-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h3 class="mb-1" style="color: orange;">{{ number_format($totalEnrollments) }}</h3>
-                                <p class="text-muted mb-0">Total Enrollment</p>
-                            </div>
-                            <i class="fa fa-graduation-cap fa-2x" style="color: orange;"></i>
-                        </div>
-                    </div>
-                    <div class="card-footer text-white d-flex justify-content-between align-items-center py-2 px-3" style="background-color: orange;">
-                        <small>Semua pendaftaran kursus</small>
-                        <i class="fa fa-graduation-cap"></i>
+            <div class="col-xl-3 col-md-6 col-12 mb-3">
+                <div class="rs-stat h-100">
+                    <span class="rs-tile" aria-hidden="true"><i class="fa fa-graduation-cap"></i></span>
+                    <div>
+                        <strong>{{ number_format($totalEnrollments) }}</strong>
+                        <span>Total Enrollment</span>
+                        <span class="rs-stat__note">Semua pendaftaran kursus</span>
                     </div>
                 </div>
             </div>
@@ -132,10 +80,10 @@
         </div>
 
         <!-- Baris Kedua: Tabel Data -->
-        <div class="row g-4 mt-4">
+        <div class="row mt-2">
 
             <!-- Instruktur dengan Kursus Terbanyak -->
-            <div class="col-xl-6 col-md-12">
+            <div class="col-xl-6 col-md-12 mb-3">
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Instruktur dengan Kursus Terbanyak</h5>
@@ -143,8 +91,8 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-bordered align-middle mb-0">
-                                <thead class="table-light">
+                            <table class="table align-middle mb-0 rs-simple-table">
+                                <thead>
                                     <tr>
                                         <th>Nama Instruktur</th>
                                         <th>Total Kursus</th>
@@ -171,20 +119,20 @@
                 </div>
             </div>
 
-            <!-- Kategori dengan Student Terbanyak -->
-            <div class="col-xl-6 col-md-12">
+            <!-- Kategori dengan Siswa Terbanyak -->
+            <div class="col-xl-6 col-md-12 mb-3">
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Kategori dengan Student Terbanyak</h5>
+                        <h5 class="mb-0">Kategori dengan Siswa Terbanyak</h5>
                         <input type="text" class="form-control form-control-sm w-50" placeholder="Cari kategori..." id="searchCategory">
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-bordered align-middle mb-0">
-                                <thead class="table-light">
+                            <table class="table align-middle mb-0 rs-simple-table">
+                                <thead>
                                     <tr>
                                         <th>Nama Kategori</th>
-                                        <th>Total Students</th>
+                                        <th>Total Siswa</th>
                                     </tr>
                                 </thead>
                                 <tbody id="categoryTableBody">

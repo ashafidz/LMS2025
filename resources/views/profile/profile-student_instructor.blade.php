@@ -8,19 +8,19 @@
                 <div class="d-inline-flex align-items-center">
                     <!-- Avatar -->
                     <img src="{{ Auth::user()->profile_picture_url ? asset(Auth::user()->profile_picture_url ) :  'https://placehold.co/32x32/EBF4FF/767676?text=SA' }}"
-                        alt="Avatar" class="rounded-circle mr-3" style="width: 80px; height: 80px; border: 3px solid var(--rs-line, #e6d9c6); box-shadow: 0 2px 6px rgba(43,29,23,0.1);">
+                        alt="Avatar" class="rounded-circle mr-3" style="width: 80px; height: 80px; border: 3px solid var(--rs-line, #E2E6EE); box-shadow: 0 2px 6px rgba(43,29,23,0.1);">
 
                     <!-- Nama & Sambutan -->
                     <div>
-                        <h4 class="font-weight-bold mb-1" style="color: var(--rs-ink, #2b1d17);">{{ $user->name }}</h4>
+                        <h4 class="font-weight-bold mb-1" style="color: var(--rs-ink, #292940);">{{ $user->name }}</h4>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Page-header end -->
-        <div class="pcoded-inner-content px-3 mt-4">
-            <div class="row g-4 px-2">
+        <div class="pcoded-inner-content mt-4">
+            <div class="row g-4">
                 <div class="col-sm-12">
                     <div class="card">
                         <div class="card-header">
@@ -198,18 +198,14 @@
                         </div>
                     </div>
 
-                    <div class="mt-3 row g-2">
-                        <div class="col-6">
-                            <a href="{{ route('user.profile.edit') }}" class="btn btn-primary btn-sm w-100">Edit Profile</a>
-                        </div>
-                        <div class="col-6">
-                            <a href="{{ route('user.password.edit') }}" class="btn btn-primary btn-sm w-100">Ganti Password</a>
-                        </div>
+                    <div class="card rs-profile-actions">
+                        <div class="card-block">
+                        <a href="{{ route('user.profile.edit') }}" class="btn btn-primary">Edit Profil</a>
+                        <a href="{{ route('user.password.edit') }}" class="btn btn-secondary">Ganti Kata Sandi</a>
                         @if (!Auth::user()->hasRole('instructor'))
-                            <div class="col-12 mt-2">
-                                <a href="{{ route('student.apply_instructor.create') }}" class="btn btn-primary btn-sm w-100">Daftar Instructor</a>
-                            </div>
+                            <a href="{{ route('student.apply_instructor.create') }}" class="btn btn-secondary">Daftar Instruktur</a>
                         @endif
+                        </div>
                     </div>
                 </div>
 

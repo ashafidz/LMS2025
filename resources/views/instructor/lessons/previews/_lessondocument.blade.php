@@ -1,6 +1,6 @@
 {{-- File ini hanya berisi konten pratinjau untuk pelajaran dokumen (PDF) --}}
 
-<h4 class="font-weight-bold">{{ $lesson->title }}</h4>
+<h4 class="font-weight-bold rs-lesson-heading">{{ $lesson->title }}</h4>
 <hr>
 
 @if($lesson->lessonable->file_path)

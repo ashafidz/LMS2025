@@ -37,7 +37,7 @@ Read both before starting any non-trivial task.
 
 - **Product**: ruangstudi.id, a Learning Management System (courses, quizzes, assignments, gamification, payments).
 - **Backend**: Laravel 12 (`laravel/framework ^12`), Fortify (auth, 2FA), Spatie Permission (roles:
-  superadmin, admin, instructor, student), Hashids, Maatwebsite Excel, DomPDF, Midtrans.
+  superadmin, admin, instructor, student), Hashids, Maatwebsite Excel, DomPDF, Xendit (Invoice API, plain HTTP).
 - **Frontend**: Blade + Tailwind CSS 4 + Alpine.js, bundled with Vite. No public JSON API (only `routes/web.php`).
 - **Branching**: GitFlow, see [docs/branching-strategy.md](docs/branching-strategy.md). `main` auto-deploys to production.
 
@@ -53,8 +53,8 @@ Read both before starting any non-trivial task.
 - App timezone: `UTC` (`config/app.php`); per-user display timezone lives in `users.timezone`
 - Environment file: `.env` (keep `.env.example` up to date when adding a new variable)
 - Dev server: `composer dev` (serve + queue + vite)
-- Midtrans: Payment notification URL in Midtrans dashboard must be `https://<domain>/midtrans/notification`; locally use a tunnel (ngrok) or rely on Task 1.4 status check.
-- Scheduler: Production needs the Laravel scheduler cron (`* * * * * cd /path && php artisan schedule:run >> /dev/null 2>&1`) for `orders:sync-pending`; the Midtrans webhook stays the primary path.
+- Xendit: callback URL for "Invoices paid" in the Xendit dashboard must be `https://<domain>/xendit/callback`; set `XENDIT_SECRET_KEY` and `XENDIT_CALLBACK_TOKEN`. Locally use a tunnel (ngrok) or rely on the status check on the success page. The dashboard "Test" button sends a fake `external_id`, so a 404 `Order not found` answer is expected.
+- Scheduler: Production needs the Laravel scheduler cron (`* * * * * cd /path && php artisan schedule:run >> /dev/null 2>&1`) for `orders:sync-pending`; the Xendit callback stays the primary path.
 
 ---
 

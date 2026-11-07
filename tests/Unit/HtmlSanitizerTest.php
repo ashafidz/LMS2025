@@ -58,7 +58,40 @@ class HtmlSanitizerTest extends TestCase
 
         HtmlSanitizer::clean($html);
 
-        $this->assertTrue(Cache::has('html_sanitized:v1:'.sha1($html)));
+        $this->assertTrue(Cache::has('html_sanitized:v2:'.sha1($html)));
+        $this->assertFalse(Cache::has('html_sanitized:v1:'.sha1($html)));
         $this->assertFalse(Cache::has('html_sanitized:'.sha1($html)));
+    }
+
+    public function test_keeps_image_alignment_from_the_article_editor(): void
+    {
+        $png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+
+        $centred = HtmlSanitizer::clean('<p><img src="'.$png.'" width="300" style="display: block; margin-left: auto; margin-right: auto;"></p>');
+        $this->assertStringContainsString('display:block', $centred);
+        $this->assertStringContainsString('margin-left:auto', $centred);
+        $this->assertStringContainsString('margin-right:auto', $centred);
+
+        $right = HtmlSanitizer::clean('<p><img src="'.$png.'" style="float: right; margin-left: 10px;">Teks</p>');
+        $this->assertStringContainsString('float:right', $right);
+    }
+
+    public function test_image_without_alt_does_not_copy_the_data_uri_into_alt(): void
+    {
+        $png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+
+        $clean = HtmlSanitizer::clean('<p><img src="'.$png.'"></p>');
+
+        $this->assertSame(1, substr_count($clean, 'iVBORw0KGgo'));
+        $this->assertStringContainsString('alt=""', $clean);
+    }
+
+    public function test_alignment_styles_do_not_open_dangerous_css(): void
+    {
+        $clean = HtmlSanitizer::clean('<p style="position: fixed; top: 0; background: url(javascript:alert(1)); display: block;">x</p>');
+
+        $this->assertStringNotContainsString('position', $clean);
+        $this->assertStringNotContainsString('javascript', $clean);
+        $this->assertStringNotContainsString('url(', $clean);
     }
 }

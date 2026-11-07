@@ -1,28 +1,12 @@
 @extends('layouts.app-layout')
 
 @section('content')
-    <div class="pcoded-content">
+    <div class="pcoded-content rs-page-form">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Buat Pertanyaan Baru</h5>
-                            <p class="m-b-0">Tipe Soal: Pilihan Ganda (Jawaban Lebih dari Satu)</p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.topics.index') }}">Bank Soal</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.questions.index', $topic) }}">{{ Str::limit($topic->name, 20) }}</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Buat Pertanyaan</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Bank Soal', route('instructor.question-bank.topics.index')], [(Str::limit($topic->name, 20)), route('instructor.question-bank.questions.index', $topic)], ['Buat Pertanyaan', null]]">
+            <x-slot:title>Buat Pertanyaan Baru</x-slot:title>
+            <x-slot:subtitle>Tipe Soal: Pilihan Ganda (Jawaban Lebih dari Satu)</x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
 
         <div class="pcoded-inner-content">
@@ -37,15 +21,16 @@
                                         <span>Lengkapi informasi untuk pertanyaan baru.</span>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.question-bank.questions.store', $topic) }}" method="POST">
+                                        <form action="{{ route('instructor.question-bank.questions.store', $topic) }}" method="POST" class="rs-form rs-form--bank">
                                             @csrf
+                                            @include('instructor.question_bank.questions.partials._form-errors')
                                             {{-- This hidden input tells the controller what type of question we are creating --}}
                                             <input type="hidden" name="question_type" value="multiple_choice_multiple">
 
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Teks Pertanyaan</label>
                                                 <div class="col-sm-10">
-                                                    <textarea rows="5" name="question_text" class="form-control" required placeholder="Masukkan teks pertanyaan lengkap di sini...">{{ old('question_text') }}</textarea>
+                                                    <textarea rows="5" name="question_text" class="form-control" data-rich="question" placeholder="Masukkan teks pertanyaan lengkap di sini...">{{ old('question_text') }}</textarea>
                                                 </div>
                                             </div>
 
@@ -59,7 +44,7 @@
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Penjelasan (Opsional)</label>
                                                 <div class="col-sm-10">
-                                                    <textarea rows="3" name="explanation" class="form-control" placeholder="Berikan penjelasan mengapa jawaban ini benar.">{{ old('explanation') }}</textarea>
+                                                    <textarea rows="3" name="explanation" class="form-control" data-rich="explanation" placeholder="Berikan penjelasan mengapa jawaban ini benar.">{{ old('explanation') }}</textarea>
                                                     <small class="form-text text-muted">Pesan ini akan muncul jika siswa menjawab dengan benar.</small>
                                                 </div>
                                             </div>
@@ -101,24 +86,25 @@
 @endsection
 
 @push('scripts')
+@include('instructor.question_bank.questions.partials._question-editor-scripts')
 <script>
     // Counter to ensure unique IDs and names for new options
     let optionIndex = 0;
 
     // Function to add a new option row to the container
-    function addOption() {
+    // Add an option row. `data` ({text, is_correct}) restores a row after a validation error.
+    function addOption(data) {
         const container = document.getElementById('options-container');
 
         // Create a new div for the option row
         const optionRow = document.createElement('div');
         optionRow.className = 'form-group row align-items-center option-row';
         optionRow.innerHTML = `
-            <label class="col-sm-2 col-form-label text-right">
+            <label class="rs-correct-pick">
                 {{-- Using a checkbox allows for multiple selections --}}
-                <input type="checkbox" name="options[${optionIndex}][is_correct]" value="1" class="form-check-input">
-            </label>
+                <input type="checkbox" name="options[${optionIndex}][is_correct]" value="1" class="form-check-input"> <span>Jawaban benar</span></label>
             <div class="col-sm-8">
-                <input type="text" name="options[${optionIndex}][text]" class="form-control" placeholder="Masukkan pilihan jawaban..." required>
+                <textarea name="options[${optionIndex}][text]" data-rich="option"></textarea>
             </div>
             <div class="col-sm-2">
                 <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)">
@@ -129,19 +115,33 @@
 
         // Append the new row to the container and increment the index
         container.appendChild(optionRow);
+        const textarea = optionRow.querySelector('textarea[data-rich="option"]');
+        if (data) {
+            // Set values by DOM property (never inside the template literal), before the editor reads the textarea.
+            textarea.value = data.text || '';
+            optionRow.querySelector('input[type="checkbox"]').checked = String(data.is_correct) === '1';
+        }
+        rsMakeOptionEditor(textarea);
         optionIndex++;
     }
 
     // Function to remove an option row
     function removeOption(button) {
         // Find the parent '.option-row' and remove it
-        button.closest('.option-row').remove();
+        const row = button.closest('.option-row');
+        rsDestroyOptionEditor(row);
+        row.remove();
     }
 
     // Add two default options when the page loads
     document.addEventListener('DOMContentLoaded', function() {
-        addOption();
-        addOption();
+        const oldOptions = @json(array_values(old('options', [])));
+        if (oldOptions.length) {
+            oldOptions.forEach(o => addOption(o));
+        } else {
+            addOption();
+            addOption();
+        }
     });
 </script>
 @endpush

@@ -163,6 +163,6 @@ class UserProfileController extends Controller
             }
         }
 
-        return redirect()->route('user.profile.index')->with('status', 'Profile updated successfully!');
+        return redirect()->route('user.profile.index')->with('status', 'Profil berhasil diperbarui.');
     }
 }

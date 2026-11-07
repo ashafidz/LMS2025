@@ -1,28 +1,12 @@
 @extends('layouts.app-layout')
 
 @section('content')
-    <div class="pcoded-content">
+    <div class="pcoded-content rs-page-form">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Buat Pertanyaan Baru</h5>
-                            <p class="m-b-0">Tipe Soal: Drag and Drop (Isi Bagian yang Kosong)</p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.topics.index') }}">Bank Soal</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.questions.index', $topic) }}">{{ Str::limit($topic->name, 20) }}</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Buat Pertanyaan</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Bank Soal', route('instructor.question-bank.topics.index')], [(Str::limit($topic->name, 20)), route('instructor.question-bank.questions.index', $topic)], ['Buat Pertanyaan', null]]">
+            <x-slot:title>Buat Pertanyaan Baru</x-slot:title>
+            <x-slot:subtitle>Tipe Soal: Drag and Drop (Isi Bagian yang Kosong)</x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
 
         <div class="pcoded-inner-content">
@@ -37,17 +21,18 @@
                                         <span>Lengkapi informasi untuk pertanyaan baru.</span>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.question-bank.questions.store', $topic) }}" method="POST">
+                                        <form action="{{ route('instructor.question-bank.questions.store', $topic) }}" method="POST" class="rs-form rs-form--bank">
                                             @csrf
+                                            @include('instructor.question_bank.questions.partials._form-errors')
                                             {{-- This hidden input tells the controller what type of question we are creating --}}
                                             <input type="hidden" name="question_type" value="drag_and_drop">
 
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Teks Pertanyaan</label>
                                                 <div class="col-sm-10">
-                                                    <textarea rows="5" name="question_text" class="form-control" required placeholder="Contoh: Paris adalah ibu kota [[KOSONG_1]], dan Roma adalah ibu kota [[KOSONG_2]].">{{ old('question_text') }}</textarea>
+                                                    <textarea rows="5" name="question_text" class="form-control" data-rich="question" placeholder="Contoh: Paris adalah ibu kota [[BLANK_1]], dan Roma adalah ibu kota [[BLANK_2]].">{{ old('question_text') }}</textarea>
                                                     <small class="form-text text-muted">
-                                                        <strong>Penting:</strong> Gunakan penanda seperti <code>[[BLANK_1]]</code>, <code>[[BLANK_2]]</code>, dan seterusnya untuk bagian yang harus diisi dengan jawaban.
+                                                        <strong>Penting:</strong> Gunakan penanda seperti <code>[[BLANK_1]]</code>, <code>[[BLANK_2]]</code>, dan seterusnya untuk bagian yang harus diisi dengan jawaban. Ketik penanda tanpa format tebal/miring.
                                                     </small>
                                                 </div>
                                             </div>
@@ -62,7 +47,7 @@
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Penjelasan (Opsional)</label>
                                                 <div class="col-sm-10">
-                                                    <textarea rows="3" name="explanation" class="form-control" placeholder="Jelaskan kalimat lengkap yang benar atau berikan konteksnya.">{{ old('explanation') }}</textarea>
+                                                    <textarea rows="3" name="explanation" class="form-control" data-rich="explanation" placeholder="Jelaskan kalimat lengkap yang benar atau berikan konteksnya.">{{ old('explanation') }}</textarea>
                                                 </div>
                                             </div>
 
@@ -106,12 +91,14 @@
 @endsection
 
 @push('scripts')
+@include('instructor.question_bank.questions.partials._question-editor-scripts')
 <script>
     // Counter to ensure unique IDs and names for new options
     let optionIndex = 0;
 
     // Function to add a new option row to the container
-    function addOption() {
+    // Add an option row. `data` ({text, gap_id}) restores a row after a validation error.
+    function addOption(data) {
         const container = document.getElementById('options-container');
 
         // Create a new div for the option row
@@ -138,6 +125,11 @@
 
         // Append the new row to the container and increment the index
         container.appendChild(optionRow);
+        if (data) {
+            // Set values by DOM property, not inside the template literal.
+            optionRow.querySelector('input[name$="[text]"]').value = data.text || '';
+            optionRow.querySelector('input[name$="[gap_id]"]').value = data.gap_id || '';
+        }
         optionIndex++;
     }
 
@@ -149,8 +141,13 @@
 
     // Add two default options when the page loads
     document.addEventListener('DOMContentLoaded', function() {
-        addOption();
-        addOption();
+        const oldOptions = @json(array_values(old('options', [])));
+        if (oldOptions.length) {
+            oldOptions.forEach(o => addOption(o));
+        } else {
+            addOption();
+            addOption();
+        }
     });
 </script>
 @endpush

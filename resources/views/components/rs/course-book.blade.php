@@ -16,6 +16,10 @@
         @endif
         <span class="rs-cover__series">{{ $categoryName ?? 'Kursus' }}</span>
     </div>
+    <div class="rs-book__body">
+    @if ($categoryName)
+        <span class="rs-pill">{{ $categoryName }}</span>
+    @endif
     <h3 class="rs-book__title">{{ Str::limit($course->title, 70) }}</h3>
     @if ($showInstructor && $course->instructor)
         <p class="rs-book__by">{{ $course->instructor->name }}</p>
@@ -39,5 +43,6 @@
                 @if (! is_null($students)){{ $students > 0 ? $students.' peserta' : 'Belum ada peserta' }}@endif
             </span>
         @endif
+    </div>
     </div>
 </a>

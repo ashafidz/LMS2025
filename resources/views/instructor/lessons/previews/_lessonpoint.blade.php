@@ -10,7 +10,7 @@
     }
 @endphp --}}
 
-{{-- <h4 class="font-weight-bold">{{ $lesson->lessonable->title }}</h4>
+{{-- <h4 class="font-weight-bold rs-lesson-heading">{{ $lesson->lessonable->title }}</h4>
 <p class="text-muted">{{ $lesson->lessonable->description }}</p>
 <hr>
 

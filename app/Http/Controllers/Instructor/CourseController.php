@@ -19,7 +19,11 @@ class CourseController extends Controller
 {
     public function index()
     {
-        $courses = Auth::user()->courses()->with('category')->latest()->get();
+        $courses = Auth::user()->courses()
+            ->with(['category', 'modules' => fn ($q) => $q->orderBy('order')->withCount('lessons')])
+            ->withCount(['lessons', 'students'])
+            ->latest()
+            ->get();
 
         return view('instructor.courses.index', compact('courses'));
     }
@@ -47,13 +51,13 @@ class CourseController extends Controller
             'end_date' => 'required_if:availability_type,period|nullable|date|after_or_equal:start_date',
             // DIUBAH: Validasi sekarang untuk 'money' atau 'diamonds'
             'payment_type' => ['required', Rule::in(['money', 'diamonds'])],
-        ]);
+        ], $this->courseMessages(), $this->courseAttributes());
 
         $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
 
         Auth::user()->courses()->create([
             'title' => $validated['title'],
-            'slug' => Str::slug($validated['title']),
+            'slug' => Course::uniqueSlug($validated['title']),
             'category_id' => $validated['category_id'],
             'description' => filled($validated['description'] ?? null) ? HtmlSanitizer::clean($validated['description']) : null,
             'thumbnail_url' => $thumbnailPath,
@@ -102,11 +106,13 @@ class CourseController extends Controller
             'end_date' => 'required_if:availability_type,period|nullable|date|after_or_equal:start_date',
             // DIUBAH: Validasi sekarang untuk 'money' atau 'diamonds'
             'payment_type' => ['required', Rule::in(['money', 'diamonds'])],
-        ]);
+        ], $this->courseMessages(), $this->courseAttributes());
 
         $courseData = $validated;
         $courseData['description'] = filled($validated['description'] ?? null) ? HtmlSanitizer::clean($validated['description']) : null;
-        $courseData['slug'] = Str::slug($validated['title']);
+        if ($validated['title'] !== $course->title) {
+            $courseData['slug'] = Course::uniqueSlug($validated['title'], $course->id);
+        }
 
         $oldThumbnail = $course->thumbnail_url;
         if ($request->hasFile('thumbnail')) {
@@ -135,7 +141,7 @@ class CourseController extends Controller
             $course->delete();
         });
 
-        return redirect()->route('instructor.courses.index')->with('success', 'Course deleted successfully.');
+        return redirect()->route('instructor.courses.index')->with('success', 'Kursus berhasil dihapus.');
     }
 
     /**
@@ -187,18 +193,7 @@ class CourseController extends Controller
                 $newCourse = $course->replicate();
                 $newCourse->title = $course->title.' (Salinan)';
 
-                // Generate unique slug
-                $baseSlug = Str::slug($newCourse->title);
-                $slug = $baseSlug;
-                $counter = 1;
-
-                // Check if slug exists and add number suffix if needed
-                while (Course::withTrashed()->where('slug', $slug)->exists()) {
-                    $slug = $baseSlug.'-'.$counter;
-                    $counter++;
-                }
-
-                $newCourse->slug = $slug;
+                $newCourse->slug = Course::uniqueSlug($newCourse->title);
                 $newCourse->status = 'draft'; // Set status menjadi draft
 
                 // Copy thumbnail jika ada
@@ -295,5 +290,42 @@ class CourseController extends Controller
             'assignmentSubmissions',
             'siteSettings'
         ));
+    }
+
+    /**
+     * Indonesian messages for the course form rules (the rules themselves are unchanged).
+     * Size rules (max) need one message per value type.
+     */
+    private function courseMessages(): array
+    {
+        return [
+            'required' => ':attribute wajib diisi.',
+            'required_if' => ':attribute wajib diisi untuk ketersediaan berjangka.',
+            'string' => ':attribute harus berupa teks.',
+            'exists' => ':attribute yang dipilih tidak valid.',
+            'in' => ':attribute yang dipilih tidak valid.',
+            'date' => ':attribute harus berupa tanggal yang valid.',
+            'after_or_equal' => 'Tanggal selesai harus sama dengan atau setelah tanggal mulai.',
+            'max' => ['string' => ':attribute maksimal :max karakter.'],
+            'thumbnail.required' => 'Pilih gambar thumbnail.',
+            'thumbnail.image' => 'Thumbnail harus berupa gambar (JPG, PNG, atau GIF).',
+            'thumbnail.mimes' => 'Format thumbnail harus JPG, PNG, atau GIF.',
+            'thumbnail.max' => 'Ukuran thumbnail maksimal 2 MB.',
+            'thumbnail.uploaded' => 'Thumbnail gagal diunggah. Ukuran gambar maksimal 2 MB.',
+        ];
+    }
+
+    private function courseAttributes(): array
+    {
+        return [
+            'title' => 'Judul kursus',
+            'category_id' => 'Kategori',
+            'description' => 'Deskripsi',
+            'thumbnail' => 'Thumbnail',
+            'availability_type' => 'Jenis ketersediaan',
+            'start_date' => 'Tanggal mulai',
+            'end_date' => 'Tanggal selesai',
+            'payment_type' => 'Jenis pembayaran',
+        ];
     }
 }

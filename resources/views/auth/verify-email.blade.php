@@ -1,9 +1,11 @@
 @extends('layouts.plain-layout')
 
 @section('title', 'Verifikasi email')
+@section('art-title', 'Akun Ruang Studi')
+@section('art-text', 'Satu langkah lagi: pastikan email kamu benar.')
 
 @section('content')
-<x-rs.status tone="info" icon="bi-envelope-check" title="Verifikasi Email Anda">
+<x-rs.status illustration="rs-06-verifikasi-email" tone="info" icon="bi-envelope-check" title="Verifikasi Email Anda">
     <p>
         Kami telah mengirimkan tautan verifikasi ke email Anda.<br>
         Silakan periksa kotak masuk dan klik tautan tersebut untuk mengaktifkan akun Anda.

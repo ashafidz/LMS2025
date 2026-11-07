@@ -3,24 +3,10 @@
 @section('content')
 <div class="pcoded-content">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Kursus Saya</h5>
-                        <p class="m-b-0">Lanjutkan progres belajar Anda di kursus yang telah Anda miliki.</p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Kursus Saya</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('student.dashboard')], ['Kursus Saya', null]]">
+        <x-slot:title>Kursus Saya</x-slot:title>
+        <x-slot:subtitle>Lanjutkan progres belajar Anda di kursus yang telah Anda miliki.</x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">
@@ -46,6 +32,7 @@
                                                 $progress = ($course->completed_lessons_count / $course->lessons_count) * 100;
                                             }
                                         @endphp
+                                        <div class="rs-progress-label"><span>Progres</span><strong>{{ round($progress) }}%</strong></div>
                                         <div class="progress mb-3">
                                             <div class="progress-bar" role="progressbar" style="width: {{ $progress }}%;" aria-valuenow="{{ $progress }}" aria-valuemin="0" aria-valuemax="100">{{ round($progress) }}%</div>
                                         </div>
@@ -58,7 +45,7 @@
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-block text-center p-5">
-                                        <i class="fa fa-book fa-3x text-muted mb-3"></i>
+                                        <x-rs.illustration name="rs-07-cari-kursus" size="md" class="mb-3" />
                                         <h4>Anda Belum Terdaftar di Kursus Apapun</h4>
                                         <p>Jelajahi katalog kami untuk menemukan kursus yang cocok untuk Anda.</p>
                                         <a href="{{ route('courses') }}" class="btn btn-primary mt-2">Lihat Katalog Kursus</a>

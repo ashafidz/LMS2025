@@ -73,14 +73,14 @@ class BadgeStudentTest extends TestCase
 
         $this->actingAs($student)->get(route('student.dashboard'))
             ->assertOk()
-            ->assertSee('Selamat! Kamu mendapat badge baru', false)
+            ->assertSee('Selamat! Kamu dapat badge baru', false)
             ->assertSee('Badge Baru Keren', false);
 
         $this->assertNotNull(DB::table('badge_user')->where('user_id', $student->id)->value('seen_at'));
 
         $this->actingAs($student)->get(route('student.dashboard'))
             ->assertOk()
-            ->assertDontSee('Selamat! Kamu mendapat badge baru', false);
+            ->assertDontSee('Selamat! Kamu dapat badge baru', false);
     }
 
     public function test_notification_escapes_badge_title(): void
@@ -91,7 +91,7 @@ class BadgeStudentTest extends TestCase
 
         $response = $this->actingAs($student)->get(route('student.dashboard'))->assertOk();
 
-        $response->assertSee('Selamat! Kamu mendapat badge baru', false);
+        $response->assertSee('Selamat! Kamu dapat badge baru', false);
         $response->assertDontSee('<img src=x onerror=alert(1)>', false);
     }
 

@@ -17,9 +17,16 @@ class ModuleController extends Controller
         // Otorisasi dihapus
         Gate::authorize('manage', $course);
 
-        $modules = $course->modules()->with('lessons')->orderBy('order')->get();
+        // Modules are managed inside the course list now; old links and bookmarks land there with this course open.
+        return redirect()->to($this->courseListUrl($course));
+    }
 
-        return view('instructor.modules.index', compact('course', 'modules'));
+    /**
+     * The course list with this course's module panel open and scrolled into view.
+     */
+    private function courseListUrl(Course $course): string
+    {
+        return route('instructor.courses.index', ['open' => $course->getRouteKey()]).'#course-'.$course->getRouteKey();
     }
 
     public function create(Course $course)
@@ -46,7 +53,7 @@ class ModuleController extends Controller
             'order' => $lastOrder + 1,
         ]);
 
-        return redirect()->route('instructor.courses.modules.index', $course)->with('success', 'Module created successfully.');
+        return redirect()->to($this->courseListUrl($course))->with('success', 'Modul berhasil dibuat.');
     }
 
     public function edit(Module $module)
@@ -68,7 +75,7 @@ class ModuleController extends Controller
         ]);
         $module->update($validated);
 
-        return redirect()->route('instructor.courses.modules.index', $module->course)->with('success', 'Module updated successfully.');
+        return redirect()->to($this->courseListUrl($module->course))->with('success', 'Modul berhasil diperbarui.');
     }
 
     public function destroy(Module $module)
@@ -82,7 +89,7 @@ class ModuleController extends Controller
             $module->delete();
         });
 
-        return redirect()->route('instructor.courses.modules.index', $course)->with('success', 'Module deleted successfully.');
+        return redirect()->to($this->courseListUrl($course))->with('success', 'Modul berhasil dihapus.');
     }
 
     public function reorder(Request $request, Course $course)
@@ -101,6 +108,6 @@ class ModuleController extends Controller
                 ->update(['order' => $index + 1]);
         }
 
-        return response()->json(['status' => 'success', 'message' => 'Module order updated.']);
+        return response()->json(['status' => 'success', 'message' => 'Urutan modul diperbarui.']);
     }
 }

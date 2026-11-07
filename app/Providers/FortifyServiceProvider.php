@@ -36,6 +36,8 @@ class FortifyServiceProvider extends ServiceProvider
         {
             public function toResponse($request)
             {
+                session()->flash('rs_toast', 'Anda sudah keluar. Sampai jumpa lagi!');
+
                 return redirect('/');
             }
         });
@@ -47,6 +49,7 @@ class FortifyServiceProvider extends ServiceProvider
             {
 
                 $user = $request->user();
+                session()->flash('rs_toast', 'Berhasil masuk. Selamat datang, '.Str::of($user->name)->trim()->before(' ').'!');
                 $loginPreference = $request->input('login_preference');
 
                 // Cek jika ada input timezone dari form login
@@ -175,6 +178,11 @@ class FortifyServiceProvider extends ServiceProvider
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
+        });
+
+        // Registration: limited per IP; schools often share one public IP, so raise AUTH_REGISTER_PER_MINUTE for labs.
+        RateLimiter::for('register', function (Request $request) {
+            return Limit::perMinute((int) config('auth.register_per_minute', 5))->by($request->ip());
         });
 
         RateLimiter::for('two-factor', function (Request $request) {

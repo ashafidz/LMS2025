@@ -2,26 +2,18 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Detail Pelanggaran - {{ $attempt->student->name }}</h5>
-                        <p class="m-b-0">{{ $attempt->quiz->title }}</p>
-                    </div>
-                </div>
-                <div class="col-md-4 text-right">
-                    <a href="{{ route('instructor.quiz.review_attempt', $attempt) }}" class="btn btn-inverse btn-sm" title="Lihat Nilai Kuis">
-                        <i class="fa fa-file-text-o"></i> Nilai Kuis
-                    </a>
-                    <a href="{{ route('instructor.quiz.monitoring.review', $attempt->quiz_id) }}" class="btn btn-secondary btn-sm">
-                        <i class="fa fa-arrow-left"></i> Kembali
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head>
+        <x-slot:title>Detail Pelanggaran - {{ $attempt->student->name }}</x-slot:title>
+        <x-slot:subtitle>{{ $attempt->quiz->title }}</x-slot:subtitle>
+        <x-slot:actions>
+            <a href="{{ route('instructor.quiz.review_attempt', $attempt) }}" class="btn btn-secondary btn-sm" title="Lihat Nilai Kuis">
+             <i class="fa fa-file-text-o"></i> Nilai Kuis
+             </a>
+            <a href="{{ route('instructor.quiz.monitoring.review', $attempt->quiz_id) }}" class="btn btn-secondary btn-sm">
+             <i class="fa fa-arrow-left"></i> Kembali
+             </a>
+        </x-slot:actions>
+    </x-dash.page-head>
 
     <div class="pcoded-inner-content">
         <div class="main-body">
@@ -29,14 +21,6 @@
                 <div class="page-body">
 
                     {{-- Flash Messages --}}
-                    @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fa fa-check-circle"></i> {{ session('success') }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    @endif
 
                     @if(session('error'))
                     <div class="alert alert-danger" role="alert">
@@ -139,7 +123,7 @@
                         <div class="col-md-8">
                             <div class="card">
                                 <div class="card-header bg-warning text-dark">
-                                    <h6 class="mb-0"><i class="fa fa-exclamation-triangle"></i>Violation Summary</h6>
+                                    <h6 class="mb-0"><i class="fa fa-exclamation-triangle"></i>Ringkasan Pelanggaran</h6>
                                 </div>
                                 <div class="card-block">
                                     @if($attempt->integritySummary)
@@ -150,13 +134,13 @@
                                             <p class="text-muted mb-3">Total perpindahan tab</p>
                                         </div>
                                         <div class="col-md-6">
-                                            <h6 class="text-muted">Camera Violations</h6>
+                                            <h6 class="text-muted">Pelanggaran Kamera</h6>
                                             <h3 class="text-danger">{{ $attempt->integritySummary->total_face_violations }}</h3>
                                             <p class="text-muted mb-3">Total pelanggaran kamera</p>
                                         </div>
                                         <div class="col-md-12">
                                             <hr>
-                                            <h6 class="text-muted">Breakdown Camera Violations:</h6>
+                                            <h6 class="text-muted">Rincian Pelanggaran Kamera:</h6>
                                             <div class="row text-center mt-3">
                                                 <div class="col">
                                                     <h4 class="text-dark">{{ $attempt->integritySummary->face_not_detected_count }}</h4>
@@ -183,7 +167,7 @@
                                         <div class="col-md-12 mt-3">
                                             <hr>
                                             <div class="text-center">
-                                                <h6 class="text-muted mb-2">Total Violations:</h6>
+                                                <h6 class="text-muted mb-2">Total Pelanggaran:</h6>
                                                 <h4 class="text-dark mb-0">
                                                     {{ $attempt->integritySummary->total_tab_switches + $attempt->integritySummary->total_face_violations }}
                                                 </h4>
@@ -229,7 +213,7 @@
                                     </div>
                                 @endif
                                 @if ($attempt->canBeApprovedDespiteLate())
-                                    <form action="{{ route('instructor.quiz.attempt.approve_late', $attempt) }}" method="POST">
+                                    <form action="{{ route('instructor.quiz.attempt.approve_late', $attempt) }}" method="POST" data-confirm="Luluskan percobaan ini? Siswa akan dianggap lulus kuis ini." data-confirm-ok="Ya, luluskan">
                                         @csrf
                                         <div class="form-group">
                                             <label for="late_override_note"><strong>Alasan <span class="text-danger">*</span></strong></label>
@@ -241,8 +225,7 @@
                                             @endif
                                         </div>
                                         <div class="text-right">
-                                            <button type="submit" class="btn btn-warning"
-                                                    onclick="return confirm('Luluskan percobaan ini? Siswa akan dianggap lulus kuis ini.')">
+                                            <button type="submit" class="btn btn-secondary">
                                                 <i class="fa fa-check"></i> Luluskan percobaan ini
                                             </button>
                                         </div>
@@ -309,7 +292,7 @@
                             @endif
 
                             {{-- Form Revisi Skor --}}
-                            <form action="{{ route('instructor.quiz.attempt.revise_score', $attempt) }}" method="POST">
+                            <form action="{{ route('instructor.quiz.attempt.revise_score', $attempt) }}" method="POST" data-confirm="Apakah Anda yakin ingin merevisi skor student ini?" data-confirm-ok="Ya, revisi">
                                 @csrf
                                 <div class="row">
                                     <div class="col-md-4">
@@ -350,8 +333,7 @@
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <button type="submit" class="btn btn-info"
-                                            onclick="return confirm('Apakah Anda yakin ingin merevisi skor student ini?')">
+                                    <button type="submit" class="btn btn-secondary">
                                         <i class="fa fa-save"></i> Simpan Revisi Skor
                                     </button>
                                 </div>

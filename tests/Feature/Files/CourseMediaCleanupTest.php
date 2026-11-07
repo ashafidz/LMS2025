@@ -195,7 +195,8 @@ class CourseMediaCleanupTest extends TestCase
 
         $this->actingAs($this->instructor)
             ->delete(route('instructor.modules.destroy', $this->module))
-            ->assertRedirect(route('instructor.courses.modules.index', $this->course));
+            // 2.0.0: after deleting a module the instructor lands on the course list with that course's modules open
+            ->assertRedirect(route('instructor.courses.index', ['open' => $this->course->getRouteKey()]).'#course-'.$this->course->getRouteKey());
 
         Storage::disk('local')->assertMissing($media['docPath']);
         Storage::disk('public')->assertMissing($media['videoPath']);

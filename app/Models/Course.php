@@ -15,6 +15,14 @@ class Course extends Model
     use HasHashedRouteKey;
     use HasLocalDates;
 
+    public const STATUS_LABELS = [
+        'draft' => 'Draf',
+        'pending_review' => 'Menunggu tinjauan',
+        'published' => 'Terbit',
+        'rejected' => 'Ditolak',
+        'private' => 'Privat',
+    ];
+
     protected $fillable = [
         'instructor_id',
         'category_id',
@@ -62,9 +70,41 @@ class Course extends Model
         parent::boot();
         static::creating(function ($course) {
             if (empty($course->slug)) {
-                $course->slug = Str::slug($course->title);
+                $course->slug = self::uniqueSlug($course->title);
             }
         });
+    }
+
+    /**
+     * Slug unik dari judul. Baris yang sudah dihapus lunak ikut dicek karena masih memegang indeks unik.
+     */
+    public static function uniqueSlug(string $title, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($title);
+        if ($base === '') {
+            $base = 'kursus';
+        }
+
+        $slug = $base;
+        $counter = 1;
+
+        while (self::withTrashed()
+            ->where('slug', $slug)
+            ->when($ignoreId, fn ($query) => $query->where('id', '!=', $ignoreId))
+            ->exists()) {
+            $slug = $base.'-'.$counter;
+            $counter++;
+        }
+
+        return $slug;
+    }
+
+    /**
+     * Status as an Indonesian name (never show the raw code to users).
+     */
+    public function getStatusLabelAttribute(): string
+    {
+        return self::STATUS_LABELS[$this->status] ?? ucfirst(str_replace('_', ' ', (string) $this->status));
     }
 
     public function isPublished(): bool

@@ -3,7 +3,7 @@
 @section('title', 'Sistem terlalu lama merespons')
 
 @section('content')
-<x-rs.status icon="bi-clock-history" eyebrow="Kode 504" title="Sistem terlalu lama merespons">
+<x-rs.status illustration="rs-20-tersesat" icon="bi-clock-history" eyebrow="Kode 504" title="Sistem terlalu lama merespons">
     <p>Permintaanmu butuh waktu terlalu lama. Coba lagi beberapa saat lagi.</p>
     <div class="rs-status__actions">
         <a href="{{ url()->current() }}" class="rs-btn rs-btn--block">Muat ulang</a>

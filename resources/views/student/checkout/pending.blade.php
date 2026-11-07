@@ -6,7 +6,7 @@
 <div class="rs-page">
     <section class="rs-section rs-section--paper">
         <div class="rs-wrap">
-            <x-rs.status tone="wait" icon="bi-clock-history" title="Pembayaran Tertunda">
+            <x-rs.status illustration="rs-17-bayar-menunggu" tone="wait" icon="bi-clock-history" title="Pembayaran Tertunda">
                 <p>
                     Kami sedang menunggu konfirmasi pembayaran Anda. Silakan selesaikan pembayaran sesuai instruksi. Anda bisa melihat detail pesanan di riwayat transaksi.
                 </p>

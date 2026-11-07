@@ -105,7 +105,7 @@
 
                 {{-- Tombol "Lihat Hasil" akan selalu muncul jika sudah pernah mencoba --}}
                 {{-- @if(isset($lastAttempt) && $lastAttempt)
-                    <a href="{{ route('student.quiz.result', $lastAttempt) }}" class="btn btn-info btn-lg">Lihat Hasil Terakhir</a>
+                    <a href="{{ route('student.quiz.result', $lastAttempt) }}" class="btn btn-secondary btn-lg">Lihat Hasil Terakhir</a>
                 @endif --}}
 
                 @if ($isAvailable)

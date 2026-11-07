@@ -54,12 +54,13 @@ class StudentAssignmentController extends Controller
         );
 
         // Cek pengumpulan pertama, poin, dan simpan data dikunci per siswa agar klik ganda tidak memberi poin dua kali
-        $oldFilePath = StudentWriteLock::run($user, function () use ($assignment, $user, $path) {
+        $earned = 0;
+        $oldFilePath = StudentWriteLock::run($user, function () use ($assignment, $user, $path, &$earned) {
             // Cek apakah siswa sudah pernah mengumpulkan untuk tugas ini
             $existingSubmission = $assignment->submissions()->where('user_id', $user->id)->first();
 
             if (! $existingSubmission) {
-                PointService::addPoints(
+                $earned = PointService::addPoints(
                     user: $user,
                     course: $assignment->lesson->module->course,
                     activity: 'pass_assignment',
@@ -93,6 +94,10 @@ class StudentAssignmentController extends Controller
             // File lama bisa masih di disk publik (sebelum files:move-private dijalankan)
             \Illuminate\Support\Facades\Storage::disk('local')->delete($oldFilePath);
             \Illuminate\Support\Facades\Storage::disk('public')->delete($oldFilePath);
+        }
+
+        if ($earned > 0) {
+            session()->flash('rs_points', $earned);
         }
 
         return back()->with('success', 'Tugas Anda berhasil dikumpulkan!');

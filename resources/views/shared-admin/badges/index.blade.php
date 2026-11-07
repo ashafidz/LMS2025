@@ -2,35 +2,15 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Badge</h5>
-                        <p class="m-b-0">Atur badge dan syarat untuk mendapatkannya. Badge diberikan otomatis begitu siswa memenuhi syarat.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route($routePrefix . '.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Badge</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route($routePrefix . '.dashboard')], ['Badge', null]]">
+        <x-slot:title>Badge</x-slot:title>
+        <x-slot:subtitle>Atur badge dan syarat untuk mendapatkannya. Badge diberikan otomatis begitu siswa memenuhi syarat.</x-slot:subtitle>
+    </x-dash.page-head>
 
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
                 <div class="page-body">
-                    @if (session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
-                    @endif
-                    @if (session('warning'))
-                        <div class="alert alert-warning">{{ session('warning') }}</div>
-                    @endif
                     @if (session('error'))
                         <div class="alert alert-danger">{{ session('error') }}</div>
                     @endif
@@ -81,7 +61,7 @@
                                                     @endif
                                                 </td>
                                                 <td style="min-width: 170px;">
-                                                    <a href="{{ route($routePrefix . '.badges.edit', $badge) }}" class="btn btn-info btn-sm btn-block mb-1" title="Ubah"><i class="fa fa-pencil"></i> Ubah</a>
+                                                    <a href="{{ route($routePrefix . '.badges.edit', $badge) }}" class="btn btn-secondary btn-sm btn-block mb-1" title="Ubah"><i class="fa fa-pencil"></i> Ubah</a>
 
                                                     <form action="{{ route($routePrefix . '.badges.duplicate', $badge) }}" method="POST" class="d-block mb-1 js-confirm"
                                                           data-message="Membuat salinan badge ini (tanpa pemilik, nonaktif) agar syaratnya bisa diubah.">
@@ -93,7 +73,7 @@
                                                         <form action="{{ route($routePrefix . '.badges.backfill', $badge) }}" method="POST" class="d-block mb-1 js-confirm"
                                                               data-message="Siswa yang sudah memenuhi syarat saat ini akan langsung mendapat badge ini.">
                                                             @csrf
-                                                            <button type="submit" class="btn btn-success btn-sm btn-block" title="Berikan ke siswa yang sudah memenuhi syarat"><i class="fa fa-gift"></i> Berikan ke siswa</button>
+                                                            <button type="submit" class="btn btn-secondary btn-sm btn-block" title="Berikan ke siswa yang sudah memenuhi syarat"><i class="fa fa-gift"></i> Berikan ke siswa</button>
                                                         </form>
                                                     @endif
 
@@ -101,7 +81,7 @@
                                                           data-message="{{ $badge->users_count > 0 ? 'Badge ini sudah dimiliki ' . $badge->users_count . ' siswa dan akan hilang dari mereka.' : 'Badge akan dihapus.' }}">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm btn-block" title="Hapus"><i class="fa fa-trash"></i> Hapus</button>
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm btn-block" title="Hapus"><i class="fa fa-trash"></i> Hapus</button>
                                                     </form>
                                                 </td>
                                             </tr>

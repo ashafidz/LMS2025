@@ -6,7 +6,7 @@
 <div class="rs-page">
     <section class="rs-section rs-section--paper">
         <div class="rs-wrap">
-            <x-rs.status tone="info" icon="bi-info-circle-fill" title="Pembayaran Dibatalkan">
+            <x-rs.status illustration="rs-18-bayar-gagal" tone="info" icon="bi-info-circle-fill" title="Pembayaran Dibatalkan">
                 <p>
                     Anda telah menutup jendela pembayaran. Pesanan Anda telah dibatalkan.
                 </p>

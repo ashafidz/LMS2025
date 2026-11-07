@@ -3,25 +3,13 @@
 @section('content')
 <div class="pcoded-content">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Hasil Kuis: {{ $attempt->quiz->title }}</h5>
-                        <p class="m-b-0">Kursus: {{ $attempt->quiz->lesson->module->course->title }}</p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="#"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('student.courses.show', $attempt->quiz->lesson->module->course->slug) }}">Kursus</a></li>
-                        <li class="breadcrumb-item"><a href="#!">Hasil Kuis</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    @php
+        [$previewHome, $previewList] = $is_preview ? \App\Services\LessonAccess::previewCrumbs(session('active_role')) : [null, null];
+    @endphp
+    <x-dash.page-head :crumbs="[$is_preview ? $previewHome : ['__home', route('student.dashboard')], $is_preview ? $previewList : ['Kursus Saya', route('student.my_courses')], [$attempt->quiz->lesson->module->course->title, route('student.courses.show', $attempt->quiz->lesson->module->course->slug) . ($is_preview ? '?preview=true' : '')], ['Hasil Kuis', null]]">
+        <x-slot:title>Hasil Kuis: {{ $attempt->quiz->title }}</x-slot:title>
+        <x-slot:subtitle>Kursus: {{ $attempt->quiz->lesson->module->course->title }}</x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">
@@ -33,16 +21,21 @@
                             <!-- Kartu Hasil Ringkas -->
                             <div class="card">
                                 <div class="card-body text-center">
-                                    @if ($is_preview)
-                                        <h2 class="text-warning">Hasil Preview Quiz</h2>
-                                    @endif
-                                    @if($attempt->status == 'passed')
-                                        <h2 class="text-success">Selamat, Anda Lulus!</h2>
-                                        <i class="fa fa-check-circle fa-4x text-success mb-3"></i>
-                                    @else
-                                        <h2 class="text-danger">Sayang sekali, Anda Gagal.</h2>
-                                        <i class="fa fa-times-circle fa-4x text-danger mb-3"></i>
-                                    @endif
+                                    <div class="rs-result-head"@if ($attempt->status == 'passed' && ! $is_preview) data-rs-celebrate="quiz-{{ $attempt->id }}"@endif>
+                                        <x-rs.illustration :name="$attempt->status == 'passed' ? 'rs-13-kuis-lulus' : 'rs-14-kuis-coba-lagi'" size="sm" />
+                                        <div class="rs-result-head__text">
+                                            @if ($is_preview)
+                                                <h2 class="text-warning">Hasil Pratinjau Kuis</h2>
+                                            @endif
+                                            @if($attempt->status == 'passed')
+                                                <h2 class="text-success">Selamat, Anda Lulus!</h2>
+                                                <i class="fa fa-check-circle fa-4x text-success mb-3"></i>
+                                            @else
+                                                <h2 class="text-danger">Sayang sekali, Anda Gagal.</h2>
+                                                <i class="fa fa-times-circle fa-4x text-danger mb-3"></i>
+                                            @endif
+                                        </div>
+                                    </div>
 
                                     @if(!$is_preview && $attempt->expelled_by_violation)
                                         <div class="alert alert-danger mt-3 mb-0">
@@ -101,7 +94,7 @@
                                                 <div class="card bg-light">
                                                     <div class="card-body text-center py-3">
                                                         <h6 class="card-title mb-1">Nilai Anda</h6>
-                                                        <h4 class="text-primary mb-0"><strong>{{ rtrim(rtrim(number_format($studentScoreScaled, 2, ',', '.'), '0'), ',') }}</strong></h4>
+                                                        <h4 class="text-primary mb-0"><strong @if ($studentScoreScaled !== null) data-rs-countup="{{ round((float) $studentScoreScaled, 2) }}" @endif>{{ rtrim(rtrim(number_format($studentScoreScaled, 2, ',', '.'), '0'), ',') }}</strong></h4>
                                                     </div>
                                                 </div>
                                             </div>
@@ -132,7 +125,7 @@
                                     <p class="" >Nilai Kelulusan Minimum (dalam score) : {{ $minimumScore }}</p> --}}
                                     <hr>
                                     @if ($is_preview)
-                                        <a href="{{ route('student.courses.show', ['course' => $attempt->quiz->lesson->module->course->slug, 'preview' => 'true']) }}" class="btn btn-primary">Kembali ke Preview Kursus</a>
+                                        <a href="{{ route('student.courses.show', ['course' => $attempt->quiz->lesson->module->course->slug, 'preview' => 'true']) }}" class="btn btn-primary">Kembali ke Pratinjau Kursus</a>
                                     @else
                                         <a href="{{ route('student.courses.show', $attempt->quiz->lesson->module->course->slug) }}" class="btn btn-primary">Kembali ke Kursus</a>
                                     @endif
@@ -140,7 +133,10 @@
                                 </div>
                             </div>
 
-                            @if ($attempt->quiz->reveal_answers)
+                            @if ($attempt->quiz->reveal_answers || $is_preview)
+                                @if ($is_preview && ! $attempt->quiz->reveal_answers)
+                                    <div class="alert alert-info rs-preview-note">Siswa tidak melihat rincian ini karena pengaturan kuis menyembunyikan jawaban.</div>
+                                @endif
                                                             <!-- Rincian Jawaban -->
                             <div class="card">
                                 <div class="card-header">
@@ -150,7 +146,7 @@
                                     @foreach($attempt->quiz->questions as $index => $question)
                                         <div class="mb-5">
                                             <h6>Soal {{ $index + 1 }}:</h6>
-                                            <p class="lead">{!! nl2br(e(str_replace(preg_match_all('/(\[\[BLANK_\d+\]\])/', $question->question_text, $matches) ? $matches[0] : [], '___', $question->question_text))) !!}</p>
+                                            <div class="lead rs-rich">{!! $question->displayText() !!}</div>
 
                                             @php
                                                 $studentAnswersForThisQuestion = $attempt->answers->where('question_id', $question->id);
@@ -176,7 +172,7 @@
                                                     @endphp
                                                     <div class="answer-option {{ $labelClass }}">
                                                         <div class="answer-option__content">
-                                                            <span class="answer-option__text">{{ $option->option_text }}</span>
+                                                            <span class="answer-option__text rs-rich">{!! $question->displayOption($option) !!}</span>
                                                             <span class="answer-option__label">
                                                                 @if($isStudentAnswer && $isCorrectAnswer)
                                                                     <i class="fa fa-check-circle-o"></i> <strong>Jawaban Anda (Benar)</strong>
@@ -196,7 +192,7 @@
                                             @if($isQuestionCorrect && $question->explanation)
                                                 <div class="alert alert-success mt-3">
                                                     <strong><i class="fa fa-lightbulb-o"></i> Penjelasan:</strong><br>
-                                                    {!! nl2br(e($question->explanation)) !!}
+                                                    {!! $question->displayExplanation() !!}
                                                 </div>
                                             @endif
                                         </div>

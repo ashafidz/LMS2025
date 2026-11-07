@@ -2,26 +2,10 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Tambah Pengguna ke Kursus</h5>
-                        <p class="m-b-0">Kursus: <strong>{{ $course->title }}</strong></p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                     <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route(Auth::user()->getRoleNames()->first() . '.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-enrollments.index') }}">Kelola Pengguna</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-enrollments.show', $course->id) }}">{{ Str::limit($course->title, 20) }}</a></li>
-                        <li class="breadcrumb-item"><a href="#!">Tambah</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route(Auth::user()->getRoleNames()->first() . '.dashboard')], ['Kelola Pengguna', route(Auth::user()->getRoleNames()->first() . '.course-enrollments.index')], [(Str::limit($course->title, 20)), route(Auth::user()->getRoleNames()->first() . '.course-enrollments.show', $course->id)], ['Tambah', null]]">
+        <x-slot:title>Tambah Pengguna ke Kursus</x-slot:title>
+        <x-slot:subtitle>Kursus: <strong>{{ $course->title }}</strong></x-slot:subtitle>
+    </x-dash.page-head>
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
@@ -36,10 +20,12 @@
                                         <form action="{{ route(Auth::user()->getRoleNames()->first() . '.course-enrollments.create', $course->id) }}" method="GET">
                                             <div class="input-group">
                                                 <input type="text" name="search" class="form-control" placeholder="Cari nama atau email..." value="{{ request('search') }}">
-                                                <button class="btn btn-primary" type="submit">
-                                                    Cari
-                                                    {{-- <i class="fa fa-search"></i> --}}
-                                                </button>
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-primary" type="submit">
+                                                        Cari
+                                                        {{-- <i class="fa fa-search"></i> --}}
+                                                    </button>
+                                                </div>
                                             </div>
                                         </form>
                                     </div>
@@ -71,10 +57,10 @@
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <div class="d-flex flex-wrap justify-content-between align-items-center mt-3" style="gap: 12px;">
                                             <a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-enrollments.show', $course->id) }}" class="btn btn-secondary">Batal</a>
-                                            <div class="d-flex align-items-center">
-                                                <div class="mr-3">
+                                            <div class="d-flex flex-wrap align-items-center" style="gap: 12px;">
+                                                <div>
                                                     {{ $availableUsers->links() }}
                                                 </div>
                                                 <button type="submit" class="btn btn-primary">Tambahkan Pengguna Terpilih</button>

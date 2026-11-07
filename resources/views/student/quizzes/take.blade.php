@@ -2,26 +2,22 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10" id="quiz-title">{{ $attempt->quiz->title }}</h5>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="text-right font-weight-bold" id="quiz-timer" style="font-size: 1.2rem;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head title-id="quiz-title">
+        <x-slot:title>{{ $attempt->quiz->title }}</x-slot:title>
+        @unless ($is_preview)
+            {{-- Preview has no timer: no empty pill --}}
+            <x-slot:actions>
+                <div class="rs-quiz-timer is-ok" id="quiz-timer"><i class="fa fa-clock-o" aria-hidden="true"></i> <span id="quiz-timer-text"></span></div>
+            </x-slot:actions>
+        @endunless
+    </x-dash.page-head>
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
                 <div class="page-body">
                     @if($is_preview)
-                        <div class="alert alert-warning text-center">
+                        <div class="alert alert-warning rs-preview-note" role="status">
+                            <i class="bi bi-eye" aria-hidden="true"></i>
                             <strong>Mode Pratinjau</strong>
                         </div>
                     @endif
@@ -47,22 +43,22 @@
                                         @foreach($attempt->quiz->questions as $index => $question)
                                             <div class="question-slide" id="question-{{ $index }}" data-question-id="{{ $question->id }}" style="{{ $index > 0 ? 'display: none;' : '' }}; min-height: 300px;">
                                                 <h5>Soal {{ $index + 1 }} dari {{ $attempt->quiz->questions->count() }}</h5>
-                                                <p class="lead">{!! nl2br(e(str_replace(preg_match_all('/(\[\[BLANK_\d+\]\])/', $question->question_text, $matches) ? $matches[0] : [], '___', $question->question_text))) !!}</p>
+                                                <div class="lead rs-rich">{!! $question->displayText() !!}</div>
                                                 <hr>
                                                 <div class="options-list">
                                                     @if($question->question_type === 'multiple_choice_single' || $question->question_type === 'true_false')
                                                         @foreach($question->options as $option)
-                                                        <div class="form-check ml-5"><input class="form-check-input" type="radio" name="answers[{{ $question->id }}]" id="opt-{{ $option->id }}" value="{{ $option->id }}"><label class="form-check-label" for="opt-{{ $option->id }}">{{ $option->option_text }}</label></div>
+                                                        <div class="form-check ml-5"><input class="form-check-input" type="radio" name="answers[{{ $question->id }}]" id="opt-{{ $option->id }}" value="{{ $option->id }}"><label class="form-check-label rs-rich" for="opt-{{ $option->id }}">{!! $question->displayOption($option) !!}</label></div>
                                                         @endforeach
                                                     @elseif($question->question_type === 'multiple_choice_multiple')
                                                         @foreach($question->options as $option)
                                                         <div class="form-check ml-5">
                                                             <input class="form-check-input" type="checkbox" name="answers[{{ $question->id }}][]" id="opt-{{ $option->id }}" value="{{ $option->id }}">
-                                                            <label class="form-check-label" for="opt-{{ $option->id }}">{{ $option->option_text }}</label>
+                                                            <label class="form-check-label rs-rich" for="opt-{{ $option->id }}">{!! $question->displayOption($option) !!}</label>
                                                         </div>
                                                         @endforeach
                                                     @elseif($question->question_type === 'drag_and_drop')
-                                                        <div class="drag-and-drop-container" style="line-height: 2.5;">{!! preg_replace_callback('/\[\[(BLANK_\d+)\]\]/', function($matches) use ($question) { $blankId = $matches[1]; $optionsHtml = '<option value="">-- Pilih Jawaban --</option>'; foreach ($question->options as $option) { $optionsHtml .= '<option value="' . $option->id . '">' . e($option->option_text) . '</option>'; } return '<select name="answers[' . $question->id . '][' . $blankId . ']" class="form-control d-inline-block" style="width: auto;">' . $optionsHtml . '</select>'; }, e($question->question_text)) !!}</div>
+                                                        <div class="drag-and-drop-container" style="line-height: 2.5;">{!! $question->displayTextWithBlanks(function ($blankId) use ($question) { $optionsHtml = '<option value="">-- Pilih Jawaban --</option>'; foreach ($question->options as $option) { $optionsHtml .= '<option value="' . $option->id . '">' . e($option->option_text) . '</option>'; } return '<select name="answers[' . $question->id . '][' . $blankId . ']" class="form-control d-inline-block" style="width: auto;">' . $optionsHtml . '</select>'; }) !!}</div>
                                                     @endif
                                                 </div>
                                             </div>
@@ -207,6 +203,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!isPreview) {
         const timerEl = document.getElementById('quiz-timer');
+        const timerText = document.getElementById('quiz-timer-text');
         // Batas waktu dari server. clockOffset = selisih jam server dan jam perangkat saat halaman dimuat, sehingga
         // jam perangkat yang salah tidak berpengaruh. Date.now() tetap berjalan saat perangkat sleep (beda dengan
         // performance.now() di sebagian perangkat), jadi sisa waktu tetap benar setelah layar dikunci.
@@ -215,9 +212,29 @@ document.addEventListener('DOMContentLoaded', function () {
         const allowExceedTime = {{ $attempt->quiz->allow_exceed_time_limit ? 'true' : 'false' }};
         let timerInterval;
 
+        // Warning levels (visual only): yellow at 5 minutes, red at 1 minute. Each toast shows once per attempt.
+        const warnSeen = (n) => { try { return sessionStorage.getItem('rs-quiz-warn:{{ $attempt->id }}:' + n) === '1'; } catch (e) { return false; } };
+        const warnMark = (n) => { try { sessionStorage.setItem('rs-quiz-warn:{{ $attempt->id }}:' + n, '1'); } catch (e) {} };
+        const applyTimerLevel = (t) => {
+            timerEl.classList.toggle('is-ok', t > 300);
+            timerEl.classList.toggle('is-warn', t <= 300 && t > 60);
+            timerEl.classList.toggle('is-danger', t <= 60);
+            timerEl.classList.toggle('is-pulse', t <= 60 && t > 0);
+            if (t <= 0 || typeof rsToast !== 'function') { return; }
+            if (t <= 60) {
+                if (!warnSeen(1)) {
+                    warnMark(1); warnMark(5);
+                    rsToast(allowExceedTime ? 'Sisa 1 menit.' : 'Sisa 1 menit. Jawaban terkirim otomatis saat waktu habis.', 'warning');
+                }
+            } else if (t <= 300 && !warnSeen(5)) {
+                warnMark(5);
+                rsToast('Sisa 5 menit. Periksa lagi jawabanmu.', 'warning');
+            }
+        };
+
         function startPersistentTimer() {
             if (endTimeMs === null) {
-                timerEl.innerText = "Tanpa Batas Waktu";
+                timerText.innerText = "Tanpa Batas Waktu";
                 return;
             }
 
@@ -228,12 +245,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (timeRemaining <= 0) {
                     if (!allowExceedTime) {
                         clearInterval(timerInterval);
-                        timerEl.innerText = "00:00";
-                        timerEl.classList.add('text-danger');
+                        timerText.innerText = "00:00";
+                        applyTimerLevel(0);
 
                         // Kirim langsung tanpa alert(): alert menahan pengiriman sampai siswa menekan OK,
                         // sehingga jawaban bisa terlambat sampai di server.
-                        timerEl.innerText = "Waktu habis, mengirim jawaban...";
+                        timerText.innerText = "Waktu habis, mengirim jawaban...";
                         form.submit();
                         return;
                     }
@@ -243,12 +260,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 const seconds = Math.abs(timeRemaining) % 60;
                 const displayTime = `${timeRemaining < 0 ? '-' : ''}${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
                 
-                timerEl.innerText = displayTime;
-                if (timeRemaining < 0) {
-                    timerEl.classList.add('text-danger');
-                } else {
-                    timerEl.classList.remove('text-danger');
-                }
+                timerText.innerText = displayTime;
+                applyTimerLevel(timeRemaining);
             };
             
             updateTimer(); 

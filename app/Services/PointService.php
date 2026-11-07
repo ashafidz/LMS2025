@@ -88,7 +88,7 @@ class PointService
     //     }
     // }
 
-    public static function addPoints(User $user, Course $course, string $activity, ?Lesson $lesson = null, $description_meta = null)
+    public static function addPoints(User $user, Course $course, string $activity, ?Lesson $lesson = null, $description_meta = null): int
     {
         // Ambil pengaturan poin dari database (menggunakan cache untuk efisiensi)
         $settings = cache()->remember('site_settings', now()->addMinutes(60), function () {
@@ -171,6 +171,9 @@ class PointService
 
         // Dipanggil setiap kali siswa menyelesaikan aktivitas, termasuk yang bernilai 0 poin
         BadgeService::queueFor($user);
+
+        // Jumlah poin yang benar-benar ditambahkan (0 bila pengaturan poin 0)
+        return $pointsToAdd > 0 ? $pointsToAdd : 0;
     }
 
     /**

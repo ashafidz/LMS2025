@@ -8,7 +8,7 @@ use App\Models\Course;
 use App\Models\Order;
 use App\Models\SiteSetting;
 use App\Services\CartPricingService;
-use App\Services\MidtransService;
+use App\Services\XenditService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Tests\TestCase;
@@ -224,11 +224,11 @@ class CartPricingServiceTest extends TestCase
         $cartResponse->assertOk();
         $cartFinalTotal = $cartResponse->viewData('finalTotal');
 
-        $mockMidtrans = Mockery::mock(MidtransService::class);
-        $mockMidtrans->shouldReceive('createSnapToken')
+        $mockXendit = Mockery::mock(XenditService::class);
+        $mockXendit->shouldReceive('createInvoice')
             ->once()
-            ->andReturn('dummy-snap-token');
-        $this->app->instance(MidtransService::class, $mockMidtrans);
+            ->andReturn(['id' => 'inv_dummy', 'invoice_url' => 'https://checkout-staging.xendit.co/web/inv_dummy']);
+        $this->app->instance(XenditService::class, $mockXendit);
 
         $checkoutResponse = $this->post(route('checkout.process'));
         $order = Order::where('user_id', $student->id)->first();

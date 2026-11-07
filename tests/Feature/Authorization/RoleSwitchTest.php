@@ -65,7 +65,22 @@ class RoleSwitchTest extends TestCase
             ->get(route('role.switch', 'instructor'));
 
         $response->assertRedirect(route('instructor.dashboard'));
+        $response->assertSessionHas('rs_toast', 'Berhasil beralih ke mode Instruktur.');
         $this->assertEquals('instructor', session('active_role'));
+    }
+
+    public function test_switching_back_to_student_shows_a_toast_on_the_student_dashboard(): void
+    {
+        $instructor = $this->makeInstructor();
+        $instructor->assignRole('student');
+
+        $this->actingAs($instructor)->withSession(['active_role' => 'instructor'])
+            ->get(route('role.switch', 'student'))
+            ->assertRedirect(route('student.dashboard'))
+            ->assertSessionHas('rs_toast', 'Berhasil beralih ke mode Siswa.');
+
+        $this->get(route('student.dashboard'))->assertOk()
+            ->assertSee('rsToast(', false)->assertSee('Berhasil beralih ke mode Siswa.', false);
     }
 
     public function test_student_switching_to_instructor_redirects_to_application_without_setting_active_role(): void
@@ -93,6 +108,7 @@ class RoleSwitchTest extends TestCase
             ->get(route('role.switch', 'instructor'));
 
         $response->assertRedirect(route('instructor.pending'));
+        $response->assertSessionMissing('rs_toast');
         $this->assertEquals('student', session('active_role'));
     }
 }

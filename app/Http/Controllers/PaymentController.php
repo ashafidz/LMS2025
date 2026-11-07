@@ -3,15 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use App\Services\MidtransService;
 use App\Services\OrderSettlementService;
+use App\Services\XenditService;
 use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends Controller
 {
     public function success(
         Order $order,
-        MidtransService $midtransService,
+        XenditService $xendit,
         OrderSettlementService $settlementService
     ) {
         // Pastikan hanya pemilik pesanan yang bisa mengakses
@@ -21,7 +21,7 @@ class PaymentController extends Controller
         abort_unless($order->user_id === Auth::id(), 403);
 
         if ($order->status === 'pending') {
-            $statusData = $midtransService->fetchStatus($order->order_code);
+            $statusData = $xendit->fetchStatus($order);
             if (! empty($statusData)) {
                 $settlementService->applyGatewayStatus($order, $statusData);
             }

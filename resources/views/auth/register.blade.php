@@ -1,6 +1,9 @@
 @extends('layouts.plain-layout')
 
 @section('title', 'Daftar')
+@section('art-image', 'rs-04-daftar')
+@section('art-title', 'Mulai belajar hari ini.')
+@section('art-text', 'Daftar gratis, lalu pilih kursus yang kamu butuhkan.')
 
 @section('content')
 <div class="rs-auth rs-auth--wide">
@@ -17,13 +20,15 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('register') }}" class="rs-form">
+    <form method="POST" action="{{ route('register') }}" class="rs-form"@if (\App\Services\Recaptcha::enabled()) data-recaptcha-site-key="{{ config('services.recaptcha.site_key') }}" data-recaptcha-action="register"@endif>
         @csrf
 
         <fieldset class="rs-choice">
             <legend>Daftar sebagai</legend>
-            <label><input type="radio" name="role" value="student" @checked(old('role', 'student') !== 'instructor')> Siswa</label>
-            <label><input type="radio" name="role" value="instructor" @checked(old('role') === 'instructor')> Instruktur</label>
+            <div class="rs-choice__seg">
+                <label><input type="radio" name="role" value="student" @checked(old('role', 'student') !== 'instructor')> Siswa</label>
+                <label><input type="radio" name="role" value="instructor" @checked(old('role') === 'instructor')> Instruktur</label>
+            </div>
         </fieldset>
 
         <div class="rs-field">
@@ -68,8 +73,21 @@
         </div>
 
         <button type="submit" class="rs-btn rs-btn--block">Daftar Sekarang</button>
+
+        @if (\App\Services\Recaptcha::enabled())
+            <input type="hidden" name="recaptcha-response" value="">
+            <p class="rs-form-legal">Form ini dilindungi reCAPTCHA. Berlaku <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Kebijakan Privasi</a> dan <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Persyaratan Layanan</a> Google.</p>
+            <p class="rs-form-legal" data-recaptcha-status role="status" hidden></p>
+        @endif
     </form>
 
     <p class="rs-auth__alt">Sudah punya akun? <a class="rs-link" href="{{ route('login') }}">Masuk</a></p>
 </div>
 @endsection
+
+@if (\App\Services\Recaptcha::enabled())
+    @push('scripts')
+        <script src="https://www.google.com/recaptcha/api.js?render={{ config('services.recaptcha.site_key') }}"></script>
+        <script src="{{ asset('js/rs-recaptcha.js') }}"></script>
+    @endpush
+@endif

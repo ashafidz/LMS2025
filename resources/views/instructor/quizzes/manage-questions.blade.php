@@ -3,27 +3,10 @@
 @section('content')
     <div class="pcoded-content">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Kelola Soal Kuis</h5>
-                            <p class="m-b-0">Judul Kuis: <strong>{{ $quiz->title }}</strong></p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="#!"><i class="fa fa-home"></i> </a></li>
-                            <li class="breadcrumb-item"><a href="#!">Kursus Saya</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Modul Saya</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $quiz->lesson->module) }}">Daftar Pelajaran</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Kelola Soal</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Kursus Saya', route('instructor.courses.index')], [\Illuminate\Support\Str::limit($quiz->lesson->module->course->title, 30), route('instructor.courses.modules.index', $quiz->lesson->module->course)], ['Daftar Pelajaran', route('instructor.modules.lessons.index', $quiz->lesson->module)], ['Kelola Soal', null]]">
+            <x-slot:title>Kelola Soal Kuis</x-slot:title>
+            <x-slot:subtitle>Judul Kuis: <strong>{{ $quiz->title }}</strong></x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
 
         <div class="pcoded-inner-content">
@@ -43,9 +26,6 @@
                                         </div>
                                     </div>
                                     <div class="card-block table-border-style">
-                                        @if (session('success'))
-                                            <div class="alert alert-success">{{ session('success') }}</div>
-                                        @endif
                                         <div class="table-responsive">
                                             <table class="table table-hover">
                                                 <thead>
@@ -60,14 +40,14 @@
                                                     @forelse ($attachedQuestions as $question)
                                                         <tr>
                                                             <th scope="row">{{ $loop->iteration }}</th>
-                                                            <td>{{ Str::limit(strip_tags($question->question_text), 100) }}</td>
-                                                            <td>{{ ucfirst(str_replace('_', ' ', $question->question_type)) }}</td>
+                                                            <td>{{ $question->plainSummary(100) }}</td>
+                                                            <td>{{ $question->type_label }}</td>
                                                             <td class="text-center">
                                                                 {{-- Form untuk menghapus (detach) soal dari kuis --}}
-                                                                <form action="{{ route('instructor.quizzes.detach_question', ['quiz' => $quiz, 'question' => $question]) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus soal ini dari kuis?');">
+                                                                <form action="{{ route('instructor.quizzes.detach_question', ['quiz' => $quiz, 'question' => $question]) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus soal ini dari kuis?" data-confirm-danger data-confirm-ok="Ya, lepaskan">
                                                                     @csrf
                                                                     @method('DELETE')
-                                                                    <button type="submit" class="btn btn-danger btn-sm">
+                                                                    <button type="submit" class="btn btn-outline-danger btn-sm">
                                                                         <i class="fa fa-trash"></i> Hapus
                                                                     </button>
                                                                 </form>

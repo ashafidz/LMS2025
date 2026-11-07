@@ -76,7 +76,7 @@
                                     @foreach($option->responses as $idx => $response)
                                     <tr>
                                         <td class="text-center">{{ $idx + 1 }}</td>
-                                        <td>{{ $response->user->studentProfile->unique_id_number ?? '-' }}</td>
+                                        <td>{{ $response->user->studentProfile?->unique_id_number ?? '-' }}</td>
                                         <td>
                                             {{ $response->user->name ?? 'Anonim' }}
                                         </td>

@@ -21,7 +21,7 @@
                 <dl class="rs-rows">
                     <div>
                         <dt>Kode Pesanan</dt>
-                        <dd>{{ $order->order_code }}</dd>
+                        <dd class="rs-mono">{{ $order->order_code }}</dd>
                     </div>
                     <div>
                         <dt>Tanggal</dt>
@@ -70,43 +70,11 @@
 
                 <p class="rs-note">Anda akan melakukan transaksi sebesar <strong>Rp{{ number_format($order->final_amount, 0, ',', '.') }}</strong></p>
 
-                {{-- Tombol ini sekarang akan memicu popup Midtrans --}}
-                <button type="button" id="pay-button" class="rs-btn rs-btn--ok rs-btn--block"><i class="bi bi-shield-check" aria-hidden="true"></i>Bayar Sekarang</button>
+                {{-- Tombol ini membuka halaman pembayaran Xendit --}}
+                <a href="{{ $order->payment_url }}" class="rs-btn rs-btn--ok rs-btn--block" rel="noopener"><i class="bi bi-shield-check" aria-hidden="true"></i>Bayar Sekarang</a>
+                <p class="rs-note">Anda akan diarahkan ke halaman pembayaran aman Xendit. Pilih metode bayar (transfer bank, e-wallet, QRIS, atau kartu) di sana.</p>
             </div>
         </div>
     </section>
 </div>
 @endsection
-
-@push('scripts')
-    {{-- 1. Muat library Midtrans Snap.js --}}
-    <script type="text/javascript"
-            src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
-            data-client-key="{{ $midtransClientKey }}"></script>
-
-
-    {{-- 2. Skrip untuk memicu pembayaran --}}
-    <script type="text/javascript">
-      var payButton = document.getElementById('pay-button');
-      payButton.addEventListener('click', function () {
-        snap.pay('{{ $snapToken }}', {
-          onSuccess: function(result){
-            console.log(result);
-            window.location.href = "{{ route('payment.success', $order) }}";
-          },
-          onPending: function(result){
-            console.log(result);
-            window.location.href = "{{ route('payment.pending', $order) }}";
-          },
-          onError: function(result){
-            console.log(result);
-            window.location.href = "{{ route('payment.failed', $order) }}";
-          },
-          onClose: function(){
-            /* Pengguna menutup popup tanpa menyelesaikan pembayaran */
-            window.location.href = "{{ route('payment.pending', $order) }}";
-          }
-        });
-      });
-    </script>
-@endpush

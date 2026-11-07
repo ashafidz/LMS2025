@@ -16,7 +16,6 @@
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "maatwebsite/excel": "^3.1",
-        "midtrans/midtrans-php": "^2.6",
         "spatie/laravel-permission": "^6.20",
         "vinkla/hashids": "^13.0"
     },

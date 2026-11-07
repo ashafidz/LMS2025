@@ -7,7 +7,7 @@ use App\Models\Coupon;
 use App\Models\Course;
 use App\Models\Order;
 use App\Models\SiteSetting;
-use App\Services\MidtransService;
+use App\Services\XenditService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Tests\TestCase;
@@ -43,11 +43,11 @@ class CheckoutTest extends TestCase
 
         Cart::create(['user_id' => $student->id, 'course_id' => $course->id]);
 
-        $mockMidtrans = Mockery::mock(MidtransService::class);
-        $mockMidtrans->shouldReceive('createSnapToken')
+        $mockXendit = Mockery::mock(XenditService::class);
+        $mockXendit->shouldReceive('createInvoice')
             ->once()
-            ->andReturn('dummy-snap-token-123');
-        $this->app->instance(MidtransService::class, $mockMidtrans);
+            ->andReturn(['id' => 'inv_123', 'invoice_url' => 'https://checkout-staging.xendit.co/web/inv_123']);
+        $this->app->instance(XenditService::class, $mockXendit);
 
         $this->actingAs($student);
         session(['active_role' => 'student', 'coupon' => $coupon]);
@@ -60,7 +60,8 @@ class CheckoutTest extends TestCase
 
         $this->assertEquals('pending', $order->status);
         $this->assertEquals(90000, (int) round($order->final_amount));
-        $this->assertEquals('dummy-snap-token-123', $order->snap_token);
+        $this->assertEquals('inv_123', $order->xendit_invoice_id);
+        $this->assertEquals('https://checkout-staging.xendit.co/web/inv_123', $order->payment_url);
 
         // Coupon uses_count MUST be unchanged at order creation (F10 fix)
         $this->assertEquals(0, $coupon->fresh()->uses_count);
@@ -138,5 +139,29 @@ class CheckoutTest extends TestCase
 
         $this->assertEquals('paid', $order->fresh()->status);
         $this->assertEquals(1, $student->fresh()->enrollments()->count());
+    }
+
+    public function test_checkout_deletes_order_and_keeps_cart_when_invoice_creation_fails(): void
+    {
+        $student = $this->makeStudent();
+        $course = Course::factory()->create(['price' => 100000]);
+
+        Cart::create(['user_id' => $student->id, 'course_id' => $course->id]);
+
+        $mockXendit = Mockery::mock(XenditService::class);
+        $mockXendit->shouldReceive('createInvoice')
+            ->once()
+            ->andThrow(new \RuntimeException('boom'));
+        $this->app->instance(XenditService::class, $mockXendit);
+
+        $this->actingAs($student);
+        session(['active_role' => 'student']);
+
+        $this->post(route('checkout.process'))
+            ->assertRedirect(route('student.cart.index'))
+            ->assertSessionHas('error', 'Gagal memulai sesi pembayaran. Silakan coba lagi.');
+
+        $this->assertDatabaseCount('orders', 0);
+        $this->assertSame(1, $student->carts()->count());
     }
 }

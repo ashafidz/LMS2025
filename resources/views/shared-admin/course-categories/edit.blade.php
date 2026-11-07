@@ -1,25 +1,10 @@
 @extends('layouts.app-layout')
 
 @section('content')
-<div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Edit Kategori</h5>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route(Auth::user()->getRoleNames()->first() . '.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-categories.index') }}">Kategori Kursus</a></li>
-                        <li class="breadcrumb-item"><a href="#!">Edit</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="pcoded-content rs-page-form">
+    <x-dash.page-head :crumbs="[['__home', route(Auth::user()->getRoleNames()->first() . '.dashboard')], ['Kategori Kursus', route(Auth::user()->getRoleNames()->first() . '.course-categories.index')], ['Edit', null]]">
+        <x-slot:title>Edit Kategori</x-slot:title>
+    </x-dash.page-head>
 
     <div class="pcoded-inner-content">
         <div class="main-body"><div class="page-wrapper"><div class="page-body"><div class="row">
@@ -27,7 +12,7 @@
                 <div class="card">
                     <div class="card-header"><h5>Detail Kategori</h5></div>
                     <div class="card-block">
-                        <form action="{{ route(Auth::user()->getRoleNames()->first() . '.course-categories.update', $courseCategory->id) }}" method="POST">
+                        <form action="{{ route(Auth::user()->getRoleNames()->first() . '.course-categories.update', $courseCategory->id) }}" method="POST" class="rs-form">
                             @csrf
                             @method('PUT')
                             <div class="form-group row">
@@ -36,11 +21,9 @@
                                     <input type="text" name="name" class="form-control" value="{{ old('name', $courseCategory->name) }}" required>
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <div class="col-sm-12 text-right">
-                                    <a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-categories.index') }}" class="btn btn-secondary">Batal</a>
-                                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                                </div>
+                                                        <div class="rs-form-actions">
+                                <a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-categories.index') }}" class="btn btn-secondary">Batal</a>
+                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                             </div>
                         </form>
                     </div>

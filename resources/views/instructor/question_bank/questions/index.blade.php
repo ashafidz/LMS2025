@@ -3,29 +3,10 @@
 @section('content')
     <div class="pcoded-content">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <p class="m-b-10">Kelola pertanyaan untuk topik ini.</p>
-                            <h5 class="m-b-0" style="font-size: 2rem;">
-                                Topik: {{ $topic->name }}
-
-                            </h5>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item">
-                                <a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.topics.index') }}">Bank Soal</a></li>
-                            <li class="breadcrumb-item"><a href="#!">{{ Str::limit($topic->name, 20) }}</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Bank Soal', route('instructor.question-bank.topics.index')], [(Str::limit($topic->name, 20)), null]]">
+            <x-slot:title>Topik: {{ $topic->name }}</x-slot:title>
+            <x-slot:subtitle>Kelola pertanyaan untuk topik ini.</x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
         <div class="pcoded-inner-content">
             <!-- Main-body start -->
@@ -49,11 +30,6 @@
                                         </div>
                                     </div>
                                     <div class="card-block table-border-style">
-                                        @if (session('success'))
-                                            <div class="alert alert-success">
-                                                {{ session('success') }}
-                                            </div>
-                                        @endif
                                         <div class="table-responsive">
                                             <table class="table table-hover">
                                                 <thead>
@@ -74,8 +50,8 @@
                                                         @endphp
                                                         <tr>
                                                             <th scope="row">{{ $loop->iteration + $questions->firstItem() - 1 }}</th>
-                                                            <td>{{ Str::limit(strip_tags($question->question_text), 80) }}</td>
-                                                            <td>{{ ucfirst(str_replace('_', ' ', $question->question_type)) }}</td>
+                                                            <td>{{ $question->plainSummary(80) }}</td>
+                                                            <td>{{ $question->type_label }}</td>
                                                             <td class="text-center">
                                                                 @if ($isLocked)
                                                                     <label class="label label-danger">Locked</label>
@@ -90,7 +66,7 @@
                                                                 @endif
 
                                                                 {{-- Move Question Button --}}
-                                                                <button type="button" class="btn btn-info btn-sm" onclick="openMoveModal({{ $question->id }}, '{{ Str::limit(strip_tags($question->question_text), 50) }}')"><i class="fas fa-arrows-alt"></i></button>
+                                                                <button type="button" class="btn btn-info btn-sm" onclick="openMoveModal({{ $question->id }}, '{{ addslashes($question->plainSummary(50)) }}')"><i class="fas fa-arrows-alt"></i></button>
 
                                                                 {{-- Always show Clone button --}}
                                                                 <form action="{{ route('instructor.question-bank.questions.clone', $question) }}" method="POST" class="d-inline">
@@ -99,7 +75,7 @@
                                                                 </form>
 
                                                                 {{-- Disable Delete button if locked --}}
-                                                                <form action="{{ route('instructor.question-bank.questions.destroy', $question) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this question?');">
+                                                                <form action="{{ route('instructor.question-bank.questions.destroy', $question) }}" method="POST" class="d-inline" data-confirm="Apakah Anda yakin ingin menghapus soal ini?" data-confirm-danger data-confirm-ok="Ya, hapus">
                                                                     @csrf
                                                                     @method('DELETE')
                                                                     <button type="submit" class="btn btn-danger btn-sm" {{ $isLocked ? 'disabled' : '' }} title="{{ $isLocked ? 'This question is locked and cannot be deleted.' : '' }}"><i class="fas fa-trash"></i></button>
@@ -165,7 +141,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                 </div>
             </div>
         </div>
@@ -264,12 +240,7 @@
                                 <div class="row">
                                     @php
                                         $questionTypes = $allQuestions->groupBy('question_type');
-                                        $typeLabels = [
-                                            'multiple_choice_single' => 'Pilihan Ganda (Tunggal)',
-                                            'multiple_choice_multiple' => 'Pilihan Ganda (Multiple)',
-                                            'true_false' => 'Benar/Salah',
-                                            'drag_and_drop' => 'Drag & Drop'
-                                        ];
+                                        $typeLabels = \App\Models\Question::TYPE_LABELS;
                                     @endphp
                                     @foreach($typeLabels as $type => $label)
                                         <div class="col-md-6 mb-2">
@@ -316,7 +287,9 @@
             </div>
         </div>
     </div>
+@endsection
 
+@push('scripts')
     <script>
         let availableTopics = @json($availableTopics ?? []);
         let currentQuestionId = null;
@@ -413,7 +386,7 @@
             console.log('Current Question ID:', currentQuestionId);
             
             if (!targetTopicId) {
-                alert('Please select a target topic before moving the question.');
+                rsAlert({ text: 'Pilih topik tujuan dulu sebelum memindahkan soal.', icon: 'warning' });
                 return false;
             }
             
@@ -447,4 +420,4 @@
             });
         });
     </script>
-@endsection
+@endpush

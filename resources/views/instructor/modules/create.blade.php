@@ -1,42 +1,12 @@
 @extends('layouts.app-layout')
 
 @section('content')
-    <div class="pcoded-content">
+    <div class="pcoded-content rs-page-form">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">
-                                Buat Modul Baru
-                            </h5>
-                            <p class="m-b-0">
-                                Tambahkan Modul baru didalam Kursus: {{ $course->title }}
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item">
-                                <a href="{{ route('instructor.dashboard') }}">
-                                    <i class="fa fa-home"></i>
-                                </a>
-                            </li>
-                            <li class="breadcrumb-item">
-                                <a href="{{ route('instructor.courses.index') }}">Kursus Saya</a>
-                            </li>
-                             <li class="breadcrumb-item">
-                                <a href="{{ route('instructor.courses.modules.index', $course) }}">Modul Saya</a>
-                            </li>
-                            <li class="breadcrumb-item">
-                                <a href="#!">Buat</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Kursus Saya', route('instructor.courses.index')], [\Illuminate\Support\Str::limit($course->title, 30), route('instructor.courses.modules.index', $course)], ['Buat', null]]">
+            <x-slot:title>Buat Modul Baru</x-slot:title>
+            <x-slot:subtitle>Tambahkan Modul baru didalam Kursus: {{ $course->title }}</x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
         <div class="pcoded-inner-content">
             <!-- Main-body start -->
@@ -52,8 +22,9 @@
                                         <span>Isi formulir di bawah ini untuk membuat modul baru.</span>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.courses.modules.store', $course) }}" method="POST">
+                                        <form action="{{ route('instructor.courses.modules.store', $course) }}" method="POST" class="rs-form">
                                             @csrf
+                                            @include('instructor.lessons.partials._form-errors', ['title' => 'Modul belum tersimpan.'])
 
                                             {{-- Title --}}
                                             <div class="form-group row">
@@ -75,12 +46,9 @@
                                                 </div>
                                             </div>
 
-                                            <div class="form-group row">
-                                                <label class="col-sm-2"></label>
-                                                <div class="col-sm-10">
-                                                    <a href="{{ route('instructor.courses.modules.index', $course) }}" class="btn btn-secondary">Batal</a>
-                                                    <button type="submit" class="btn btn-primary">Buat Modul</button>
-                                                </div>
+                                                                                        <div class="rs-form-actions">
+                                                <a href="{{ route('instructor.courses.modules.index', $course) }}" class="btn btn-secondary">Batal</a>
+                                                <button type="submit" class="btn btn-primary">Buat Modul</button>
                                             </div>
                                         </form>
                                     </div>

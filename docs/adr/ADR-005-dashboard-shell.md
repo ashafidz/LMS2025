@@ -46,3 +46,5 @@ Chosen option: **2**, because it gives every dashboard the new identity at once 
 - Pages look mixed (new frame, old content) until phase D.
 - Bootstrap 4 and Bootstrap 5 JS are still both loaded.
 - The bridge section must be deleted when the last content view is rewritten.
+
+**Update 2026-11-06**: the look described here (shelf, flat square cards) is superseded by [ADR-012](ADR-012-soft-rounded-ui.md). Colours and fonts are unchanged.

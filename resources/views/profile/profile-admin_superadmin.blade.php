@@ -8,19 +8,19 @@
                 <div class="d-inline-flex align-items-center">
                     <!-- Avatar -->
                     <img src="{{ Auth::user()->profile_picture_url ? asset(Auth::user()->profile_picture_url ) :  'https://placehold.co/32x32/EBF4FF/767676?text=SA' }}" alt="Avatar"
-                        class="rounded-circle mr-3" style="width: 80px; height: 80px; border: 3px solid var(--rs-line, #e6d9c6); box-shadow: 0 2px 6px rgba(43,29,23,0.1);">
+                        class="rounded-circle mr-3" style="width: 80px; height: 80px; border: 3px solid var(--rs-line, #E2E6EE); box-shadow: 0 2px 6px rgba(43,29,23,0.1);">
 
                     <!-- Nama & Sambutan -->
                     <div>
-                        <h4 class="font-weight-bold mb-1" style="color: var(--rs-ink, #2b1d17);">{{ $user->name }}</h4>
+                        <h4 class="font-weight-bold mb-1" style="color: var(--rs-ink, #292940);">{{ $user->name }}</h4>
                         <span class="text-muted">Peran Anda saat ini: {{ ucfirst(session('active_role')) }}</span>
                     </div>
                 </div>
             </div>
         </div>
         <!-- Page-header end -->
-        <div class="pcoded-inner-content px-3 mt-4">
-            <div class="row g-4 px-2">
+        <div class="pcoded-inner-content mt-4">
+            <div class="row g-4">
 
                 <!-- Kolom Data Profil (kiri) -->
                 <div class="col-xl-8 col-md-12 mb-4 pr-xl-2">
@@ -93,7 +93,7 @@
                             </div>
                             <div class="text-center mt-4">
                                 <a href="{{ route('user.profile.edit') }}"
-                                    class="btn btn-outline-primary btn-sm mr-2">Edit Profile</a>
+                                    class="btn btn-outline-primary btn-sm mr-2">Edit Profil</a>
                                 <a href="{{ route('user.password.edit') }}" class="btn btn-outline-primary btn-sm mr-2">Ganti
                                     Password</a>
                             </div>

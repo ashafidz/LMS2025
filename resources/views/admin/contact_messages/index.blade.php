@@ -2,24 +2,10 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Pesan Kontak Masuk</h5>
-                        <p class="m-b-0">Daftar pesan dari form kontak halaman depan.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="#"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Pesan Kontak</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', null], ['Pesan Kontak', null]]">
+        <x-slot:title>Pesan Kontak Masuk</x-slot:title>
+        <x-slot:subtitle>Daftar pesan dari form kontak halaman depan.</x-slot:subtitle>
+    </x-dash.page-head>
 
     <div class="pcoded-inner-content">
         <div class="main-body">
@@ -32,9 +18,6 @@
                                     <h5>Daftar Pesan Kontak</h5>
                                 </div>
                                 <div class="card-block table-border-style">
-                                    @if (session('success'))
-                                        <div class="alert alert-success">{{ session('success') }}</div>
-                                    @endif
                                     <div class="table-responsive">
                                         <table class="table table-hover">
                                             <thead>

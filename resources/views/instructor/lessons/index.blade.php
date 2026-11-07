@@ -2,27 +2,11 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Course: {{ $module->course->title }}</h5>
-                        <p class="m-b-10 fw-bolder" style="font-size: 2rem;">Kelola Pelajaran Modul: {{ $module->title }}</p>
-                        <p class="m-b-0">Atur semua pelajaran untuk modul ini.</p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"> <i class="fa fa-home"></i> </a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.courses.index') }}">Kursus Saya</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $module->course) }}">Modul Saya</a></li>
-                        <li class="breadcrumb-item"><a href="#!">{{ Str::limit($module->title, 20) }}</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Kursus Saya', route('instructor.courses.index')], [\Illuminate\Support\Str::limit($module->course->title, 30), route('instructor.courses.modules.index', $module->course)], [(Str::limit($module->title, 20)), null]]">
+        <x-slot:context>Kursus: {{ $module->course->title }} &gt; Modul: {{ $module->title }}</x-slot:context>
+        <x-slot:title>Kelola Pelajaran</x-slot:title>
+        <x-slot:subtitle>Atur semua pelajaran untuk modul ini.</x-slot:subtitle>
+    </x-dash.page-head>
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
@@ -45,19 +29,19 @@
                                             <i class="bi bi-plus-lg text-white me-1"></i> Buat Pelajaran Baru
                                         </button>
                                     </div>
-                                    @if (session('success'))
-                                        <div class="alert alert-success">{{ session('success') }}</div>
-                                    @endif
 
                                     <div id="lesson-list">
                                         @forelse ($lessons as $lesson)
                                             <div class="card" data-id="{{ $lesson->id }}">
-                                                <div class="card-body d-flex justify-content-between align-items-center p-3">
+                                                <div class="card-body rs-row-card d-flex justify-content-between align-items-center p-3">
                                                     <div class="d-flex align-items-center overflow-hidden me-2 flex-grow-1" style="min-width: 0;">
-                                                        <i class="fa fa-bars handle text-muted mr-3 flex-shrink-0" style="cursor: move;"></i>
+                                                        <span class="rs-drag mr-3 flex-shrink-0" title="Tahan dan geser untuk mengubah urutan"><i class="fa fa-bars handle text-muted"></i></span>
                                                         <div class="text-truncate">
                                                             <strong class="d-block mb-1 text-truncate">{{ $lesson->title }}</strong>
-                                                            <span class="badge badge-info">{{ ucfirst(str_replace('lesson', '', strtolower(class_basename($lesson->lessonable_type)))) }}</span>
+                                                            @php
+                                                                $typeChip = \App\Models\Lesson::typeLabel($lesson->lessonable_type);
+                                                            @endphp
+                                                            <span class="rs-chip">{{ $typeChip }}</span>
                                                         </div>
                                                     </div>
                                                     
@@ -66,27 +50,27 @@
                                                     <div class="d-flex align-items-center flex-shrink-0" style="gap: 5px;">
                                                         <!-- TOMBOL UTAMA (DI LUAR) - Muncul di Desktop -->
                                                         @if ($lessonType === 'quiz')
-                                                            <a href="{{ route('student.quiz.start', ['quiz' => $lesson->lessonable, 'preview' => 'true']) }}" target="_blank" class="btn btn-info btn-sm text-white d-none d-lg-inline-block" title="Pratinjau Kuis">
+                                                            <a href="{{ route('student.quiz.start', ['quiz' => $lesson->lessonable, 'preview' => 'true']) }}" target="_blank" class="btn btn-secondary btn-sm d-none d-lg-inline-block" title="Pratinjau Kuis">
                                                                 <i class="bi bi-eye"></i> <span class="d-none d-xl-inline ms-1">Pratinjau</span>
                                                             </a>
-                                                            <a href="{{ route('instructor.quiz.results', $lesson->lessonable) }}" class="btn btn-success btn-sm d-none d-lg-inline-block" title="Lihat Nilai Siswa">
+                                                            <a href="{{ route('instructor.quiz.results', $lesson->lessonable) }}" class="btn btn-secondary btn-sm d-none d-lg-inline-block" title="Lihat Nilai Siswa">
                                                                 <i class="fa fa-calculator"></i> <span class="d-none d-xl-inline ms-1">Nilai</span>
                                                             </a>
                                                             <a href="{{ route('instructor.quiz.security.edit', $lesson->lessonable) }}" class="btn btn-secondary btn-sm d-none d-lg-inline-block" title="Opsi Keamanan">
                                                                 <i class="fa fa-shield"></i> <span class="d-none d-xl-inline ms-1">Keamanan</span>
                                                             </a>
-                                                            <a href="{{ route('instructor.quiz.monitoring.review', $lesson->lessonable) }}" class="btn btn-warning btn-sm text-dark d-none d-lg-inline-block" title="Hasil Pelanggaran">
+                                                            <a href="{{ route('instructor.quiz.monitoring.review', $lesson->lessonable) }}" class="btn btn-secondary btn-sm d-none d-lg-inline-block" title="Hasil Pelanggaran">
                                                                 <i class="fa fa-eye"></i> <span class="d-none d-xl-inline ms-1">Pelanggaran</span>
                                                             </a>
                                                             <a href="{{ route('instructor.quizzes.manage_questions', $lesson->lessonable) }}" class="btn btn-primary btn-sm" title="Kelola Soal">
                                                                 <i class="fa fa-pencil-square"></i> <span class="d-none d-md-inline ms-1">Kelola Soal</span>
                                                             </a>
                                                         @else
-                                                            <button class="btn btn-info btn-sm text-white d-none d-lg-inline-block" type="button" data-toggle="modal" data-target="#previewModal-{{ $lesson->id }}" title="Pratinjau">
+                                                            <button class="btn btn-secondary btn-sm d-none d-lg-inline-block" type="button" data-toggle="modal" data-target="#previewModal-{{ $lesson->id }}" title="Pratinjau">
                                                                 <i class="bi bi-eye"></i> <span class="d-none d-xl-inline ms-1">Pratinjau</span>
                                                             </button>
                                                             @if ($lessonType === 'lessonassignment')
-                                                                <a href="{{ route('instructor.assignment.submissions', $lesson->lessonable) }}" class="btn btn-success btn-sm d-none d-lg-inline-block" title="Lihat Pengumpulan">
+                                                                <a href="{{ route('instructor.assignment.submissions', $lesson->lessonable) }}" class="btn btn-secondary btn-sm d-none d-lg-inline-block" title="Lihat Pengumpulan">
                                                                     <i class="fas fa-file-alt"></i> <span class="d-none d-xl-inline ms-1">Pengumpulan</span>
                                                                 </a>
                                                             @elseif ($lessonType === 'lessonpoint')
@@ -94,11 +78,11 @@
                                                                     <i class="bi bi-gear-fill"></i> <span class="d-none d-xl-inline ms-1">Poin</span>
                                                                 </a>
                                                             @elseif ($lessonType === 'lessonpolling')
-                                                                <a href="{{ route('instructor.lessons.polling.results', $lesson) }}" class="btn btn-success btn-sm d-none d-lg-inline-block" title="Lihat Hasil Polling">
+                                                                <a href="{{ route('instructor.lessons.polling.results', $lesson) }}" class="btn btn-secondary btn-sm d-none d-lg-inline-block" title="Lihat Hasil Polling">
                                                                     <i class="fa fa-bar-chart"></i> <span class="d-none d-xl-inline ms-1">Hasil Polling</span>
                                                                 </a>
                                                             @elseif ($lessonType === 'lessonwordcloud')
-                                                                <a href="{{ route('instructor.lessons.wordcloud.results', $lesson) }}" class="btn btn-info btn-sm text-white d-none d-lg-inline-block" title="Lihat Hasil Word Cloud">
+                                                                <a href="{{ route('instructor.lessons.wordcloud.results', $lesson) }}" class="btn btn-secondary btn-sm d-none d-lg-inline-block" title="Lihat Hasil Word Cloud">
                                                                     <i class="fa fa-cloud"></i> <span class="d-none d-xl-inline ms-1">Hasil WordCloud</span>
                                                                 </a>
                                                             @endif
@@ -142,7 +126,7 @@
                                                                 
                                                                 <!-- DELETE SELALU DI DALAM DROPDOWN -->
                                                                 <div class="dropdown-divider d-lg-none"></div>
-                                                                <form action="{{ route('instructor.lessons.destroy', $lesson) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pelajaran ini?');">
+                                                                <form action="{{ route('instructor.lessons.destroy', $lesson) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus pelajaran ini?" data-confirm-danger data-confirm-ok="Ya, hapus">
                                                                     @csrf @method('DELETE')
                                                                     <button type="submit" class="dropdown-item text-danger">
                                                                         <i class="fa fa-trash text-danger me-2"></i> Hapus Pelajaran
@@ -205,7 +189,7 @@
                         </div>
                         <div class="modal-body">
                             @if (view()->exists('instructor.lessons.previews._' . $lessonType))
-                                @include('instructor.lessons.previews._' . $lessonType, ['lesson' => $lesson])
+                                @include('instructor.lessons.previews._' . $lessonType, ['lesson' => $lesson, 'is_preview' => true])
                             @else
                                 <p class="text-muted text-center">Pratinjau untuk tipe pelajaran '{{ $lessonType }}' belum tersedia.</p>
                             @endif
@@ -236,8 +220,6 @@
         .sortable-chosen {
             background-color: #e9ecef;
             box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
-            transform: scale(1.02);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .handle {
             cursor: grab !important;
@@ -246,7 +228,6 @@
             cursor: grabbing !important;
         }
         #lesson-list .card {
-            transition: transform 0.2s ease;
             position: relative;
             z-index: 1;
         }
@@ -287,9 +268,15 @@
             const el = document.getElementById('lesson-list');
             if (el) {
                 const sortable = new Sortable(el, {
-                    handle: '.handle',
-                    animation: 350,
-                    easing: "cubic-bezier(1, 0, 0, 1)",
+                    handle: '.rs-drag',
+                    animation: 150,
+                    delay: 120,
+                    delayOnTouchOnly: true,
+                    // Pointer-based dragging instead of the browser's native drag and drop, which is unreliable in
+                    // Chrome on Linux (Wayland) and does not work with touch.
+                    forceFallback: true,
+                    fallbackClass: 'sortable-fallback',
+                    fallbackTolerance: 3,
                     ghostClass: 'sortable-ghost',
                     chosenClass: 'sortable-chosen',
                     onEnd: function (evt) {
@@ -305,11 +292,11 @@
                         .then(response => response.json())
                         .then(data => {
                             if(data.status === 'success') { console.log(data.message); } 
-                            else { alert('Gagal memperbarui urutan.'); }
+                            else { rsAlert({ text: 'Gagal memperbarui urutan.', icon: 'error' }); }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            alert('Terjadi kesalahan.');
+                            rsAlert({ text: 'Terjadi kesalahan.', icon: 'error' });
                         });
                     }
                 });

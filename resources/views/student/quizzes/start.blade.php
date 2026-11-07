@@ -3,27 +3,13 @@
 @section('content')
     <div class="pcoded-content">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Mulai Kuis</h5>
-                            <p class="m-b-0">Kursus: {{ $quiz->lesson->module->course->title }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="#"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a
-                                    href="{{ route('student.courses.show', $quiz->lesson->module->course->slug) }}">Kursus Saya</a>
-                            </li>
-                            <li class="breadcrumb-item"><a href="#!">Kuis</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        @php
+        [$previewHome, $previewList] = $is_preview ? \App\Services\LessonAccess::previewCrumbs(session('active_role')) : [null, null];
+    @endphp
+    <x-dash.page-head :crumbs="[$is_preview ? $previewHome : ['__home', route('student.dashboard')], $is_preview ? $previewList : ['Kursus Saya', route('student.my_courses')], [$quiz->lesson->module->course->title, route('student.courses.show', $quiz->lesson->module->course->slug) . ($is_preview ? '?preview=true' : '')], ['Kuis', null]]">
+            <x-slot:title>Mulai Kuis</x-slot:title>
+            <x-slot:subtitle>Kursus: {{ $quiz->lesson->module->course->title }}</x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
 
         <div class="pcoded-inner-content">
@@ -32,9 +18,9 @@
                     <div class="page-body">
                         {{-- Notifikasi untuk mode pratinjau --}}
                         @if ($is_preview)
-                            <div class="alert alert-warning text-center text-dark" style="background-color: #f2e529;">
-                                <strong>Mode Pratinjau</strong><br>
-                                Anda melihat halaman ini sebagai Instruktur/Admin. Hasil kuis tidak akan disimpan.
+                            <div class="alert alert-warning rs-preview-note" role="status">
+                                <i class="bi bi-eye" aria-hidden="true"></i>
+                                <div><strong>Mode Pratinjau</strong><br>Anda melihat kuis ini seperti siswa. Jawaban, nilai, dan poin tidak disimpan.</div>
                             </div>
                         @endif
 
@@ -128,7 +114,7 @@
                                                 @csrf
                                                 <input type="hidden" name="is_preview" value="true">
                                                 <button type="submit" class="btn btn-primary btn-lg">Mulai Kuis
-                                                    (Preview)</button>
+                                                    (Pratinjau)</button>
                                             </form>
                                         @endif
                                     </div>

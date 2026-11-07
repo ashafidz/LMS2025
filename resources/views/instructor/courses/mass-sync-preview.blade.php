@@ -3,25 +3,10 @@
 @section('content')
 <div class="pcoded-content">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Sinkronisasi Poin Massal</h5>
-                        <p class="m-b-0">Kursus: <strong>{{ $course->title }}</strong></p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.courses.index') }}">Kursus Saya</a></li>
-                        <li class="breadcrumb-item"><a href="#!">Sinkronisasi Massal</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Kursus Saya', route('instructor.courses.index')], ['Sinkronisasi Massal', null]]">
+        <x-slot:title>Sinkronisasi Poin Massal</x-slot:title>
+        <x-slot:subtitle>Kursus: <strong>{{ $course->title }}</strong></x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">
@@ -29,23 +14,7 @@
             <div class="page-wrapper">
                 <div class="page-body">
 
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ session('success') }}
-                            <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                    @endif
 
-                    @if(session('info'))
-                        <div class="alert alert-info alert-dismissible fade show" role="alert">
-                            {{ session('info') }}
-                            <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                    @endif
 
                     <div class="card">
                         <div class="card-header bg-primary text-white">
@@ -103,7 +72,7 @@
                                     <p>Tindakan eksekusi sinkronisasi massal ini akan <strong>menimpa secara permanen</strong> riwayat poin siswa-siswa di atas menjadi sesuai dengan <strong>Poin Ekspektasi</strong>, dan juga akan mengkalkulasikan ulang total perolehan poin mereka di kursus ini. Tindakan ini tidak dapat dibatalkan.</p>
                                 </div>
 
-                                <form action="{{ route('instructor.courses.mass_sync.execute', $course) }}" method="POST" onsubmit="return confirm('Anda yakin ingin menyinkronkan {{ count($anomalies) }} data poin ini secara permanen?');">
+                                <form action="{{ route('instructor.courses.mass_sync.execute', $course) }}" method="POST" data-confirm="Anda yakin ingin menyinkronkan {{ count($anomalies) }} data poin ini secara permanen?">
                                     @csrf
                                     <button type="submit" class="btn btn-primary btn-lg btn-block shadow-sm w-100">
                                         <i class="fa fa-magic me-2"></i> Eksekusi Sinkronisasi Massal Sekarang

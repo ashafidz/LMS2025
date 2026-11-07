@@ -49,7 +49,7 @@
                   <button type="submit" class="rs-btn rs-btn--block">Tambahkan ke keranjang</button>
                 </form>
               @elseif($course->payment_type === 'diamonds')
-                <form action="{{ route('student.courses.purchase_with_diamonds', $course) }}" method="POST" onsubmit="return confirm('Beli kursus ini dengan {{ $course->diamond_price }} diamond?');">
+                <form action="{{ route('student.courses.purchase_with_diamonds', $course) }}" method="POST" data-confirm="Beli kursus ini dengan {{ $course->diamond_price }} diamond?" data-confirm-ok="Ya, beli">
                   @csrf
                   <button type="submit" class="rs-btn rs-btn--block" {{ Auth::user()->diamond_balance < $course->diamond_price ? 'disabled' : '' }}>Beli dengan Diamond</button>
                   @if(Auth::user()->diamond_balance < $course->diamond_price)

@@ -25,7 +25,7 @@
     <div class="bg-light rounded p-3 mb-4" style="background-color: #f8f9fa !important;">
         <div class="d-flex justify-content-between mb-2">
             <span class="text-muted">No. Transaksi:</span>
-            <span class="font-weight-bold">{{ $order->order_code }}</span>
+            <span class="font-weight-bold rs-mono">{{ $order->order_code }}</span>
         </div>
         <div class="d-flex justify-content-between mb-2">
             <span class="text-muted">Tanggal:</span>

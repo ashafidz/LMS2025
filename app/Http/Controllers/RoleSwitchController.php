@@ -42,7 +42,7 @@ class RoleSwitchController extends Controller
         if ($role === 'instructor') {
             $status = $user->instructorProfile?->application_status;
             if ($status === 'approved') {
-                return redirect()->route('instructor.dashboard');
+                return $this->switched('instructor.dashboard', 'Instruktur');
             } elseif ($status === 'pending') {
                 return redirect()->route('instructor.pending');
             } elseif ($status === 'rejected') {
@@ -53,16 +53,24 @@ class RoleSwitchController extends Controller
         }
 
         if ($role === 'student') {
-            return redirect()->route('student.dashboard');
+            return $this->switched('student.dashboard', 'Siswa');
         }
         if ($role === 'admin') {
-            return redirect()->route('admin.dashboard');
+            return $this->switched('admin.dashboard', 'Admin');
         }
         if ($role === 'superadmin') {
-            return redirect()->route('superadmin.dashboard');
+            return $this->switched('superadmin.dashboard', 'Superadmin');
         }
 
         // Default fallback
         return redirect('/home');
+    }
+
+    /** Redirect to the new role's dashboard with a success toast (rendered by the layout, see rs-dialog.js). */
+    private function switched(string $route, string $label)
+    {
+        session()->flash('rs_toast', 'Berhasil beralih ke mode '.$label.'.');
+
+        return redirect()->route($route);
     }
 }

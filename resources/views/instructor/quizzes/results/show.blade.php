@@ -3,33 +3,18 @@
 @section('content')
 <div class="pcoded-content">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Periksa Jawaban Kuis</h5>
-                        <p class="m-b-0">Siswa: <strong>{{ $attempt->student->name }}</strong> | Kuis: <strong>{{ $attempt->quiz->title }}</strong></p>
-                    </div>
-                </div>
-                <div class="col-md-4 text-right">
-                    <a href="{{ route('instructor.quiz.monitoring.detail', $attempt) }}" class="btn btn-info btn-sm" title="Lihat Detail Monitoring">
-                        <i class="fa fa-eye"></i> Detail Pelanggaran
-                    </a>
-                    <a href="{{ route('instructor.quiz.results', $attempt->quiz_id) }}" class="btn btn-secondary btn-sm">
-                        <i class="fa fa-arrow-left"></i> Kembali
-                    </a>
-                </div>
-                <div class="col-md-4">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.quiz.results', $attempt->quiz_id) }}">Hasil Kuis</a></li>
-                        <li class="breadcrumb-item"><a href="#!">Periksa</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Hasil Kuis', route('instructor.quiz.results', $attempt->quiz_id)], ['Periksa', null]]">
+        <x-slot:title>Periksa Jawaban Kuis</x-slot:title>
+        <x-slot:subtitle>Siswa: <strong>{{ $attempt->student->name }}</strong> | Kuis: <strong>{{ $attempt->quiz->title }}</strong></x-slot:subtitle>
+        <x-slot:actions>
+            <a href="{{ route('instructor.quiz.monitoring.detail', $attempt) }}" class="btn btn-secondary btn-sm" title="Lihat Detail Monitoring">
+             <i class="fa fa-eye"></i> Detail Pelanggaran
+             </a>
+            <a href="{{ route('instructor.quiz.results', $attempt->quiz_id) }}" class="btn btn-secondary btn-sm">
+             <i class="fa fa-arrow-left"></i> Kembali
+             </a>
+        </x-slot:actions>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">
@@ -52,7 +37,7 @@
                                         <div class="col-md-4">
                                             <div class="card bg-light">
                                                 <div class="card-body text-center py-3">
-                                                    <h6 class="card-title mb-1">Skor Student</h6>
+                                                    <h6 class="card-title mb-1">Skor Siswa</h6>
                                                     <h4 class="text-primary mb-0"><strong>{{ rtrim(rtrim(number_format($attempt->score, 2, ',', '.'), '0'), ',') }}</strong></h4>
                                                 </div>
                                             </div>
@@ -80,7 +65,7 @@
                                         <div class="col-md-6">
                                             <div class="card bg-light">
                                                 <div class="card-body text-center py-3">
-                                                    <h6 class="card-title mb-1">Nilai Student</h6>
+                                                    <h6 class="card-title mb-1">Nilai Siswa</h6>
                                                     <h4 class="text-primary mb-0"><strong>{{ rtrim(rtrim(number_format($studentScoreScaled, 2, ',', '.'), '0'), ',') }}</strong></h4>
                                                 </div>
                                             </div>
@@ -150,7 +135,7 @@
                                     @foreach($attempt->quiz->questions as $index => $question)
                                         <div class="mb-5">
                                             <h6>Soal {{ $index + 1 }}:</h6>
-                                            <p class="lead">{!! nl2br(e($question->question_text)) !!}</p>
+                                            <div class="lead rs-rich">{!! $question->displayText() !!}</div>
                                             @php
                                                 $studentAnswersForThisQuestion = $attempt->answers->where('question_id', $question->id);
                                                 $studentAnswerIds = $studentAnswersForThisQuestion->pluck('selected_option_id')->toArray();
@@ -168,7 +153,7 @@
                                                     @endphp
                                                     <div class="answer-option {{ $labelClass }}">
                                                         <div class="answer-option__content">
-                                                            <span class="answer-option__text">{{ $option->option_text }}</span>
+                                                            <span class="answer-option__text rs-rich">{!! $question->displayOption($option) !!}</span>
                                                             <span class="answer-option__label">
                                                                 @if($isStudentAnswer)
                                                                     <i class="fa fa-check-circle-o"></i> <strong>Jawaban Siswa</strong>
@@ -185,7 +170,7 @@
                                             @if($question->explanation)
                                                 <div class="alert alert-info mt-3">
                                                     <strong><i class="fa fa-lightbulb-o"></i> Penjelasan:</strong><br>
-                                                    {!! nl2br(e($question->explanation)) !!}
+                                                    {!! $question->displayExplanation() !!}
                                                 </div>
                                             @endif
                                         </div>

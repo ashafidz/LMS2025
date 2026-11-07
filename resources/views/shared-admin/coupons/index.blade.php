@@ -3,25 +3,10 @@
 @section('content')
 <div class="pcoded-content">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Manajemen Kupon</h5>
-                        <p class="m-b-0">Buat, lihat, dan kelola semua kupon diskon.</p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        {{-- Menggunakan Auth::user()->role akan lebih sederhana jika role hanya satu string --}}
-                        <li class="breadcrumb-item"><a href="{{ route(Auth::user()->getRoleNames()->first() . '.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Kupon</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route(Auth::user()->getRoleNames()->first() . '.dashboard')], ['Kupon', null]]">
+        <x-slot:title>Manajemen Kupon</x-slot:title>
+        <x-slot:subtitle>Buat, lihat, dan kelola semua kupon diskon.</x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">
@@ -39,9 +24,6 @@
                                     </div>
                                 </div>
                                 <div class="card-block table-border-style">
-                                    @if (session('success'))
-                                        <div class="alert alert-success">{{ session('success') }}</div>
-                                    @endif
                                     @if (session('error'))
                                         <div class="alert alert-danger">{{ session('error') }}</div>
                                     @endif
@@ -64,7 +46,7 @@
                                                 @forelse ($coupons as $coupon)
                                                     <tr>
                                                         <th scope="row">{{ $loop->iteration + $coupons->firstItem() - 1 }}</th>
-                                                        <td><strong>{{ $coupon->code }}</strong></td>
+                                                        <td><strong class="rs-mono">{{ $coupon->code }}</strong></td>
                                                         <td>{{ ucfirst($coupon->type) }}</td>
                                                         <td>
                                                             @if($coupon->type == 'percent')
@@ -84,13 +66,13 @@
                                                         </td>
                                                         <td>{{ $coupon->expires_at ? $coupon->expires_at->format('d M Y') : 'Tidak ada' }}</td>
                                                         <td class="text-center">
-                                                            <a href="{{ route(Auth::user()->getRoleNames()->first() . '.coupons.edit', $coupon->id) }}" class="btn btn-info btn-sm">
+                                                            <a href="{{ route(Auth::user()->getRoleNames()->first() . '.coupons.edit', $coupon->id) }}" class="btn btn-secondary btn-sm">
                                                                 <i class="fa fa-pencil"></i>
                                                             </a>
-                                                            <form action="{{ route(Auth::user()->getRoleNames()->first() . '.coupons.destroy', $coupon->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kupon ini?');">
+                                                            <form action="{{ route(Auth::user()->getRoleNames()->first() . '.coupons.destroy', $coupon->id) }}" method="POST" class="d-inline" data-confirm="Apakah Anda yakin ingin menghapus kupon ini?" data-confirm-danger data-confirm-ok="Ya, hapus">
                                                                 @csrf
                                                                 @method('DELETE')
-                                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                                <button type="submit" class="btn btn-outline-danger btn-sm">
                                                                     <i class="fa fa-trash"></i> 
                                                                 </button>
                                                             </form>

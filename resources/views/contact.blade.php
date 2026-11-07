@@ -48,33 +48,44 @@
 
                     <form action="{{ route('contact.store') }}" method="post" class="rs-form" data-rs-contact data-recaptcha-site-key="{{ config('services.recaptcha.site_key') }}">
                         @csrf
-                        <div class="rs-form__row">
-                            <div class="rs-field">
-                                <label for="contact-name">Nama</label>
-                                <input id="contact-name" type="text" name="name" class="rs-input" required="">
+                        <div data-rs-fields>
+                            <div class="rs-form__row">
+                                <div class="rs-field">
+                                    <label for="contact-name">Nama</label>
+                                    <input id="contact-name" type="text" name="name" class="rs-input" required="">
+                                </div>
+                                <div class="rs-field">
+                                    <label for="contact-email">Alamat email</label>
+                                    <input id="contact-email" type="email" class="rs-input" name="email" required="">
+                                </div>
                             </div>
+
                             <div class="rs-field">
-                                <label for="contact-email">Alamat email</label>
-                                <input id="contact-email" type="email" class="rs-input" name="email" required="">
+                                <label for="contact-subject">Judul pertanyaan</label>
+                                <input id="contact-subject" type="text" class="rs-input" name="subject" required="">
                             </div>
+
+                            <div class="rs-field">
+                                <label for="contact-message">Detail pertanyaan</label>
+                                <textarea id="contact-message" class="rs-input" name="message" rows="6" required="" maxlength="5000"></textarea>
+                            </div>
+
+                            <div>
+                                <div class="rs-form-status rs-form-status--wait" data-rs-status="wait" role="status">Sedang mengirim pesan...</div>
+                                <div class="rs-form-status rs-form-status--error" data-rs-status="error" role="alert"></div>
+                                <div class="rs-form-status rs-form-status--ok" data-rs-status="ok" role="status">Pesan kamu berhasil terkirim. Terima kasih!</div>
+
+                                <button type="submit" class="rs-btn" data-rs-submit>Kirim Pesan</button>
+                            </div>
+                            @if(config('services.recaptcha.site_key'))
+                                <p class="rs-form-legal">Form ini dilindungi reCAPTCHA. Berlaku <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Kebijakan Privasi</a> dan <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Persyaratan Layanan</a> Google.</p>
+                            @endif
                         </div>
-
-                        <div class="rs-field">
-                            <label for="contact-subject">Judul pertanyaan</label>
-                            <input id="contact-subject" type="text" class="rs-input" name="subject" required="">
-                        </div>
-
-                        <div class="rs-field">
-                            <label for="contact-message">Detail pertanyaan</label>
-                            <textarea id="contact-message" class="rs-input" name="message" rows="6" required="" maxlength="5000"></textarea>
-                        </div>
-
-                        <div>
-                            <div class="rs-form-status rs-form-status--wait" data-rs-status="wait" role="status">Sedang mengirim pesan...</div>
-                            <div class="rs-form-status rs-form-status--error" data-rs-status="error" role="alert"></div>
-                            <div class="rs-form-status rs-form-status--ok" data-rs-status="ok" role="status">Pesan kamu berhasil terkirim. Terima kasih!</div>
-
-                            <button type="submit" class="rs-btn">Kirim Pesan</button>
+                        <div class="rs-form-done" data-rs-done tabindex="-1" role="status" hidden>
+                            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                            <h3 class="rs-h3">Pesan terkirim</h3>
+                            <p>Terima kasih<span data-rs-done-name></span>. Kami akan membalas ke <strong data-rs-done-email></strong>.</p>
+                            <button type="button" class="rs-btn rs-btn--outline" data-rs-again>Kirim pesan lain</button>
                         </div>
                     </form>
 

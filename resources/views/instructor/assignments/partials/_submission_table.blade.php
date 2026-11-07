@@ -3,7 +3,7 @@
 @if(($allowBulkRevision ?? false) && $submissions->count() > 0)
 <div class="mb-3 d-flex align-items-center">
     <button type="button" 
-            class="btn btn-warning btn-sm btn-bulk-revise" 
+            class="btn btn-secondary btn-sm btn-bulk-revise" 
             id="btn-bulk-revise-{{ $tabId ?? 'submitted' }}" 
             data-toggle="modal" 
             data-target="#bulkReviseModal-{{ $tabId ?? 'submitted' }}" 
@@ -42,7 +42,7 @@
                         <input type="checkbox" class="submission-checkbox submission-checkbox-{{ $tabId ?? 'submitted' }}" data-tab="{{ $tabId ?? 'submitted' }}" value="{{ $submission->id }}">
                     </td>
                     @endif
-                    <td class="text-center">{{ $submission->user->studentProfile->unique_id_number ? $submission->user->studentProfile->unique_id_number : '-' }}</td>
+                    <td class="text-center">{{ $submission->user->studentProfile?->unique_id_number ? $submission->user->studentProfile?->unique_id_number : '-' }}</td>
                     <td><a href="{{ route('profile.show', $submission->user->id) }}">{{ $submission->user->name }}</a></td>
                     <td>
                         {{ $submission->submitted_at->format('d F Y, H:i') }}
@@ -67,11 +67,11 @@
                         </button>
 
                         @if(!($showGrade ?? true))
-                        <form action="{{ route('instructor.submission.grade', $submission) }}" method="POST" class="d-inline" onsubmit="return confirm('Anda yakin ingin langsung meminta siswa ini untuk revisi? (Tugas akan diberi nilai 0)');">
+                        <form action="{{ route('instructor.submission.grade', $submission) }}" method="POST" class="d-inline" data-confirm="Anda yakin ingin langsung meminta siswa ini untuk revisi? (Tugas akan diberi nilai 0)" data-confirm-ok="Ya, minta revisi">
                             @csrf
                             <input type="hidden" name="grade" value="0">
                             <input type="hidden" name="feedback" value="Tugas belum sesuai kriteria. Silakan perbaiki dan kumpulkan kembali.">
-                            <button type="submit" class="btn btn-warning btn-sm">
+                            <button type="submit" class="btn btn-secondary btn-sm">
                                 <i class="fa fa-undo"></i> Revisi Cepat
                             </button>
                         </form>
