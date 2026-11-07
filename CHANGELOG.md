@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1] - 2026-11-07
+
+### Fixed
+
+- **Keranjang Kosong**: Gambar, judul, keterangan, dan tombol "Jelajahi Kursus" kini sejajar di tengah (sebelumnya gambar di tengah tetapi teks rata kiri), dan jarak besar antara judul halaman dan kotak keranjang dihilangkan.
+- **Catatan Rilis 2.0.0**: Empat entri perubahan tampilan yang salah tercatat di bagian "Removed" dipindah ke "Changed".
+
 ## [2.0.0] - 2026-11-07
 
 ### Added
@@ -20,6 +27,10 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **Tata Letak Halaman Dasbor (tahap 1)**: Kepala halaman seragam (jejak halaman, judul, tombol utama) tanpa garis tebal, header kartu dan formulir yang lebih rapi (label di atas isian), hierarki warna tombol yang konsisten, istilah berbahasa Indonesia, dan editor teks untuk deskripsi kursus (tidak lagi menampilkan kode HTML).
+- **Halaman Belajar Siswa Lebih Rapi**: Judul pelajaran tampil sekali dengan label jenisnya, daftar isi bersih dengan progres per modul dan menempel di layar lebar, pada HP daftar isi dilipat di bawah judul sehingga pelajaran langsung terlihat, tombol Sebelumnya/Tandai Selesai/Selanjutnya satu baris, dan diskusi dalam kartu sendiri.
+- **Tampilan Pembuatan Pelajaran dan Kursus**: Formulir pelajaran (9 jenis) dan kursus dibagi per bagian dengan label di atas isian, daftar modul dan pelajaran berbentuk baris kartu dengan label jenis berbahasa Indonesia, kotak angka laporan kuis berbentuk kartu, dan tombol Pratinjau/Hasil berwarna lembut.
+- **Dasbor Admin, Profil, dan Pesan Galat Bahasa Indonesia**: Kartu angka dasbor admin dan superadmin, baris pencarian yang sejajar, tombol profil satu baris, form edit profil per bagian, judul kursus yang rapi di halaman publik, kotak galat di semua form pelajaran dan modul, pesan validasi berbahasa Indonesia (atur `APP_LOCALE=id` di `.env`, lalu `php artisan config:cache`), dan pesan sukses modul, soal, kursus, dan profil berbahasa Indonesia.
 - **Gambar Halaman Tentang Kami dan Detail Layanan**: Tujuh gambar bergaya perpustakaan cokelat diganti ilustrasi situs yang sama dengan halaman lain, di panel biru muda, sehingga warnanya sejalan dengan palet biru. File foto lama dihapus.
 - **Tata Letak Form**: Form di dasbor kini berada di kolom tengah dan isiannya selebar kartu, sehingga tidak ada ruang kosong besar di layar lebar. Dua isian pendek ditampilkan berdampingan; checkbox rata dengan isian. Form bank soal kini memakai tata letak yang sama (label di atas isian). Di laptop (lebar 768-1439 px, mis. 1280x720) huruf, tombol, dan sidebar dasbor satu tingkat lebih kecil.
 - **Pesan Berhasil Jadi Pop-up**: Pesan berhasil (simpan, hapus, kirim, dan lainnya) kini muncul sebagai pop-up di pojok kanan atas di semua halaman, termasuk halaman yang sebelumnya diam saja. Pesan gagal tetap tampil di halaman.
@@ -68,10 +79,6 @@ All notable changes to this project will be documented in this file.
 ### Removed
 
 - **Midtrans**: Integrasi, konfigurasi, endpoint notifikasi (`/midtrans/notification`), dan paket `midtrans/midtrans-php` dihapus. Pesanan Midtrans lama yang masih menunggu pembayaran otomatis dibatalkan lewat migrasi data dan perlu dipesan ulang.
-- **Tata Letak Halaman Dasbor (tahap 1)**: Kepala halaman seragam (jejak halaman, judul, tombol utama) tanpa garis tebal, header kartu dan formulir yang lebih rapi (label di atas isian), hierarki warna tombol yang konsisten, istilah berbahasa Indonesia, dan editor teks untuk deskripsi kursus (tidak lagi menampilkan kode HTML).
-- **Halaman Belajar Siswa Lebih Rapi**: Judul pelajaran tampil sekali dengan label jenisnya, daftar isi bersih dengan progres per modul dan menempel di layar lebar, pada HP daftar isi dilipat di bawah judul sehingga pelajaran langsung terlihat, tombol Sebelumnya/Tandai Selesai/Selanjutnya satu baris, dan diskusi dalam kartu sendiri.
-- **Tampilan Pembuatan Pelajaran dan Kursus**: Formulir pelajaran (9 jenis) dan kursus dibagi per bagian dengan label di atas isian, daftar modul dan pelajaran berbentuk baris kartu dengan label jenis berbahasa Indonesia, kotak angka laporan kuis berbentuk kartu, dan tombol Pratinjau/Hasil berwarna lembut.
-- **Dasbor Admin, Profil, dan Pesan Galat Bahasa Indonesia**: Kartu angka dasbor admin dan superadmin, baris pencarian yang sejajar, tombol profil satu baris, form edit profil per bagian, judul kursus yang rapi di halaman publik, kotak galat di semua form pelajaran dan modul, pesan validasi berbahasa Indonesia (atur `APP_LOCALE=id` di `.env`, lalu `php artisan config:cache`), dan pesan sukses modul, soal, kursus, dan profil berbahasa Indonesia.
 
 ## [1.6.4] - 2026-11-05
 
