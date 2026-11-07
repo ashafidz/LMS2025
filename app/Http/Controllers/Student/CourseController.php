@@ -39,6 +39,8 @@ class CourseController extends Controller
         // Pratinjau hanya untuk pemilik kursus atau admin, bukan semua instruktur
         if ($request->query('preview') === 'true' && LessonAccess::isManager($user, $course)) {
             $is_preview = true;
+            // Pratinjau tampil seperti siswa baru: progres dan poin pengelola tidak ditampilkan
+            $currentPointEarned = 0;
         }
 
         if (! $is_preview && $course->status !== 'published') {
@@ -54,7 +56,7 @@ class CourseController extends Controller
 
         $completedLessonIds = [];
         $currentCoursePoints = 0;
-        if ($user) {
+        if ($user && ! $is_preview) {
             // $completedLessonIds = $user->completedLessons()
             //     ->whereIn('lesson_id', $course->lessons->pluck('id'))
             //     ->pluck('lesson_id')
@@ -106,9 +108,11 @@ class CourseController extends Controller
 
         if ($is_preview || $is_enrolled) {
             return view('student.courses.show', compact('course', 'is_preview', 'completedLessonIds', 'isEligibleForCertificate', 'currentCoursePoints', 'allLessonsCompleted', 'currentPointEarned'));
-        } else {
-            return view('details-course', compact('course', 'is_enrolled'));
         }
+
+        // Not enrolled: show the public course page, which prepares everything details-course needs
+        // (reviews, rating, related courses). Rendering details-course here without them was an HTTP 500.
+        return redirect()->route('courses.show', $course);
     }
 
     /**
@@ -266,7 +270,8 @@ class CourseController extends Controller
         }
 
         // Dikunci per siswa agar klik ganda tidak memberi poin dua kali
-        StudentWriteLock::run($user, function () use ($user, $lesson, $lessonType) {
+        $earned = 0;
+        StudentWriteLock::run($user, function () use ($user, $lesson, $lessonType, &$earned) {
             // Cek apakah pelajaran ini sudah pernah diselesaikan untuk mencegah poin ganda
             if ($user->completedLessons()->where('lesson_id', $lesson->id)->exists()) {
                 return;
@@ -289,7 +294,7 @@ class CourseController extends Controller
             }
 
             if ($activity) {
-                PointService::addPoints(
+                $earned = PointService::addPoints(
                     user: $user,
                     course: $course,
                     activity: $activity,
@@ -302,7 +307,7 @@ class CourseController extends Controller
             }
         });
 
-        return response()->json(['success' => true, 'message' => 'Pelajaran ditandai selesai.']);
+        return response()->json(['success' => true, 'message' => 'Pelajaran ditandai selesai.', 'points' => $earned]);
     }
 
     /**
@@ -392,7 +397,10 @@ class CourseController extends Controller
 
             return response()->json(['success' => true, 'html' => $html]);
         } catch (\Exception $e) {
-            // ... (Logika error Anda sudah bagus, tidak perlu diubah)
+            // Without a response here the page got an empty body and showed "Terjadi kesalahan jaringan."
+            Log::error('Leaderboard failed for course '.$course->id.': '.$e->getMessage());
+
+            return response()->json(['success' => false, 'message' => 'Papan peringkat belum bisa dimuat. Coba lagi nanti.'], 500);
         }
     }
 
@@ -450,6 +458,9 @@ class CourseController extends Controller
     public function submitPolling(Request $request, Lesson $lesson)
     {
         $user = Auth::user();
+        if ($request->boolean('preview') && LessonAccess::isManager($user, $lesson->module->course)) {
+            return response()->json(['success' => false, 'message' => 'Ini pratinjau. Jawaban tidak disimpan.'], 422);
+        }
         if (! LessonAccess::isEnrolled($user, $lesson->module->course)) {
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
         }
@@ -496,7 +507,8 @@ class CourseController extends Controller
         }
 
         // Dikunci per siswa: klik ganda tidak menyimpan jawaban atau poin dua kali
-        $saved = StudentWriteLock::run($user, function () use ($polling, $user, $optionIds, $lesson) {
+        $earned = 0;
+        $saved = StudentWriteLock::run($user, function () use ($polling, $user, $optionIds, $lesson, &$earned) {
             if ($polling->responses()->where('user_id', $user->id)->exists()) {
                 return false;
             }
@@ -512,7 +524,7 @@ class CourseController extends Controller
             $user->completedLessons()->syncWithoutDetaching($lesson->id);
 
             if (! $alreadyCompleted) {
-                \App\Services\PointService::addPoints(
+                $earned = \App\Services\PointService::addPoints(
                     user: $user,
                     course: $lesson->module->course,
                     activity: 'complete_polling',
@@ -528,7 +540,7 @@ class CourseController extends Controller
             return response()->json(['success' => false, 'message' => 'Anda sudah mengisi polling ini.']);
         }
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'points' => $earned]);
     }
 
     public function ajaxPollingResults(Lesson $lesson)
@@ -556,6 +568,9 @@ class CourseController extends Controller
     public function submitWordcloud(Request $request, Lesson $lesson)
     {
         $user = Auth::user();
+        if ($request->boolean('preview') && LessonAccess::isManager($user, $lesson->module->course)) {
+            return response()->json(['success' => false, 'message' => 'Ini pratinjau. Jawaban tidak disimpan.'], 422);
+        }
         if (! LessonAccess::isEnrolled($user, $lesson->module->course)) {
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
         }
@@ -605,7 +620,8 @@ class CourseController extends Controller
         $word = mb_strtolower(trim($request->word));
 
         // Dikunci per siswa: klik ganda tidak menyimpan jawaban atau poin dua kali
-        $saved = StudentWriteLock::run($user, function () use ($wordcloud, $user, $word, $lesson) {
+        $earned = 0;
+        $saved = StudentWriteLock::run($user, function () use ($wordcloud, $user, $word, $lesson, &$earned) {
             if ($wordcloud->responses()->where('user_id', $user->id)->exists()) {
                 return false;
             }
@@ -619,7 +635,7 @@ class CourseController extends Controller
             $user->completedLessons()->syncWithoutDetaching($lesson->id);
 
             if (! $alreadyCompleted) {
-                \App\Services\PointService::addPoints(
+                $earned = \App\Services\PointService::addPoints(
                     user: $user,
                     course: $lesson->module->course,
                     activity: 'complete_wordcloud', // Will fallback to default points if not defined, or we can use 5 points by adding it to gamification settings. Let's add it if needed, or use complete_polling logic.
@@ -635,7 +651,7 @@ class CourseController extends Controller
             return response()->json(['success' => false, 'message' => 'Anda sudah berpartisipasi dalam Word Cloud ini.']);
         }
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'points' => $earned]);
     }
 
     public function ajaxWordcloudResults(Lesson $lesson)

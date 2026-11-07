@@ -84,7 +84,7 @@
 }
 </style>
 
-<form action="{{ route('student.assignment.submit', $assignment) }}" method="POST" enctype="multipart/form-data" class="assignment-submit-form" onsubmit="var f=this.querySelector('input[type=\'file\']'); if(f && f.files.length>0 && f.files[0].size>20*1024*1024){ alert('Ukuran file melebihi 20MB!'); return false; } if(!f || f.files.length===0){ alert('Harap pilih file terlebih dahulu.'); return false; } return true;">
+<form action="{{ route('student.assignment.submit', $assignment) }}" method="POST" enctype="multipart/form-data" class="assignment-submit-form">
     @csrf
     <div class="form-group mb-4">
         <label class="font-weight-bold text-dark mb-3" style="font-size: 1.1rem;">Unggah File Tugas (PDF atau ZIP)</label>

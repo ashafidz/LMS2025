@@ -2,27 +2,10 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Beri Poin Manual</h5>
-                        <p class="m-b-0">Kursus: <strong>{{ $course->title }}</strong></p>
-                        <p class="m-b-0">Modul: <strong>{{ $module->title }}</strong></p>
-                        <p class="m-b-0">Pelajaran: <strong>{{ $lesson->title }}</strong></p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}">Daftar Pelajaran</a></li>
-                        <li class="breadcrumb-item"><a href="#!">Beri Poin</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Daftar Pelajaran', route('instructor.modules.lessons.index', $lesson->module)], ['Beri Poin', null]]">
+        <x-slot:title>Beri Poin Manual</x-slot:title>
+        <x-slot:subtitle>Kursus: <strong>{{ $course->title }}</strong><br>Modul: <strong>{{ $module->title }}</strong><br>Pelajaran: <strong>{{ $lesson->title }}</strong></x-slot:subtitle>
+    </x-dash.page-head>
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
@@ -40,9 +23,6 @@
                                     </span>
                                 </div>
                                 <div class="card-block table-border-style">
-                                    @if (session('success'))
-                                        <div class="alert alert-success">{{ session('success') }}</div>
-                                    @endif
                                     @if ($errors->any())
                                         <div class="alert alert-danger">
                                             <ul>
@@ -66,7 +46,7 @@
                                             <tbody>
                                                 @forelse ($students as $student)
                                                     <tr>
-                                                        <td class="text-center" >{{ $student->studentProfile->unique_id_number ? $student->studentProfile->unique_id_number : '-' }}</td>
+                                                        <td class="text-center" >{{ $student->studentProfile?->unique_id_number ? $student->studentProfile?->unique_id_number : '-' }}</td>
                                                         <td><a href="{{ route('profile.show', $student->id) }}">{{ $student->name }}</a></td>
                                                         <td>
                                                             {{-- Ambil total poin dari relasi pivot --}}

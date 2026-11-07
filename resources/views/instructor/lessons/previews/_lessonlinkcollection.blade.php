@@ -1,6 +1,6 @@
 {{-- File ini hanya berisi konten pratinjau untuk pelajaran kumpulan link --}}
 
-<h4 class="font-weight-bold">{{ $lesson->title }}</h4>
+<h4 class="font-weight-bold rs-lesson-heading">{{ $lesson->title }}</h4>
 <p>Berikut adalah daftar tautan referensi untuk pelajaran ini. Klik untuk membuka di tab baru.</p>
 <hr>
 

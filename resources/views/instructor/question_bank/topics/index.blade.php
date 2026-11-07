@@ -3,24 +3,10 @@
 @section('content')
 <div class="pcoded-content">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Bank Soal</h5>
-                        <p class="m-b-0">Kelola semua topik untuk bank soal Anda.</p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Bank Soal</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Bank Soal', null]]">
+        <x-slot:title>Bank Soal</x-slot:title>
+        <x-slot:subtitle>Kelola semua topik untuk bank soal Anda.</x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">
@@ -38,9 +24,6 @@
                                     </div>
                                 </div>
                                 <div class="card-block">
-                                    @if (session('success'))
-                                        <div class="alert alert-success">{{ session('success') }}</div>
-                                    @endif
 
                                     {{-- FORM FILTER BARU --}}
                                     <form action="{{ route('instructor.question-bank.topics.index') }}" method="GET" class="mb-4">
@@ -86,17 +69,17 @@
                                                             @endif
                                                         </td>
                                                         <td class="text-center">
-                                                            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#topicInfoModal{{ $topic->id }}" title="Informasi Topik">
+                                                            <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#topicInfoModal{{ $topic->id }}" title="Informasi Topik">
                                                                 <i class="fa fa-info-circle"></i>
                                                             </button>
-                                                            <a href="{{ route('instructor.question-bank.questions.index', $topic) }}" class="btn btn-dark  btn-sm"><i class="bi bi-eye me-1"></i></a>
-                                                            {{-- <a href="{{ route('instructor.question-bank.topics.edit', $topic) }}" class="btn btn-info btn-sm {{ $topic->is_locked ? 'disabled' : '' }}" {{ $topic->is_locked ? 'onclick="return false;"' : '' }}><i class="fa fa-pencil"></i>Edit</a> --}}
-                                                            <a href="{{ route('instructor.question-bank.topics.edit', $topic) }}" class="btn btn-info btn-sm"><i class="fa fa-pencil"></i></a>
-                                                            <form action="{{ route('instructor.question-bank.topics.destroy', $topic) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus topik ini?');">
+                                                            <a href="{{ route('instructor.question-bank.questions.index', $topic) }}" class="btn btn-secondary  btn-sm"><i class="bi bi-eye me-1"></i></a>
+                                                            {{-- <a href="{{ route('instructor.question-bank.topics.edit', $topic) }}" class="btn btn-secondary btn-sm {{ $topic->is_locked ? 'disabled' : '' }}" {{ $topic->is_locked ? 'onclick="return false;"' : '' }}><i class="fa fa-pencil"></i>Edit</a> --}}
+                                                            <a href="{{ route('instructor.question-bank.topics.edit', $topic) }}" class="btn btn-secondary btn-sm"><i class="fa fa-pencil"></i></a>
+                                                            <form action="{{ route('instructor.question-bank.topics.destroy', $topic) }}" method="POST" class="d-inline" data-confirm="Apakah Anda yakin ingin menghapus topik ini?" data-confirm-danger data-confirm-ok="Ya, hapus">
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <button type="submit" 
-                                                                        class="btn btn-danger btn-sm {{ $topic->is_locked ? 'disabled' : '' }}" 
+                                                                        class="btn btn-outline-danger btn-sm {{ $topic->is_locked ? 'disabled' : '' }}" 
                                                                         {{ $topic->is_locked ? 'disabled' : '' }}>
                                                                     <i class="fa fa-trash"></i>
                                                                 </button>
@@ -167,12 +150,7 @@
                             <div class="row">
                                 @php
                                     $questionTypes = $topic->questions->groupBy('question_type');
-                                    $typeLabels = [
-                                        'multiple_choice_single' => 'Pilihan Ganda (Tunggal)',
-                                        'multiple_choice_multiple' => 'Pilihan Ganda (Multiple)',
-                                        'true_false' => 'Benar/Salah',
-                                        'drag_and_drop' => 'Drag & Drop'
-                                    ];
+                                    $typeLabels = \App\Models\Question::TYPE_LABELS;
                                 @endphp
                                 @foreach($typeLabels as $type => $label)
                                     <div class="col-md-6 mb-2">

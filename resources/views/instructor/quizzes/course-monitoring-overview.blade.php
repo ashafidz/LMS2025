@@ -2,23 +2,16 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Course Quiz Violation Overview - {{ $course->title }}</h5>
-                        <p class="m-b-0">Rekap pelanggaran untuk semua kuis dalam course ini</p>
-                    </div>
-                </div>
-                <div class="col-md-4 text-right">
-                    <a href="{{ route('instructor.courses.index') }}" class="btn btn-secondary">
-                        <i class="fa fa-arrow-left"></i> Kembali ke Manajemen Course
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head>
+        <x-slot:context>Kursus: {{ $course->title }}</x-slot:context>
+        <x-slot:title>Ringkasan Pelanggaran Kuis</x-slot:title>
+        <x-slot:subtitle>Rekap pelanggaran untuk semua kuis dalam course ini</x-slot:subtitle>
+        <x-slot:actions>
+            <a href="{{ route('instructor.courses.index') }}" class="btn btn-secondary">
+             <i class="fa fa-arrow-left"></i> Kembali ke Manajemen Course
+             </a>
+        </x-slot:actions>
+    </x-dash.page-head>
 
     <div class="pcoded-inner-content">
         <div class="main-body">
@@ -27,51 +20,16 @@
 
                     {{-- Statistics Cards --}}
                     <div class="row">
-                        <div class="col-md-2">
-                            <div class="card">
-                                <div class="card-block text-center">
-                                    <h3 class="text-primary">{{ $stats['total_quizzes'] }}</h3>
-                                    <p class="m-b-0">Total Kuis</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="card">
-                                <div class="card-block text-center">
-                                    <h3 class="text-info">{{ $stats['total_students'] }}</h3>
-                                    <p class="m-b-0">Student</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="card">
-                                <div class="card-block text-center">
-                                    <h3 class="text-dark">{{ $stats['total_attempts'] }}</h3>
-                                    <p class="m-b-0">Total Attempts</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="card">
-                                <div class="card-block text-center">
-                                    <h3 class="text-warning">{{ $stats['total_tab_violations'] }}</h3>
-                                    <p class="m-b-0">Tab Switches</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="card">
-                                <div class="card-block text-center">
-                                    <h3 class="text-danger">{{ $stats['total_camera_violations'] }}</h3>
-                                    <p class="m-b-0">Camera Violations</p>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="col-md-2 col-6 mb-3"><div class="rs-stat h-100"><span class="rs-tile" aria-hidden="true"><i class="fa fa-bar-chart"></i></span><div><strong>{{ $stats['total_quizzes'] }}</strong><span>Total Kuis</span></div></div></div>
+                        <div class="col-md-2 col-6 mb-3"><div class="rs-stat h-100"><span class="rs-tile" aria-hidden="true"><i class="fa fa-camera"></i></span><div><strong>{{ $stats['total_students'] }}</strong><span>Student</span></div></div></div>
+                        <div class="col-md-2 col-6 mb-3"><div class="rs-stat h-100"><span class="rs-tile" aria-hidden="true"><i class="fa fa-bar-chart"></i></span><div><strong>{{ $stats['total_attempts'] }}</strong><span>Total Percobaan</span></div></div></div>
+                        <div class="col-md-2 col-6 mb-3"><div class="rs-stat h-100"><span class="rs-tile" aria-hidden="true"><i class="fa fa-exclamation-triangle"></i></span><div><strong>{{ $stats['total_tab_violations'] }}</strong><span>Tab Switches</span></div></div></div>
+                        <div class="col-md-2 col-6 mb-3"><div class="rs-stat h-100"><span class="rs-tile" aria-hidden="true"><i class="fa fa-ban"></i></span><div><strong>{{ $stats['total_camera_violations'] }}</strong><span>Pelanggaran Kamera</span></div></div></div>
                         <div class="col-md-2">
                             <div class="card bg-dark">
                                 <div class="card-block text-center text-white">
                                     <h3>{{ $stats['total_violations'] }}</h3>
-                                    <p class="m-b-0">Total Violations</p>
+                                    <p class="m-b-0">Total Pelanggaran</p>
                                 </div>
                             </div>
                         </div>
@@ -91,7 +49,7 @@
                                             <th width="25%">Nama Kuis</th>
                                             <th width="15%">Modul</th>
                                             <th class="text-center" width="10%">Students</th>
-                                            <th class="text-center" width="10%">Attempts</th>
+                                            <th class="text-center" width="10%">Percobaan</th>
                                             <th class="text-center" width="10%">Tab</th>
                                             <th class="text-center" width="10%">Camera</th>
                                             <th class="text-center" width="10%">Total</th>
@@ -145,7 +103,7 @@
                                             </td>
                                             <td class="text-center">
                                                 <a href="{{ route('instructor.quiz.monitoring.review', $data['quiz']->id) }}" 
-                                                   class="btn btn-sm btn-info"
+                                                   class="btn btn-sm btn-secondary"
                                                    title="Detail Monitoring">
                                                     <i class="fa fa-eye"></i>
                                                 </a>

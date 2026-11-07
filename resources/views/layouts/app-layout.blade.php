@@ -95,16 +95,29 @@
                 <nav class="rs-dash-group" aria-labelledby="nav-profil">
                     <h2 id="nav-profil">Profil</h2>
                     <ul class="rs-dash-toc">
-                        <x-dash.link :href="route('user.profile.index')" :active="['user.profile.*']">Profil saya</x-dash.link>
-                        <x-dash.link :href="route('home')">Ke halaman depan</x-dash.link>
+                        <x-dash.link icon="user" :href="route('user.profile.index')" :active="['user.profile.*']">Profil saya</x-dash.link>
+                        <x-dash.link icon="globe" :href="route('home')">Ke halaman depan</x-dash.link>
                         <li>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit">Keluar</button>
+                                <button type="submit"><span class="rs-dash-ic" aria-hidden="true"><i class="fa fa-sign-out"></i></span>Keluar</button>
                             </form>
                         </li>
                     </ul>
                 </nav>
+                @if ($navRole === 'student')
+                    <div class="rs-dash-side-card">
+                        <h2>Cari kursus baru?</h2>
+                        <p>Lihat kursus yang sedang banyak dipelajari.</p>
+                        <a class="rs-dash-btn" href="{{ route('courses') }}">Lihat katalog</a>
+                    </div>
+                @elseif ($navRole === 'instructor')
+                    <div class="rs-dash-side-card">
+                        <h2>Tips mengajar</h2>
+                        <p>Kursus dengan kuis di tiap modul lebih sering diselesaikan siswa.</p>
+                        <a class="rs-dash-btn" href="{{ route('instructor.question-bank.topics.index') }}">Buka bank soal</a>
+                    </div>
+                @endif
             </aside>
 
             <div class="rs-dash-main">
@@ -114,7 +127,7 @@
                     </button>
                     <span class="rs-dash-top__sp"></span>
                     @if ($navRole === 'student')
-                        <a class="rs-dash-top__link" href="{{ route('student.cart.index') }}"><i class="bi bi-cart3" aria-hidden="true"></i>Keranjang</a>
+                        <a class="rs-dash-top__link" href="{{ route('student.cart.index') }}"><i class="bi bi-cart3" aria-hidden="true"></i><span class="rs-dash-top__label">Keranjang</span></a>
                     @endif
                     <details class="rs-dash-user">
                         <summary>
@@ -150,6 +163,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
     <script src="{{ asset('js/jquery/jquery.min.js') }}"></script>
+    <script>window.rsDialogImages = {{ \Illuminate\Support\Js::from(['ok' => asset('images/illustrations/rs-16-bayar-berhasil.webp'), 'fail' => asset('images/illustrations/rs-18-bayar-gagal.webp')]) }};</script>
+    <script src="{{ asset('js/rs-dialog.js') }}"></script>
+    <script src="{{ asset('js/rs-forms.js') }}"></script>
+    <script src="{{ asset('js/rs-motion.js') }}"></script>
     <script src="{{ asset('js/jquery-ui/jquery-ui.min.js') }}"></script>
     <script src="{{ asset('vendor/select2/select2.min.js') }}"></script>
     <script src="{{ asset('vendor/select2/id.js') }}"></script>
@@ -250,44 +267,16 @@
         });
     </script>
 
-    @if (!empty($newBadges) && $newBadges->isNotEmpty())
-        <script>
-            // Notifikasi badge baru (judul dan deskripsi disisipkan sebagai teks, bukan HTML)
-            document.addEventListener('DOMContentLoaded', function () {
-                var badges = {{ \Illuminate\Support\Js::from($newBadges) }};
-                var box = document.createElement('div');
-                badges.forEach(function (badge) {
-                    var item = document.createElement('div');
-                    item.style.margin = '12px 0';
-                    var image = document.createElement('img');
-                    image.src = badge.icon;
-                    image.alt = '';
-                    image.style.cssText = 'width:72px;height:72px;object-fit:cover;border-radius:50%;';
-                    var title = document.createElement('div');
-                    title.style.fontWeight = '600';
-                    title.textContent = badge.title;
-                    var description = document.createElement('div');
-                    description.className = 'text-muted small';
-                    description.textContent = badge.description;
-                    item.appendChild(image);
-                    item.appendChild(title);
-                    item.appendChild(description);
-                    box.appendChild(item);
-                });
-                Swal.fire({
-                    title: 'Selamat! Kamu mendapat badge baru',
-                    html: box,
-                    confirmButtonText: 'Lihat Badge Saya'
-                }).then(function (result) {
-                    if (result.isConfirmed) { window.location.href = {{ \Illuminate\Support\Js::from(route('student.badges.index')) }}; }
-                });
-            });
-        </script>
-    @endif
 
     <script src="{{ asset('js/ruang-studi-dashboard.js') }}"></script>
     @stack('scripts')
     <script src="{{ asset('js/script.js') }}"></script>
+    {{-- Urutan penting: badge-celebrate mengisi window.rsModalGate sebelum antrean toast mulai --}}
+    @if (!empty($newBadges) && $newBadges->isNotEmpty())
+        <x-rs.badge-celebrate :badges="$newBadges" />
+    @endif
+    <x-rs.flash-toast />
+    <x-rs.points-flash />
 </body>
 
 </html>

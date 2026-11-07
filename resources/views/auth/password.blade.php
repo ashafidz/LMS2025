@@ -1,6 +1,8 @@
 @extends('layouts.plain-layout')
 
 @section('title', 'Ganti kata sandi')
+@section('art-title', 'Akun Ruang Studi')
+@section('art-text', 'Jaga kata sandi kamu tetap aman.')
 
 @section('content')
 <div class="rs-auth">

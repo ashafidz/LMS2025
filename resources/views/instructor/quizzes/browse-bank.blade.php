@@ -3,26 +3,10 @@
 @section('content')
     <div class="pcoded-content">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Ambil dari Bank Soal</h5>
-                            <p class="m-b-0">Pilih soal untuk ditambahkan ke kuis: <strong>{{ $quiz->title }}</strong></p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $quiz->lesson->module) }}">Daftar Pelajaran</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.quizzes.manage_questions', $quiz) }}">Kelola Soal</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Pilih dari Bank Soal</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Daftar Pelajaran', route('instructor.modules.lessons.index', $quiz->lesson->module)], ['Kelola Soal', route('instructor.quizzes.manage_questions', $quiz)], ['Pilih dari Bank Soal', null]]">
+            <x-slot:title>Ambil dari Bank Soal</x-slot:title>
+            <x-slot:subtitle>Pilih soal untuk ditambahkan ke kuis: <strong>{{ $quiz->title }}</strong></x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
 
         <div class="pcoded-inner-content">
@@ -85,8 +69,8 @@
                                                                             </label>
                                                                         </div>
                                                                     </td>
-                                                                    <td>{{ ucfirst(str_replace('_', ' ', $question->question_type)) }}</td>
-                                                                    <td>{{ Str::limit(strip_tags($question->question_text), 100) }}</td>
+                                                                    <td>{{ $question->type_label }}</td>
+                                                                    <td>{{ $question->plainSummary(100) }}</td>
                                                                 </tr>
                                                             @empty
                                                                 <tr>

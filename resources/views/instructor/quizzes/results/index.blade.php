@@ -3,27 +3,10 @@
 @section('content')
 <div class="pcoded-content">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Hasil Kuis</h5>
-                        <p class="m-b-0">Judul Kuis: <strong>{{ $quiz->title }}</strong></p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.courses.index') }}">Kursus Saya</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $quiz->lesson->module->course) }}">Modul Saya</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $quiz->lesson->module) }}">Daftar Pelajaran</a></li>
-                        <li class="breadcrumb-item"><a href="#!">Hasil Kuis</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Kursus Saya', route('instructor.courses.index')], [\Illuminate\Support\Str::limit($quiz->lesson->module->course->title, 30), route('instructor.courses.modules.index', $quiz->lesson->module->course)], ['Daftar Pelajaran', route('instructor.modules.lessons.index', $quiz->lesson->module)], ['Hasil Kuis', null]]">
+        <x-slot:title>Hasil Kuis</x-slot:title>
+        <x-slot:subtitle>Judul Kuis: <strong>{{ $quiz->title }}</strong></x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">
@@ -51,7 +34,7 @@
                                             <tbody>
                                                 @forelse ($enrolledStudents as $student)
                                                     <tr>
-                                                        <td class="text-center">{{ $student->studentProfile->unique_id_number ? $student->studentProfile->unique_id_number : '-' }}</td>
+                                                        <td class="text-center">{{ $student->studentProfile?->unique_id_number ? $student->studentProfile?->unique_id_number : '-' }}</td>
                                                         <td><a href="{{ route('profile.show', $student->id) }}">{{ $student->name }}</a></td>
                                                         <td>
                                                             @php
@@ -143,8 +126,8 @@
                                             @endif
                                         </td>
                                         <td class="text-center">
-                                            <a href="{{ route('instructor.quiz.review_attempt', $attempt) }}" class="btn btn-inverse btn-sm">Periksa Jawaban</a>
-                                            <a href="{{ route('instructor.quiz.monitoring.detail', $attempt) }}" class="btn btn-info btn-sm" title="Lihat Detail Monitoring">
+                                            <a href="{{ route('instructor.quiz.review_attempt', $attempt) }}" class="btn btn-secondary btn-sm">Periksa Jawaban</a>
+                                            <a href="{{ route('instructor.quiz.monitoring.detail', $attempt) }}" class="btn btn-secondary btn-sm" title="Lihat Detail Monitoring">
                                                 <i class="fa fa-eye"></i> Detail Pelanggaran
                                             </a>
                                         </td>

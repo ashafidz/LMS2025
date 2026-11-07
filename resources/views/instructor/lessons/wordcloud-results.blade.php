@@ -1,31 +1,15 @@
 @extends('layouts.app-layout')
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Hasil Word Cloud</h5>
-                        <p class="m-b-0">{{ $wordcloud->question }}</p>
-                    </div>
-                </div>
-                <div class="col-md-4 text-right">
-                    <a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}" class="btn btn-secondary btn-sm">
-                        <i class="fa fa-arrow-left"></i> Kembali ke Modul
-                    </a>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $lesson->module->course) }}">Modul Saya</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}">Pelajaran</a></li>
-                        <li class="breadcrumb-item">Hasil Word Cloud</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], [\Illuminate\Support\Str::limit($lesson->module->course->title, 30), route('instructor.courses.modules.index', $lesson->module->course)], ['Pelajaran', route('instructor.modules.lessons.index', $lesson->module)], ['Hasil Word Cloud', null]]">
+        <x-slot:title>Hasil Word Cloud</x-slot:title>
+        <x-slot:subtitle>{{ $wordcloud->question }}</x-slot:subtitle>
+        <x-slot:actions>
+            <a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}" class="btn btn-secondary btn-sm">
+             <i class="fa fa-arrow-left"></i> Kembali ke Modul
+             </a>
+        </x-slot:actions>
+    </x-dash.page-head>
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
@@ -126,7 +110,7 @@
                                 @foreach($responsesGrouped[$word] as $idx => $response)
                                 <tr>
                                     <td class="text-center">{{ $idx + 1 }}</td>
-                                    <td>{{ $response->user->studentProfile->unique_id_number ?? '-' }}</td>
+                                    <td>{{ $response->user->studentProfile?->unique_id_number ?? '-' }}</td>
                                     <td>
                                         {{ $response->user->name ?? 'Anonim' }}
                                         <div class="text-muted small">{{ $response->user->email ?? '' }}</div>

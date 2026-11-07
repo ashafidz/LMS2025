@@ -32,7 +32,7 @@
         <tbody>
             @foreach ($students as $student)
             <tr>
-                <td class="text-left">{{ $student->studentProfile->unique_id_number ?? '-' }}</td>
+                <td class="text-left">{{ $student->studentProfile?->unique_id_number ?? '-' }}</td>
                 <td class="text-left">{{ $student->name }}</td>
                 <td>{{ $scores[$student->id]['total_course_points'] }}</td>
                 <td>{{ $scores[$student->id]['total_module_points'] }}</td>

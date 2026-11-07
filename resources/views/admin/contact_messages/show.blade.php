@@ -2,31 +2,10 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Detail Pesan Kontak</h5>
-                        <p class="m-b-0">Membaca pesan dari {{ $contactMessage->name }}</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="#"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item">
-                            @if(Auth::user()->role === 'superadmin')
-                                <a href="{{ route('superadmin.contact-messages.index') }}">Pesan Kontak</a>
-                            @else
-                                <a href="{{ route('admin.contact-messages.index') }}">Pesan Kontak</a>
-                            @endif
-                        </li>
-                        <li class="breadcrumb-item"><a href="#!">Detail</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', null], ['Pesan Kontak', Auth::user()->role === 'superadmin' ? route('superadmin.contact-messages.index') : route('admin.contact-messages.index')], ['Detail', null]]">
+        <x-slot:title>Detail Pesan Kontak</x-slot:title>
+        <x-slot:subtitle>Membaca pesan dari {{ $contactMessage->name }}</x-slot:subtitle>
+    </x-dash.page-head>
 
     <div class="pcoded-inner-content">
         <div class="main-body">
@@ -42,9 +21,6 @@
                                     @endif
                                 </div>
                                 <div class="card-block">
-                                    @if (session('success'))
-                                        <div class="alert alert-success">{{ session('success') }}</div>
-                                    @endif
                                     
                                     <div class="mb-3">
                                         <label class="font-weight-bold">Subjek:</label>

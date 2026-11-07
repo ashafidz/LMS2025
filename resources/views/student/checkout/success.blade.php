@@ -11,11 +11,13 @@
         <div class="rs-wrap">
             <div class="rs-stack">
                 @if ($order->status === 'paid')
-                    <x-rs.status tone="ok" icon="bi-check-circle-fill" title="Pembelian Berhasil">
-                        <p>Terima kasih! Berikut detail pembelian Anda.</p>
-                    </x-rs.status>
+                    <div data-rs-celebrate="order-{{ $order->id }}">
+                        <x-rs.status illustration="rs-16-bayar-berhasil" tone="ok" icon="bi-check-circle-fill" title="Pembelian Berhasil">
+                            <p>Terima kasih! Berikut detail pembelian Anda.</p>
+                        </x-rs.status>
+                    </div>
                 @else
-                    <x-rs.status tone="wait" icon="bi-clock-history" title="Pembayaran sedang diproses">
+                    <x-rs.status illustration="rs-17-bayar-menunggu" tone="wait" icon="bi-clock-history" title="Pembayaran sedang diproses">
                         <p>Kami sedang menunggu konfirmasi pembayaran Anda.</p>
                     </x-rs.status>
                 @endif

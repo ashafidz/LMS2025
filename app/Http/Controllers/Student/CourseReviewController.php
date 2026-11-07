@@ -69,6 +69,10 @@ class CourseReviewController extends Controller
             return response()->json(['success' => false, 'message' => 'Anda hanya bisa memberi ulasan untuk kursus yang Anda ikuti.'], 403);
         }
 
+        if ((int) $course->instructor_id === (int) $user->id) {
+            return response()->json(['success' => false, 'message' => 'Pemilik kursus tidak bisa mengulas kursusnya sendiri.'], 403);
+        }
+
         $questionIds = LikertQuestion::where('is_active', true)
             ->whereIn('category', ['course', 'instructor'])
             ->pluck('id');

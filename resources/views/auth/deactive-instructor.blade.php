@@ -3,7 +3,7 @@
 @section('title', 'Akun tidak aktif')
 
 @section('content')
-<x-rs.status tone="danger" icon="bi-person-x" title="Akun instruktur dinonaktifkan">
+<x-rs.status illustration="rs-19-status-akun" tone="danger" icon="bi-person-x" title="Akun instruktur dinonaktifkan">
     <p>
         Yth. Instruktur, akun Anda telah dinonaktifkan oleh tim kami.
         Keputusan ini diambil demi menjaga kenyamanan dan keamanan seluruh pengguna.

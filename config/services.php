@@ -41,6 +41,8 @@ return [
         'secret_key' => env('RECAPTCHA_SECRET_KEY'),
         'min_score' => (float) env('RECAPTCHA_MIN_SCORE', 0.5),
         'action' => 'php_email_form_submit',
+        // Action names sent by the auth forms (data-recaptcha-action) and checked by App\Http\Middleware\ProtectAuthForms.
+        'auth_actions' => ['login' => 'login', 'register' => 'register', 'forgot' => 'forgot_password'],
     ],
 
 ];

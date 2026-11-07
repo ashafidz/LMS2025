@@ -1,6 +1,9 @@
 @extends('layouts.plain-layout')
 
 @section('title', 'Buat kata sandi baru')
+@section('art-image', 'rs-05-lupa-sandi')
+@section('art-title', 'Akun Ruang Studi')
+@section('art-text', 'Buat kata sandi baru yang mudah kamu ingat.')
 
 @section('content')
 <div class="rs-auth">

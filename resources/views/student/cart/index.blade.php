@@ -13,12 +13,6 @@
 
     <section class="rs-section">
         <div class="rs-wrap">
-            @if (session('success'))
-                <div class="rs-alert rs-alert--ok" role="status">{{ session('success') }}</div>
-            @endif
-            @if (session('info'))
-                <div class="rs-alert rs-alert--info" role="status">{{ session('info') }}</div>
-            @endif
             @if (session('error'))
                 <div class="rs-alert rs-alert--danger" role="alert">{{ session('error') }}</div>
             @endif
@@ -34,6 +28,7 @@
 
             @if($cartItems->isEmpty())
                 <div class="rs-empty">
+                    <x-rs.illustration name="rs-11-keranjang-kosong" size="md" />
                     <h2 class="rs-h3">Keranjang Anda Kosong</h2>
                     <p>Sepertinya Anda belum menambahkan kursus apapun ke keranjang.</p>
                     <a href="{{ route('courses') }}" class="rs-btn">Jelajahi Kursus</a>

@@ -2,24 +2,10 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Poin Saya</h5>
-                        <p class="m-b-0">Lihat total poin dan riwayat perolehan poin Anda di setiap kursus.</p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Poin & Riwayat</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('student.dashboard')], ['Poin & Riwayat', null]]">
+        <x-slot:title>Poin Saya</x-slot:title>
+        <x-slot:subtitle>Lihat total poin dan riwayat perolehan poin Anda di setiap kursus.</x-slot:subtitle>
+    </x-dash.page-head>
 
     <div class="pcoded-inner-content">
         <div class="main-body">
@@ -33,8 +19,8 @@
                                 <div class="col-12 col-md-6 col-lg-12">
                                     <div class="card mb-4 shadow-sm border-0" style="border-radius: 12px;">
                                         <div class="card-block text-center p-4">
-                                            <i class="fa fa-medal text-warning f-50 mb-3"></i>
-                                            <h2 class="font-weight-bold text-warning mb-1">{{ number_format($totalPoints, 0, ',', '.') }} <small class="text-muted f-16">Poin</small></h2>
+                                            <i class="fa fa-medal rs-gold-icon f-50 mb-3"></i>
+                                            <h2 class="font-weight-bold rs-points-total mb-1">{{ number_format($totalPoints, 0, ',', '.') }} <small class="text-muted f-16">Poin</small></h2>
                                             <p class="text-muted mb-0">Total Akumulasi Poin Anda</p>
                                         </div>
                                     </div>
@@ -50,8 +36,8 @@
                                             <a href="{{ route('courses') }}" class="btn btn-primary btn-sm btn-round px-4 shadow-sm"><i class="fa fa-shopping-cart me-1"></i> Gunakan Diamond</a>
                                             
                                             <div class="mt-3 pt-3 border-top text-left">
-                                                <span class="text-muted" style="font-size: 12px;"><i class="fa fa-exchange mr-1"></i> Rasio Konversi Otomatis:</span><br>
-                                                <span class="font-weight-bold text-dark" style="font-size: 13px;">{{ $siteSettings->point_to_diamond_rate ? number_format($siteSettings->point_to_diamond_rate, 0, ',', '.') : '0' }} Poin = 1 Diamond</span>
+                                                <span class="text-muted" style="font-size: var(--rs-fs-xs);"><i class="fa fa-exchange mr-1"></i> Rasio Konversi Otomatis:</span><br>
+                                                <span class="font-weight-bold text-dark" style="font-size: var(--rs-fs-xs);">{{ $siteSettings->point_to_diamond_rate ? number_format($siteSettings->point_to_diamond_rate, 0, ',', '.') : '0' }} Poin = 1 Diamond</span>
                                             </div>
                                         </div>
                                     </div>
@@ -66,35 +52,35 @@
                                 <div class="card-block pt-3">
                                     <div class="d-flex flex-column gap-2" style="gap: 8px;">
                                         <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
-                                            <span class="text-muted" style="font-size: 13px;">Beli Kursus</span>
+                                            <span class="text-muted" style="font-size: var(--rs-fs-xs);">Beli Kursus</span>
                                             <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_purchase ? number_format($siteSettings->points_for_purchase, 0, ',', '.') : '0' }} Poin</span>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
-                                            <span class="text-muted" style="font-size: 13px;">Baca Artikel</span>
+                                            <span class="text-muted" style="font-size: var(--rs-fs-xs);">Baca Artikel</span>
                                             <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_article ? number_format($siteSettings->points_for_article, 0, ',', '.') : '0' }} Poin</span>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
-                                            <span class="text-muted" style="font-size: 13px;">Tonton Video</span>
+                                            <span class="text-muted" style="font-size: var(--rs-fs-xs);">Tonton Video</span>
                                             <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_video ? number_format($siteSettings->points_for_video, 0, ',', '.') : '0' }} Poin</span>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
-                                            <span class="text-muted" style="font-size: 13px;">Baca Dokumen</span>
+                                            <span class="text-muted" style="font-size: var(--rs-fs-xs);">Baca Dokumen</span>
                                             <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_document ? number_format($siteSettings->points_for_document, 0, ',', '.') : '0' }} Poin</span>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
-                                            <span class="text-muted" style="font-size: 13px;">Lulus Kuis</span>
+                                            <span class="text-muted" style="font-size: var(--rs-fs-xs);">Lulus Kuis</span>
                                             <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_quiz ? number_format($siteSettings->points_for_quiz, 0, ',', '.') : '0' }} Poin</span>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
-                                            <span class="text-muted" style="font-size: 13px;">Kumpul Tugas</span>
+                                            <span class="text-muted" style="font-size: var(--rs-fs-xs);">Kumpul Tugas</span>
                                             <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_assignment ? number_format($siteSettings->points_for_assignment, 0, ',', '.') : '0' }} Poin</span>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
-                                            <span class="text-muted" style="font-size: 13px;">Isi Polling</span>
+                                            <span class="text-muted" style="font-size: var(--rs-fs-xs);">Isi Polling</span>
                                             <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_polling ? number_format($siteSettings->points_for_polling, 0, ',', '.') : '0' }} Poin</span>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <span class="text-muted" style="font-size: 13px;">Isi Word Cloud</span>
+                                            <span class="text-muted" style="font-size: var(--rs-fs-xs);">Isi Word Cloud</span>
                                             <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_wordcloud ? number_format($siteSettings->points_for_wordcloud, 0, ',', '.') : '0' }} Poin</span>
                                         </div>
                                     </div>
@@ -108,8 +94,8 @@
                             <div class="card shadow-sm mb-4" style="border-radius: 12px;">
                                 <div class="card-block">
                                     <h6 class="font-weight-bold mb-1">Aktivitas Poin Anda</h6>
-                                    <p class="text-muted mb-4" style="font-size: 13px;">Grafik perolehan dan penggunaan poin Anda selama 12 bulan terakhir.</p>
-                                    <div style="height: 250px;">
+                                    <p class="text-muted mb-4" style="font-size: var(--rs-fs-xs);">Grafik perolehan dan penggunaan poin Anda selama 12 bulan terakhir.</p>
+                                    <div class="rs-chart-wrap" style="height: 250px;">
                                         <canvas id="myLineChart"></canvas>
                                     </div>
                                 </div>
@@ -157,7 +143,7 @@
                                                                     </div>
                                                                 </div>
                                                             </td>
-                                                            <td class="align-middle"><strong><span class="text-warning">{{ $course->pivot->points_earned }}</span> Poin</strong></td>
+                                                            <td class="align-middle"><strong><i class="fa fa-star mr-1" aria-hidden="true"></i>{{ $course->pivot->points_earned }} Poin</strong></td>
                                                             <td class="d-none d-md-table-cell align-middle">
                                                                 @if($course->pivot->is_converted_to_diamond)
                                                                     <label class="label label-success mb-0">Sudah Dikonversi</label>
@@ -245,8 +231,8 @@
                                 <div class="modal-body">
                                     <ul class="list-group list-group-flush">
                                         @forelse($pointHistories[$course->id] ?? [] as $history)
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                <div>
+                                            <li class="list-group-item d-flex justify-content-between align-items-center rs-history-row">
+                                                <div class="rs-history-row__text">
                                                     {{ $history->description }}<br>
                                                     <small class="text-muted">{{ $history->created_at->format('d M Y, H:i') }}</small>
                                                 </div>

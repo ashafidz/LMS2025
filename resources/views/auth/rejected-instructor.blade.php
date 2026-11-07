@@ -3,7 +3,7 @@
 @section('title', 'Pendaftaran ditolak')
 
 @section('content')
-<x-rs.status tone="danger" icon="bi-x-octagon" title="Pendaftaran instruktur ditolak">
+<x-rs.status illustration="rs-19-status-akun" tone="danger" icon="bi-x-octagon" title="Pendaftaran instruktur ditolak">
     <p>
         Yth. Instruktur, setelah kami melakukan peninjauan, kami ingin menginformasikan bahwa akun Instruktur Anda telah ditolak oleh tim kami.
         Keputusan ini diambil demi menjaga kualitas dan kenyamanan seluruh pengguna.

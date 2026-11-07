@@ -4,34 +4,10 @@
 @section('content')
     <div class="pcoded-content">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">
-                                Dashboard
-                            </h5>
-                            <p class="m-b-0">
-                                Selamat datang di Dashboard Admin
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item">
-                                <a href="{{ route('home') }}">
-                                    <i class="fa fa-home"></i>
-                                </a>
-                            </li>
-                            <li class="breadcrumb-item">
-                                <a href="#!">Manajemen Student</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-dash.page-head :crumbs="[['__home', route('home')], ['Manajemen Siswa', null]]">
+            <x-slot:title>Daftar Siswa</x-slot:title>
+            <x-slot:subtitle>Cari, lihat, dan kelola akun siswa.</x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
         <div class="pcoded-inner-content">
             <!-- Main-body start -->
@@ -45,7 +21,7 @@
                             <div class="col-sm-12">
                                 <div class="card table-card">
                                     <div class="card-header">
-                                        <h5>List Student</h5>
+                                        <h5>Daftar Siswa</h5>
                                         <p>List student yang terdaftar</p>
                                         <form action="{{ url()->current() }}" method="GET" class="mt-3">
                                             <div class="d-flex align-items-center" style="max-width: 480px; gap: 8px;">
@@ -58,7 +34,7 @@
                                                     </div>
                                                 </div>
                                                 @if (request()->filled('search'))
-                                                    <a href="{{ url()->current() }}" class="btn btn-secondary" style="height: 40px; display: inline-flex; align-items: center; justify-content: center; padding: 0 16px; border-radius: 4px; font-size: 14px;">Reset</a>
+                                                    <a href="{{ url()->current() }}" class="btn btn-secondary">Reset</a>
                                                 @endif
                                             </div>
                                         </form>
@@ -161,11 +137,11 @@
                                                                         <form
                                                                             action="{{ $actionRouteDeactive }}"
                                                                             method="POST"
-                                                                            onsubmit="return confirm('Apakah kamu yakin ingin menonaktifkan student ini?');">
+                                                                            data-confirm="Apakah kamu yakin ingin menonaktifkan student ini?" data-confirm-danger data-confirm-ok="Ya, nonaktifkan">
                                                                             @csrf
                                                                             @method('PATCH')
                                                                             <button type="submit"
-                                                                                class="btn btn-sm btn-danger">Deactive</button>
+                                                                                class="btn btn-sm btn-outline-danger">Deactive</button>
                                                                         </form>
                                                                     </div>
                                                                 @elseif ($student_status_data->student_status === 'deactive')
@@ -173,11 +149,11 @@
                                                                         <form
                                                                             action="{{ $actionRouteReactivate }}"
                                                                             method="POST"
-                                                                            onsubmit="return confirm('Apakah kamu yakin ingin mengaktifkan kembali student ini?');">
+                                                                            data-confirm="Apakah kamu yakin ingin mengaktifkan kembali student ini?" data-confirm-ok="Ya, aktifkan">
                                                                             @csrf
                                                                             @method('PATCH')
                                                                             <button type="submit"
-                                                                                class="btn btn-sm btn-success">Re-active</button>
+                                                                                class="btn btn-sm btn-secondary">Re-active</button>
                                                                         </form>
                                                                     </div>
 

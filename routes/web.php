@@ -17,6 +17,7 @@ use App\Http\Controllers\Instructor\LessonController;
 use App\Http\Controllers\Instructor\LessonPointController;
 use App\Http\Controllers\Instructor\ModuleController;
 use App\Http\Controllers\Instructor\QuestionController;
+use App\Http\Controllers\Instructor\QuestionImageController;
 use App\Http\Controllers\Instructor\QuestionTopicController;
 use App\Http\Controllers\Instructor\QuizQuestionController;
 use App\Http\Controllers\Instructor\QuizSecurityController;
@@ -358,6 +359,10 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         Route::patch('/instructor/question-topics/{topic}', [QuestionTopicController::class, 'update']); // Patch route for update
         Route::delete('/instructor/question-topics/{topic}', [QuestionTopicController::class, 'destroy'])->name('instructor.question-bank.topics.destroy');
 
+        // Image upload for the rich text question editor
+        Route::post('/instructor/question-images', QuestionImageController::class)
+            ->middleware('throttle:30,1')->name('instructor.question-bank.images.store');
+
         // Custom route for cloning a question
         Route::post('questions/{question}/clone', [QuestionController::class, 'clone'])->name('instructor.question-bank.questions.clone');
 
@@ -519,7 +524,7 @@ Route::middleware(['auth', 'verified', 'role:student'])->group(function () {
 
     // ! This nested group IS protected by the status-checking middleware.
     Route::middleware(['checkStudentStatus'])->group(function () {
-        Route::view('/student/dashboard', 'student.dashboard')->name('student.dashboard');
+        Route::get('/student/dashboard', [StudentDashboardController::class, 'index'])->name('student.dashboard');
 
         // RUTE BARU UNTUK HALAMAN SERTIFIKAT SAYA
         Route::get('/my-certificates', [StudentCertificateController::class, 'index'])->name('student.certificates.index');

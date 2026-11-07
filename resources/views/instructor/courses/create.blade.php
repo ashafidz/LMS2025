@@ -1,27 +1,12 @@
 @extends('layouts.app-layout')
 
 @section('content')
-    <div class="pcoded-content">
+    <div class="pcoded-content rs-page-form">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Buat Kursus Baru</h5>
-                            <p class="m-b-0">Isi detail untuk kursus baru Anda.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.courses.index') }}">Kursus Saya</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Buat Kursus</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Kursus Saya', route('instructor.courses.index')], ['Buat Kursus', null]]">
+            <x-slot:title>Buat Kursus Baru</x-slot:title>
+            <x-slot:subtitle>Isi detail untuk kursus baru Anda.</x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
 
         <div class="pcoded-inner-content">
@@ -30,20 +15,21 @@
                     <div class="page-body">
                         <div class="row">
                             <div class="col-sm-12">
-                                <div class="card">
+                                <div class="card rs-form-card">
                                     <div class="card-header">
                                         <h5>Detail Kursus</h5>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.courses.store') }}" method="POST" enctype="multipart/form-data">
+                                        <form action="{{ route('instructor.courses.store') }}" method="POST" enctype="multipart/form-data" class="rs-form">
                                             @csrf
+                                            @include('instructor.courses.partials._form-errors')
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Judul Kursus</label>
                                                 <div class="col-sm-10">
                                                     <input type="text" name="title" class="form-control" value="{{ old('title') }}" required>
                                                 </div>
                                             </div>
-                                            <div class="form-group row">
+                                            <div class="form-group row rs-col-half">
                                                 <label class="col-sm-2 col-form-label">Kategori</label>
                                                 <div class="col-sm-10">
                                                     <select name="category_id" class="form-control" required>
@@ -61,13 +47,17 @@
                                                     <textarea name="description" class="form-control" rows="5">{{ old('description') }}</textarea>
                                                 </div>
                                             </div>
+                                            <div class="rs-form-section"><h3>Tampilan</h3></div>
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Thumbnail</label>
                                                 <div class="col-sm-10">
-                                                    <input type="file" name="thumbnail" class="form-control" required accept="image/*">
+                                                    <input type="file" name="thumbnail" class="form-control" required accept="image/jpeg,image/png,image/gif,image/webp"
+                                                        data-rs-shrink data-max-bytes="2097152" data-max-side="1600" data-alpha-type="image/png"
+                                                        data-accept="image/jpeg,image/png,image/gif" data-label="Thumbnail">
                                                 </div>
                                             </div>
-                                            <div class="form-group row">
+                                            <div class="rs-form-section"><h3>Harga & Akses</h3></div>
+                                            <div class="form-group row rs-col-half">
                                                 <label class="col-sm-2 col-form-label">Tipe Ketersediaan</label>
                                                 <div class="col-sm-10">
                                                     <select name="availability_type" id="availability-type" class="form-control">
@@ -110,11 +100,9 @@
                                                     <small class="form-text text-muted">Pilih bagaimana siswa akan membayar kursus ini. Harga akan ditentukan oleh Admin saat publikasi.</small>
                                                 </div>
                                             </div>
-                                            <div class="form-group row">
-                                                <div class="col-sm-12 text-right">
-                                                    <a href="{{ route('instructor.courses.index') }}" class="btn btn-secondary">Batal</a>
-                                                    <button type="submit" class="btn btn-primary">Simpan Kursus</button>
-                                                </div>
+                                                                                        <div class="rs-form-actions">
+                                                <a href="{{ route('instructor.courses.index') }}" class="btn btn-secondary">Batal</a>
+                                                <button type="submit" class="btn btn-primary">Simpan Kursus</button>
                                             </div>
                                         </form>
                                     </div>
@@ -130,6 +118,8 @@
 
 {{-- Diubah: Menghapus script TinyMCE --}}
 @push('scripts')
+@include('instructor.courses.partials._description-editor')
+<script src="{{ asset('js/rs-image-shrink.js') }}"></script>
 <script>
     document.getElementById('availability-type').addEventListener('change', function() {
         const periodFields = document.getElementById('period-fields');

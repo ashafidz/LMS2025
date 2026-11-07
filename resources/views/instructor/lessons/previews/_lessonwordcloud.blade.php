@@ -1,7 +1,8 @@
 @php
     $wordcloud = $lesson->lessonable;
+    $isPreviewMode = $is_preview ?? false;
     $hasVoted = false;
-    if(auth()->check()) {
+    if(auth()->check() && ! $isPreviewMode) {
         $hasVoted = $wordcloud->responses()->where('user_id', auth()->id())->exists();
     }
     
@@ -17,23 +18,23 @@
 @endphp
 
 <div class="card mb-4 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
-    <div class="card-header text-white" style="background: linear-gradient(135deg, var(--rs-primary), var(--rs-accent)); padding: 20px 25px;">
-        <h4 class="mb-0 text-white font-weight-bold">
-            <i class="bi bi-cloud-fill mr-2"></i> {{ $wordcloud->question }}
-        </h4>
-    </div>
-    
     <div class="card-body p-4" id="wordcloud-container-{{ $lesson->id }}">
-        @if($wordcloud->description)
-            <p class="text-muted mb-4" style="font-size: 1.1rem; line-height: 1.6;">{{ $wordcloud->description }}</p>
-        @endif
+        <div class="rs-q-head">
+            <span class="rs-q-head__ic" aria-hidden="true"><i class="bi bi-cloud-fill"></i></span>
+            <div>
+                <h3>{{ $wordcloud->question }}</h3>
+                @if($wordcloud->description)
+                    <p>{{ $wordcloud->description }}</p>
+                @endif
+            </div>
+        </div>
 
         @if(!$isActive && !$hasVoted)
             <div class="alert alert-warning rounded-lg" style="border-left: 5px solid #ffc107;">
                 Word Cloud ini sedang tidak aktif atau sudah ditutup.
             </div>
         @elseif(!$hasVoted)
-            <form id="form-wordcloud-{{ $lesson->id }}" action="{{ route('student.lessons.wordcloud.submit', $lesson->id) }}" data-results-url="{{ route('student.lessons.wordcloud.results.ajax', $lesson->id) }}" method="POST" onsubmit="
+            <form id="form-wordcloud-{{ $lesson->id }}" action="{{ route('student.lessons.wordcloud.submit', $lesson->id) }}{{ $isPreviewMode ? '?preview=true' : '' }}" data-results-url="{{ route('student.lessons.wordcloud.results.ajax', $lesson->id) }}" method="POST" onsubmit="
                 event.preventDefault();
                 var form = this;
                 var btn = form.querySelector('button[type=submit]');
@@ -45,7 +46,7 @@
                 var maxWords = {{ $wordcloud->max_words ?? 1 }};
                 
                 if (wordCount > maxWords) {
-                    alert('Anda hanya boleh memasukkan maksimal ' + maxWords + ' kata.');
+                    rsAlert({ text: 'Anda hanya boleh memasukkan maksimal ' + maxWords + ' kata.', icon: 'warning' });
                     return;
                 }
                 
@@ -65,6 +66,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        if (typeof rsPointsGained === 'function') { rsPointsGained(data.points, btn); }
                         // Success, load results
                         var resultsUrl = form.getAttribute('data-results-url');
                         fetch(resultsUrl)
@@ -96,14 +98,14 @@
                             window.location.reload();
                         }, 1500);
                     } else {
-                        alert(data.message || 'Terjadi kesalahan.');
+                        rsAlert({ text: data.message || 'Terjadi kesalahan.', icon: 'error' });
                         btn.disabled = false;
                         btn.innerHTML = originalBtnHtml;
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Terjadi kesalahan jaringan.');
+                    rsAlert({ text: 'Terjadi kesalahan jaringan.', icon: 'error' });
                     btn.disabled = false;
                     btn.innerHTML = originalBtnHtml;
                 });
@@ -111,12 +113,15 @@
                 @csrf
                 <div class="form-group mb-4">
                     <div class="input-group input-group-lg" style="border-radius: 50px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                        <input type="text" name="word" class="form-control border-0 px-4" placeholder="Ketik jawaban Anda..." required style="height: 60px; font-size: 1.1rem; background-color: #f8f9fa;">
+                        <input type="text" name="word" class="form-control border-0 px-4" placeholder="Ketik jawaban Anda..." required @disabled($isPreviewMode) style="height: 60px; font-size: 1.1rem; background-color: #f8f9fa;">
                         <div class="input-group-append">
-                            <button class="btn btn-primary px-5" type="submit" style="font-weight: 600; letter-spacing: 1px; text-transform: uppercase;">Kirim</button>
+                            <button class="btn btn-primary px-5" type="submit" @disabled($isPreviewMode) style="font-weight: 600; letter-spacing: 1px; text-transform: uppercase;">Kirim</button>
                         </div>
                     </div>
                     <small class="form-text text-muted mt-2 ml-3">Kirimkan maksimal {{ $wordcloud->max_words ?? 1 }} kata yang mewakili jawaban Anda.</small>
+                    @if($isPreviewMode)
+                        <small class="form-text text-muted mt-1 ml-3 rs-preview-note">Ini pratinjau. Siswa akan menulis kata di sini.</small>
+                    @endif
                 </div>
             </form>
         @else

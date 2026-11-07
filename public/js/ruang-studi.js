@@ -221,3 +221,27 @@
     });
   }
 })();
+
+/* Scroll reveal: sections fade in once as they enter the viewport. Off for reduced motion and old browsers. */
+(function () {
+  if (!('IntersectionObserver' in window)) { return; }
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
+  var items = document.querySelectorAll('[data-rs-reveal]');
+  if (!items.length) { return; }
+  document.documentElement.classList.add('rs-motion');
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) { return; }
+      entry.target.classList.add('is-in');
+      io.unobserve(entry.target);
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  Array.prototype.forEach.call(items, function (el) {
+    var r = el.getBoundingClientRect();
+    if (r.top < window.innerHeight && r.bottom > 0) {
+      el.classList.add('is-in'); // already visible on load: no flicker
+    } else {
+      io.observe(el);
+    }
+  });
+})();

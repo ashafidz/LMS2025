@@ -1,28 +1,12 @@
 @extends('layouts.app-layout')
 
 @section('content')
-    <div class="pcoded-content">
+    <div class="pcoded-content rs-page-form">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Edit Pertanyaan</h5>
-                            <p class="m-b-0">Tipe Soal: Pilihan Ganda (Jawban Tunggal)</p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.topics.index') }}">Bank Soal</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.questions.index', $question->topic) }}">{{ Str::limit($question->topic->name, 20) }}</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Edit</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Bank Soal', route('instructor.question-bank.topics.index')], [(Str::limit($question->topic->name, 20)), route('instructor.question-bank.questions.index', $question->topic)], ['Edit', null]]">
+            <x-slot:title>Edit Pertanyaan</x-slot:title>
+            <x-slot:subtitle>Tipe Soal: Pilihan Ganda (Jawban Tunggal)</x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
 
         <div class="pcoded-inner-content">
@@ -38,15 +22,16 @@
                                     </div>
                                     <div class="card-block">
                                         {{-- Form points to the UPDATE route --}}
-                                        <form action="{{ route('instructor.question-bank.questions.update', $question) }}" method="POST">
+                                        <form action="{{ route('instructor.question-bank.questions.update', $question) }}" method="POST" class="rs-form rs-form--bank">
                                             @csrf
+                                            @include('instructor.question_bank.questions.partials._form-errors')
                                             @method('PUT') {{-- Use PUT method for updates --}}
 
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Question Text</label>
                                                 <div class="col-sm-10">
                                                     {{-- Pre-fill with existing data --}}
-                                                    <textarea rows="5" name="question_text" class="form-control" required>{{ old('question_text', $question->question_text) }}</textarea>
+                                                    <textarea rows="5" name="question_text" class="form-control" data-rich="question">{{ old('question_text', $question->editorText()) }}</textarea>
                                                 </div>
                                             </div>
 
@@ -60,7 +45,7 @@
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Keterangan (Opsional)</label>
                                                 <div class="col-sm-10">
-                                                    <textarea rows="3" name="explanation" class="form-control">{{ old('explanation', $question->explanation) }}</textarea>
+                                                    <textarea rows="3" name="explanation" class="form-control" data-rich="explanation">{{ old('explanation', $question->editorExplanation()) }}</textarea>
                                                 </div>
                                             </div>
 
@@ -73,22 +58,21 @@
                                                 {{-- Pre-populate with existing options from the database, or with old input from a failed validation --}}
                                                 @php
                                                     // Prepare the options array. Use old input if it exists, otherwise map from the database model.
-                                                    $options = old('options', $question->options->map(fn($opt) => ['text' => $opt->option_text, 'is_correct' => $opt->is_correct]));
+                                                    $options = old('options', $question->options->map(fn($opt) => ['text' => $question->editorOption($opt), 'is_correct' => $opt->is_correct]));
                                                 @endphp
 
                                                 @foreach ($options as $index => $option)
                                                     <div class="form-group row align-items-center option-row">
-                                                        <label class="col-sm-2 col-form-label text-right">
+                                                        <label class="rs-correct-pick">
                                                             {{-- The name 'correct_option' is just for the radio group behavior --}}
-                                                            <input type="radio" name="correct_option" class="form-check-input" required {{ (bool)($option['is_correct'] ?? false) ? 'checked' : '' }} onchange="updateCorrectState(this)">
-                                                        </label>
+                                                            <input type="radio" name="correct_option" class="form-check-input" required {{ (bool)($option['is_correct'] ?? false) ? 'checked' : '' }} onchange="updateCorrectState(this)"> <span>Jawaban benar</span></label>
                                                         <div class="col-sm-8">
-                                                            <input type="text" name="options[{{ $index }}][text]" class="form-control" value="{{ $option['text'] ?? '' }}" required>
+                                                            <textarea name="options[{{ $index }}][text]" data-rich="option">{{ $option['text'] ?? '' }}</textarea>
                                                             {{-- The actual value is stored in this hidden input --}}
                                                             <input type="hidden" name="options[{{ $index }}][is_correct]" value="{{ (bool)($option['is_correct'] ?? false) ? '1' : '0' }}">
                                                         </div>
                                                         <div class="col-sm-2">
-                                                            <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.option-row').remove()">
+                                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)">
                                                                 <i class="fa fa-trash"></i> Hapus
                                                             </button>
                                                         </div>
@@ -106,7 +90,7 @@
 
                                             <div class="form-group row mt-5">
                                                 <div class="col-sm-12 text-right">
-                                                    <a href="{{ route('instructor.question-bank.questions.index', $question->topic) }}" class="btn btn-secondary">Cancel</a>
+                                                    <a href="{{ route('instructor.question-bank.questions.index', $question->topic) }}" class="btn btn-secondary">Batal</a>
                                                     <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                                                 </div>
                                             </div>
@@ -124,15 +108,14 @@
     {{-- THIS IS THE HIDDEN TEMPLATE FOR NEW OPTIONS --}}
     <template id="option-template">
         <div class="form-group row align-items-center option-row">
-            <label class="col-sm-2 col-form-label text-right">
-                <input type="radio" name="correct_option" class="form-check-input" required onchange="updateCorrectState(this)">
-            </label>
+            <label class="rs-correct-pick">
+                <input type="radio" name="correct_option" class="form-check-input" required onchange="updateCorrectState(this)"> <span>Jawaban benar</span></label>
             <div class="col-sm-8">
-                <input type="text" name="options[__INDEX__][text]" class="form-control" value="" required>
+                <textarea name="options[__INDEX__][text]" data-rich="option"></textarea>
                 <input type="hidden" name="options[__INDEX__][is_correct]" value="0">
             </div>
             <div class="col-sm-2">
-                <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.option-row').remove()">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)">
                     <i class="fa fa-trash"></i> Hapus
                 </button>
             </div>
@@ -141,6 +124,7 @@
 @endsection
 
 @push('scripts')
+@include('instructor.question_bank.questions.partials._question-editor-scripts')
 <script>
     document.getElementById('add-option-btn').addEventListener('click', function() {
         // Get the template content
@@ -152,7 +136,15 @@
 
         // Append the new row to the container
         document.getElementById('options-container').insertAdjacentHTML('beforeend', newRowHtml);
+        const rows = document.querySelectorAll('#options-container .option-row');
+        rsMakeOptionEditor(rows[rows.length - 1].querySelector('textarea[data-rich="option"]'));
     });
+
+    function removeOption(button) {
+        const row = button.closest('.option-row');
+        rsDestroyOptionEditor(row);
+        row.remove();
+    }
 
     function updateCorrectState(selectedRadio) {
         // Find all option rows within the container

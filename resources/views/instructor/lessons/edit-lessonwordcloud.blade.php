@@ -1,27 +1,10 @@
 @extends('layouts.app-layout')
 @section('content')
-<div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                            <h5 class="m-b-10">Course: {{ $lesson->module->course->title }} | Modul: {{ $lesson->module->title }}</h5>
-                            <p class="m-b-10 fw-bolder" style="font-size: 2rem;">Edit Pelajaran Word Cloud</p>
-                            
-                        </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $lesson->module->course) }}">Modul Saya</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}">Pelajaran</a></li>
-                        <li class="breadcrumb-item">Edit Word Cloud</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="pcoded-content rs-page-form">
+    <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], [\Illuminate\Support\Str::limit($lesson->module->course->title, 30), route('instructor.courses.modules.index', $lesson->module->course)], ['Pelajaran', route('instructor.modules.lessons.index', $lesson->module)], ['Edit Word Cloud', null]]">
+        <x-slot:context>Kursus: {{ $lesson->module->course->title }}  >  Modul: {{ $lesson->module->title }}</x-slot:context>
+        <x-slot:title>Edit Pelajaran Word Cloud</x-slot:title>
+    </x-dash.page-head>
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
@@ -31,10 +14,12 @@
                             <h5>Detail Word Cloud</h5>
                         </div>
                         <div class="card-block">
-                            <form action="{{ route('instructor.lessons.update', $lesson) }}" method="POST" data-lesson-submit="true">
+                            <form action="{{ route('instructor.lessons.update', $lesson) }}" method="POST" data-lesson-submit="true" class="rs-form">
                                 @csrf
+                                @include('instructor.lessons.partials._form-errors')
                                 @method('PUT')
                                 <input type="hidden" name="lesson_type" value="wordcloud">
+                                <div class="rs-form-section"><h3>Pertanyaan</h3></div>
                                 <div class="form-group row">
                                     <label class="col-sm-2 col-form-label">Judul Pelajaran</label>
                                     <div class="col-sm-10">
@@ -65,8 +50,7 @@
                                     </div>
                                 </div>
 
-                                <hr>
-                                <h5 class="mt-4">Pengaturan Waktu & Status (Opsional)</h5>
+                                <div class="rs-form-section"><h3>Pengaturan</h3></div>
                                 <div class="form-group row mt-3">
                                     <label class="col-sm-2 col-form-label">Status Aktif</label>
                                     <div class="col-sm-10">
@@ -79,6 +63,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="rs-grid-2">
                                 <div class="form-group row">
                                     <label class="col-sm-2 col-form-label">Waktu Mulai</label>
                                     <div class="col-sm-10">
@@ -93,12 +78,11 @@
                                         <small class="text-muted">Kosongkan jika Word Cloud tidak memiliki batas waktu.</small>
                                     </div>
                                 </div>
+                                </div>
 
-                                <div class="form-group row mt-4">
-                                    <div class="col-sm-10 offset-sm-2">
-                                        <button type="submit" class="btn btn-primary" id="btn-submit-lesson">Simpan Perubahan</button>
-                                        <a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}" class="btn btn-secondary">Batal</a>
-                                    </div>
+                                                                <div class="rs-form-actions">
+                                    <button type="submit" class="btn btn-primary" id="btn-submit-lesson">Simpan Perubahan</button>
+                                    <a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}" class="btn btn-secondary">Batal</a>
                                 </div>
                             </form>
                         </div>

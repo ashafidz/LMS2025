@@ -19,8 +19,8 @@
             </div>
         </div>
         <!-- Page-header end -->
-        <div class="pcoded-inner-content px-3 mt-4">
-            <div class="row g-4 px-2">
+        <div class="pcoded-inner-content mt-4">
+            <div class="row g-4">
 
                 <!-- Kolom Data Profil (kiri) -->
                 <div class="col-xl-8 col-md-12 mb-4 pr-xl-2">
@@ -93,7 +93,7 @@
                             </div>
                             <div class="text-center mt-4">
                                 <a href="{{ route('user.profile.edit') }}"
-                                    class="btn btn-outline-primary btn-sm mr-2">Edit Profile</a>
+                                    class="btn btn-outline-primary btn-sm mr-2">Edit Profil</a>
                                 <a href="{{ route('user.password.edit') }}" class="btn btn-outline-primary btn-sm mr-2">Ganti
                                     Password</a>
                             </div>

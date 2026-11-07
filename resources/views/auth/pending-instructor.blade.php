@@ -3,7 +3,7 @@
 @section('title', 'Pendaftaran sedang ditinjau')
 
 @section('content')
-<x-rs.status tone="wait" icon="bi-hourglass-split" title="Pendaftaran instruktur sedang ditinjau">
+<x-rs.status illustration="rs-17-bayar-menunggu" tone="wait" icon="bi-hourglass-split" title="Pendaftaran instruktur sedang ditinjau">
     <p>
         Terima kasih sudah memverifikasi email. Pendaftaran kamu sebagai instruktur sedang ditinjau oleh tim kami. Kami akan mengabari lewat email setelah ada keputusan.
     </p>

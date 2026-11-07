@@ -2,25 +2,10 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Kursus milik: {{ $instructor->name }}</h5>
-                        <p class="m-b-0">Pilih kursus untuk melakukan sinkronisasi poin.</p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ auth()->user()->hasRole('superadmin') ? route('superadmin.dashboard') : route('admin.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('superadmin.point-sync.index') }}">Sinkronisasi Poin</a></li>
-                        <li class="breadcrumb-item"><a href="#!">{{ $instructor->name }}</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', auth()->user()->hasRole('superadmin') ? route('superadmin.dashboard') : route('admin.dashboard')], ['Sinkronisasi Poin', route('superadmin.point-sync.index')], [($instructor->name), null]]">
+        <x-slot:title>Kursus milik: {{ $instructor->name }}</x-slot:title>
+        <x-slot:subtitle>Pilih kursus untuk melakukan sinkronisasi poin.</x-slot:subtitle>
+    </x-dash.page-head>
 
     <div class="pcoded-inner-content">
         <div class="main-body">
@@ -52,19 +37,19 @@
                                                 <td class="text-center">{{ $course->students_count }}</td>
                                                 <td>
                                                     @if($course->status == 'published')
-                                                        <span class="badge bg-success">Published</span>
+                                                        <span class="badge bg-success">{{ $course->status_label }}</span>
                                                     @elseif($course->status == 'draft')
-                                                        <span class="badge bg-secondary">Draft</span>
+                                                        <span class="badge bg-secondary">{{ $course->status_label }}</span>
                                                     @else
-                                                        <span class="badge bg-warning">{{ ucfirst($course->status) }}</span>
+                                                        <span class="badge bg-warning">{{ $course->status_label }}</span>
                                                     @endif
                                                 </td>
                                                 <td class="text-center">
                                                     <div class="btn-group" role="group">
-                                                        <a href="{{ route('superadmin.point-sync.mass-sync.preview', $course) }}" class="btn btn-danger btn-sm" title="Sinkron Massal">
+                                                        <a href="{{ route('superadmin.point-sync.mass-sync.preview', $course) }}" class="btn btn-outline-danger btn-sm" title="Sinkron Massal">
                                                             <i class="fa fa-magic me-1"></i> Sinkron Massal
                                                         </a>
-                                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="collapse" data-bs-target="#students-{{ $course->id }}" title="Lihat Siswa">
+                                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#students-{{ $course->id }}" title="Lihat Siswa">
                                                             <i class="fa fa-users me-1"></i> Lihat Siswa
                                                         </button>
                                                     </div>

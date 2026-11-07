@@ -1,27 +1,12 @@
 @extends('layouts.app-layout')
 
 @section('content')
-<div class="pcoded-content">
+<div class="pcoded-content rs-page-form">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Edit Topik Soal</h5>
-                        <p class="m-b-0">Perbarui detail untuk topik: {{ $topic->name }}</p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.topics.index') }}">Bank  Soal</a></li>
-                        <li class="breadcrumb-item"><a href="#!">Edit Topik</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Bank Soal', route('instructor.question-bank.topics.index')], ['Edit Topik', null]]">
+        <x-slot:title>Edit Topik Soal</x-slot:title>
+        <x-slot:subtitle>Perbarui detail untuk topik: {{ $topic->name }}</x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">
@@ -30,7 +15,7 @@
                 <div class="card">
                     <div class="card-header"><h5>Detail Topik</h5></div>
                     <div class="card-block">
-                        <form action="{{ route('instructor.question-bank.topics.update', $topic) }}" method="POST">
+                        <form action="{{ route('instructor.question-bank.topics.update', $topic) }}" method="POST" class="rs-form">
                             @csrf
                             @method('PUT')
                             <div class="form-group row">
@@ -81,11 +66,9 @@
                                 </div>
                             </div>
 
-                            <div class="form-group row">
-                                <div class="col-sm-12 text-right">
-                                    <a href="{{ route('instructor.question-bank.topics.index') }}" class="btn btn-secondary">Batal</a>
-                                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                                </div>
+                                                        <div class="rs-form-actions">
+                                <a href="{{ route('instructor.question-bank.topics.index') }}" class="btn btn-secondary">Batal</a>
+                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                             </div>
                         </form>
                     </div>

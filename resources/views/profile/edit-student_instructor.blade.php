@@ -3,11 +3,11 @@
 
 @section('content')
     <div class="pcoded-content">
-        <div class="pcoded-inner-content px-3" style="padding-top: 32px;">
-            <div class="row g-4 px-2">
+        <div class="pcoded-inner-content" style="padding-top: 32px;">
+            <div class="row g-4">
 
                 <form action="{{ route('user.profile.update') }}" method="POST" enctype="multipart/form-data"
-                    class="row col-12">
+                    class="rs-form row col-12">
                     @csrf
                     @method('PUT')
 
@@ -68,6 +68,7 @@
                             </div>
                             <div class="card-block">
                                 <!-- Biodata -->
+                                <div class="rs-form-section"><h3>Data Diri</h3></div>
                                 <div class="form-group">
                                     <label for="name">Nama Lengkap</label>
                                     <input type="text" class="form-control" id="name" name="name"
@@ -119,6 +120,7 @@
                                     @enderror
                                 </div>
 
+                                <div class="rs-form-section"><h3>Profil Publik</h3></div>
                                 <div class="form-group">
                                     <label for="headline">Headline</label>
                                     <input type="text" class="form-control" id="headline" name="headline"
@@ -167,8 +169,7 @@
                                 </div>
 
                                 <!-- Pendidikan -->
-                                <hr>
-                                <h6 class="text-primary font-weight-bold mt-4">Data Profesional</h6>
+                                <div class="rs-form-section"><h3>Data Profesional</h3></div>
 
                                 <div class="form-group">
                                     <label for="highest_level_of_education">Pendidikan Terakhir</label>
@@ -223,10 +224,11 @@
                                 </div>
 
                                 <!-- Tombol -->
-                                <div class="mt-4 text-right">
+                                                                <div class="rs-form-actions">
                                     <a href="{{ route('user.profile.index') }}"
-                                        class="btn btn-outline-secondary btn-sm">Batal</a>
+                                    class="btn btn-outline-secondary btn-sm">Batal</a>
                                     <button type="submit" class="btn btn-primary btn-sm">Simpan Perubahan</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

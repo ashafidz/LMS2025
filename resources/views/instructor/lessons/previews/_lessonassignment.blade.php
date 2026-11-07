@@ -10,7 +10,7 @@
 @endphp
 
 <div class="assignment-header mb-4 border-bottom pb-3">
-    <h3 class="font-weight-bold text-primary mb-2"><i class="fa fa-tasks mr-2"></i>{{ $lesson->title }}</h3>
+    <h3 class="font-weight-bold text-primary mb-2 rs-lesson-heading"><i class="fa fa-tasks mr-2"></i>{{ $lesson->title }}</h3>
     
     <div class="d-flex flex-wrap align-items-center mt-3 text-muted">
         <div class="mr-4 mb-2">
@@ -60,11 +60,10 @@
             
             {{-- Form edit jika belum terlambat --}}
             @if(!$isLate && !$is_preview)
-                <div class="card border-warning shadow-sm mt-4">
-                    <div class="card-header bg-warning text-dark font-weight-bold">
-                        <i class="fa fa-edit mr-2"></i>Ingin mengganti file tugas Anda?
-                    </div>
-                    <div class="card-body bg-light">
+                {{-- Same look as the first upload card: white card, primary heading --}}
+                <div class="card shadow-sm border-0 mt-4">
+                    <div class="card-body">
+                        <h5 class="font-weight-bold text-primary mb-1"><i class="fa fa-edit mr-2"></i>Ingin mengganti file tugas Anda?</h5>
                         <p class="text-muted small mb-3">Anda masih bisa mengganti file tugas selama belum melewati batas waktu.</p>
                         @include('student.courses.partials._assignment_form', ['assignment' => $assignment])
                     </div>
@@ -90,7 +89,7 @@
             
             <div class="card shadow-sm border-0 border-left-warning mt-4">
                 <div class="card-body">
-                    <h5 class="font-weight-bold text-warning mb-2"><i class="fa fa-refresh mr-2"></i>Revisi Diperlukan</h5>
+                    <h5 class="font-weight-bold text-dark mb-2"><i class="fa fa-refresh mr-2 text-warning"></i>Revisi Diperlukan</h5>
                     <p class="text-muted mb-3">Nilai Anda belum mencapai standar kelulusan. Silakan perbaiki tugas Anda dan unggah kembali file yang baru di bawah ini.</p>
                     @include('student.courses.partials._assignment_form', ['assignment' => $assignment])
                 </div>

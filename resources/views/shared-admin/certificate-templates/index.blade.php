@@ -2,32 +2,15 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Template Sertifikat</h5>
-                        <p class="m-b-0">Atur tampilan sertifikat yang diterima siswa. Setiap perubahan disimpan sebagai versi baru.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route($routePrefix . '.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Template Sertifikat</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route($routePrefix . '.dashboard')], ['Template Sertifikat', null]]">
+        <x-slot:title>Template Sertifikat</x-slot:title>
+        <x-slot:subtitle>Atur tampilan sertifikat yang diterima siswa. Setiap perubahan disimpan sebagai versi baru.</x-slot:subtitle>
+    </x-dash.page-head>
 
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
                 <div class="page-body">
-                    @if (session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
-                    @endif
                     @if (session('error'))
                         <div class="alert alert-danger">{{ session('error') }}</div>
                     @endif
@@ -115,7 +98,7 @@
                                                                     data-message="Semua sertifikat yang diunduh siswa setelah ini akan memakai desain ini. Lanjutkan?">
                                                                     @csrf
                                                                     @method('PATCH')
-                                                                    <button type="submit" class="btn btn-sm btn-success">Jadikan Aktif</button>
+                                                                    <button type="submit" class="btn btn-sm btn-secondary">Jadikan Aktif</button>
                                                                 </form>
                                                                 <form action="{{ route($routePrefix . '.certificate-templates.destroy', $template) }}" method="POST" class="d-inline js-confirm"
                                                                     data-message="Versi {{ $template->version }} akan dihapus dan tidak bisa dikembalikan. Lanjutkan?">

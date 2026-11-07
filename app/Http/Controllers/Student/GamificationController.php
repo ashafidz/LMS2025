@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB; // 1. Import DB facade
 
 class GamificationController extends Controller
 {
@@ -34,18 +33,16 @@ class GamificationController extends Controller
         $diamondHistories = $user->diamondHistories()->latest()->simplePaginate(10);
 
         // --- LOGIKA BARU: Menyiapkan Data untuk Grafik ---
+        // Dikelompokkan di PHP (bukan YEAR()/MONTH() di SQL) agar jalan di MySQL maupun SQLite.
         $pointChanges = $user->pointHistories()
-            ->select(
-                DB::raw('YEAR(created_at) as year'),
-                DB::raw('MONTH(created_at) as month'),
-                DB::raw('SUM(CASE WHEN points > 0 THEN points ELSE 0 END) as points_earned'),
-                DB::raw('SUM(CASE WHEN points < 0 THEN points ELSE 0 END) as points_spent')
-            )
+            ->select('created_at', 'points')
             ->where('created_at', '>=', now()->subMonths(11)->startOfMonth())
-            ->groupBy('year', 'month')
-            ->orderBy('year', 'asc')
-            ->orderBy('month', 'asc')
-            ->get();
+            ->get()
+            ->groupBy(fn ($item) => $item->created_at->format('Y-n'))
+            ->map(fn ($items) => [
+                'earned' => $items->where('points', '>', 0)->sum('points'),
+                'spent' => $items->where('points', '<', 0)->sum('points'),
+            ]);
 
         // Siapkan array untuk 12 bulan terakhir
         $chartLabels = [];
@@ -57,13 +54,11 @@ class GamificationController extends Controller
             $monthKey = $month->format('Y-n'); // Format YYYY-M (e.g., 2025-8)
             $chartLabels[] = $month->format('M Y'); // Format Aug 2025
 
-            $monthlyData = $pointChanges->first(function ($item) use ($month) {
-                return $item->year == $month->year && $item->month == $month->month;
-            });
+            $monthlyData = $pointChanges->get($monthKey);
 
-            $chartDataEarned[] = $monthlyData ? $monthlyData->points_earned : 0;
+            $chartDataEarned[] = $monthlyData ? $monthlyData['earned'] : 0;
             // Ambil nilai absolut untuk data poin yang dihabiskan
-            $chartDataSpent[] = $monthlyData ? abs($monthlyData->points_spent) : 0;
+            $chartDataSpent[] = $monthlyData ? abs($monthlyData['spent']) : 0;
         }
         // --- AKHIR LOGIKA BARU ---
 

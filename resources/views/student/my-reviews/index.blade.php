@@ -3,33 +3,16 @@
 @section('content')
 <div class="pcoded-content">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Kelola Ulasan Saya</h5>
-                        <p class="m-b-0">Lihat dan perbarui semua ulasan yang telah Anda berikan.</p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Ulasan Saya</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('student.dashboard')], ['Ulasan Saya', null]]">
+        <x-slot:title>Kelola Ulasan Saya</x-slot:title>
+        <x-slot:subtitle>Lihat dan perbarui semua ulasan yang telah Anda berikan.</x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
                 <div class="page-body">
-                    @if (session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
-                    @endif
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul>

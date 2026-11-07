@@ -31,7 +31,7 @@
 
 
 {{-- Menampilkan judul pelajaran di dalam modal --}}
-<h4 class="font-weight-bold">{{ $lesson->title }}</h4>
+<h4 class="font-weight-bold rs-lesson-heading">{{ $lesson->title }}</h4>
 <hr>
 
 {{-- Menampilkan konten artikel --}}

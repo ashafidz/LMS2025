@@ -42,11 +42,6 @@
                                         </div>
                                     </div>
                                     <div class="card-block table-border-style">
-                                        @if (session('success'))
-                                            <div class="alert alert-success">
-                                                {{ session('success') }}
-                                            </div>
-                                        @endif
                                         <div class="table-responsive">
                                             <table class="table table-hover">
                                                 <thead>
@@ -155,7 +150,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                 </div>
             </div>
         </div>

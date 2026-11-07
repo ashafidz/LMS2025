@@ -58,7 +58,7 @@
                         <span class="text-muted small mx-1">&middot;</span>
                         <form action="{{ route('student.lessons.discussions.destroy', $discussion) }}"
                             method="POST" class="d-inline"
-                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus komentar ini? Aksi ini tidak dapat dibatalkan.');">
+                            data-confirm="Apakah Anda yakin ingin menghapus komentar ini? Aksi ini tidak dapat dibatalkan." data-confirm-danger data-confirm-ok="Ya, hapus">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-link text-danger p-0 small">Hapus</button>
@@ -108,7 +108,7 @@
                                     <br>
                                     <form action="{{ route('student.lessons.discussions.destroy', $reply->id) }}"
                                         method="POST" class="d-inline"
-                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus komentar ini? Aksi ini tidak dapat dibatalkan.');">
+                                        data-confirm="Apakah Anda yakin ingin menghapus komentar ini? Aksi ini tidak dapat dibatalkan." data-confirm-danger data-confirm-ok="Ya, hapus">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-link text-danger p-0 small">Hapus</button>

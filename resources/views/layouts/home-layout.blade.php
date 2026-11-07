@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@hasSection('title')@yield('title') | @endif{{ $siteSettings->site_name }}</title>
+    <title>@hasSection('title')@yield('title') | @endif{{ ($siteSettings->site_name ?? null) ?: config('app.name') }}</title>
     <meta name="description" content="">
     <meta name="keywords" content="">
 
@@ -19,11 +19,13 @@
 
     <!-- CSS -->
     <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <link href="{{ asset('css/ruang-studi.css') }}" rel="stylesheet">
     @stack('styles')
 </head>
 
 <body class="rs-body">
+    @yield('intro')
     <a class="rs-skip" href="#main">Langsung ke isi</a>
 
     <!-- ======= Navbar ======= -->
@@ -52,7 +54,7 @@
 <header class="rs-header">
     <div class="rs-wrap">
         <div class="rs-header__bar">
-            <a href="{{ route('home') }}" class="rs-logo">{{ $siteSettings->site_name }}</a>
+            <a href="{{ route('home') }}" class="rs-logo">{{ ($siteSettings->site_name ?? null) ?: config('app.name') }}</a>
             <nav class="rs-nav" aria-label="Menu utama">
                 @foreach ($navItems as $item)
                     <a href="{{ $item['url'] }}" @if ($item['active']) aria-current="page" @endif>{{ $item['label'] }}</a>
@@ -69,8 +71,8 @@
                     @endif
                 @endauth
                 @guest
-                    <a class="rs-link" href="{{ route('register') }}">Daftar</a>
-                    <a class="rs-btn" href="{{ url('/login') }}">Masuk</a>
+                    <a class="rs-btn rs-btn--outline" href="{{ url('/login') }}">Masuk</a>
+                    <a class="rs-btn" href="{{ route('register') }}">Daftar</a>
                 @endguest
             </div>
             <button type="button" class="rs-menu-btn" aria-expanded="false" aria-controls="rs-mobile-menu">
@@ -94,8 +96,8 @@
                     @endif
                 @endauth
                 @guest
-                    <a class="rs-btn rs-btn--block" href="{{ url('/login') }}">Masuk</a>
-                    <a class="rs-btn rs-btn--outline rs-btn--block" href="{{ route('register') }}">Daftar</a>
+                    <a class="rs-btn rs-btn--outline rs-btn--block" href="{{ url('/login') }}">Masuk</a>
+                    <a class="rs-btn rs-btn--block" href="{{ route('register') }}">Daftar</a>
                 @endguest
             </div>
         </div>
@@ -113,7 +115,7 @@
     <div class="rs-wrap">
         <div class="rs-footer__grid">
             <div>
-                <a href="{{ url('/') }}" class="rs-footer__brand">{{ $siteSettings->site_name }}</a>
+                <a href="{{ url('/') }}" class="rs-footer__brand">{{ ($siteSettings->site_name ?? null) ?: config('app.name') }}</a>
                 @if ($siteSettings->company_name)<p>{{ $siteSettings->company_name }}</p>@endif
                 @if ($siteSettings->address)<p>{{ $siteSettings->address }}</p>@endif
                 @if ($siteSettings->phone)<p>Telepon: {{ $siteSettings->phone }}</p>@endif
@@ -163,7 +165,7 @@
             </div>
         </div>
         <div class="rs-footer__bottom">
-            <span>&copy; {{ date('Y') }} {{ $siteSettings->site_name }}</span>
+            <span>&copy; {{ date('Y') }} {{ ($siteSettings->site_name ?? null) ?: config('app.name') }}</span>
         </div>
     </div>
 </footer>
@@ -218,7 +220,13 @@
     <script type="text/javascript" src="{{ asset('js/csrf-refresh.js') }}"></script>
     <script src="{{ asset('js/ruang-studi.js') }}"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+    <script>window.rsDialogImages = {{ \Illuminate\Support\Js::from(['ok' => asset('images/illustrations/rs-16-bayar-berhasil.webp'), 'fail' => asset('images/illustrations/rs-18-bayar-gagal.webp')]) }};</script>
+    <script src="{{ asset('js/rs-dialog.js') }}"></script>
+    <script src="{{ asset('js/rs-forms.js') }}"></script>
+    <script src="{{ asset('js/rs-motion.js') }}"></script>
     @stack('scripts')
+    <x-rs.flash-toast />
 </body>
 
 </html>

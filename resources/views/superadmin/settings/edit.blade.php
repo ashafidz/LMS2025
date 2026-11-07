@@ -1,27 +1,12 @@
 @extends('layouts.app-layout')
 
 @section('content')
-    <div class="pcoded-content">
+    <div class="pcoded-content rs-page-form">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Pengaturan Situs</h5>
-                            <p class="m-b-0">Kelola informasi umum, logo, pajak, dan biaya transaksi untuk situs Anda.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="{{ auth()->user()->hasRole('superadmin') ? route('superadmin.dashboard') : route('admin.dashboard') }}"><i
-                                        class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="#!">Pengaturan</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-dash.page-head :crumbs="[['__home', auth()->user()->hasRole('superadmin') ? route('superadmin.dashboard') : route('admin.dashboard')], ['Pengaturan', null]]">
+            <x-slot:title>Pengaturan Situs</x-slot:title>
+            <x-slot:subtitle>Kelola informasi umum, logo, pajak, dan biaya transaksi untuk situs Anda.</x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
 
         <div class="pcoded-inner-content">
@@ -35,9 +20,6 @@
                                         <h5>Form Pengaturan Situs</h5>
                                     </div>
                                     <div class="card-block">
-                                        @if (session('success'))
-                                            <div class="alert alert-success">{{ session('success') }}</div>
-                                        @endif
                                         @if ($errors->any())
                                             <div class="alert alert-danger">
                                                 <ul>
@@ -49,7 +31,7 @@
                                         @endif
 
                                         <form action="{{ auth()->user()->hasRole('superadmin') ? route('superadmin.settings.update') : route('admin.settings.update') }}" method="POST"
-                                            enctype="multipart/form-data">
+                                            enctype="multipart/form-data" class="rs-form">
                                             @csrf
                                             @method('PUT')
 
@@ -267,11 +249,9 @@
                                                 </div>
                                             </div>
 
-                                            <div class="form-group row mt-4">
-                                                <div class="col-sm-12 text-right">
-                                                    <button type="submit" class="btn btn-primary">Simpan
-                                                        Pengaturan</button>
-                                                </div>
+                                                                                        <div class="rs-form-actions">
+                                                <button type="submit" class="btn btn-primary">Simpan
+                                                Pengaturan</button>
                                             </div>
                                         </form>
                                     </div>

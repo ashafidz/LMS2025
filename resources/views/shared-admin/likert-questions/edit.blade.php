@@ -1,27 +1,12 @@
 @extends('layouts.app-layout')
 
 @section('content')
-<div class="pcoded-content">
+<div class="pcoded-content rs-page-form">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Edit Pertanyaan Ulasan</h5>
-                        <p class="m-b-0">Perbarui detail untuk pertanyaan skala Likert.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route(Auth::user()->getRoleNames()->first() . '.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route(Auth::user()->getRoleNames()->first() . '.likert-questions.index') }}">Pertanyaan Ulasan</a></li>
-                        <li class="breadcrumb-item"><a href="#!">Edit</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route(Auth::user()->getRoleNames()->first() . '.dashboard')], ['Pertanyaan Ulasan', route(Auth::user()->getRoleNames()->first() . '.likert-questions.index')], ['Edit', null]]">
+        <x-slot:title>Edit Pertanyaan Ulasan</x-slot:title>
+        <x-slot:subtitle>Perbarui detail untuk pertanyaan skala Likert.</x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">
@@ -45,7 +30,7 @@
                                         </div>
                                     @endif
 
-                                    <form action="{{ route(Auth::user()->getRoleNames()->first() . '.likert-questions.update', $likertQuestion->id) }}" method="POST">
+                                    <form action="{{ route(Auth::user()->getRoleNames()->first() . '.likert-questions.update', $likertQuestion->id) }}" method="POST" class="rs-form">
                                         @csrf
                                         @method('PUT') {{-- Wajib untuk metode update --}}
 
@@ -82,11 +67,9 @@
                                             </div>
                                         </div>
 
-                                        <div class="form-group row">
-                                            <div class="col-sm-12 text-right">
-                                                <a href="{{ route(Auth::user()->getRoleNames()->first() . '.likert-questions.index') }}" class="btn btn-secondary">Batal</a>
-                                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                                            </div>
+                                                                                <div class="rs-form-actions">
+                                            <a href="{{ route(Auth::user()->getRoleNames()->first() . '.likert-questions.index') }}" class="btn btn-secondary">Batal</a>
+                                            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                                         </div>
                                     </form>
                                 </div>

@@ -3,24 +3,10 @@
 @section('content')
 <div class="pcoded-content">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Diamond Saya</h5>
-                        <p class="m-b-0">Lihat saldo dan riwayat transaksi diamond Anda.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Diamondku</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('student.dashboard')], ['Diamondku', null]]">
+        <x-slot:title>Diamond Saya</x-slot:title>
+        <x-slot:subtitle>Lihat saldo dan riwayat transaksi diamond Anda.</x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">

@@ -2,25 +2,10 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Kelola Pengguna</h5>
-                        <p class="m-b-0">Kursus: <strong>{{ $course->title }}</strong></p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route(Auth::user()->getRoleNames()->first() . '.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-enrollments.index') }}">Kelola Pengguna</a></li>
-                        <li class="breadcrumb-item"><a href="#!">{{ Str::limit($course->title, 20) }}</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route(Auth::user()->getRoleNames()->first() . '.dashboard')], ['Kelola Pengguna', route(Auth::user()->getRoleNames()->first() . '.course-enrollments.index')], [(Str::limit($course->title, 20)), null]]">
+        <x-slot:title>Kelola Pengguna</x-slot:title>
+        <x-slot:subtitle>Kursus: <strong>{{ $course->title }}</strong></x-slot:subtitle>
+    </x-dash.page-head>
     <div class="pcoded-inner-content">
         <div class="main-body">
             <div class="page-wrapper">
@@ -38,9 +23,6 @@
                                     </div>
                                 </div>
                                 <div class="card-block">
-                                    @if (session('success'))
-                                        <div class="alert alert-success">{{ session('success') }}</div>
-                                    @endif
                                     <form id="bulk-delete-form" action="{{ route(Auth::user()->getRoleNames()->first() . '.course-enrollments.destroy', $course->id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
@@ -49,7 +31,7 @@
                                             <button type="button" class="btn btn-danger" id="bulk-delete-btn" data-toggle="modal" data-target="#bulkDeleteModal" disabled>
                                                 <i class="fa fa-trash"></i> Hapus yang Dipilih
                                             </button>
-                                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteAllModal"><i class="fa fa-trash-o"></i> Hapus Semua Pengguna</button>
+                                            <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#deleteAllModal"><i class="fa fa-trash-o"></i> Hapus Semua Pengguna</button>
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-hover">
@@ -84,7 +66,7 @@
                                                                 <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-checkbox">
                                                             </td>
                                                             <td class="text-center">
-                                                                {{ $user->studentProfile->unique_id_number ? $user->studentProfile->unique_id_number : '-' }}
+                                                                {{ $user->studentProfile?->unique_id_number ? $user->studentProfile?->unique_id_number : '-' }}
                                                             </td>
                                                             <td>
                                                                 <a href="{{ route('profile.show', $user->id) }}">{{ $user->name }}</a>
@@ -92,7 +74,7 @@
                                                             <td>{{ $user->email }}</td>
                                                             <td>{{ $user->pivot->enrolled_at ? \Carbon\Carbon::parse($user->pivot->enrolled_at)->format('d M Y, H:i') : 'N/A' }}</td>
                                                             <td class="text-center">
-                                                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteSingleModal-{{ $user->id }}">
+                                                                <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteSingleModal-{{ $user->id }}">
                                                                     <i class="fa fa-trash"></i> Hapus
                                                                 </button>
                                                             </td>

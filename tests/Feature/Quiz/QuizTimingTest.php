@@ -175,6 +175,8 @@ class QuizTimingTest extends TestCase
 
     public function test_take_page_gets_server_clock_and_deadline_in_milliseconds(): void
     {
+        // start_time is stored in whole seconds: start the clock on a whole second so the 6-minute gap is exact.
+        $this->freezeSecond();
         [$quiz] = $this->quizWithQuestion();
         $attempt = $this->begin($quiz);
 

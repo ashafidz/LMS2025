@@ -79,7 +79,8 @@ class StudentQuizController extends Controller
         // }
 
         // Cari percobaan (attempt) yang sedang berlangsung untuk kuis ini oleh siswa yang login.
-        $existingAttempt = QuizAttempt::where('quiz_id', $quiz->id)
+        // Pratinjau tidak pernah menyentuh attempt asli milik pengguna.
+        $existingAttempt = $is_preview ? null : QuizAttempt::where('quiz_id', $quiz->id)
             ->where('student_id', Auth::id())
             ->where('status', 'in_progress')
             ->first();
@@ -117,13 +118,20 @@ class StudentQuizController extends Controller
 
         abort_unless(LessonAccess::canViewCourse($student, $course), 403, 'Anda tidak terdaftar di kursus ini.');
 
-        if ($request['is_preview'] !== 'true' && ! LessonAccess::isModuleUnlocked($student, $quiz->lesson->module)) {
+        // Pratinjau: hanya pengelola, dan tidak menyentuh attempt, batas, atau jadwal.
+        if ($request['is_preview'] === 'true') {
+            abort_unless(LessonAccess::isManager($student, $course), 403);
+
+            return $this->previewTake($quiz);
+        }
+
+        if (! LessonAccess::isModuleUnlocked($student, $quiz->lesson->module)) {
             return redirect()->route('student.courses.show', $course->slug)->with('error', self::MODULE_LOCKED_MESSAGE);
         }
 
         // Cek batas, attempt berjalan, dan pembuatan attempt dikunci per siswa agar klik ganda tidak membuat dua attempt
         $user = Auth::user();
-        [$outcome, $payload] = StudentWriteLock::run($user, function () use ($request, $quiz, $user, $course, $student) {
+        [$outcome, $payload] = StudentWriteLock::run($user, function () use ($quiz, $user) {
             // Attempt yang masih berjalan dilanjutkan dulu (sebelum cek batas), agar klik ganda tidak memunculkan pesan batas maksimal
             // Cari percobaan (attempt) yang sedang berlangsung untuk kuis ini oleh siswa yang login.
             $existingAttempt = QuizAttempt::where('quiz_id', $quiz->id)
@@ -146,20 +154,11 @@ class StudentQuizController extends Controller
             }
 
             // Jadwal kuis ditegakkan di server, bukan hanya disembunyikan di halaman mulai
-            if ($request['is_preview'] !== 'true') {
-                if ($quiz->available_from && now()->isBefore($quiz->available_from)) {
-                    return ['error', 'Kuis ini akan tersedia pada '.$quiz->available_from->format('d F Y, H:i')];
-                }
-                if ($quiz->available_to && now()->isAfter($quiz->available_to)) {
-                    return ['error', 'Waktu pengerjaan kuis ini telah berakhir pada '.$quiz->available_to->format('d F Y, H:i')];
-                }
+            if ($quiz->available_from && now()->isBefore($quiz->available_from)) {
+                return ['error', 'Kuis ini akan tersedia pada '.$quiz->available_from->format('d F Y, H:i')];
             }
-
-            // preview mode (tidak generate shuffle)
-            if ($request['is_preview'] === 'true') {
-                abort_unless(LessonAccess::isManager($student, $course), 403);
-
-                return ['preview', null];
+            if ($quiz->available_to && now()->isAfter($quiz->available_to)) {
+                return ['error', 'Waktu pengerjaan kuis ini telah berakhir pada '.$quiz->available_to->format('d F Y, H:i')];
             }
 
             // create quize attampt
@@ -209,21 +208,23 @@ class StudentQuizController extends Controller
             return redirect()->route('student.quiz.start', $quiz)->with('error', $payload);
         }
 
-        if ($outcome === 'preview') {
-            $quiz->load('questions.options');
-            $attempt = new QuizAttempt(['quiz_id' => $quiz->id, 'id' => 0]);
-            $attempt->setRelation('quiz', $quiz);
-
-            return view('student.quizzes.take', [
-                'attempt' => $attempt,
-                'is_preview' => true,
-                'endTime' => null,
-                'serverNowMs' => null,
-                'endTimeMs' => null,
-            ]);
-        }
-
         return redirect()->route('student.quiz.take', $payload);
+    }
+
+    /** Preview page for managers: nothing is created, saved, or scored. */
+    private function previewTake(Quiz $quiz)
+    {
+        $quiz->load('questions.options');
+        $attempt = new QuizAttempt(['quiz_id' => $quiz->id, 'id' => 0]);
+        $attempt->setRelation('quiz', $quiz);
+
+        return view('student.quizzes.take', [
+            'attempt' => $attempt,
+            'is_preview' => true,
+            'endTime' => null,
+            'serverNowMs' => null,
+            'endTimeMs' => null,
+        ]);
     }
 
     public function take($attemptId)
@@ -414,7 +415,7 @@ class StudentQuizController extends Controller
                     ! $quizExceededTimeLimit
                 ) {
                     // KODE BARU (Menggunakan Named Arguments, urutan tidak masalah)
-                    PointService::addPoints(
+                    $earned = PointService::addPoints(
                         user: Auth::user(),
                         course: $attempt->quiz->lesson->module->course,
                         activity: 'pass_quiz', // Jelas ini untuk 'activity'
@@ -422,6 +423,10 @@ class StudentQuizController extends Controller
                         description_meta: $attempt->quiz->title
                     );
 
+                    // Dibaca halaman berikutnya untuk animasi "+N poin" (hanya bila poin benar-benar bertambah)
+                    if ($earned > 0) {
+                        session()->flash('rs_points', $earned);
+                    }
                 }
 
                 // Lulus menandai lesson selesai, walaupun poinnya sudah pernah diberikan (misalnya dari

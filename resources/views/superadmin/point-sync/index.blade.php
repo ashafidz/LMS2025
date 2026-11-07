@@ -2,24 +2,10 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Sinkronisasi Poin</h5>
-                        <p class="m-b-0">Pilih instruktur untuk mengelola sinkronisasi poin kursusnya.</p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ auth()->user()->hasRole('superadmin') ? route('superadmin.dashboard') : route('admin.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Sinkronisasi Poin</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', auth()->user()->hasRole('superadmin') ? route('superadmin.dashboard') : route('admin.dashboard')], ['Sinkronisasi Poin', null]]">
+        <x-slot:title>Sinkronisasi Poin</x-slot:title>
+        <x-slot:subtitle>Pilih instruktur untuk mengelola sinkronisasi poin kursusnya.</x-slot:subtitle>
+    </x-dash.page-head>
 
     <div class="pcoded-inner-content">
         <div class="main-body">

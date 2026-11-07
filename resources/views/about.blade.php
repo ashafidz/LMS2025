@@ -4,11 +4,14 @@
 
 @section('content')
 <div class="rs-page">
-    <section class="rs-pagehead">
+    <section class="rs-pagehead rs-pagehead--art">
         <div class="rs-wrap">
-            <p class="rs-crumbs"><a href="{{ route('home') }}">Beranda</a> / Tentang Kami</p>
-            <h1 class="rs-h1">Tentang Kami</h1>
-            <p class="rs-lead">Temukan keunggulan platform {{ $siteSettings->site_name }} yang dirancang khusus untuk mendukung pembelajaran digital di Indonesia.</p>
+            <div class="rs-pagehead__text">
+                <p class="rs-crumbs"><a href="{{ route('home') }}">Beranda</a> / Tentang Kami</p>
+                <h1 class="rs-h1">Tentang Kami</h1>
+                <p class="rs-lead">Temukan keunggulan platform {{ ($siteSettings->site_name ?? null) ?: config('app.name') }} yang dirancang khusus untuk mendukung pembelajaran digital di Indonesia.</p>
+            </div>
+            <x-rs.illustration name="rs-02-tentang-tim" size="lg" class="rs-pagehead__illu" />
         </div>
     </section>
 
@@ -60,11 +63,11 @@
                     <h3 class="rs-h3">Siap Menghadapi Dunia Kerja</h3>
                     <ul class="rs-checks rs-checks--1">
                         <li><i class="bi bi-check2" aria-hidden="true"></i> <span>Konsultasi karier dan pembuatan CV profesional.</span></li>
-                        <li><i class="bi bi-check2" aria-hidden="true"></i> <span>Akses ke lowongan kerja eksklusif mitra {{ $siteSettings->site_name }}.</span></li>
+                        <li><i class="bi bi-check2" aria-hidden="true"></i> <span>Akses ke lowongan kerja eksklusif mitra {{ ($siteSettings->site_name ?? null) ?: config('app.name') }}.</span></li>
                         <li><i class="bi bi-check2" aria-hidden="true"></i> <span>Pelatihan interview dan pengembangan soft skill.</span></li>
                     </ul>
                     <p class="rs-mt-3">
-                        {{ $siteSettings->site_name }} mendukung kariermu sejak proses belajar hingga siap terjun ke industri.
+                        {{ ($siteSettings->site_name ?? null) ?: config('app.name') }} mendukung kariermu sejak proses belajar hingga siap terjun ke industri.
                     </p>
                 </div>
                 <div>

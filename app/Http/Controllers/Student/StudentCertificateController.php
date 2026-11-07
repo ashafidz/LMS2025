@@ -46,6 +46,9 @@ class StudentCertificateController extends Controller
             $certificate->total_lessons_count = $totalLessons;
         }
 
-        return view('student.certificates.index', compact('certificates'));
+        // Shown in the page banner ("kamu sudah meraih N sertifikat"); simplePaginate has no total.
+        $certificateCount = $user->certificates()->count();
+
+        return view('student.certificates.index', compact('certificates', 'certificateCount'));
     }
 }

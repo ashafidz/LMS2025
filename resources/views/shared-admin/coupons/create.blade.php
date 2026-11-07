@@ -1,31 +1,12 @@
 @extends('layouts.app-layout')
 
 @section('content')
-    <div class="pcoded-content">
+    <div class="pcoded-content rs-page-form">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Buat Kupon Baru</h5>
-                            <p class="m-b-0">Isi detail untuk kupon diskon baru.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a
-                                    href="{{ route(Auth::user()->getRoleNames()->first() . '.dashboard') }}"><i
-                                        class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a
-                                    href="{{ route(Auth::user()->getRoleNames()->first() . '.coupons.index') }}">Kupon</a>
-                            </li>
-                            <li class="breadcrumb-item"><a href="#!">Buat</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-dash.page-head :crumbs="[['__home', route(Auth::user()->getRoleNames()->first() . '.dashboard')], ['Kupon', route(Auth::user()->getRoleNames()->first() . '.coupons.index')], ['Buat', null]]">
+            <x-slot:title>Buat Kupon Baru</x-slot:title>
+            <x-slot:subtitle>Isi detail untuk kupon diskon baru.</x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
 
         <div class="pcoded-inner-content">
@@ -51,7 +32,7 @@
                                         @endif
 
                                         <form action="{{ route(Auth::user()->getRoleNames()->first() . '.coupons.store') }}"
-                                            method="POST">
+                                            method="POST" class="rs-form">
                                             @csrf
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Kode Kupon</label>
@@ -115,6 +96,7 @@
                                                 </div>
                                             </div>
                                             <hr>
+                                            <div class="rs-grid-2">
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Batas Penggunaan Total</label>
                                                 <div class="col-sm-10">
@@ -130,6 +112,7 @@
                                                         value="{{ old('max_uses_per_user') }}"
                                                         placeholder="Kosongkan jika tidak terbatas">
                                                 </div>
+                                            </div>
                                             </div>
 
 
@@ -173,12 +156,10 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="form-group row">
-                                                <div class="col-sm-12 text-right">
-                                                    <a href="{{ route(Auth::user()->getRoleNames()->first() . '.coupons.index') }}"
-                                                        class="btn btn-secondary">Batal</a>
-                                                    <button type="submit" class="btn btn-primary">Simpan Kupon</button>
-                                                </div>
+                                                                                        <div class="rs-form-actions">
+                                                <a href="{{ route(Auth::user()->getRoleNames()->first() . '.coupons.index') }}"
+                                                class="btn btn-secondary">Batal</a>
+                                                <button type="submit" class="btn btn-primary">Simpan Kupon</button>
                                             </div>
                                         </form>
                                     </div>

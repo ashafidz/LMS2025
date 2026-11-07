@@ -14,7 +14,7 @@
                 <div class="slide"></div>
             </li>
         </ul>
-        <div class="tab-content card-block">
+        <div class="tab-content pt-3">
 {{-- TAB 1: DAFTAR SEMUA SISWA (urut berdasarkan NIM) --}}
 <div class="tab-pane active" id="daftar_siswa" role="tabpanel">
     <div class="table-responsive">
@@ -32,7 +32,7 @@
                 @forelse ($enrolledStudents as $student)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td class="text-center">{{ $student->studentProfile->unique_id_number ?? '-' }}</td>
+                        <td class="text-center">{{ $student->studentProfile?->unique_id_number ?? '-' }}</td>
                         <td><a href="{{ route('profile.show', $student->id) }}">{{ $student->name }}</a></td>
                         
                         <td class="text-center">
@@ -72,7 +72,7 @@
                         @endif
                     ">
                         <td class="font-weight-bold">#{{ $index + 1 }}</td>
-                        <td class="text-center">{{ $student->studentProfile->unique_id_number ?? '-' }}</td>
+                        <td class="text-center">{{ $student->studentProfile?->unique_id_number ?? '-' }}</td>
                         <td><a href="{{ route('profile.show', $student->id) }}">{{ $student->name }}</td>
                         <td class="text-right font-weight-bold">{{ number_format($student->points_earned, 0, ',', '.') }} <span><i class="bi bi-star-fill text-warning"></i></span></td>
                     </tr>

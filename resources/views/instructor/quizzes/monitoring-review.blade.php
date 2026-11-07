@@ -2,23 +2,16 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Violation Review - {{ $quiz->title }}</h5>
-                        <p class="m-b-0">Review pelanggaran pengerjaan kuis oleh student</p>
-                    </div>
-                </div>
-                <div class="col-md-4 text-right">
-                    <a href="{{ route('instructor.modules.lessons.index', $quiz->lesson->module_id) }}" class="btn btn-secondary">
-                        <i class="fa fa-arrow-left"></i> Kembali
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head>
+        <x-slot:context>Kuis: {{ $quiz->title }}</x-slot:context>
+        <x-slot:title>Tinjauan Pelanggaran Kuis</x-slot:title>
+        <x-slot:subtitle>Review pelanggaran pengerjaan kuis oleh student</x-slot:subtitle>
+        <x-slot:actions>
+            <a href="{{ route('instructor.modules.lessons.index', $quiz->lesson->module_id) }}" class="btn btn-secondary">
+             <i class="fa fa-arrow-left"></i> Kembali
+             </a>
+        </x-slot:actions>
+    </x-dash.page-head>
 
     <div class="pcoded-inner-content">
         <div class="main-body">
@@ -27,56 +20,28 @@
 
                     {{-- Statistics Cards --}}
                     <div class="row">
-                        <div class="col-md-3">
-                            <div class="card">
-                                <div class="card-block text-center">
-                                    <h3 class="text-primary">{{ $stats['total_attempts'] }}</h3>
-                                    <p class="m-b-0">Total Attempts</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card">
-                                <div class="card-block text-center">
-                                    <h3 class="text-warning">{{ $stats['total_tab_violations'] }}</h3>
-                                    <p class="m-b-0">Total Tab Switches</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card">
-                                <div class="card-block text-center">
-                                    <h3 class="text-info">{{ $stats['total_camera_violations'] }}</h3>
-                                    <p class="m-b-0">Total Camera Violations</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="card">
-                                <div class="card-block text-center">
-                                    <h3 class="text-danger">{{ $stats['total_expelled'] ?? 0 }}</h3>
-                                    <p class="m-b-0">Dikeluarkan Dari Quiz</p>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="col-md-3 col-6 mb-3"><div class="rs-stat h-100"><span class="rs-tile" aria-hidden="true"><i class="fa fa-bar-chart"></i></span><div><strong>{{ $stats['total_attempts'] }}</strong><span>Total Percobaan</span></div></div></div>
+                        <div class="col-md-3 col-6 mb-3"><div class="rs-stat h-100"><span class="rs-tile" aria-hidden="true"><i class="fa fa-exclamation-triangle"></i></span><div><strong>{{ $stats['total_tab_violations'] }}</strong><span>Total Tab Switches</span></div></div></div>
+                        <div class="col-md-3 col-6 mb-3"><div class="rs-stat h-100"><span class="rs-tile" aria-hidden="true"><i class="fa fa-camera"></i></span><div><strong>{{ $stats['total_camera_violations'] }}</strong><span>Total Pelanggaran Kamera</span></div></div></div>
+                        <div class="col-md-3 col-6 mb-3"><div class="rs-stat h-100"><span class="rs-tile" aria-hidden="true"><i class="fa fa-ban"></i></span><div><strong>{{ $stats['total_expelled'] ?? 0 }}</strong><span>Dikeluarkan Dari Quiz</span></div></div></div>
                     </div>
 
                     {{-- Attempts Table --}}
                     <div class="card">
                         <div class="card-header">
-                            <h5>Daftar Student &  Sesi Terakhir</h5>
+                            <h5>Daftar Siswa &  Sesi Terakhir</h5>
                         </div>
                         <div class="card-block">
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Student</th>
+                                            <th>Siswa</th>
                                             <th>Waktu Pengerjaan Terakhir</th>
                                             <th>Skor Terakhir</th>
                                             <th class="text-center">Tab Switch Terakhir</th>
-                                            <th class="text-center">Camera Violations Terakhir</th>
-                                            <th class="text-center">Total Violations Terakhir</th>
+                                            <th class="text-center">Pelanggaran Kamera Terakhir</th>
+                                            <th class="text-center">Total Pelanggaran Terakhir</th>
                                             <th class="text-center">Dikeluarkan Dari Quiz Terakhir</th>
                                             <th class="text-center">Aksi</th>
                                         </tr>
@@ -94,7 +59,7 @@
                                                 <small class="text-muted">{{ $attempt->student->email }}</small>
                                                 <br>
                                                 <small class="badge badge-info">
-                                                    {{ $allAttempts->count() }} attempt(s)
+                                                    {{ $allAttempts->count() }} percobaan
                                                 </small>
                                             </td>
                                             <td>
@@ -173,7 +138,7 @@
                                                 </button>
                                                 <br>
                                                 <a href="{{ route('instructor.quiz.monitoring.detail', $attempt) }}" 
-                                                   class="btn btn-sm btn-info"
+                                                   class="btn btn-sm btn-secondary"
                                                    title="Lihat Detail Latest Attempt">
                                                     <i class="fa fa-eye"></i> Latest
                                                 </a>
@@ -182,7 +147,7 @@
                                         @empty
                                         <tr>
                                             <td colspan="8" class="text-center">
-                                                <p class="text-muted">Belum ada Student yang mengerjakan kuis ini</p>
+                                                <p class="text-muted">Belum ada siswa yang mengerjakan kuis ini</p>
                                             </td>
                                         </tr>
                                         @endforelse
@@ -209,7 +174,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="historyModalLabel{{ $student->id }}">
-                    <i class="fa fa-history"></i> History Attempts - {{ $student->name }}
+                    <i class="fa fa-history"></i> Riwayat Percobaan - {{ $student->name }}
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -224,7 +189,7 @@
                                 <th width="25%">Waktu Mulai</th>
                                 <th width="12%">Skor</th>
                                 <th width="12%">Status</th>
-                                <th width="15%">Violations</th>
+                                <th width="15%">Pelanggaran</th>
                                 <th width="12%">Dikeluarkan Dari Quiz</th>
                                 <th width="19%">Aksi</th>
                             </tr>
@@ -277,12 +242,12 @@
                                 </td>
                                 <td>
                                     <a href="{{ route('instructor.quiz.monitoring.detail', $historyAttempt) }}" 
-                                       class="btn btn-sm btn-info"
+                                       class="btn btn-sm btn-secondary"
                                        title="Lihat Detail">
                                         <i class="fa fa-eye"></i> Detail
                                     </a>
                                     <a href="{{ route('instructor.quiz.review_attempt', $historyAttempt) }}" 
-                                       class="btn btn-sm btn-inverse"
+                                       class="btn btn-sm btn-secondary"
                                        title="Lihat Nilai Kuis">
                                         <i class="fa fa-file-text-o"></i> Nilai Kuis
                                     </a>

@@ -25,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Add the ConfigureSessionDomain middleware to the web middleware group
         $middleware->web(\App\Http\Middleware\ConfigureSessionDomain::class);
+        $middleware->web(\App\Http\Middleware\ProtectAuthForms::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

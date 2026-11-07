@@ -1,35 +1,20 @@
 @extends('layouts.app-layout')
 @section('content')
-<div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                            <h5 class="m-b-10">Course: {{ $lesson->module->course->title }} | Modul: {{ $lesson->module->title }}</h5>
-                            <p class="m-b-10 fw-bolder" style="font-size: 2rem;">Edit Pelajaran</p>
-                            <p class="m-b-0">Tipe: Sesi Poin (Lesson Poin)</p>
-                        </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.courses.modules.index', $lesson->module->course) }}">Modul</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}">{{ Str::limit($lesson->module->title, 20) }}</a></li>
-                        <li class="breadcrumb-item"><a href="#!">Edit Sesi Poin</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="pcoded-content rs-page-form">
+    <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Modul', route('instructor.courses.modules.index', $lesson->module->course)], [(Str::limit($lesson->module->title, 20)), route('instructor.modules.lessons.index', $lesson->module)], ['Edit Sesi Poin', null]]">
+        <x-slot:context>Kursus: {{ $lesson->module->course->title }}  >  Modul: {{ $lesson->module->title }}</x-slot:context>
+        <x-slot:title>Edit Pelajaran</x-slot:title>
+        <x-slot:subtitle>Tipe: Sesi Poin (Lesson Poin)</x-slot:subtitle>
+    </x-dash.page-head>
     <div class="pcoded-inner-content">
         <div class="main-body"><div class="page-wrapper"><div class="page-body">
             <div class="row"><div class="col-sm-12">
                 <div class="card">
                     <div class="card-header"><h5>Edit Detail Sesi Poin</h5></div>
                     <div class="card-block">
-                        <form action="{{ route('instructor.lessons.update', $lesson) }}" method="POST">
+                        <form action="{{ route('instructor.lessons.update', $lesson) }}" method="POST" class="rs-form">
                             @csrf
+                            @include('instructor.lessons.partials._form-errors')
                             @method('PUT')
                             <div class="form-group row">
                                 <label class="col-sm-2 col-form-label">Judul Pelajaran</label>
@@ -49,11 +34,9 @@
                                     <textarea name="lessonpoin_description" class="form-control" rows="4">{{ old('lessonpoin_description', $lesson->lessonable->description) }}</textarea>
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <div class="col-sm-12 text-right">
-                                    <a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}" class="btn btn-secondary">Batal</a>
-                                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                                </div>
+                                                        <div class="rs-form-actions">
+                                <a href="{{ route('instructor.modules.lessons.index', $lesson->module) }}" class="btn btn-secondary">Batal</a>
+                                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                             </div>
                         </form>
                     </div>

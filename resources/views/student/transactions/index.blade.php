@@ -3,24 +3,10 @@
 @section('content')
 <div class="pcoded-content">
     <!-- Page-header start -->
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Riwayat Transaksi</h5>
-                        <p class="m-b-0">Lihat semua riwayat pembelian kursus Anda.</p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                        <li class="breadcrumb-item"><a href="#!">Riwayat Transaksi</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('student.dashboard')], ['Riwayat Transaksi', null]]">
+        <x-slot:title>Riwayat Transaksi</x-slot:title>
+        <x-slot:subtitle>Lihat semua riwayat pembelian kursus Anda.</x-slot:subtitle>
+    </x-dash.page-head>
     <!-- Page-header end -->
 
     <div class="pcoded-inner-content">
@@ -36,11 +22,7 @@
                                 <div class="card-block">
                                     @if ($orders->isEmpty())
                                         <div class="text-center py-5">
-                                            <div class="mb-4">
-                                                <div class="d-inline-flex align-items-center justify-content-center bg-light" style="width: 100px; height: 100px; border-radius: 50%;">
-                                                    <i class="fa fa-receipt text-muted f-40 opacity-50"></i>
-                                                </div>
-                                            </div>
+                                            <x-rs.illustration name="rs-10-transaksi-kosong" size="md" class="mb-4" />
                                             <h5 class="font-weight-bold text-muted mb-2">Belum Ada Transaksi</h5>
                                             <p class="text-muted mb-4">Anda belum melakukan pembelian kursus apapun. Yuk, jelajahi kursus menarik sekarang!</p>
                                             <a href="{{ route('courses') }}" class="btn btn-primary btn-round px-4 shadow-sm">
@@ -88,7 +70,7 @@
                                                             <!-- Right Action -->
                                                             <div class="col-5 col-md-3 text-right">
                                                                 @if($order->status == 'pending')
-                                                                    <a href="{{ route('checkout.show', $order) }}" class="btn btn-warning btn-sm btn-round shadow-sm w-100">
+                                                                    <a href="{{ route('checkout.show', $order) }}" class="btn btn-secondary btn-sm btn-round shadow-sm w-100">
                                                                         <i class="fas fa-money-bill-wave mr-1"></i> Bayar
                                                                     </a>
                                                                 @else
@@ -142,7 +124,7 @@
                         </div>
                         <div class="row">
                             <div class="col-12">
-                                 <button type="button" class="btn btn-inverse btn-block" data-dismiss="modal">
+                                 <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">
                                     <i class="fa fa-arrow-left"></i> Kembali ke Riwayat
                                 </button>
                             </div>

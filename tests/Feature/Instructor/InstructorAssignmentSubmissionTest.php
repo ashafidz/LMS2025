@@ -105,6 +105,6 @@ class InstructorAssignmentSubmissionTest extends TestCase
             ->get(route('instructor.assignment.submissions', $this->assignment));
 
         $response->assertOk();
-        $response->assertSee('Detail Pengumpulan: 5025201001 - '.$this->student->name, false);
+        $response->assertSee('Detail Pengumpulan: 5025201001 - '.$this->student->name);
     }
 }

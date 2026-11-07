@@ -2,28 +2,10 @@
 
 @section('content')
 <div class="pcoded-content">
-    <div class="page-header">
-        <div class="page-block">
-            <div class="row align-items-center">
-                <div class="col-md-12">
-                    <div class="page-header-title">
-                        <h5 class="m-b-10">Sertifikat Saya</h5>
-                        <p class="m-b-0">Daftar sertifikat kursus milik {{ Auth::user()->name }}</p>
-                    </div>
-                </div>
-                <div class="col-md-12 d-flex mt-3">
-                    <ul class="breadcrumb-title">
-                        <li class="breadcrumb-item">
-                            <a href="{{ route('student.dashboard') }}"><i class="fa fa-home"></i></a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="#!">Sertifikat</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-dash.page-head :crumbs="[['__home', route('student.dashboard')], ['Sertifikat', null]]">
+        <x-slot:title>Sertifikat Saya</x-slot:title>
+        <x-slot:subtitle>Daftar sertifikat kursus milik {{ Auth::user()->name }}</x-slot:subtitle>
+    </x-dash.page-head>
 
     <div class="pcoded-inner-content">
         <div class="main-body">
@@ -34,65 +16,67 @@
                             <i class="fa fa-exclamation-circle mr-2"></i> {{ session('error') }}
                         </div>
                     @endif
-                    @if (session('success'))
-                        <div class="alert alert-success mb-4">
-                            <i class="fa fa-check-circle mr-2"></i> {{ session('success') }}
+                    @php
+                        $tz = Auth::user()->timezone ?: config('app.timezone');
+                    @endphp
+                    @if ($certificates->isNotEmpty())
+                        <section class="rs-cert-hero" aria-labelledby="cert-hero-title">
+                            <x-rs.illustration name="rs-15-sertifikat-terbit" size="sm" class="rs-cert-hero__img" />
+                            <div>
+                                <h2 id="cert-hero-title">Selamat! Kamu sudah meraih {{ $certificateCount }} sertifikat.</h2>
+                                <p>Unduh sertifikat dalam bentuk PDF kapan saja, untuk dicetak atau dibagikan.</p>
+                            </div>
+                        </section>
+                    @endif
+
+                    @if ($certificates->isEmpty())
+                        <div class="card">
+                            <div class="card-block text-center py-5">
+                                <div class="mb-3">
+                                    <x-rs.illustration name="rs-09-sertifikat-kosong" size="md" />
+                                </div>
+                                <h2 class="h5 mb-2">Belum ada sertifikat</h2>
+                                <p class="text-muted mb-4">Selesaikan kursus Anda untuk mendapatkan sertifikat yang bisa diunduh dan dibagikan.</p>
+                                <a href="{{ route('courses') }}" class="btn btn-secondary">
+                                    Jelajahi kursus <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                    @else
+                        <div class="rs-certs">
+                            @foreach ($certificates as $certificate)
+                                @php $course = $certificate->course; @endphp
+                                <article class="rs-cert">
+                                    <div class="rs-cert__cover {{ $course?->thumbnail_url ? 'has-img' : 'rs-cover--c'.(($course->category_id ?? 0) % 5) }}"
+                                        @if ($course?->thumbnail_url) style="background-image: url('{{ Storage::url($course->thumbnail_url) }}')" @endif aria-hidden="true">
+                                        <span class="rs-cert__seal"><i class="bi bi-award-fill"></i></span>
+                                    </div>
+                                    <div class="rs-cert__body">
+                                        <span class="rs-cert__eyebrow">Sertifikat kelulusan</span>
+                                        <h3 class="rs-cert__title">{{ $course?->title ?? 'Kursus tidak tersedia' }}</h3>
+                                        <dl class="rs-cert__meta">
+                                            <div><dt>Terbit</dt><dd>{{ $certificate->issued_at->copy()->setTimezone($tz)->locale('id')->isoFormat('D MMMM YYYY') }}</dd></div>
+                                            <div><dt>Kode</dt><dd class="rs-cert__code">{{ $certificate->certificate_code }}</dd></div>
+                                        </dl>
+                                        @if ($certificate->has_incomplete_lessons ?? false)
+                                            <div class="rs-cert__note" role="note">
+                                                <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                                                <span><strong>Kursus Diperbarui:</strong> ada pelajaran baru ({{ $certificate->completed_lessons_count }}/{{ $certificate->total_lessons_count }} selesai). Selesaikan semua pelajaran untuk mengunduh sertifikat.</span>
+                                            </div>
+                                            <a href="{{ route('student.courses.show', $course) }}" class="btn btn-secondary btn-block mt-auto">
+                                                <i class="bi bi-book" aria-hidden="true"></i> Lanjutkan Kursus
+                                            </a>
+                                        @elseif ($course)
+                                            <a href="{{ route('student.certificate.download', $certificate->course_id) }}" class="btn btn-primary btn-block mt-auto download-cert-btn">
+                                                <i class="bi bi-download" aria-hidden="true"></i> Unduh Sertifikat
+                                            </a>
+                                        @endif
+                                    </div>
+                                </article>
+                            @endforeach
                         </div>
                     @endif
-                    <div class="row">
-                        @forelse ($certificates as $certificate)
-                            <div class="col-sm-6 col-lg-4 mb-4">
-                                <div class="card shadow-sm h-100 border-0" style="border-radius: 12px; transition: transform 0.2s ease;">
-                                    <div class="card-block text-center p-4 d-flex flex-column">
-                                        <div class="mb-4">
-                                            <div class="d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px; border-radius: 50%; background: rgba(255, 193, 7, 0.1);">
-                                                <i class="fa fa-certificate text-warning f-40"></i>
-                                            </div>
-                                        </div>
-                                        <h5 class="font-weight-bold mb-3" style="line-height: 1.4;">{{ $certificate->course->title }}</h5>
-                                        
-                                        <div class="mt-auto">
-                                            <div class="bg-light p-2 rounded mb-3">
-                                                <div class="d-flex justify-content-between align-items-center text-muted" style="font-size: 12px;">
-                                                    <span title="Tanggal Diperoleh"><i class="fa fa-calendar mr-1"></i> {{ $certificate->issued_at->format('d M Y') }}</span>
-                                                    <span title="Kode Sertifikat"><i class="fa fa-hashtag mr-1"></i> {{ $certificate->certificate_code }}</span>
-                                                </div>
-                                            </div>
-                                            @if ($certificate->has_incomplete_lessons ?? false)
-                                                <div class="alert alert-warning py-2 px-3 mb-2 text-left" style="font-size: 12px; line-height: 1.4;">
-                                                    <i class="fa fa-exclamation-triangle mr-1"></i>
-                                                    <strong>Kursus Diperbarui:</strong> Ada pelajaran baru yang belum selesai ({{ $certificate->completed_lessons_count }}/{{ $certificate->total_lessons_count }} selesai). Silakan selesaikan seluruh pelajaran untuk mengunduh sertifikat.
-                                                </div>
-                                                <a href="{{ route('student.courses.show', $certificate->course) }}" class="btn btn-warning btn-sm btn-block btn-round shadow-sm text-dark font-weight-bold">
-                                                    <i class="fa fa-book mr-1"></i> Lanjutkan Kursus
-                                                </a>
-                                            @else
-                                                <a href="{{ route('student.certificate.download', $certificate->course_id) }}" class="btn btn-primary btn-sm btn-block btn-round download-cert-btn shadow-sm">
-                                                    <i class="fa fa-download mr-1"></i> Unduh Sertifikat
-                                                </a>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="col-12">
-                                <div class="card shadow-sm border-0" style="border-radius: 12px;">
-                                    <div class="card-block text-center py-5">
-                                        <div class="mb-3">
-                                            <i class="fa fa-certificate text-muted f-50 opacity-50"></i>
-                                        </div>
-                                        <h5 class="text-muted mb-2 font-weight-bold">Belum Ada Sertifikat</h5>
-                                        <p class="text-muted mb-4">Selesaikan kursus Anda untuk mendapatkan sertifikat pencapaian yang dapat dibagikan.</p>
-                                        <a href="{{ route('courses') }}" class="btn btn-outline-primary btn-round">
-                                            Jelajahi Kursus <i class="fa fa-arrow-right ml-1"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforelse
-                    </div>
-                    
+
                     @if($certificates->hasPages())
                     <div class="row">
                         <div class="col-12">
@@ -126,16 +110,6 @@
 
 @push('styles')
 <style>
-    .custom-card-header {
-        background: #fff !important;
-        border-bottom: 1px solid #e0e0e0;
-        border-left: 4px solid var(--rs-shelf);
-        padding: 12px 16px;
-    }
-    .table td {
-        vertical-align: middle;
-    }
-
     /* Loading Modal Styles */
     .modal.show {
         background-color: rgba(0, 0, 0, 0.5);

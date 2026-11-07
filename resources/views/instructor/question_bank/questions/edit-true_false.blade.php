@@ -1,28 +1,12 @@
 @extends('layouts.app-layout')
 
 @section('content')
-    <div class="pcoded-content">
+    <div class="pcoded-content rs-page-form">
         <!-- Page-header start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Edit Question</h5>
-                            <p class="m-b-0">Type: True / False</p>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-flex mt-3">
-                        <ul class="breadcrumb-title">
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.dashboard') }}"><i class="fa fa-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.topics.index') }}">Bank Soal</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('instructor.question-bank.questions.index', $question->topic) }}">{{ Str::limit($question->topic->name, 20) }}</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Edit Pertaanyaan</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-dash.page-head :crumbs="[['__home', route('instructor.dashboard')], ['Bank Soal', route('instructor.question-bank.topics.index')], [(Str::limit($question->topic->name, 20)), route('instructor.question-bank.questions.index', $question->topic)], ['Edit Pertaanyaan', null]]">
+            <x-slot:title>Edit Question</x-slot:title>
+            <x-slot:subtitle>Type: True / False</x-slot:subtitle>
+        </x-dash.page-head>
         <!-- Page-header end -->
 
         <div class="pcoded-inner-content">
@@ -37,14 +21,15 @@
                                         <span>Ubah detail pertanyaan di bawah ini.</span>
                                     </div>
                                     <div class="card-block">
-                                        <form action="{{ route('instructor.question-bank.questions.update', $question) }}" method="POST" id="true-false-form">
+                                        <form action="{{ route('instructor.question-bank.questions.update', $question) }}" method="POST" id="true-false-form" class="rs-form rs-form--bank">
                                             @csrf
+                                            @include('instructor.question_bank.questions.partials._form-errors')
                                             @method('PUT')
 
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Teks Pertanyaan</label>
                                                 <div class="col-sm-10">
-                                                    <textarea rows="5" name="question_text" class="form-control" required>{{ old('question_text', $question->question_text) }}</textarea>
+                                                    <textarea rows="5" name="question_text" class="form-control" data-rich="question">{{ old('question_text', $question->editorText()) }}</textarea>
                                                 </div>
                                             </div>
 
@@ -58,7 +43,7 @@
                                             <div class="form-group row">
                                                 <label class="col-sm-2 col-form-label">Keterangan (Opsional)</label>
                                                 <div class="col-sm-10">
-                                                    <textarea rows="3" name="explanation" class="form-control">{{ old('explanation', $question->explanation) }}</textarea>
+                                                    <textarea rows="3" name="explanation" class="form-control" data-rich="explanation">{{ old('explanation', $question->editorExplanation()) }}</textarea>
                                                 </div>
                                             </div>
 
@@ -86,9 +71,8 @@
 
                                             {{-- Static option for "True" --}}
                                             <div class="form-group row align-items-center">
-                                                <label class="col-sm-2 col-form-label text-right">
-                                                    <input type="radio" name="correct_option" value="true" class="form-check-input" required {{ ($correctValue === 'True' || $correctValue === 'Benar') ? 'checked' : '' }}>
-                                                </label>
+                                                <label class="rs-correct-pick">
+                                                    <input type="radio" name="correct_option" value="true" class="form-check-input" required {{ ($correctValue === 'True' || $correctValue === 'Benar') ? 'checked' : '' }}> <span>Jawaban benar</span></label>
                                                 <div class="col-sm-8">
                                                     <input type="text" name="options[0][text]" class="form-control" value="Benar" readonly>
                                                     <input type="hidden" name="options[0][is_correct]" value="{{ ($correctValue === 'True' || $correctValue === 'Benar') ? '1' : '0' }}">
@@ -97,9 +81,8 @@
 
                                             {{-- Static option for "False" --}}
                                             <div class="form-group row align-items-center">
-                                                <label class="col-sm-2 col-form-label text-right">
-                                                    <input type="radio" name="correct_option" value="false" class="form-check-input" required {{ ($correctValue === 'False' || $correctValue === 'Salah') ? 'checked' : '' }}>
-                                                </label>
+                                                <label class="rs-correct-pick">
+                                                    <input type="radio" name="correct_option" value="false" class="form-check-input" required {{ ($correctValue === 'False' || $correctValue === 'Salah') ? 'checked' : '' }}> <span>Jawaban benar</span></label>
                                                 <div class="col-sm-8">
                                                     <input type="text" name="options[1][text]" class="form-control" value="Salah" readonly>
                                                     <input type="hidden" name="options[1][is_correct]" value="{{ ($correctValue === 'False' || $correctValue === 'Salah') ? '1' : '0' }}">
@@ -125,6 +108,7 @@
 @endsection
 
 @push('scripts')
+@include('instructor.question_bank.questions.partials._question-editor-scripts')
 <script>
     // Event listener to handle radio button selection
     document.getElementById('true-false-form').addEventListener('change', function(e) {

@@ -1,7 +1,8 @@
 @php
     $polling = $lesson->lessonable;
+    $isPreviewMode = $is_preview ?? false;
     $hasVoted = false;
-    if(auth()->check()) {
+    if(auth()->check() && ! $isPreviewMode) {
         $hasVoted = $polling->responses()->where('user_id', auth()->id())->exists();
     }
     
@@ -17,13 +18,16 @@
 @endphp
 
 <div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0 text-white"><i class="bi bi-bar-chart-fill mr-2"></i>{{ $polling->question }}</h5>
-    </div>
     <div class="card-body" id="polling-container-{{ $lesson->id }}">
-        @if($polling->description)
-            <p class="text-muted">{{ $polling->description }}</p>
-        @endif
+        <div class="rs-q-head">
+            <span class="rs-q-head__ic" aria-hidden="true"><i class="bi bi-bar-chart-fill"></i></span>
+            <div>
+                <h3>{{ $polling->question }}</h3>
+                @if($polling->description)
+                    <p>{{ $polling->description }}</p>
+                @endif
+            </div>
+        </div>
         
         @if($polling->allow_multiple && $polling->max_choices)
             <div class="alert alert-info">Anda dapat memilih maksimal {{ $polling->max_choices }} opsi.</div>
@@ -110,7 +114,7 @@
                 }
             </style>
             
-            <form id="form-polling-{{ $lesson->id }}" action="{{ route('student.lessons.polling.submit', $lesson->id) }}" data-results-url="{{ route('student.lessons.polling.results.ajax', $lesson->id) }}" method="POST" onsubmit="
+            <form id="form-polling-{{ $lesson->id }}" action="{{ route('student.lessons.polling.submit', $lesson->id) }}{{ $isPreviewMode ? '?preview=true' : '' }}" data-results-url="{{ route('student.lessons.polling.results.ajax', $lesson->id) }}" method="POST" onsubmit="
                 event.preventDefault();
                 var form = this;
                 var btn = form.querySelector('button[type=submit]');
@@ -123,11 +127,11 @@
                     var maxChoices = {{ $polling->max_choices ?? 'null' }};
                     
                     if (checkedCount === 0) {
-                        alert('Silakan pilih minimal satu opsi.');
+                        rsAlert({ text: 'Silakan pilih minimal satu opsi.', icon: 'warning' });
                         return;
                     }
                     if (maxChoices !== null && checkedCount != maxChoices && Math.max(checkedCount, maxChoices) == checkedCount) {
-                        alert('Anda maksimal hanya boleh memilih ' + maxChoices + ' opsi.');
+                        rsAlert({ text: 'Anda maksimal hanya boleh memilih ' + maxChoices + ' opsi.', icon: 'warning' });
                         return;
                     }
                 }
@@ -143,6 +147,7 @@
                 .then(function(res) { return res.json(); })
                 .then(function(data) {
                     if (data.success) {
+                        if (typeof rsPointsGained === 'function') { rsPointsGained(data.points, btn); }
                         var container = document.getElementById('polling-container-' + lessonId);
                         var resultsUrl = form.getAttribute('data-results-url');
                         var showResults = {{ $polling->show_results ? 'true' : 'false' }};
@@ -167,14 +172,14 @@
                             window.location.reload();
                         }, 1500);
                     } else {
-                        alert(data.message || 'Terjadi kesalahan');
+                        rsAlert({ text: data.message || 'Terjadi kesalahan', icon: 'error' });
                         btn.disabled = false;
                         btn.innerHTML = originalBtnHtml;
                     }
                 })
                 .catch(function(err) {
                     console.error(err);
-                    alert('Terjadi kesalahan jaringan.');
+                    rsAlert({ text: 'Terjadi kesalahan jaringan.', icon: 'error' });
                     btn.disabled = false;
                     btn.innerHTML = originalBtnHtml;
                 });
@@ -184,9 +189,9 @@
                     @foreach($polling->options as $option)
                     <div class="mb-3">
                         @if($polling->allow_multiple)
-                            <input type="checkbox" id="polling-option-{{ $option->id }}" name="polling_option_id[]" class="poll-radio-input d-none" value="{{ $option->id }}">
+                            <input type="checkbox" id="polling-option-{{ $option->id }}" name="polling_option_id[]" class="poll-radio-input d-none" value="{{ $option->id }}" @disabled($isPreviewMode)>
                         @else
-                            <input type="radio" id="polling-option-{{ $option->id }}" name="polling_option_id" class="poll-radio-input d-none" value="{{ $option->id }}" required>
+                            <input type="radio" id="polling-option-{{ $option->id }}" name="polling_option_id" class="poll-radio-input d-none" value="{{ $option->id }}" required @disabled($isPreviewMode)>
                         @endif
                         <label class="poll-option-card" for="polling-option-{{ $option->id }}">
                             <div class="d-flex align-items-center">
@@ -197,7 +202,10 @@
                     </div>
                     @endforeach
                 </div>
-                <button type="submit" class="btn btn-primary btn-poll-submit shadow-sm" id="btn-submit-polling-{{ $lesson->id }}">
+                @if($isPreviewMode)
+                    <p class="rs-preview-note text-muted">Ini pratinjau. Siswa akan memilih jawaban di sini.</p>
+                @endif
+                <button type="submit" class="btn btn-primary btn-poll-submit shadow-sm" id="btn-submit-polling-{{ $lesson->id }}" @disabled($isPreviewMode) @if($isPreviewMode) title="Tidak tersedia di mode pratinjau" @endif>
                     <i class="bi bi-send-fill mr-1"></i> Kirim Jawaban
                 </button>
             </form>

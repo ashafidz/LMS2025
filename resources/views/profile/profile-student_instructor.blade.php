@@ -19,8 +19,8 @@
         </div>
 
         <!-- Page-header end -->
-        <div class="pcoded-inner-content px-3 mt-4">
-            <div class="row g-4 px-2">
+        <div class="pcoded-inner-content mt-4">
+            <div class="row g-4">
                 <div class="col-sm-12">
                     <div class="card">
                         <div class="card-header">
@@ -198,18 +198,14 @@
                         </div>
                     </div>
 
-                    <div class="mt-3 row g-2">
-                        <div class="col-6">
-                            <a href="{{ route('user.profile.edit') }}" class="btn btn-primary btn-sm w-100">Edit Profile</a>
-                        </div>
-                        <div class="col-6">
-                            <a href="{{ route('user.password.edit') }}" class="btn btn-primary btn-sm w-100">Ganti Password</a>
-                        </div>
+                    <div class="card rs-profile-actions">
+                        <div class="card-block">
+                        <a href="{{ route('user.profile.edit') }}" class="btn btn-primary">Edit Profil</a>
+                        <a href="{{ route('user.password.edit') }}" class="btn btn-secondary">Ganti Kata Sandi</a>
                         @if (!Auth::user()->hasRole('instructor'))
-                            <div class="col-12 mt-2">
-                                <a href="{{ route('student.apply_instructor.create') }}" class="btn btn-primary btn-sm w-100">Daftar Instructor</a>
-                            </div>
+                            <a href="{{ route('student.apply_instructor.create') }}" class="btn btn-secondary">Daftar Instruktur</a>
                         @endif
+                        </div>
                     </div>
                 </div>
 

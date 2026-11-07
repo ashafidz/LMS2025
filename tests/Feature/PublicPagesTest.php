@@ -91,7 +91,7 @@ class PublicPagesTest extends TestCase
 
     public function test_home_and_about_use_the_new_illustrations(): void
     {
-        $this->get('/')->assertOk()->assertSee('images/tentang/beranda-tentang.jpg', false);
+        $this->get('/')->assertOk()->assertSee('images/illustrations/rs-02-tentang-tim.webp', false);
 
         $about = $this->get(route('about'))->assertOk();
         foreach (['akses-kapan-saja', 'instruktur', 'karier'] as $name) {
