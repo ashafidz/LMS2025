@@ -20,7 +20,12 @@
                                     <h5>Daftar Transaksi Anda</h5>
                                 </div>
                                 <div class="card-block">
-                                    @if ($orders->isEmpty())
+                                    @if ($orders->total() > 0 || request()->filled('search'))
+                                        <x-dash.list-toolbar placeholder="Cari kode pesanan atau judul kursus..." label="Cari transaksi" />
+                                    @endif
+                                    @if ($orders->isEmpty() && request()->filled('search'))
+                                        <p class="text-muted text-center py-4 mb-0">Tidak ada transaksi yang cocok dengan pencarian.</p>
+                                    @elseif ($orders->isEmpty())
                                         <div class="text-center py-5">
                                             <x-rs.illustration name="rs-10-transaksi-kosong" size="md" class="mb-4" />
                                             <h5 class="font-weight-bold text-muted mb-2">Belum Ada Transaksi</h5>
@@ -84,9 +89,7 @@
                                                 </div>
                                             @endforeach
                                         </div>
-                                        <div class="d-flex justify-content-center mt-4">
-                                            {{ $orders->links() }}
-                                        </div>
+                                        <x-dash.pagination :items="$orders" :per-page-options="[10, 25, 50]" />
                                     @endif
                                 </div>
                             </div>

@@ -23,6 +23,7 @@
                                     </div>
                                 </div>
                                 <div class="card-block table-border-style">
+                                    <x-dash.list-toolbar placeholder="Cari teks pertanyaan..." label="Cari pertanyaan" />
                                     <div class="table-responsive">
                                         <table class="table table-hover">
                                             <thead>
@@ -70,15 +71,13 @@
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="5" class="text-center">Belum ada pertanyaan yang dibuat.</td>
+                                                        <td colspan="5" class="text-center">{{ request()->filled('search') ? 'Tidak ada data yang cocok dengan pencarian.' : 'Belum ada pertanyaan yang dibuat.' }}</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="d-flex justify-content-center">
-                                        {{ $questions->links() }}
-                                    </div>
+                                    <x-dash.pagination :items="$questions" />
                                 </div>
                             </div>
                         </div>

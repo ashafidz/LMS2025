@@ -9,6 +9,7 @@ use App\Models\Lesson;
 use App\Models\Module;
 use App\Services\BadgeService;
 use App\Services\LessonAccess;
+use App\Support\ListQuery;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -171,11 +172,13 @@ class StudentDashboardController extends Controller
         $user = Auth::user();
 
         // Ambil semua kursus di mana pengguna terdaftar
-        $enrolledCourses = $this->enrollmentsWithProgress($user)
+        $enrolledCourses = ListQuery::applySearch($this->enrollmentsWithProgress($user), ['courses.title'])
             ->latest('course_enrollments.created_at')
-            ->simplePaginate(9);
+            ->paginate(ListQuery::perPage(9, [9, 18, 36]))
+            ->withQueryString();
+        $hasEnrollments = $enrolledCourses->total() > 0 || $user->enrollments()->exists();
 
-        return view('student.courses.index', compact('enrolledCourses'));
+        return view('student.courses.index', compact('enrolledCourses', 'hasEnrollments'));
     }
 
     /**

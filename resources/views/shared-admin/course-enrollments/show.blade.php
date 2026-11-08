@@ -23,6 +23,7 @@
                                     </div>
                                 </div>
                                 <div class="card-block">
+                                    <x-dash.list-toolbar placeholder="Cari nama, email, atau NIM/NIP/NIDN..." label="Cari siswa" />
                                     <form id="bulk-delete-form" action="{{ route(Auth::user()->getRoleNames()->first() . '.course-enrollments.destroy', $course->id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
@@ -81,16 +82,14 @@
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="5" class="text-center">Belum ada pengguna yang terdaftar di kursus ini.</td>
+                                                            <td colspan="5" class="text-center">{{ request()->filled('search') ? 'Tidak ada data yang cocok dengan pencarian.' : 'Belum ada pengguna yang terdaftar di kursus ini.' }}</td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
                                             </table>
                                         </div>
                                     </form>
-                                    <div class="d-flex justify-content-center">
-                                        {{ $enrolledUsers->links() }}
-                                    </div>
+                                    <x-dash.pagination :items="$enrolledUsers" />
                                 </div>
                             </div>
                         </div>

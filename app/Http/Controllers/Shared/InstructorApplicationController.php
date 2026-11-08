@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\InstructorApproved;
 use App\Mail\InstructorRejected;
 use App\Models\InstructorProfile;
+use App\Support\ListQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -61,7 +62,8 @@ class InstructorApplicationController extends Controller
     public function index(): View
     {
         // Fetch all instructor profiles and load their associated user data
-        $applications = InstructorProfile::with('user')->latest()->simplePaginate(10);
+        $applications = ListQuery::applySearch(InstructorProfile::with('user'), ['headline', 'user:name', 'user:email'])
+            ->latest()->paginate(ListQuery::perPage())->withQueryString();
 
         return view('shared-admin.manajemen-user.instructor-application.index', compact('applications'));
     }

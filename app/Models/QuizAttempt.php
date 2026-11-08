@@ -66,12 +66,13 @@ class QuizAttempt extends Model
     /**
      * Nilai akhir dalam skala 0-100. revised_score adalah SKOR MENTAH dari instruktur (formnya dibatasi skor maksimum
      * kuis), jadi diskalakan terhadap skor maksimum. Tanpa revisi: scaled_score; data lama tanpa scaled_score dihitung
-     * dari skor mentah.
+     * dari skor mentah. $maxScore boleh diisi pemanggil yang sudah menghitungnya (daftar banyak percobaan), supaya
+     * tidak ada query jumlah skor per percobaan.
      */
-    public function finalScaledScore(): ?float
+    public function finalScaledScore(?float $maxScore = null): ?float
     {
         if ($this->revised_score !== null) {
-            $max = $this->maxScore();
+            $max = $maxScore ?? $this->maxScore();
 
             return $max > 0 ? min(100.0, round((float) $this->revised_score / $max * 100, 2)) : 0.0;
         }
@@ -84,7 +85,7 @@ class QuizAttempt extends Model
             return null;
         }
 
-        $max = $this->maxScore();
+        $max = $maxScore ?? $this->maxScore();
 
         return $max > 0 ? min(100.0, round((float) $this->score / $max * 100, 2)) : 0.0;
     }

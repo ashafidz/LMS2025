@@ -44,6 +44,7 @@
                                         </div>
                                     </div>
                                     <div class="card-block">
+                                        <x-dash.list-toolbar placeholder="Cari nama, email, atau headline pelamar..." label="Cari pengajuan" />
                                         <div class="table-responsive">
                                             <table class="table table-hover">
                                                 <thead>
@@ -182,16 +183,14 @@
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="6" class="text-center">No applications found.
+                                                            <td colspan="6" class="text-center">{{ request()->filled('search') ? 'Tidak ada data yang cocok dengan pencarian.' : 'Belum ada pengajuan instruktur.' }}
                                                             </td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <div class="card-footer">
-                                            {{ $applications->links() }}
-                                        </div>
+                                        <x-dash.pagination :items="$applications" />
                                     </div>
                                 </div>
                             </div>

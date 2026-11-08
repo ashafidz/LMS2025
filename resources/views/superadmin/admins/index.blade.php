@@ -15,6 +15,7 @@
                     </div>
                 </div>
                 <div class="card-block table-border-style">
+                    <x-dash.list-toolbar placeholder="Cari nama atau email admin..." label="Cari admin" />
                     @if (session('error')) <div class="alert alert-danger">{{ session('error') }}</div> @endif
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -33,12 +34,12 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="3" class="text-center">Belum ada admin yang ditambahkan.</td></tr>
+                                    <tr><td colspan="3" class="text-center">{{ request()->filled('search') ? 'Tidak ada data yang cocok dengan pencarian.' : 'Belum ada admin yang ditambahkan.' }}</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
-                    <div class="d-flex justify-content-center">{{ $admins->links() }}</div>
+                    <x-dash.pagination :items="$admins" />
                 </div>
             </div>
         </div></div>

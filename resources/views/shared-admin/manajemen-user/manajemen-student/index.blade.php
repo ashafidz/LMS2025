@@ -22,22 +22,7 @@
                                 <div class="card table-card">
                                     <div class="card-header">
                                         <h5>Daftar Siswa</h5>
-                                        <p>List student yang terdaftar</p>
-                                        <form action="{{ url()->current() }}" method="GET" class="mt-3">
-                                            <div class="d-flex align-items-center" style="max-width: 480px; gap: 8px;">
-                                                <div class="input-group flex-grow-1">
-                                                    <input type="text" name="search" class="form-control"
-                                                        placeholder="Cari nama, email, atau NIM/NIP/NIDN..."
-                                                        value="{{ request('search') }}">
-                                                    <div class="input-group-append">
-                                                        <button class="btn btn-primary" type="submit">Cari</button>
-                                                    </div>
-                                                </div>
-                                                @if (request()->filled('search'))
-                                                    <a href="{{ url()->current() }}" class="btn btn-secondary">Reset</a>
-                                                @endif
-                                            </div>
-                                        </form>
+                                        <p>Siswa yang terdaftar di Ruang Studi.</p>
                                         <div class="card-header-right">
                                             {{-- <ul class="list-unstyled card-option">
                                                 <li>
@@ -59,6 +44,7 @@
                                         </div>
                                     </div>
                                     <div class="card-block">
+                                        <x-dash.list-toolbar placeholder="Cari nama, email, atau NIM/NIP/NIDN..." label="Cari siswa" />
                                         <div class="table-responsive">
                                             <table class="table table-hover">
                                                 <thead>
@@ -176,14 +162,7 @@
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <div class="card-footer d-flex justify-content-between align-items-center">
-                                            <small class="text-muted">
-                                                @if ($students_status_data->total() > 0)
-                                                    Menampilkan {{ $students_status_data->firstItem() }}-{{ $students_status_data->lastItem() }} dari {{ $students_status_data->total() }} student
-                                                @endif
-                                            </small>
-                                            {{ $students_status_data->links('pagination::bootstrap-4') }}
-                                        </div>
+                                        <x-dash.pagination :items="$students_status_data" />
                                     </div>
                                 </div>
                             </div>

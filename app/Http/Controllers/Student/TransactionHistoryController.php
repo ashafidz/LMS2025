@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Support\ListQuery;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,10 +15,10 @@ class TransactionHistoryController extends Controller
      */
     public function index()
     {
-        $orders = Auth::user()->orders()
-            ->with('items.course')
+        $orders = ListQuery::applySearch(Auth::user()->orders()->with('items.course'), ['order_code', 'items.course:title'])
             ->latest()
-            ->simplePaginate(10);
+            ->paginate(ListQuery::perPage(10, [10, 25, 50]))
+            ->withQueryString();
 
         return view('student.transactions.index', compact('orders'));
     }

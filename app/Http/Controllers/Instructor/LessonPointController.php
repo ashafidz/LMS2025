@@ -7,6 +7,7 @@ use App\Models\Lesson;
 use App\Models\LessonPointAward;
 use App\Models\User;
 use App\Services\PointService;
+use App\Support\ListQuery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -28,7 +29,9 @@ class LessonPointController extends Controller
             ->orderByRaw('CASE WHEN student_profiles.unique_id_number IS NULL THEN 1 ELSE 0 END')
             ->orderBy('student_profiles.unique_id_number', 'asc')
             ->select('users.*')
-            ->simplePaginate(20);
+            ->where(fn ($q) => ListQuery::applySearch($q, ['users.name', 'users.email', 'student_profiles.unique_id_number']))
+            ->paginate(ListQuery::perPage())
+            ->withQueryString();
 
         return view('instructor.lesson-points.manage', compact('lesson', 'course', 'module', 'students'));
     }

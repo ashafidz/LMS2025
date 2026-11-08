@@ -17,6 +17,7 @@
                                     <h5>Daftar Kursus</h5>
                                 </div>
                                 <div class="card-block table-border-style">
+                                    <x-dash.list-toolbar placeholder="Cari judul kursus atau nama instruktur..." label="Cari kursus" />
                                     <div class="table-responsive">
                                         <table class="table table-hover">
                                             <thead>
@@ -58,15 +59,13 @@
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="4" class="text-center">Belum ada kursus yang dibuat.</td>
+                                                        <td colspan="4" class="text-center">{{ request()->filled('search') ? 'Tidak ada data yang cocok dengan pencarian.' : 'Belum ada kursus yang dibuat.' }}</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="d-flex justify-content-center">
-                                        {{ $courses->links() }}
-                                    </div>
+                                    <x-dash.pagination :items="$courses" />
                                 </div>
                             </div>
                         </div>

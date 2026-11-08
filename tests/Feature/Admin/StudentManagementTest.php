@@ -44,16 +44,23 @@ class StudentManagementTest extends TestCase
             $this->makeStudent(['name' => "Mahasiswa {$i}"]);
         }
 
+        // Default page size is 25 now; per_page=10 gives two pages.
         $this->actingAs($admin)
             ->get(route('admin.manajemen-student.index'))
             ->assertOk()
-            ->assertSee('Menampilkan 1-10 dari 12 student')
+            ->assertSee('Menampilkan <strong>1-12</strong> dari <strong>12</strong> data', false)
+            ->assertDontSee('page=2', false);
+
+        $this->actingAs($admin)
+            ->get(route('admin.manajemen-student.index', ['per_page' => 10]))
+            ->assertOk()
+            ->assertSee('Menampilkan <strong>1-10</strong> dari <strong>12</strong> data', false)
             ->assertSee('page=2', false);
 
         $this->actingAs($admin)
-            ->get(route('admin.manajemen-student.index', ['search' => 'Mahasiswa', 'page' => 2]))
+            ->get(route('admin.manajemen-student.index', ['search' => 'Mahasiswa', 'per_page' => 10, 'page' => 2]))
             ->assertOk()
-            ->assertSee('Menampilkan 11-12 dari 12 student')
+            ->assertSee('Menampilkan <strong>11-12</strong> dari <strong>12</strong> data', false)
             ->assertSee('search=Mahasiswa', false);
     }
 

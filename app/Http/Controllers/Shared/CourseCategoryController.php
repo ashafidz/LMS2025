@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Shared;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\CourseCategory;
+use App\Support\ListQuery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,9 +15,13 @@ class CourseCategoryController extends Controller
 {
     public function index()
     {
-        $categories = CourseCategory::withCount('courses')->latest()->simplePaginate(15);
+        $categories = ListQuery::applySearch(CourseCategory::withCount('courses'), ['name'])
+            ->latest()->paginate(ListQuery::perPage())->withQueryString();
 
-        return view('shared-admin.course-categories.index', compact('categories'));
+        // The last category cannot be deleted: count all of them, not only the page or the search result.
+        $categoryTotal = CourseCategory::count();
+
+        return view('shared-admin.course-categories.index', compact('categories', 'categoryTotal'));
     }
 
     public function create()

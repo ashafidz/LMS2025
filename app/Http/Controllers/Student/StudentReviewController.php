@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CourseReview;
 use App\Models\InstructorReview;
 use App\Models\LikertQuestion;
+use App\Support\ListQuery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -23,8 +24,10 @@ class StudentReviewController extends Controller
         $platformReview = $user->platformReview;
 
         // Ambil semua ulasan kursus dan instruktur dari pengguna
-        $courseReviews = $user->courseReviews()->with('course')->latest()->simplePaginate(5, ['*'], 'course_reviews_page');
-        $instructorReviews = $user->instructorReviews()->with('instructor', 'course')->latest()->simplePaginate(5, ['*'], 'instructor_reviews_page');
+        $courseReviews = $user->courseReviews()->with('course')->latest()
+            ->paginate(ListQuery::perPage(10, [10, 25, 50]), ['*'], 'course_reviews_page')->withQueryString()->appends('tab', 'course');
+        $instructorReviews = $user->instructorReviews()->with('instructor', 'course')->latest()
+            ->paginate(ListQuery::perPage(10, [10, 25, 50]), ['*'], 'instructor_reviews_page')->withQueryString()->appends('tab', 'instructor');
 
         // Ambil semua pertanyaan Likert yang aktif
         $likertQuestions = LikertQuestion::where('is_active', true)->get();

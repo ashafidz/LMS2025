@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Support\ListQuery;
 use Illuminate\Support\Facades\Auth;
 
 class StudentCertificateController extends Controller
@@ -13,10 +14,10 @@ class StudentCertificateController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $certificates = $user->certificates()
-            ->with(['course.modules.lessons'])
+        $certificates = ListQuery::applySearch($user->certificates()->with(['course.modules.lessons']), ['course:title'])
             ->latest('issued_at')
-            ->simplePaginate(10);
+            ->paginate(ListQuery::perPage(10, [10, 25, 50]))
+            ->withQueryString();
 
         // Kumpulkan semua ID pelajaran dari kursus yang tampil di halaman ini
         $allLessonIds = $certificates->flatMap(function ($certificate) {
@@ -46,7 +47,7 @@ class StudentCertificateController extends Controller
             $certificate->total_lessons_count = $totalLessons;
         }
 
-        // Shown in the page banner ("kamu sudah meraih N sertifikat"); simplePaginate has no total.
+        // Shown in the page banner ("kamu sudah meraih N sertifikat"): all certificates, not only the search result.
         $certificateCount = $user->certificates()->count();
 
         return view('student.certificates.index', compact('certificates', 'certificateCount'));

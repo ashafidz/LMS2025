@@ -106,18 +106,20 @@
                                 <div class="card-header p-b-0 border-bottom-0">
                                     <ul class="nav nav-tabs md-tabs" role="tablist">
                                         <li class="nav-item">
-                                            <a class="nav-link active font-weight-bold" data-toggle="tab" href="#tab-riwayat-poin" role="tab"><i class="fa fa-medal mr-1"></i> Riwayat Poin</a>
+                                            @php $pointsTab = request('tab') === 'diamond' ? 'diamond' : 'poin'; @endphp
+                                            <a class="nav-link {{ $pointsTab === 'poin' ? 'active' : '' }} font-weight-bold" data-toggle="tab" href="#tab-riwayat-poin" role="tab"><i class="fa fa-medal mr-1"></i> Riwayat Poin</a>
                                             <div class="slide"></div>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link font-weight-bold" data-toggle="tab" href="#tab-riwayat-diamond" role="tab"><i class="fa fa-diamond mr-1"></i> Riwayat Diamond</a>
+                                            <a class="nav-link {{ $pointsTab === 'diamond' ? 'active' : '' }} font-weight-bold" data-toggle="tab" href="#tab-riwayat-diamond" role="tab"><i class="fa fa-diamond mr-1"></i> Riwayat Diamond</a>
                                             <div class="slide"></div>
                                         </li>
                                     </ul>
                                 </div>
                                 <div class="card-block tab-content p-t-20">
                                     {{-- Tab 1: Poin --}}
-                                    <div class="tab-pane active" id="tab-riwayat-poin" role="tabpanel">
+                                    <div class="tab-pane {{ $pointsTab === 'poin' ? 'active' : '' }}" id="tab-riwayat-poin" role="tabpanel">
+                                        <x-dash.list-toolbar placeholder="Cari judul kursus..." label="Cari poin per kursus" tab="poin" />
                                         <div class="table-responsive">
                                             <table class="table table-hover mb-0">
                                                 <thead>
@@ -161,20 +163,18 @@
                                                         <tr>
                                                             <td colspan="4" class="text-center text-muted py-4">
                                                                 <i class="fa fa-info-circle d-block f-24 mb-2"></i>
-                                                                Anda belum mendapatkan poin dari kursus manapun.
+                                                                {{ request()->filled('search') ? 'Tidak ada kursus yang cocok dengan pencarian.' : 'Anda belum mendapatkan poin dari kursus manapun.' }}
                                                             </td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <div class="d-flex justify-content-center mt-3">
-                                            {{ $pointsPerCourse->links() }}
-                                        </div>
+                                        <x-dash.pagination :items="$pointsPerCourse" :per-page-options="[10, 25, 50]" />
                                     </div>
 
                                     {{-- Tab 2: Diamond --}}
-                                    <div class="tab-pane" id="tab-riwayat-diamond" role="tabpanel">
+                                    <div class="tab-pane {{ $pointsTab === 'diamond' ? 'active' : '' }}" id="tab-riwayat-diamond" role="tabpanel">
                                         <div class="table-responsive">
                                             <table class="table table-hover mb-0">
                                                 <thead>
@@ -208,9 +208,7 @@
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <div class="d-flex justify-content-center mt-3">
-                                            {{ $diamondHistories->links() }}
-                                        </div>
+                                        <x-dash.pagination :items="$diamondHistories" :per-page-options="[10, 25, 50]" />
                                     </div>
                                 </div>
                             </div>

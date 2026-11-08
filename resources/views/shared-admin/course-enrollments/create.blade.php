@@ -16,21 +16,9 @@
                                 <div class="card-header">
                                     <h5>Cari & Tambah Pengguna</h5>
                                     <span>Pilih pengguna yang ingin ditambahkan ke kursus {{ $course->title }}</span>
-                                    <div class="card-header-right">
-                                        <form action="{{ route(Auth::user()->getRoleNames()->first() . '.course-enrollments.create', $course->id) }}" method="GET">
-                                            <div class="input-group">
-                                                <input type="text" name="search" class="form-control" placeholder="Cari nama atau email..." value="{{ request('search') }}">
-                                                <div class="input-group-append">
-                                                    <button class="btn btn-primary" type="submit">
-                                                        Cari
-                                                        {{-- <i class="fa fa-search"></i> --}}
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
                                 </div>
                                 <div class="card-block">
+                                    <x-dash.list-toolbar placeholder="Cari nama atau email..." label="Cari pengguna" />
                                     <form action="{{ route(Auth::user()->getRoleNames()->first() . '.course-enrollments.store', $course->id) }}" method="POST">
                                         @csrf
                                         <div class="table-responsive">
@@ -61,7 +49,7 @@
                                             <a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-enrollments.show', $course->id) }}" class="btn btn-secondary">Batal</a>
                                             <div class="d-flex flex-wrap align-items-center" style="gap: 12px;">
                                                 <div>
-                                                    {{ $availableUsers->links() }}
+                                                    <x-dash.pagination :items="$availableUsers" />
                                                 </div>
                                                 <button type="submit" class="btn btn-primary">Tambahkan Pengguna Terpilih</button>
                                             </div>

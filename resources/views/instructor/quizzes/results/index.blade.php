@@ -21,51 +21,102 @@
                                     <span>Tabel ini menampilkan status pengerjaan kuis untuk semua siswa yang terdaftar di kursus ini.</span>
                                 </div>
                                 <div class="card-block table-border-style">
+                                    <x-dash.list-toolbar placeholder="Cari nama, email, atau NIM/NIP/NIDN..." label="Cari siswa" />
+                                    @php
+                                        $tz = auth()->user()->timezone ?: session('user_timezone', config('app.timezone'));
+                                        $localDay = fn ($date) => $date->copy()->setTimezone($tz)->locale('id')->isoFormat('D MMM YYYY');
+                                        $localClock = fn ($date) => $date->copy()->setTimezone($tz)->isoFormat('HH.mm');
+                                    @endphp
+                                    <div class="mb-3">
+                                        <span class="rs-chip mr-2">Nilai minimum lulus: <strong>{{ rtrim(rtrim(number_format($minimumScoreScaled, 2, ',', '.'), '0'), ',') }}</strong></span>
+                                        <span class="rs-chip">Nilai maksimal: <strong>100</strong></span>
+                                    </div>
                                     <div class="table-responsive">
                                         <table class="table table-hover">
                                             <thead>
                                                 <tr>
-                                                    <th class="text-center">NIM/NIP/NIDN</th>
-                                                    <th>Nama Siswa</th>
-                                                    <th>Status Pengerjaan</th>
+                                                    <th class="text-center">No</th>
+                                                    @include('instructor.partials._sort_th', ['key' => 'nim', 'label' => 'NIM/NIP/NIDN', 'class' => 'text-center'])
+                                                    @include('instructor.partials._sort_th', ['key' => 'nama', 'label' => 'Nama Siswa'])
+                                                    @include('instructor.partials._sort_th', ['key' => 'nilai', 'label' => 'Nilai', 'class' => 'text-center', 'first' => 'desc'])
+                                                    @include('instructor.partials._sort_th', ['key' => 'selesai', 'label' => 'Waktu Pengerjaan'])
+                                                    <th>Status</th>
                                                     <th class="text-center">Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @forelse ($enrolledStudents as $student)
                                                     <tr>
+                                                        <td class="text-center">{{ $enrolledStudents->firstItem() + $loop->index }}</td>
                                                         <td class="text-center">{{ $student->studentProfile?->unique_id_number ? $student->studentProfile?->unique_id_number : '-' }}</td>
                                                         <td><a href="{{ route('profile.show', $student->id) }}">{{ $student->name }}</a></td>
+                                                        <td class="text-center">
+                                                            @if ($student->best_score !== null)
+                                                                @php $bestScoreText = rtrim(rtrim(number_format($student->best_score, 2, ',', '.'), '0'), ','); @endphp
+                                                                @if ($student->quiz_status === 'Lulus')
+                                                                    <strong>{{ $bestScoreText }}</strong>
+                                                                @else
+                                                                    {{ $bestScoreText }}
+                                                                @endif
+                                                            @else
+                                                                -
+                                                            @endif
+                                                        </td>
+                                                        @php
+                                                            $best = $student->best_attempt;
+                                                            $minutes = ($best && $best->start_time && $best->end_time)
+                                                                ? intdiv(abs($best->end_time->getTimestamp() - $best->start_time->getTimestamp()), 60)
+                                                                : null;
+                                                        @endphp
+                                                        <td>
+                                                            @if ($minutes === null)
+                                                                -
+                                                            @else
+                                                                {{-- Mulai - selesai (jam lokal) dan lama pengerjaan, dari percobaan yang sama dengan Nilai. --}}
+                                                                <div class="rs-attempt-time">
+                                                                    <span>{{ $localDay($best->start_time) }}</span>
+                                                                    <span>
+                                                                        {{ $localClock($best->start_time) }} - @if ($localDay($best->end_time) !== $localDay($best->start_time)){{ $localDay($best->end_time) }}, @endif{{ $localClock($best->end_time) }}
+                                                                    </span>
+                                                                    <small class="text-muted">{{ $minutes < 1 ? 'Kurang dari 1 menit' : $minutes.' menit' }}</small>
+                                                                </div>
+                                                            @endif
+                                                        </td>
                                                         <td>
                                                             @php
                                                                 $statusClass = '';
                                                                 if ($student->quiz_status === 'Lulus') $statusClass = 'label-success';
                                                                 elseif ($student->quiz_status === 'Gagal') $statusClass = 'label-danger';
+                                                                elseif ($student->quiz_status === 'Sedang Mengerjakan') $statusClass = 'label-warning';
                                                                 else $statusClass = 'label-default';
                                                             @endphp
                                                             <label class="label {{ $statusClass }}">{{ $student->quiz_status }}</label>
                                                         </td>
                                                         <td class="text-center">
                                                             @if($student->attempts->isNotEmpty())
-                                                                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#historyModal-{{ $student->id }}">
-                                                                    Lihat Riwayat
+                                                                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#historyModal-{{ $student->id }}" title="Lihat riwayat pengerjaan {{ $student->name }}">
+                                                                    Riwayat
                                                                 </button>
                                                             @else
-                                                                <button class="btn btn-secondary btn-sm" disabled>Lihat Riwayat</button>
+                                                                <button class="btn btn-secondary btn-sm" disabled>Riwayat</button>
                                                             @endif
                                                         </td>
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="3" class="text-center">Belum ada siswa yang terdaftar di kursus ini.</td>
+                                                        <td colspan="7" class="text-center">
+                                                            @if (request()->filled('search'))
+                                                                Tidak ada siswa yang cocok dengan "{{ request('search') }}".
+                                                            @else
+                                                                Belum ada siswa yang terdaftar di kursus ini.
+                                                            @endif
+                                                        </td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
                                     </div>
-                                    {{-- <div class="d-flex justify-content-center">
-                                        {{ $enrolledStudents->links() }}
-                                    </div> --}}
+                                    <x-dash.pagination :items="$enrolledStudents" />
                                 </div>
                             </div>
                         </div>
@@ -102,25 +153,33 @@
                                 <tbody>
                                     @foreach($student->attempts->sortByDesc('created_at') as $attempt)
                                     @php
-                                        // Gunakan scaled_score dari DB, fallback ke kalkulasi manual untuk data lama
-                                        $studentScoreScaled = $attempt->scaled_score
-                                            ?? (($totalMaxScore > 0) ? min(100, round(($attempt->score / $totalMaxScore) * 100, 2)) : 0);
+                                        // Nilai 0-100 dengan aturan yang sama seperti tabel utama: nilai revisi diutamakan.
+                                        $inProgress = $attempt->status === 'in_progress';
+                                        $studentScoreScaled = $inProgress ? null : $attempt->finalScaledScore((float) $totalMaxScore);
+                                        $fmt = fn ($n) => rtrim(rtrim(number_format((float) $n, 2, ',', '.'), '0'), ',');
                                     @endphp
                                     <tr>
-                                        <td>{{ $attempt->end_time ? $attempt->end_time->format('d M Y, H:i') : 'Dalam Pengerjaan' }}</td>
+                                        <td>{{ $attempt->end_time ? $localDay($attempt->end_time).', '.$localClock($attempt->end_time) : 'Sedang dikerjakan' }}</td>
                                         <td>
-                                            <strong>{{ rtrim(rtrim(number_format($attempt->score, 2, ',', '.'), '0'), ',') }}</strong>
-                                            <br>
-                                            <small class="text-muted">Min: {{ rtrim(rtrim(number_format($minimumScore, 2, ',', '.'), '0'), ',') }}</small>
+                                            @if ($inProgress || $attempt->score === null)
+                                                -
+                                            @else
+                                                <strong>{{ $fmt($attempt->revised_score ?? $attempt->score) }}</strong>
+                                                @if ($attempt->revised_score !== null)
+                                                    <small class="text-muted d-block">Direvisi (awal {{ $fmt($attempt->score) }})</small>
+                                                @endif
+                                            @endif
+                                            <small class="text-muted d-block">Min: {{ $fmt($minimumScore) }}</small>
                                         </td>
                                         <td>
-                                            <strong>{{ rtrim(rtrim(number_format($studentScoreScaled, 2, ',', '.'), '0'), ',') }}</strong>
-                                            <br>
-                                            <small class="text-muted">Min: {{ rtrim(rtrim(number_format($minimumScoreScaled, 2, ',', '.'), '0'), ',') }}</small>
+                                            <strong>{{ $studentScoreScaled === null ? '-' : $fmt($studentScoreScaled) }}</strong>
+                                            <small class="text-muted d-block">Min: {{ $fmt($minimumScoreScaled) }}</small>
                                         </td>
                                         <td>
-                                            @if($attempt->status == 'passed')
+                                            @if ($attempt->status === 'passed')
                                                 <label class="label label-success">Lulus</label>
+                                            @elseif ($inProgress)
+                                                <label class="label label-warning">Sedang Mengerjakan</label>
                                             @else
                                                 <label class="label label-danger">Gagal</label>
                                             @endif

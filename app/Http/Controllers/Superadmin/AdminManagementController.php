@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\ListQuery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -13,7 +14,7 @@ class AdminManagementController extends Controller
 {
     public function index()
     {
-        $admins = User::role('admin')->latest()->paginate(15);
+        $admins = ListQuery::applySearch(User::role('admin'), ['name', 'email'])->latest()->paginate(ListQuery::perPage())->withQueryString();
 
         return view('superadmin.admins.index', compact('admins'));
     }

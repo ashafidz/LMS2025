@@ -12,6 +12,7 @@ use App\Models\CourseCategory;
 use App\Models\User;
 use App\Services\BadgeService;
 use App\Support\Badges\BadgeMetrics;
+use App\Support\ListQuery;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +29,8 @@ class BadgeController extends Controller
 {
     public function index(): View
     {
-        $badges = Badge::withCount('users')->with('rules')->latest()->simplePaginate(10);
+        $badges = ListQuery::applySearch(Badge::withCount('users')->with('rules'), ['title', 'description'])
+            ->latest()->paginate(ListQuery::perPage())->withQueryString();
 
         return view('shared-admin.badges.index', [
             'badges' => $badges,

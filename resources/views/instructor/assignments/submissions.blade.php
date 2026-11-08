@@ -21,30 +21,35 @@
                                     <span>Berikut adalah daftar semua siswa baik yang telah mengumpulkan tugas ini atau belum.</span>
                                 </div>
                                 <div class="card-block">
-                                    
+                                    @php
+                                        // Tab yang dibuka setelah cari atau urutkan (?tab=), default Menunggu Dinilai.
+                                        $activeTab = in_array(request('tab'), ['submitted', 'revision', 'passed', 'not-submitted'], true) ? request('tab') : 'submitted';
+                                    @endphp
+                                    <x-dash.list-toolbar placeholder="Cari nama, email, atau NIM/NIP/NIDN..." label="Cari siswa" :tab="$activeTab" />
+
                                     <!-- Nav tabs -->
                                     <ul class="nav nav-tabs md-tabs" role="tablist">
                                         <li class="nav-item">
-                                            <a class="nav-link active" data-toggle="tab" href="#submitted" role="tab">Menunggu Dinilai <span class="badge badge-info">{{ $submittedSubmissions->count() }}</span></a>
+                                            <a class="nav-link {{ $activeTab === 'submitted' ? 'active' : '' }}" data-toggle="tab" href="#submitted" role="tab">Menunggu Dinilai <span class="badge badge-info">{{ $submittedSubmissions->total() }}</span></a>
                                             <div class="slide"></div>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" data-toggle="tab" href="#revision" role="tab">Perlu Revisi <span class="badge badge-danger">{{ $revisionSubmissions->count() }}</span></a>
+                                            <a class="nav-link {{ $activeTab === 'revision' ? 'active' : '' }}" data-toggle="tab" href="#revision" role="tab">Perlu Revisi <span class="badge badge-danger">{{ $revisionSubmissions->total() }}</span></a>
                                             <div class="slide"></div>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" data-toggle="tab" href="#passed" role="tab">Lulus <span class="badge badge-success">{{ $passedSubmissions->count() }}</span></a>
+                                            <a class="nav-link {{ $activeTab === 'passed' ? 'active' : '' }}" data-toggle="tab" href="#passed" role="tab">Lulus <span class="badge badge-success">{{ $passedSubmissions->total() }}</span></a>
                                             <div class="slide"></div>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" data-toggle="tab" href="#not-submitted" role="tab">Belum Mengumpulkan <span class="badge badge-default">{{ $notSubmittedStudents->count() }}</span></a>
+                                            <a class="nav-link {{ $activeTab === 'not-submitted' ? 'active' : '' }}" data-toggle="tab" href="#not-submitted" role="tab">Belum Mengumpulkan <span class="badge badge-default">{{ $notSubmittedStudents->total() }}</span></a>
                                             <div class="slide"></div>
                                         </li>
                                     </ul>
                                     <!-- Tab panes -->
                                     <div class="tab-content pt-3">
                                         {{-- TAB: Menunggu Dinilai --}}
-                                        <div class="tab-pane active" id="submitted" role="tabpanel">
+                                        <div class="tab-pane {{ $activeTab === 'submitted' ? 'active' : '' }}" id="submitted" role="tabpanel">
                                             @include('instructor.assignments.partials._submission_table', [
                                                 'submissions' => $submittedSubmissions, 
                                                 'showGrade' => false,
@@ -53,7 +58,7 @@
                                             ])
                                         </div>
                                         {{-- TAB: Perlu Revisi --}}
-                                        <div class="tab-pane" id="revision" role="tabpanel">
+                                        <div class="tab-pane {{ $activeTab === 'revision' ? 'active' : '' }}" id="revision" role="tabpanel">
                                             @include('instructor.assignments.partials._submission_table', [
                                                 'submissions' => $revisionSubmissions, 
                                                 'showGrade' => true,
@@ -62,7 +67,7 @@
                                             ])
                                         </div>
                                         {{-- TAB: Lulus --}}
-                                        <div class="tab-pane" id="passed" role="tabpanel">
+                                        <div class="tab-pane {{ $activeTab === 'passed' ? 'active' : '' }}" id="passed" role="tabpanel">
                                             @include('instructor.assignments.partials._submission_table', [
                                                 'submissions' => $passedSubmissions, 
                                                 'showGrade' => true,
@@ -71,31 +76,34 @@
                                             ])
                                         </div>
                                         {{-- TAB: Belum Mengumpulkan --}}
-                                        <div class="tab-pane" id="not-submitted" role="tabpanel">
+                                        <div class="tab-pane {{ $activeTab === 'not-submitted' ? 'active' : '' }}" id="not-submitted" role="tabpanel">
                                             <div class="table-responsive">
                                                 <table class="table table-hover">
                                                     <thead>
                                                         <tr>
-                                                            <th class="text-center" >NIM/NIDN/NIP</th>
-                                                            <th>Nama Siswa</th>
+                                                            <th class="text-center">No</th>
+                                                            @include('instructor.partials._sort_th', ['key' => 'nim', 'label' => 'NIM/NIDN/NIP', 'class' => 'text-center', 'tab' => 'not-submitted'])
+                                                            @include('instructor.partials._sort_th', ['key' => 'nama', 'label' => 'Nama Siswa', 'tab' => 'not-submitted'])
                                                             <th>Email</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         @forelse ($notSubmittedStudents as $student)
                                                             <tr>
+                                                                <td class="text-center">{{ $notSubmittedStudents->firstItem() + $loop->index }}</td>
                                                                 <td class="text-center">{{ $student->studentProfile?->unique_id_number ? $student->studentProfile?->unique_id_number : '-' }}</td>
                                                                 <td>{{ $student->name }}</td>
                                                                 <td>{{ $student->email }}</td>
                                                             </tr>
                                                         @empty
                                                             <tr>
-                                                                <td colspan="2" class="text-center">Semua siswa sudah mengumpulkan tugas.</td>
+                                                                <td colspan="4" class="text-center">{{ request()->filled('search') ? 'Tidak ada siswa yang cocok dengan pencarian di kategori ini.' : 'Semua siswa sudah mengumpulkan tugas.' }}</td>
                                                             </tr>
                                                         @endforelse
                                                     </tbody>
                                                 </table>
                                             </div>
+                                            <x-dash.pagination :items="$notSubmittedStudents" />
                                         </div>
                                     </div>
                                 </div>
@@ -108,7 +116,7 @@
     </div>
 
     <!-- Modal untuk setiap pengumpulan -->
-    @foreach ($submittedSubmissions->concat($revisionSubmissions)->concat($passedSubmissions) as $submission)
+    @foreach ($submittedSubmissions->getCollection()->concat($revisionSubmissions->getCollection())->concat($passedSubmissions->getCollection()) as $submission)
     <div class="modal fade" id="submissionModal-{{ $submission->id }}" tabindex="-1" role="dialog">
 <div class="modal-dialog modal-pdf-viewer" role="document">
             <div class="modal-content">
@@ -288,6 +296,13 @@
 @endsection
 
 @push('scripts')
+<script>
+    // Cari dan urutkan membuka kembali tab yang sedang dilihat.
+    $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
+        var tab = (e.target.getAttribute('href') || '').replace('#', '');
+        $('[data-rs-current-tab]').val(tab);
+    });
+</script>
 <script>
     // Grading form: say right away whether the typed grade passes or asks for a revision.
     document.addEventListener('input', function (e) {

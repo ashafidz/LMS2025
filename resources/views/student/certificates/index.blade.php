@@ -19,7 +19,7 @@
                     @php
                         $tz = Auth::user()->timezone ?: config('app.timezone');
                     @endphp
-                    @if ($certificates->isNotEmpty())
+                    @if ($certificateCount > 0)
                         <section class="rs-cert-hero" aria-labelledby="cert-hero-title">
                             <x-rs.illustration name="rs-15-sertifikat-terbit" size="sm" class="rs-cert-hero__img" />
                             <div>
@@ -29,7 +29,13 @@
                         </section>
                     @endif
 
-                    @if ($certificates->isEmpty())
+                    @if ($certificateCount > 0)
+                        <x-dash.list-toolbar placeholder="Cari judul kursus..." label="Cari sertifikat" />
+                    @endif
+
+                    @if ($certificates->isEmpty() && request()->filled('search'))
+                        <p class="text-muted text-center py-4">Tidak ada sertifikat yang cocok dengan pencarian.</p>
+                    @elseif ($certificates->isEmpty())
                         <div class="card">
                             <div class="card-block text-center py-5">
                                 <div class="mb-3">
@@ -77,14 +83,8 @@
                         </div>
                     @endif
 
-                    @if($certificates->hasPages())
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="d-flex justify-content-center mt-2">
-                                {{ $certificates->links() }}
-                            </div>
-                        </div>
-                    </div>
+                    @if ($certificates->total() > 0)
+                        <div class="card rs-pager-card"><div class="card-block"><x-dash.pagination :items="$certificates" :per-page-options="[10, 25, 50]" /></div></div>
                     @endif
                 </div>
             </div>

@@ -8,6 +8,8 @@ use App\Models\AssignmentSubmission;
 use App\Models\LessonAssignment;
 use App\Services\BadgeService;
 use App\Services\HashIdService;
+use App\Support\ListQuery;
+use App\Support\TableSort;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +38,8 @@ class InstructorAssignmentController extends Controller
             ->orderByRaw('CASE WHEN student_profiles.unique_id_number IS NULL THEN 1 ELSE 0 END')
             ->orderBy('student_profiles.unique_id_number', 'asc')
             ->select('users.*')
+            // Pencarian nama, email, atau NIM/NIP/NIDN (dikelompokkan, maksimal 100 karakter).
+            ->where(fn ($q) => ListQuery::applySearch($q, ['users.name', 'users.email', 'student_profiles.unique_id_number']))
             ->get();
 
         // 2. Ambil semua pengumpulan untuk tugas ini, diindeks berdasarkan user_id
@@ -66,33 +70,41 @@ class InstructorAssignmentController extends Controller
             }
         }
 
-        // Optional: Sort each collection by unique_id_number if needed
-        // (This might be redundant since we already sorted enrolledStudents)
-        $sortByUniqueId = function ($item) {
-            $uniqueId = null;
-            if (isset($item->user) && $item->user->studentProfile) {
-                // For submissions
-                $uniqueId = $item->user->studentProfile->unique_id_number;
-            } elseif (isset($item->studentProfile)) {
-                // For students
-                $uniqueId = $item->studentProfile->unique_id_number;
-            }
+        // Urutan tabel: default NIM naik; bisa diubah lewat ?sort=nim|nama|nilai|waktu&dir=asc|desc.
+        $sortColumns = [
+            'nim' => fn ($item) => ($item->user ?? $item)->studentProfile?->unique_id_number,
+            'nama' => fn ($item) => ($item->user ?? $item)->name,
+            'nilai' => fn ($item) => $item->grade ?? null,
+            'waktu' => fn ($item) => $item->submitted_at ?? null,
+        ];
+        [$tableSort, $tableDir] = TableSort::current($sortColumns, 'nim');
 
-            // Return a tuple: [is_null, value] for proper sorting
-            return [$uniqueId === null ? 1 : 0, $uniqueId];
-        };
+        $passedSubmissions = TableSort::apply($passedSubmissions, $sortColumns, $tableSort, $tableDir);
+        $revisionSubmissions = TableSort::apply($revisionSubmissions, $sortColumns, $tableSort, $tableDir);
+        $submittedSubmissions = TableSort::apply($submittedSubmissions, $sortColumns, $tableSort, $tableDir);
+        // Belum Mengumpulkan: tidak punya nilai atau waktu, jadi hanya NIM atau nama.
+        $notSubmittedStudents = TableSort::apply(
+            $notSubmittedStudents,
+            $sortColumns,
+            in_array($tableSort, ['nim', 'nama'], true) ? $tableSort : 'nim',
+            in_array($tableSort, ['nim', 'nama'], true) ? $tableDir : 'asc'
+        );
 
-        $passedSubmissions = $passedSubmissions->sortBy($sortByUniqueId)->values();
-        $revisionSubmissions = $revisionSubmissions->sortBy($sortByUniqueId)->values();
-        $submittedSubmissions = $submittedSubmissions->sortBy($sortByUniqueId)->values();
-        // $notSubmittedStudents already sorted from the query
+        // Setiap tab punya halaman sendiri; jumlah di tab memakai total, bukan isi halaman.
+        $perPage = ListQuery::perPage();
+        $submittedSubmissions = ListQuery::paginateCollection($submittedSubmissions, $perPage, 'page_submitted')->appends('tab', 'submitted');
+        $revisionSubmissions = ListQuery::paginateCollection($revisionSubmissions, $perPage, 'page_revision')->appends('tab', 'revision');
+        $passedSubmissions = ListQuery::paginateCollection($passedSubmissions, $perPage, 'page_passed')->appends('tab', 'passed');
+        $notSubmittedStudents = ListQuery::paginateCollection($notSubmittedStudents, $perPage, 'page_missing')->appends('tab', 'not-submitted');
 
         return view('instructor.assignments.submissions', compact(
             'assignment',
             'passedSubmissions',
             'revisionSubmissions',
             'submittedSubmissions',
-            'notSubmittedStudents'
+            'notSubmittedStudents',
+            'tableSort',
+            'tableDir'
         ));
     }
 

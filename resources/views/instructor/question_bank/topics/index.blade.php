@@ -25,8 +25,13 @@
                                 </div>
                                 <div class="card-block">
 
+                                    <x-dash.list-toolbar placeholder="Cari nama atau deskripsi topik..." label="Cari topik" />
+
                                     {{-- FORM FILTER BARU --}}
                                     <form action="{{ route('instructor.question-bank.topics.index') }}" method="GET" class="mb-4">
+                                        @if (request()->filled('search'))
+                                            <input type="hidden" name="search" value="{{ request('search') }}">
+                                        @endif
                                         <div class="form-group row align-items-end">
                                             <div class="col-md-4">
                                                 <label for="filter_course">Tampilkan Topik Untuk Kursus:</label>
@@ -88,15 +93,13 @@
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="4" class="text-center">Tidak ada topik yang cocok dengan filter Anda.</td>
+                                                        <td colspan="4" class="text-center">Tidak ada topik yang cocok dengan filter atau pencarian Anda.</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="d-flex justify-content-center">
-                                        {{ $topics->links() }}
-                                    </div>
+                                    <x-dash.pagination :items="$topics" />
                                 </div>
                             </div>
                         </div>

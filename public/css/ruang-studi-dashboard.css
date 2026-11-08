@@ -1200,3 +1200,63 @@ img.rs-dash-avatar { background: var(--rs-line); }
 .rs-history-row { gap: 12px; }
 .rs-history-row__text { min-width: 0; overflow-wrap: anywhere; }
 .rs-history-row > .badge { flex: 0 0 auto; }
+
+/* Sortable table headers (instructor quiz results, assignment submissions). */
+.rs-dash .rs-sort-link { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.rs-dash .rs-sort-link:hover, .rs-dash .rs-sort-link:focus-visible { color: var(--rs-primary); text-decoration: underline; }
+.rs-dash .rs-sort-link .bi { font-size: 0.85em; opacity: .45; }
+.rs-dash .rs-sort-link.is-active { color: var(--rs-primary); }
+.rs-dash .rs-sort-link.is-active .bi { opacity: 1; }
+
+/* Search row (input group + Reset): Reset is exactly as tall as the input and sits on the same line. */
+.rs-dash .rs-search-row { display: flex; align-items: center; gap: 8px; max-width: 480px; }
+.rs-dash .rs-search-row > .input-group { flex: 1 1 auto; min-width: 0; margin-bottom: 0; }
+.rs-dash .rs-search-row > .btn { height: var(--rs-input-h); min-height: 0; margin: 0; padding: 0 20px; flex: 0 0 auto; }
+
+/* Quiz results: attempt time (day, start - end, duration) stacked in one compact cell. */
+.rs-dash .rs-attempt-time { display: flex; flex-direction: column; line-height: 1.35; white-space: nowrap; }
+.rs-dash .rs-attempt-time small { font-size: var(--rs-fs-xs); }
+/* Status labels in these tables stay on one line. */
+.rs-dash .table td > .label { white-space: nowrap; }
+
+/* ---------- Advanced pagination (vendor/pagination/rs-advanced.blade.php) ---------- */
+.rs-dash .rs-pager { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+.rs-dash .rs-pager__info { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; color: var(--rs-muted); font-size: var(--rs-fs-small); }
+.rs-dash .rs-pager__info strong { color: var(--rs-ink); }
+.rs-dash .rs-pager__size, .rs-dash .rs-pager__jump { display: flex; align-items: center; gap: 8px; margin: 0; }
+.rs-dash .rs-pager__size label, .rs-dash .rs-pager__size span, .rs-dash .rs-pager__jump label { margin: 0; white-space: nowrap; }
+.rs-dash .rs-pager .rs-pager__size select.form-control { width: auto; min-width: 84px; height: var(--rs-btn-h-sm) !important; min-height: 0 !important; padding: 4px 10px !important; }
+.rs-dash .rs-pager .rs-pager__jump input.form-control { width: 84px; height: var(--rs-btn-h-sm) !important; min-height: 0 !important; padding: 4px 10px !important; text-align: center; }
+.rs-dash .rs-pager__jump .btn { min-height: var(--rs-btn-h-sm); height: var(--rs-btn-h-sm); margin: 0; }
+.rs-dash .rs-pager__nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.rs-dash .rs-pager__list { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.rs-dash .rs-pager__btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: var(--rs-btn-h-sm); height: var(--rs-btn-h-sm);
+  padding: 0 12px; border: 1px solid var(--rs-line); border-radius: var(--rs-radius-sm); background: #fff; color: var(--rs-ink);
+  font-size: var(--rs-fs-btn-sm); font-weight: 700; text-decoration: none; line-height: 1; }
+.rs-dash a.rs-pager__btn:hover, .rs-dash a.rs-pager__btn:focus-visible { border-color: var(--rs-primary); color: var(--rs-primary); text-decoration: none; }
+.rs-dash .rs-pager__btn.is-current { background: var(--rs-primary); border-color: var(--rs-primary); color: #fff; }
+.rs-dash .rs-pager__btn.is-disabled { color: var(--rs-muted); background: #fff; border-style: dashed; opacity: .7; cursor: not-allowed; }
+/* A pager outside a list card (card grids): its own slim white card; no top gap inside it. */
+.rs-dash .rs-pager-card .card-block { padding-top: 4px; padding-bottom: 16px; }
+.rs-dash .rs-pager-card .rs-pager { margin-top: 12px; }
+.rs-dash .rs-pager__gap { display: inline-flex; align-items: flex-end; height: var(--rs-btn-h-sm); padding: 0 4px; color: var(--rs-muted); }
+.rs-dash .rs-pager__compact { display: none; padding: 0 6px; color: var(--rs-ink); font-weight: 700; font-size: var(--rs-fs-small); white-space: nowrap; }
+@media (max-width: 991.98px) {
+  .rs-dash .rs-pager__label { display: none; }
+}
+@media (max-width: 575.98px) {
+  .rs-dash .rs-pager__num { display: none; }
+  .rs-dash .rs-pager__compact { display: inline-flex; }
+  .rs-dash .rs-pager__btn { min-width: 44px; height: 44px; }
+  .rs-dash .rs-pager__list { width: 100%; justify-content: space-between; }
+  .rs-dash .rs-pager__info, .rs-dash .rs-pager__nav { justify-content: flex-start; }
+}
+
+/* Sorting on phones: the "Urutkan" select built by ruang-studi-dashboard.js (headers are hidden in card view). */
+.rs-dash .rs-sort-mobile { display: none; align-items: center; gap: 8px; margin-bottom: 12px; }
+.rs-dash .rs-sort-mobile label { margin: 0; font-weight: 700; white-space: nowrap; }
+.rs-dash .rs-sort-mobile select.form-control { flex: 1 1 auto; }
+@media (max-width: 767.98px) {
+  .rs-dash .rs-sort-mobile { display: flex; }
+}
+.rs-dash .rs-pager__jump label { font-size: var(--rs-fs-small); color: var(--rs-muted); font-weight: 400; }

@@ -10,6 +10,8 @@ use App\Models\QuizAttempt;
 use App\Services\BadgeService;
 use App\Services\PointService;
 use App\Services\StudentWriteLock;
+use App\Support\ListQuery;
+use App\Support\TableSort;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -48,6 +50,8 @@ class InstructorQuizController extends Controller
                 CAST(student_profiles.unique_id_number AS UNSIGNED) ASC
             ')
             ->select('users.*')
+            // Pencarian nama, email, atau NIM/NIP/NIDN (dikelompokkan, maksimal 100 karakter).
+            ->where(fn ($q) => ListQuery::applySearch($q, ['users.name', 'users.email', 'student_profiles.unique_id_number']))
             ->get(); // Hapus pagination, ambil semua data
 
         // 3. Ambil semua percobaan kuis untuk semua siswa (tidak lagi dibatasi per halaman)
@@ -64,15 +68,42 @@ class InstructorQuizController extends Controller
             if ($studentAttempts) {
                 // Cek apakah ada percobaan yang lulus
                 $hasPassed = $studentAttempts->contains('status', 'passed');
-                $student->quiz_status = $hasPassed ? 'Lulus' : 'Gagal';
+                // Percobaan yang masih berjalan belum punya nilai akhir: jangan dihitung Gagal.
+                $finished = $studentAttempts->where('status', '!=', 'in_progress');
+                if ($hasPassed) {
+                    $student->quiz_status = 'Lulus';
+                } else {
+                    $student->quiz_status = $finished->isEmpty() ? 'Sedang Mengerjakan' : 'Gagal';
+                }
+                // Percobaan terbaik (skala 0-100, nilai revisi diutamakan); null bila belum ada yang selesai.
+                // Nilai dan waktu pengerjaan di tabel diambil dari percobaan yang sama.
+                $bestAttempt = $finished
+                    ->filter(fn ($a) => $a->finalScaledScore((float) $totalMaxScore) !== null)
+                    ->sortByDesc(fn ($a) => $a->finalScaledScore((float) $totalMaxScore))
+                    ->first();
+                $student->best_attempt = $bestAttempt;
+                $student->best_score = $bestAttempt?->finalScaledScore((float) $totalMaxScore);
                 $student->attempts = $studentAttempts;
             } else {
                 $student->quiz_status = 'Belum Mengerjakan';
+                $student->best_score = null;
+                $student->best_attempt = null;
                 $student->attempts = collect(); // Koleksi kosong
             }
         }
 
-        return view('instructor.quizzes.results.index', compact('quiz', 'enrolledStudents', 'minimumScore', 'totalMaxScore', 'minimumScoreScaled'));
+        // 5. Urutan tabel: default NIM naik; bisa diubah lewat ?sort=nim|nama|nilai|selesai&dir=asc|desc.
+        $sortColumns = [
+            'nim' => fn ($s) => $s->studentProfile?->unique_id_number,
+            'nama' => fn ($s) => $s->name,
+            'nilai' => fn ($s) => $s->best_score,
+            'selesai' => fn ($s) => $s->best_attempt?->end_time,
+        ];
+        [$tableSort, $tableDir] = TableSort::current($sortColumns, 'nim');
+        $enrolledStudents = TableSort::apply($enrolledStudents, $sortColumns, $tableSort, $tableDir);
+        $enrolledStudents = ListQuery::paginateCollection($enrolledStudents, ListQuery::perPage());
+
+        return view('instructor.quizzes.results.index', compact('quiz', 'enrolledStudents', 'minimumScore', 'totalMaxScore', 'minimumScoreScaled', 'tableSort', 'tableDir'));
     }
 
     /**

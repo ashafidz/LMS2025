@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Shared;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Support\ListQuery;
 use Illuminate\Http\Request;
 
 class PublicationController extends Controller
@@ -13,10 +14,13 @@ class PublicationController extends Controller
      */
     public function index()
     {
-        $pendingCourses = Course::where('status', 'pending_review')
-            ->with('instructor', 'category')
+        $pendingCourses = ListQuery::applySearch(
+            Course::where('status', 'pending_review')->with('instructor', 'category'),
+            ['title', 'instructor:name', 'category:name']
+        )
             ->latest()
-            ->simplePaginate(15);
+            ->paginate(ListQuery::perPage())
+            ->withQueryString();
 
         return view('shared-admin.publication.index', compact('pendingCourses'));
     }

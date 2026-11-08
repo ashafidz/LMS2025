@@ -201,3 +201,66 @@
         table.classList.add('rs-table-stack');
     });
 })();
+
+// Page-size selects and other GET filters marked data-rs-autosubmit submit their form on change.
+document.addEventListener('change', function (e) {
+    var el = e.target;
+    if (el && el.matches && el.matches('[data-rs-autosubmit]') && el.form) {
+        el.form.submit();
+    }
+});
+
+// Sorting on phones: tables show as cards there, so the sortable column headers are hidden. Build an "Urutkan" select
+// from those headers (each column ascending and descending) and put it above the table. Shown only on small screens.
+(function () {
+    document.querySelectorAll('.rs-dash-content table').forEach(function (table) {
+        var links = table.querySelectorAll('thead th[aria-sort] a.rs-sort-link');
+        if (!links.length || !window.URL) {
+            return;
+        }
+        var wrap = document.createElement('div');
+        wrap.className = 'rs-sort-mobile';
+        var id = 'rs-sort-mobile-' + Math.random().toString(36).slice(2, 8);
+        var label = document.createElement('label');
+        label.setAttribute('for', id);
+        label.textContent = 'Urutkan';
+        var select = document.createElement('select');
+        select.id = id;
+        select.className = 'form-control no-select2';
+        var hasActive = false;
+
+        Array.prototype.forEach.call(links, function (a) {
+            var state = a.closest('th').getAttribute('aria-sort');
+            var name = a.textContent.replace(/\s+/g, ' ').trim();
+            var base = new URL(a.href, window.location.href);
+            [['asc', 'naik', 'ascending'], ['desc', 'turun', 'descending']].forEach(function (pair) {
+                var url = new URL(base.href);
+                url.searchParams.set('dir', pair[0]);
+                var opt = document.createElement('option');
+                opt.value = url.href;
+                opt.textContent = name + ' (' + pair[1] + ')';
+                if (state === pair[2]) {
+                    opt.selected = true;
+                    hasActive = true;
+                }
+                select.appendChild(opt);
+            });
+        });
+        if (!hasActive) {
+            var none = document.createElement('option');
+            none.value = '';
+            none.textContent = 'Pilih urutan';
+            none.selected = true;
+            select.insertBefore(none, select.firstChild);
+        }
+        select.addEventListener('change', function () {
+            if (select.value) {
+                window.location.href = select.value;
+            }
+        });
+        wrap.appendChild(label);
+        wrap.appendChild(select);
+        var anchor = table.closest('.table-responsive') || table;
+        anchor.parentNode.insertBefore(wrap, anchor);
+    });
+})();
