@@ -6,8 +6,35 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@hasSection('title')@yield('title') | @endif{{ ($siteSettings->site_name ?? null) ?: config('app.name') }}</title>
-    <meta name="description" content="">
-    <meta name="keywords" content="">
+    @php
+        $seoSite = ($siteSettings->site_name ?? null) ?: config('app.name');
+        // Inline @section('x', $value) already escapes $value, so decode once here and let {{ }} escape it again.
+        $seoSection = fn (string $name): string => trim(html_entity_decode($__env->yieldContent($name), ENT_QUOTES | ENT_HTML5));
+        $seoTitle = $seoSection('title') ?: $seoSite;
+        $seoDescription = $seoSection('meta_description')
+            ?: 'Ruang Studi adalah platform belajar online: kursus dari instruktur, kuis, tugas, dan sertifikat yang bisa dicek keasliannya.';
+        $seoCustomImage = $seoSection('og_image');
+        $seoImage = $seoCustomImage ?: asset('images/og/ruang-studi-share.png');
+        $seoUrl = url()->current();
+    @endphp
+    <meta name="description" content="{{ $seoDescription }}">
+    <link rel="canonical" href="{{ $seoUrl }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ $seoSite }}">
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:title" content="{{ $seoTitle }}">
+    <meta property="og:description" content="{{ $seoDescription }}">
+    <meta property="og:url" content="{{ $seoUrl }}">
+    <meta property="og:image" content="{{ $seoImage }}">
+    @unless ($seoCustomImage)
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    @endunless
+    <meta property="og:image:alt" content="{{ $seoTitle }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $seoTitle }}">
+    <meta name="twitter:description" content="{{ $seoDescription }}">
+    <meta name="twitter:image" content="{{ $seoImage }}">
 
     <!-- Favicons -->
     <link href="{{ asset('favicon.svg') }}" rel="icon" type="image/svg+xml">

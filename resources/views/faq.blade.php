@@ -1,6 +1,7 @@
 @extends('layouts.home-layout')
 
 @section('title', 'FAQ')
+@section('meta_description', 'Jawaban atas pertanyaan yang sering diajukan tentang cara mendaftar, biaya layanan, dan menghubungi tim Ruang Studi.')
 
 @section('content')
 <div class="rs-page">

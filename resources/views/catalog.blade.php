@@ -1,6 +1,7 @@
 @extends('layouts.home-layout')
 
 @section('title', 'Katalog Kursus')
+@section('meta_description', 'Jelajahi katalog kursus Ruang Studi. Cari kursus berdasarkan judul atau kategori, lalu mulai belajar hari ini.')
 
 @section('content')
 <div class="rs-page">

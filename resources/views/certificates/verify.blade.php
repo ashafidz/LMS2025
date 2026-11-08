@@ -1,6 +1,7 @@
 @extends('layouts.home-layout')
 
 @section('title', 'Cek Keaslian Sertifikat - Ruang Studi')
+@section('meta_description', 'Cek keaslian sertifikat Ruang Studi dengan memasukkan kode sertifikat.')
 
 @section('content')
 <div class="rs-page">

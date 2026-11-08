@@ -1,6 +1,7 @@
 @extends('layouts.home-layout')
 
 @section('title', 'Kontak')
+@section('meta_description', 'Hubungi tim Ruang Studi untuk pertanyaan atau bantuan. Kirim pesan lewat formulir atau lihat informasi kontak kami.')
 
 @section('content')
 <div class="rs-page">

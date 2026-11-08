@@ -1,6 +1,7 @@
 @extends('layouts.home-layout')
 
 @section('title', 'Tentang Kami')
+@section('meta_description', 'Kenali Ruang Studi: platform belajar online untuk pelajar, mahasiswa, dan profesional, dengan instruktur berpengalaman.')
 
 @section('content')
 <div class="rs-page">
