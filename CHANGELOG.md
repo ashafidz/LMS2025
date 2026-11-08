@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] - 2026-11-08
+
+### Added
+
+- **Kotak Cari di Semua Daftar Dasbor**: Daftar di dasbor kini punya kotak cari: Pesan Kontak, Admin, Siswa, Pengajuan Instruktur, Publikasi Kursus, Lencana, Kupon, Kategori, Pendaftaran Kursus (daftar kursus, siswa terdaftar, dan tambah siswa), Pertanyaan Likert, Bank Soal (topik dan soal), Poin Pelajaran, serta Riwayat Transaksi, Sertifikat, Kursus Saya, Poin, dan Diamond milik siswa. Tombol Reset hanya menghapus kata kunci; urutan dan filter tetap.
+- **Halaman Daftar yang Lebih Lengkap**: Semua daftar di atas kini memakai navigasi halaman baru: "Menampilkan X-Y dari Z data", nomor halaman dengan tanda "...", tombol Pertama, Sebelumnya, Berikutnya, dan Terakhir, kotak "Ke halaman", serta pilihan jumlah baris per halaman (10, 25, 50, atau 100; bawaan 25). Di HP tampil ringkas ("Hal 3 dari 12"). Pencarian, urutan, dan tab tetap terbawa saat pindah halaman, dan nomor urut berlanjut di halaman berikutnya. Sebelumnya sebagian besar daftar hanya punya tombol Previous dan Next tanpa jumlah data.
+- **Urutkan di HP**: Tabel yang bisa diurutkan (Hasil Kuis dan Pengumpulan Tugas) kini punya pilihan "Urutkan" di HP, karena judul kolom tidak terlihat saat tabel tampil sebagai kartu.
+
+### Changed
+
+- **Hasil Kuis Lebih Lengkap**: Tabel hasil kuis instruktur kini punya nomor urut dan kolom Nilai (nilai terbaik siswa dari semua percobaan yang selesai, skala 0-100, memakai nilai revisi bila ada; "-" bila belum ada percobaan yang selesai). Ada juga kolom Waktu Pengerjaan (tanggal, jam mulai sampai selesai, dan lama pengerjaan dalam menit) dari percobaan yang sama dengan nilainya, dalam zona waktu pengguna. Nilai minimum lulus dan nilai maksimal ditampilkan di atas tabel. Siswa yang kuisnya masih berjalan kini berstatus "Sedang Mengerjakan", bukan "Gagal".
+- **Pengumpulan Tugas Lebih Ringkas**: Tombol "Revisi Cepat" di setiap baris dihapus (permintaan revisi tetap bisa lewat "Lihat & Nilai" atau "Minta Revisi Terpilih"), dan semua tab daftar pengumpulan kini punya nomor urut. Waktu pengumpulan kini tampil dalam bahasa Indonesia dan zona waktu pengguna (sebelumnya UTC dengan nama bulan bahasa Inggris).
+- **Cari Siswa di Hasil Kuis dan Pengumpulan Tugas**: Instruktur kini bisa mencari siswa berdasarkan nama, email, atau NIM/NIP/NIDN di halaman Hasil Kuis dan Pengumpulan Tugas. Jumlah di setiap tab pengumpulan ikut menyesuaikan hasil pencarian.
+- **Urutkan Tabel Hasil Kuis dan Pengumpulan Tugas**: Klik judul kolom untuk mengurutkan naik atau turun: NIM/NIP/NIDN, nama, nilai, dan waktu (waktu selesai kuis atau waktu pengumpulan tugas). Urutan bawaan tetap NIM naik, siswa tanpa nilai atau waktu selalu di bawah, dan nomor urut mengikuti urutan yang tampil. Setelah mencari atau mengurutkan, tab pengumpulan yang sedang dibuka tetap terbuka.
+
+### Fixed
+
+- **Riwayat Kuis Siswa**: Jendela "Riwayat" di Hasil Kuis kini memakai nilai revisi instruktur (dengan keterangan skor awalnya), menampilkan waktu selesai dalam zona waktu pengguna, dan memberi label "Sedang Mengerjakan" untuk kuis yang masih berjalan (sebelumnya "Gagal").
+- **Tambah Siswa ke Kursus**: Pencarian di halaman tambah siswa kini tidak lagi memunculkan pengguna yang sudah terdaftar atau yang bukan siswa bila kata kunci cocok dengan email mereka.
+- **Hapus Kategori**: Tombol hapus kategori tidak lagi nonaktif keliru saat hasil pencarian hanya berisi satu kategori; yang dicek adalah jumlah semua kategori.
+- **Kotak Cari Manajemen Siswa**: Tombol Reset kini sejajar dan setinggi kotak cari.
+
 ## [2.0.2] - 2026-11-08
 
 ### Fixed

@@ -21,6 +21,7 @@
                                     <span>Daftar kursus dengan status "Pending Review".</span>
                                 </div>
                                 <div class="card-block table-border-style">
+                                    <x-dash.list-toolbar placeholder="Cari judul kursus, instruktur, atau kategori..." label="Cari kursus" />
                                     @if (session('error'))
                                         <div class="alert alert-danger">{{ session('error') }}</div>
                                     @endif
@@ -63,15 +64,13 @@
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="6" class="text-center">Tidak ada kursus yang menunggu review saat ini.</td>
+                                                        <td colspan="6" class="text-center">{{ request()->filled('search') ? 'Tidak ada data yang cocok dengan pencarian.' : 'Tidak ada kursus yang menunggu review saat ini.' }}</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="d-flex justify-content-center">
-                                        {{ $pendingCourses->links() }}
-                                    </div>
+                                    <x-dash.pagination :items="$pendingCourses" />
                                 </div>
                             </div>
                         </div>

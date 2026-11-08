@@ -13,6 +13,9 @@
         <div class="main-body">
             <div class="page-wrapper">
                 <div class="page-body">
+                    @if ($hasEnrollments)
+                        <x-dash.list-toolbar placeholder="Cari judul kursus..." label="Cari kursus saya" />
+                    @endif
                     <div class="row">
                         @forelse ($enrolledCourses as $course)
                             <div class="col-md-6 col-lg-4">
@@ -42,6 +45,11 @@
                                 </div>
                             </div>
                         @empty
+                            @if ($hasEnrollments)
+                                <div class="col-sm-12">
+                                    <p class="text-muted text-center py-4">Tidak ada kursus yang cocok dengan pencarian.</p>
+                                </div>
+                            @else
                             <div class="col-sm-12">
                                 <div class="card">
                                     <div class="card-block text-center p-5">
@@ -52,15 +60,13 @@
                                     </div>
                                 </div>
                             </div>
+                            @endif
                         @endforelse
                     </div>
 
-                    {{-- Navigasi Halaman --}}
-                    <div class="row">
-                        <div class="col-12 d-flex justify-content-center">
-                            {{ $enrolledCourses->links() }}
-                        </div>
-                    </div>
+                    @if ($enrolledCourses->total() > 0)
+                        <div class="card rs-pager-card"><div class="card-block"><x-dash.pagination :items="$enrolledCourses" :per-page-options="[9, 18, 36]" /></div></div>
+                    @endif
                 </div>
             </div>
         </div>

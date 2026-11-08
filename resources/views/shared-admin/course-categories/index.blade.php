@@ -20,6 +20,7 @@
                             </div>
                         </div>
                         <div class="card-block table-border-style">
+                            <x-dash.list-toolbar placeholder="Cari nama kategori..." label="Cari kategori" />
                             @if (session('error')) <div class="alert alert-danger">{{ session('error') }}</div> @endif
                             <div class="table-responsive">
                                 <table class="table table-hover">
@@ -37,18 +38,18 @@
                                                 <td>{{ $category->courses_count }} Kursus</td>
                                                 <td class="text-center">
                                                     <a href="{{ route(Auth::user()->getRoleNames()->first() . '.course-categories.edit', $category->id) }}" class="btn btn-secondary btn-sm"><i class="fa fa-pencil"></i> </a>
-                                                    <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteModal-{{ $category->id }}" {{ $categories->count() <= 1 ? 'disabled' : '' }}>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteModal-{{ $category->id }}" {{ $categoryTotal <= 1 ? 'disabled' : '' }}>
                                                         <i class="fa fa-trash"></i> 
                                                     </button>
                                                 </td>
                                             </tr>
                                         @empty
-                                            <tr><td colspan="3" class="text-center">Belum ada kategori yang dibuat.</td></tr>
+                                            <tr><td colspan="3" class="text-center">{{ request()->filled('search') ? 'Tidak ada data yang cocok dengan pencarian.' : 'Belum ada kategori yang dibuat.' }}</td></tr>
                                         @endforelse
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="d-flex justify-content-center">{{ $categories->links() }}</div>
+                            <x-dash.pagination :items="$categories" />
                         </div>
                     </div>
                 </div>

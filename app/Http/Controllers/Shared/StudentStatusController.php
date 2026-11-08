@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Shared;
 
 use App\Http\Controllers\Controller;
 use App\Models\StudentProfile;
+use App\Support\ListQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -30,7 +31,7 @@ class StudentStatusController extends Controller
                 });
             })
             ->latest()
-            ->paginate(10)
+            ->paginate(ListQuery::perPage())
             ->withQueryString();
 
         return view('shared-admin.manajemen-user.manajemen-student.index', compact('students_status_data'));

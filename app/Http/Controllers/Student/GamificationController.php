@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Support\ListQuery;
 use Illuminate\Support\Facades\Auth;
 
 class GamificationController extends Controller
@@ -21,7 +22,11 @@ class GamificationController extends Controller
         // $pointHistories = $user->pointHistories()->with('course')->latest()->get()->groupBy('course_id');
 
         // CORRECT: The relationship already returns Course models.
-        $pointsPerCourse = $user->coursePoints()->simplePaginate(10);
+        // Tab Riwayat Poin: bisa dicari per judul kursus. Tab Riwayat Diamond punya nomor halaman sendiri.
+        $pointsPerCourse = ListQuery::applySearch($user->coursePoints(), ['courses.title'])
+            ->paginate(ListQuery::perPage(10, [10, 25, 50]))
+            ->withQueryString()
+            ->appends('tab', 'poin');
 
         // This line is correct because PointHistory has a 'course' relationship.
         $pointHistories = $user->pointHistories()->with('course')->latest()->get()->groupBy('course_id');
@@ -30,7 +35,10 @@ class GamificationController extends Controller
         $totalPoints = $user->coursePoints()->sum('points_earned');
 
         // Ambil riwayat diamond, urutkan dari yang terbaru
-        $diamondHistories = $user->diamondHistories()->latest()->simplePaginate(10);
+        $diamondHistories = $user->diamondHistories()->latest()
+            ->paginate(ListQuery::perPage(10, [10, 25, 50]), ['*'], 'diamond_page')
+            ->withQueryString()
+            ->appends('tab', 'diamond');
 
         // --- LOGIKA BARU: Menyiapkan Data untuk Grafik ---
         // Dikelompokkan di PHP (bukan YEAR()/MONTH() di SQL) agar jalan di MySQL maupun SQLite.
@@ -82,7 +90,10 @@ class GamificationController extends Controller
         $user = Auth::user();
 
         // Ambil riwayat diamond, urutkan dari yang terbaru
-        $diamondHistories = $user->diamondHistories()->latest()->simplePaginate(10);
+        $diamondHistories = ListQuery::applySearch($user->diamondHistories(), ['description'])
+            ->latest()
+            ->paginate(ListQuery::perPage(10, [10, 25, 50]))
+            ->withQueryString();
 
         return view('student.my-diamonds.index', compact('user', 'diamondHistories'));
     }

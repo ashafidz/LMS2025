@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
 use App\Models\QuestionTopic;
+use App\Support\ListQuery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -41,7 +42,8 @@ class QuestionTopicController extends Controller
         }
         // Jika filter adalah 'all' atau kosong, tidak perlu filter tambahan (tampilkan semua)
 
-        $topics = $query->latest()->simplePaginate(10)->withQueryString();
+        ListQuery::applySearch($query, ['name', 'description']);
+        $topics = $query->latest()->paginate(ListQuery::perPage())->withQueryString();
 
         // Ambil semua kursus milik instruktur untuk mengisi dropdown
         $courses = $user->courses()->orderBy('title')->get();

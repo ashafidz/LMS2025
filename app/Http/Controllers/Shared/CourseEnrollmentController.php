@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\User;
 use App\Services\BadgeService;
 use App\Services\CourseMediaCleanupService;
+use App\Support\ListQuery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +20,8 @@ class CourseEnrollmentController extends Controller
      */
     public function index()
     {
-        $courses = Course::with('instructor')->latest()->simplePaginate(15);
+        $courses = ListQuery::applySearch(Course::with('instructor'), ['title', 'instructor:name'])
+            ->latest()->paginate(ListQuery::perPage())->withQueryString();
 
         return view('shared-admin.course-enrollments.index', compact('courses'));
     }
@@ -44,7 +46,9 @@ class CourseEnrollmentController extends Controller
             ->orderBy('student_profiles.unique_id_number', 'asc')
             ->join('student_profiles', 'users.id', '=', 'student_profiles.user_id')
             ->select('users.*')
-            ->simplePaginate(20);
+            ->where(fn ($q) => ListQuery::applySearch($q, ['users.name', 'users.email', 'student_profiles.unique_id_number']))
+            ->paginate(ListQuery::perPage())
+            ->withQueryString();
 
         return view('shared-admin.course-enrollments.show', compact('course', 'enrolledUsers'));
     }
@@ -60,13 +64,11 @@ class CourseEnrollmentController extends Controller
         // Query untuk mencari pengguna dengan role 'student' yang BELUM terdaftar
         $query = User::role('student')->whereNotIn('id', $enrolledUserIds);
 
-        // Terapkan filter pencarian jika ada
-        if ($request->filled('search')) {
-            $query->where('name', 'like', '%'.$request->search.'%')
-                ->orWhere('email', 'like', '%'.$request->search.'%');
-        }
+        // Pencarian dikelompokkan dalam satu where(...), jadi syarat role dan "belum terdaftar" tetap berlaku.
+        // (Sebelumnya orWhere tanpa kelompok bisa memunculkan pengguna yang sudah terdaftar atau bukan siswa.)
+        ListQuery::applySearch($query, ['name', 'email']);
 
-        $availableUsers = $query->simplePaginate(15);
+        $availableUsers = $query->paginate(ListQuery::perPage())->withQueryString();
 
         return view('shared-admin.course-enrollments.create', compact('course', 'availableUsers'));
     }

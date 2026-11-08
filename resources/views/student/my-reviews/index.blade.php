@@ -29,13 +29,14 @@
                             <div class="card shadow-sm border-0" style="border-radius: 12px;">
                                 <div class="card-block p-3">
                                     <div class="nav flex-column nav-pills custom-v-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                                        <a class="nav-link active mb-2" id="v-pills-platform-tab" data-toggle="pill" href="#v-pills-platform" role="tab" aria-controls="v-pills-platform" aria-selected="true">
+                                        @php $reviewTab = in_array(request('tab'), ['course', 'instructor'], true) ? request('tab') : 'platform'; @endphp
+                                        <a class="nav-link {{ $reviewTab === 'platform' ? 'active' : '' }} mb-2" id="v-pills-platform-tab" data-toggle="pill" href="#v-pills-platform" role="tab" aria-controls="v-pills-platform" aria-selected="{{ $reviewTab === 'platform' ? 'true' : 'false' }}">
                                             <i class="fa fa-desktop mr-2"></i> Ulasan Platform
                                         </a>
-                                        <a class="nav-link mb-2" id="v-pills-course-tab" data-toggle="pill" href="#v-pills-course" role="tab" aria-controls="v-pills-course" aria-selected="false">
+                                        <a class="nav-link {{ $reviewTab === 'course' ? 'active' : '' }} mb-2" id="v-pills-course-tab" data-toggle="pill" href="#v-pills-course" role="tab" aria-controls="v-pills-course" aria-selected="{{ $reviewTab === 'course' ? 'true' : 'false' }}">
                                             <i class="fa fa-book mr-2"></i> Ulasan Kursus
                                         </a>
-                                        <a class="nav-link" id="v-pills-instructor-tab" data-toggle="pill" href="#v-pills-instructor" role="tab" aria-controls="v-pills-instructor" aria-selected="false">
+                                        <a class="nav-link {{ $reviewTab === 'instructor' ? 'active' : '' }}" id="v-pills-instructor-tab" data-toggle="pill" href="#v-pills-instructor" role="tab" aria-controls="v-pills-instructor" aria-selected="{{ $reviewTab === 'instructor' ? 'true' : 'false' }}">
                                             <i class="fa fa-user-circle mr-2"></i> Ulasan Instruktur
                                         </a>
                                     </div>
@@ -47,7 +48,7 @@
                             <div class="tab-content" id="v-pills-tabContent">
                                 
                                 <!-- PLATFORM TAB -->
-                                <div class="tab-pane fade show active" id="v-pills-platform" role="tabpanel" aria-labelledby="v-pills-platform-tab">
+                                <div class="tab-pane fade {{ $reviewTab === 'platform' ? 'show active' : '' }}" id="v-pills-platform" role="tabpanel" aria-labelledby="v-pills-platform-tab">
                                     <div class="card shadow-sm border-0" style="border-radius: 12px;">
                                         <div class="card-block p-4">
                                             <h5 class="font-weight-bold mb-4">Ulasan Anda Tentang Platform Ini</h5>
@@ -84,7 +85,7 @@
                                 </div>
 
                                 <!-- COURSE TAB -->
-                                <div class="tab-pane fade" id="v-pills-course" role="tabpanel" aria-labelledby="v-pills-course-tab">
+                                <div class="tab-pane fade {{ $reviewTab === 'course' ? 'show active' : '' }}" id="v-pills-course" role="tabpanel" aria-labelledby="v-pills-course-tab">
                                     <div class="card shadow-sm border-0" style="border-radius: 12px;">
                                         <div class="card-block p-4">
                                             <h5 class="font-weight-bold mb-4">Ulasan Kursus Anda</h5>
@@ -115,15 +116,13 @@
                                                 </div>
                                             @endforelse
                                             
-                                            <div class="d-flex justify-content-center mt-4">
-                                                {{ $courseReviews->links('pagination::bootstrap-4') }}
-                                            </div>
+                                            <x-dash.pagination :items="$courseReviews" :per-page-options="[10, 25, 50]" />
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- INSTRUCTOR TAB -->
-                                <div class="tab-pane fade" id="v-pills-instructor" role="tabpanel" aria-labelledby="v-pills-instructor-tab">
+                                <div class="tab-pane fade {{ $reviewTab === 'instructor' ? 'show active' : '' }}" id="v-pills-instructor" role="tabpanel" aria-labelledby="v-pills-instructor-tab">
                                     <div class="card shadow-sm border-0" style="border-radius: 12px;">
                                         <div class="card-block p-4">
                                             <h5 class="font-weight-bold mb-4">Ulasan Instruktur Anda</h5>
@@ -155,9 +154,7 @@
                                                 </div>
                                             @endforelse
                                             
-                                            <div class="d-flex justify-content-center mt-4">
-                                                {{ $instructorReviews->links('pagination::bootstrap-4') }}
-                                            </div>
+                                            <x-dash.pagination :items="$instructorReviews" :per-page-options="[10, 25, 50]" />
                                         </div>
                                     </div>
                                 </div>

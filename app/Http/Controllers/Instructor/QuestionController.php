@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Question;
 use App\Models\QuestionTopic;
 use App\Support\HtmlSanitizer;
+use App\Support\ListQuery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,8 @@ class QuestionController extends Controller
     {
         abort_unless($topic->instructor_id === Auth::id(), 403);
 
-        $questions = $topic->questions()->with('options', 'quizzes')->latest()->simplePaginate(10);
+        $questions = ListQuery::applySearch($topic->questions()->with('options', 'quizzes'), ['question_text'])
+            ->latest()->paginate(ListQuery::perPage())->withQueryString();
 
         // Load topic with courses for modal info
         $topic->load('courses');

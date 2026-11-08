@@ -18,6 +18,7 @@
                                     <h5>Daftar Pesan Kontak</h5>
                                 </div>
                                 <div class="card-block table-border-style">
+                                    <x-dash.list-toolbar placeholder="Cari nama, email, subjek, atau isi pesan..." label="Cari pesan" />
                                     <div class="table-responsive">
                                         <table class="table table-hover">
                                             <thead>
@@ -56,15 +57,13 @@
                                                 </tr>
                                                 @empty
                                                 <tr>
-                                                    <td colspan="6" class="text-center">Belum ada pesan kontak yang masuk.</td>
+                                                    <td colspan="6" class="text-center">{{ request()->filled('search') ? 'Tidak ada data yang cocok dengan pencarian.' : 'Belum ada pesan kontak yang masuk.' }}</td>
                                                 </tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="d-flex justify-content-center mt-3">
-                                        {{ $messages->links() }}
-                                    </div>
+                                    <x-dash.pagination :items="$messages" />
                                 </div>
                             </div>
                         </div>

@@ -4,13 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContactMessage;
+use App\Support\ListQuery;
 use Illuminate\Http\Request;
 
 class ContactMessageController extends Controller
 {
     public function index()
     {
-        $messages = ContactMessage::orderBy('created_at', 'desc')->paginate(15);
+        $messages = ListQuery::applySearch(ContactMessage::query(), ['name', 'email', 'subject', 'message'])
+            ->orderBy('created_at', 'desc')->paginate(ListQuery::perPage())->withQueryString();
 
         return view('admin.contact_messages.index', compact('messages'));
     }

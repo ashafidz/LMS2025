@@ -25,6 +25,7 @@
                             </div>
                         </div>
                         <div class="card-block">
+                            <x-dash.list-toolbar placeholder="Cari nama atau deskripsi lencana..." label="Cari lencana" />
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead>
@@ -87,15 +88,13 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="6" class="text-center">Belum ada badge. Klik Buat Badge Baru untuk mulai.</td>
+                                                <td colspan="6" class="text-center">{{ request()->filled('search') ? 'Tidak ada data yang cocok dengan pencarian.' : 'Belum ada badge. Klik Buat Badge Baru untuk mulai.' }}</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="d-flex justify-content-center">
-                                {{ $badges->links() }}
-                            </div>
+                            <x-dash.pagination :items="$badges" />
                         </div>
                     </div>
                 </div>

@@ -24,6 +24,7 @@
                                     </div>
                                 </div>
                                 <div class="card-block table-border-style">
+                                    <x-dash.list-toolbar placeholder="Cari kode kupon, deskripsi, atau kursus..." label="Cari kupon" />
                                     @if (session('error'))
                                         <div class="alert alert-danger">{{ session('error') }}</div>
                                     @endif
@@ -80,15 +81,13 @@
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="9" class="text-center">Belum ada kupon yang dibuat.</td>
+                                                        <td colspan="9" class="text-center">{{ request()->filled('search') ? 'Tidak ada data yang cocok dengan pencarian.' : 'Belum ada kupon yang dibuat.' }}</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="d-flex justify-content-center">
-                                        {{ $coupons->links() }}
-                                    </div>
+                                    <x-dash.pagination :items="$coupons" />
                                 </div>
                             </div>
                         </div>

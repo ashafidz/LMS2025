@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Shared;
 use App\Http\Controllers\Controller;
 use App\Models\Coupon;
 use App\Models\Course;
+use App\Support\ListQuery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -16,7 +17,8 @@ class CouponController extends Controller
      */
     public function index()
     {
-        $coupons = Coupon::with('course')->latest()->simplePaginate(15);
+        $coupons = ListQuery::applySearch(Coupon::with('course'), ['code', 'description', 'course:title'])
+            ->latest()->paginate(ListQuery::perPage())->withQueryString();
 
         return view('shared-admin.coupons.index', compact('coupons'));
     }

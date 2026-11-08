@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Shared;
 
 use App\Http\Controllers\Controller;
 use App\Models\LikertQuestion;
+use App\Support\ListQuery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -15,7 +16,8 @@ class LikertQuestionController extends Controller
      */
     public function index()
     {
-        $questions = LikertQuestion::latest()->simplePaginate(15);
+        $questions = ListQuery::applySearch(LikertQuestion::query(), ['question_text'])
+            ->latest()->paginate(ListQuery::perPage())->withQueryString();
 
         return view('shared-admin.likert-questions.index', compact('questions'));
     }

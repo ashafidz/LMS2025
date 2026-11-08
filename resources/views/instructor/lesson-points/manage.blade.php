@@ -32,6 +32,7 @@
                                             </ul>
                                         </div>
                                     @endif
+                                    <x-dash.list-toolbar placeholder="Cari nama, email, atau NIM/NIP/NIDN..." label="Cari siswa" />
                                     <div class="table-responsive">
                                         <table class="table table-hover">
                                             <thead>
@@ -65,15 +66,13 @@
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="4" class="text-center">Belum ada siswa yang terdaftar di kursus ini.</td>
+                                                        <td colspan="4" class="text-center">{{ request()->filled('search') ? 'Tidak ada siswa yang cocok dengan pencarian.' : 'Belum ada siswa yang terdaftar di kursus ini.' }}</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="d-flex justify-content-center">
-                                        {{ $students->links() }}
-                                    </div>
+                                    <x-dash.pagination :items="$students" />
                                 </div>
                             </div>
                         </div>

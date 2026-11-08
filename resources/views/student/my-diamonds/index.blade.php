@@ -33,6 +33,7 @@
                                     <h5>Riwayat Diamond</h5>
                                 </div>
                                 <div class="card-block table-border-style">
+                                    <x-dash.list-toolbar placeholder="Cari keterangan diamond..." label="Cari riwayat diamond" />
                                     <div class="table-responsive">
                                         <table class="table table-hover">
                                             <thead>
@@ -57,15 +58,13 @@
                                                     </tr>
                                                 @empty
                                                     <tr>
-                                                        <td colspan="3" class="text-center">Anda belum memiliki riwayat diamond.</td>
+                                                        <td colspan="3" class="text-center">{{ request()->filled('search') ? 'Tidak ada riwayat yang cocok dengan pencarian.' : 'Anda belum memiliki riwayat diamond.' }}</td>
                                                     </tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="d-flex justify-content-center">
-                                        {{ $diamondHistories->links() }}
-                                    </div>
+                                    <x-dash.pagination :items="$diamondHistories" :per-page-options="[10, 25, 50]" />
                                 </div>
                             </div>
                         </div>
