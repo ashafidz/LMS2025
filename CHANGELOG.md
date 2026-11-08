@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.2] - 2026-11-08
+
+### Fixed
+
+- **Pratinjau Tautan**: Saat alamat Ruang Studi dibagikan di LinkedIn, WhatsApp, atau Facebook, kartu pratinjaunya kini menampilkan nama situs, deskripsi singkat, dan gambar Ruang Studi (sebelumnya judul "Raih Impian" dan potongan ilustrasi). Halaman kursus menampilkan judul, ringkasan, dan thumbnail kursus. Setiap halaman publik kini punya deskripsi untuk mesin pencari.
+
 ## [2.0.1] - 2026-11-07
 
 ### Fixed

@@ -1,6 +1,7 @@
 @extends('layouts.home-layout')
 
 @section('title', 'Testimoni Pengguna')
+@section('meta_description', 'Cerita dan ulasan pengguna yang sudah belajar di Ruang Studi.')
 
 @section('content')
 <div class="rs-page">

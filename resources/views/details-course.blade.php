@@ -2,6 +2,22 @@
 
 @section('title', $course->title)
 
+@php
+    // Share-preview data: plain-text summary of the editor HTML, and an absolute thumbnail URL.
+    // Decode entities from the editor (&nbsp;, &amp;) so the summary is plain text; the layout escapes it once.
+    $seoSummary = \Illuminate\Support\Str::limit(trim(preg_replace('/[\s\x{00A0}]+/u', ' ', html_entity_decode(strip_tags((string) $course->description), ENT_QUOTES | ENT_HTML5, 'UTF-8'))), 155);
+    $seoThumb = $course->thumbnail_url ? \Illuminate\Support\Facades\Storage::url($course->thumbnail_url) : '';
+    if ($seoThumb !== '' && ! \Illuminate\Support\Str::startsWith($seoThumb, ['http://', 'https://'])) {
+        $seoThumb = url($seoThumb);
+    }
+@endphp
+@if ($seoSummary !== '')
+    @section('meta_description', $seoSummary)
+@endif
+@if ($seoThumb !== '')
+    @section('og_image', $seoThumb)
+@endif
+
 @section('content')
 <div class="rs-page">
 <section class="rs-pagehead">

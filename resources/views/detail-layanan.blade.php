@@ -1,6 +1,7 @@
 @extends('layouts.home-layout')
 
 @section('title', 'Detail Pelayanan')
+@section('meta_description', 'Layanan Ruang Studi: kelas dari instruktur berpengalaman, evaluasi lewat kuis dan tugas, serta sertifikat resmi.')
 
 @section('content')
 <div class="rs-page">
