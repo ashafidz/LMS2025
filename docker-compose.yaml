@@ -1,6 +1,6 @@
 services:
   mysql-db:
-    image: mysql:latest
+    image: docker.io/library/mysql:latest
     container_name: mysql_edugames
     restart: always
     environment:
@@ -14,7 +14,7 @@ services:
       - mysql_data:/var/lib/mysql
 
   mailhog:
-    image: mailhog/mailhog:latest
+    image: docker.io/mailhog/mailhog:latest
     container_name: mailhog_edugames
     restart: always
     ports:
