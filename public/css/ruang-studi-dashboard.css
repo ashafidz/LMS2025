@@ -1241,15 +1241,26 @@ img.rs-dash-avatar { background: var(--rs-line); }
 .rs-dash .rs-pager-card .rs-pager { margin-top: 12px; }
 .rs-dash .rs-pager__gap { display: inline-flex; align-items: flex-end; height: var(--rs-btn-h-sm); padding: 0 4px; color: var(--rs-muted); }
 .rs-dash .rs-pager__compact { display: none; padding: 0 6px; color: var(--rs-ink); font-weight: 700; font-size: var(--rs-fs-small); white-space: nowrap; }
-@media (max-width: 991.98px) {
+/* The pager picks its layout from its own width, not the viewport: the sidebar and card padding decide how much room
+   it gets. Labels need about 1010px (11 page numbers plus the four labelled buttons); numbers alone about 730px.
+   Below that it shows "Hal X dari Y" between the arrow buttons, and the arrow row never wraps. */
+.rs-dash .rs-pager { container: rs-pager / inline-size; }
+@container rs-pager (max-width: 1039.98px) {
   .rs-dash .rs-pager__label { display: none; }
 }
-@media (max-width: 575.98px) {
+@container rs-pager (max-width: 759.98px) {
   .rs-dash .rs-pager__num { display: none; }
-  .rs-dash .rs-pager__compact { display: inline-flex; }
-  .rs-dash .rs-pager__btn { min-width: 44px; height: 44px; }
+  .rs-dash .rs-pager__list { flex-wrap: nowrap; }
+  .rs-dash .rs-pager__compact { display: inline-flex; justify-content: center; flex: 0 1 auto; min-width: 0; text-align: center; white-space: normal; }
+}
+@media (max-width: 575.98px) {
+  .rs-dash .rs-pager__btn { flex: 0 0 auto; min-width: 44px; height: 44px; }
   .rs-dash .rs-pager__list { width: 100%; justify-content: space-between; }
+  .rs-dash .rs-pager__compact { flex: 1 1 0; }
   .rs-dash .rs-pager__info, .rs-dash .rs-pager__nav { justify-content: flex-start; }
+  /* Same 44px touch height as the arrow buttons. */
+  .rs-dash .rs-pager .rs-pager__size select.form-control, .rs-dash .rs-pager .rs-pager__jump input.form-control,
+  .rs-dash .rs-pager__jump .btn { height: 44px !important; min-height: 44px; }
 }
 
 /* Sorting on phones: the "Urutkan" select built by ruang-studi-dashboard.js (headers are hidden in card view). */
