@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.1] - 2026-11-10
+
+### Fixed
+
+- **Navigasi Halaman di HP dan Layar Sedang**: Tombol navigasi halaman di daftar dasbor kini selalu satu baris. Sebelumnya tombol "Terakhir" turun sendiri ke baris baru di HP kecil saat halamannya 10 atau lebih, dan tombol "Berikutnya" dan "Terakhir" terpisah ke baris kedua di HP mendatar, tablet, dan laptop dengan sidebar. Tampilan kini menyesuaikan lebar kotak daftar, bukan lebar layar: nomor halaman dan tulisan "Pertama", "Sebelumnya", "Berikutnya", "Terakhir" hanya muncul bila muat; bila tidak, tampil ringkas "Hal X dari Y" di antara tombol panah. Di HP, pilihan jumlah baris, kotak "Ke halaman", dan tombol "Buka" kini setinggi tombol panah.
+
 ## [2.1.0] - 2026-11-08
 
 ### Added
