@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.0] - 2026-11-11
+
+### Added
+
+- **Checklist di Kelola Soal Kuis**: Setiap soal di halaman Kelola Soal Kuis kini punya kotak centang, plus kotak "pilih semua" di judul kolom. Tombol "Hapus Terpilih" menghapus semua soal yang dicentang dari kuis sekaligus (dengan konfirmasi) dan menampilkan jumlah soal terpilih. Soal tetap tersimpan di Bank Soal. Tombol "Hapus" per soal tetap ada.
+
+### Fixed
+
+- **Soal Bank Soal Terkunci Setelah Kursus Dihapus**: Soal di Bank Soal kini bisa diedit dan dipindah lagi setelah kursus yang memakainya dihapus. Sebelumnya soal tetap berstatus "Locked" (dan topiknya "Terkunci") karena kuis dari kursus yang sudah dihapus masih ikut dihitung. Soal tetap terkunci selama masih dipakai kuis di kursus yang belum dihapus.
+- **Hapus Soal Terkunci**: Soal yang masih dipakai kuis kini juga ditolak saat dihapus lewat server, bukan hanya tombolnya yang dinonaktifkan di tampilan.
+
 ## [2.1.1] - 2026-11-10
 
 ### Fixed

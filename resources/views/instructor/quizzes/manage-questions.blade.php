@@ -26,10 +26,29 @@
                                         </div>
                                     </div>
                                     <div class="card-block table-border-style">
+                                        @error('question_ids')
+                                            <div class="alert alert-danger">{{ $message }}</div>
+                                        @enderror
+                                        @if ($attachedQuestions->isNotEmpty())
+                                            {{-- Form hapus massal; checkbox di tabel terhubung lewat atribut form="bulk-detach-form" --}}
+                                            <form id="bulk-detach-form" action="{{ route('instructor.quizzes.detach_questions', $quiz) }}" method="POST" class="d-flex flex-wrap align-items-center mb-3" style="gap: .5rem;" data-confirm="Hapus semua soal yang dipilih dari kuis ini? Soal tetap tersimpan di Bank Soal." data-confirm-danger data-confirm-ok="Ya, lepaskan">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm" id="bulk-detach-btn" disabled>
+                                                    <i class="fa fa-trash"></i> Hapus Terpilih (<span id="bulk-detach-count">0</span>)
+                                                </button>
+                                                <small class="text-muted">Centang soal di tabel, lalu hapus sekaligus dari kuis.</small>
+                                            </form>
+                                        @endif
                                         <div class="table-responsive">
                                             <table class="table table-hover">
                                                 <thead>
                                                     <tr>
+                                                        <th style="width: 1%;">
+                                                            @if ($attachedQuestions->isNotEmpty())
+                                                                <input type="checkbox" id="select-all-questions" aria-label="Pilih semua soal">
+                                                            @endif
+                                                        </th>
                                                         <th>#</th>
                                                         <th>Teks Soal</th>
                                                         <th>Tipe</th>
@@ -39,6 +58,9 @@
                                                 <tbody>
                                                     @forelse ($attachedQuestions as $question)
                                                         <tr>
+                                                            <td>
+                                                                <input type="checkbox" class="question-check" name="question_ids[]" value="{{ $question->id }}" form="bulk-detach-form" aria-label="Pilih soal {{ $loop->iteration }}">
+                                                            </td>
                                                             <th scope="row">{{ $loop->iteration }}</th>
                                                             <td>{{ $question->plainSummary(100) }}</td>
                                                             <td>{{ $question->type_label }}</td>
@@ -55,7 +77,7 @@
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="4" class="text-center">Belum ada soal di dalam kuis ini.</td>
+                                                            <td colspan="5" class="text-center">Belum ada soal di dalam kuis ini.</td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
@@ -103,3 +125,30 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        (function () {
+            const selectAll = document.getElementById('select-all-questions');
+            const button = document.getElementById('bulk-detach-btn');
+            const count = document.getElementById('bulk-detach-count');
+            if (!selectAll || !button) { return; }
+            const checks = Array.from(document.querySelectorAll('.question-check'));
+
+            function refresh() {
+                const checked = checks.filter(function (c) { return c.checked; }).length;
+                count.textContent = checked;
+                button.disabled = checked === 0;
+                selectAll.checked = checked > 0 && checked === checks.length;
+                selectAll.indeterminate = checked > 0 && checked < checks.length;
+            }
+
+            selectAll.addEventListener('change', function () {
+                checks.forEach(function (c) { c.checked = selectAll.checked; });
+                refresh();
+            });
+            checks.forEach(function (c) { c.addEventListener('change', refresh); });
+            refresh();
+        })();
+    </script>
+@endpush
