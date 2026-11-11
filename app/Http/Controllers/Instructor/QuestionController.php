@@ -24,7 +24,7 @@ class QuestionController extends Controller
     {
         abort_unless($topic->instructor_id === Auth::id(), 403);
 
-        $questions = ListQuery::applySearch($topic->questions()->with('options', 'quizzes'), ['question_text'])
+        $questions = ListQuery::applySearch($topic->questions()->with('options', 'activeQuizzes'), ['question_text'])
             ->latest()->paginate(ListQuery::perPage())->withQueryString();
 
         // Load topic with courses for modal info
@@ -119,7 +119,7 @@ class QuestionController extends Controller
     {
         abort_unless($question->topic && $question->topic->instructor_id === Auth::id(), 403);
 
-        if ($question->quizzes()->exists()) {
+        if ($question->isLocked()) {
             return redirect()->route('instructor.question-bank.questions.index', $question->topic)
                 ->with('error', 'Soal ini terkunci karena sudah dipakai di kuis. Salin soal ini untuk mengubahnya.');
         }
@@ -137,7 +137,7 @@ class QuestionController extends Controller
     {
         abort_unless($question->topic && $question->topic->instructor_id === Auth::id(), 403);
 
-        if ($question->quizzes()->exists()) {
+        if ($question->isLocked()) {
             abort(403, 'Soal ini terkunci karena sudah dipakai di kuis.');
         }
 
@@ -177,6 +177,12 @@ class QuestionController extends Controller
         abort_unless($question->topic && $question->topic->instructor_id === Auth::id(), 403);
 
         $topic = $question->topic;
+
+        if ($question->isLocked()) {
+            return redirect()->route('instructor.question-bank.questions.index', $topic)
+                ->with('error', 'Soal ini terkunci karena sudah dipakai di kuis dan tidak bisa dihapus.');
+        }
+
         $question->delete();
 
         return redirect()->route('instructor.question-bank.questions.index', $topic)
@@ -226,7 +232,7 @@ class QuestionController extends Controller
         }
 
         // Check if question is locked (used in quizzes)
-        if ($question->quizzes()->exists()) {
+        if ($question->isLocked()) {
             return redirect()->back()
                 ->with('error', 'Soal yang terkunci tidak bisa dipindahkan karena sedang dipakai di satu atau lebih kuis.');
         }

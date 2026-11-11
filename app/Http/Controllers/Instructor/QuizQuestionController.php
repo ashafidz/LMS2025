@@ -110,4 +110,24 @@ class QuizQuestionController extends Controller
 
         return back()->with('success', 'Soal berhasil dihapus dari kuis.');
     }
+
+    /**
+     * Lepaskan beberapa soal terpilih dari kuis sekaligus. Soal tetap ada di Bank Soal.
+     */
+    public function detachQuestions(Request $request, Quiz $quiz)
+    {
+        $quiz->loadMissing('lesson.module.course');
+        Gate::authorize('manage', $quiz->lesson->module->course);
+
+        $validated = $request->validate([
+            'question_ids' => 'required|array|min:1',
+            'question_ids.*' => 'integer',
+        ], [
+            'question_ids.required' => 'Pilih minimal satu soal untuk dihapus dari kuis.',
+        ]);
+
+        $detached = $quiz->questions()->detach($validated['question_ids']);
+
+        return back()->with('success', $detached.' soal berhasil dihapus dari kuis.');
+    }
 }

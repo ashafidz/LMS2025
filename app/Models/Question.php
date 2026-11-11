@@ -181,4 +181,26 @@ class Question extends Model
     {
         return $this->belongsToMany(Quiz::class, 'quiz_question');
     }
+
+    /**
+     * Quizzes that include this question and still belong to a live course.
+     * A deleted course is only soft-deleted, so its quizzes and quiz_question rows remain;
+     * they must not keep the question locked.
+     */
+    public function activeQuizzes()
+    {
+        return $this->quizzes()->whereHas('lesson.module.course');
+    }
+
+    /**
+     * A question is locked (no edit, move, or delete) while a live quiz uses it.
+     */
+    public function isLocked(): bool
+    {
+        if ($this->relationLoaded('activeQuizzes')) {
+            return $this->activeQuizzes->isNotEmpty();
+        }
+
+        return $this->activeQuizzes()->exists();
+    }
 }

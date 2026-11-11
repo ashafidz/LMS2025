@@ -455,6 +455,9 @@ Route::middleware(['auth', 'verified', 'role:instructor'])->group(function () {
         // Menghapus satu soal dari kuis
         Route::delete('/instructor/quizzes/{quiz}/detach-question/{question}', [QuizQuestionController::class, 'detachQuestion'])->name('instructor.quizzes.detach_question');
 
+        // Menghapus beberapa soal terpilih dari kuis sekaligus
+        Route::delete('/instructor/quizzes/{quiz}/detach-questions', [QuizQuestionController::class, 'detachQuestions'])->name('instructor.quizzes.detach_questions');
+
         Route::patch('/instructor/courses/{course}/submit-review', [CourseController::class, 'submitForReview'])->name('instructor.courses.submit_review');
         Route::patch('/instructor/courses/{course}/make-private', [CourseController::class, 'makePrivate'])->name('instructor.courses.make_private');
 

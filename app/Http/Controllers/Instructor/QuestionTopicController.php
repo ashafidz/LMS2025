@@ -21,7 +21,7 @@ class QuestionTopicController extends Controller
 
         // Mulai query dasar untuk topik milik instruktur
         $query = $user->questionTopics()
-            ->withExists(['questions as is_locked' => fn ($q) => $q->whereHas('quizzes')])
+            ->withExists(['questions as is_locked' => fn ($q) => $q->whereHas('activeQuizzes')])
             ->withCount('questions')
             ->with(['courses', 'questions' => function ($q) {
                 $q->select('id', 'topic_id', 'question_type');
