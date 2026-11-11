@@ -45,9 +45,9 @@
                                                 <tbody>
                                                     @forelse ($questions as $question)
                                                         @php
-                                                            // Check if the question is used in any quiz.
-                                                            // This assumes your controller uses `with('quizzes')`.
-                                                            $isLocked = $question->quizzes->isNotEmpty();
+                                                            // Locked while a quiz of a live (not deleted) course uses it.
+                                                            // The controller eager loads `activeQuizzes`.
+                                                            $isLocked = $question->isLocked();
                                                         @endphp
                                                         <tr>
                                                             <th scope="row">{{ $loop->iteration + $questions->firstItem() - 1 }}</th>
