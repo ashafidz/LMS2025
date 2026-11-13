@@ -7,6 +7,7 @@ use App\Services\OrderSettlementService;
 use App\Services\XenditService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class XenditCallbackController extends Controller
@@ -21,6 +22,10 @@ class XenditCallbackController extends Controller
     ): JsonResponse {
         if (! $xendit->isValidCallbackToken($request->header('x-callback-token'))) {
             return response()->json(['message' => 'Invalid callback token'], 403);
+        }
+
+        if ($this->shouldForwardToFlowPlay($request)) {
+            return $this->forwardToFlowPlay($request);
         }
 
         $order = Order::where('order_code', $request->input('external_id'))->first();
@@ -49,5 +54,47 @@ class XenditCallbackController extends Controller
         }
 
         return response()->json(['message' => 'OK'], 200);
+    }
+
+    /**
+     * Invoice FlowPlay memakai akun Xendit yang sama; callback-nya diteruskan, bukan diproses di sini.
+     */
+    private function shouldForwardToFlowPlay(Request $request): bool
+    {
+        $url = (string) config('xendit.flowplay_callback_url');
+        $prefix = (string) config('xendit.flowplay_external_id_prefix');
+        $externalId = $request->input('external_id');
+
+        return $url !== '' && $prefix !== '' && is_string($externalId) && str_starts_with($externalId, $prefix);
+    }
+
+    private function forwardToFlowPlay(Request $request): JsonResponse
+    {
+        $externalId = (string) $request->input('external_id');
+
+        try {
+            $response = Http::withHeaders(['x-callback-token' => (string) $request->header('x-callback-token')])
+                ->withBody($request->getContent(), 'application/json')
+                // Redirect tidak diikuti: POST bisa berubah jadi GET (body hilang) dan header token ikut ke host lain.
+                ->withoutRedirecting()
+                ->timeout(15)
+                ->post((string) config('xendit.flowplay_callback_url'));
+        } catch (\Throwable $e) {
+            Log::warning('Xendit FlowPlay relay failed', ['external_id' => $externalId, 'error' => get_class($e)]);
+
+            return response()->json(['message' => 'Forward failed'], 502);
+        }
+
+        if ($response->successful()) {
+            return response()->json(['message' => 'Forwarded'], 200);
+        }
+
+        Log::warning('Xendit FlowPlay relay non-2xx', ['external_id' => $externalId, 'status' => $response->status()]);
+
+        if ($response->status() >= 400 && $response->status() < 500) {
+            return response()->json(['message' => 'Forward rejected'], $response->status());
+        }
+
+        return response()->json(['message' => 'Forward failed'], 502);
     }
 }

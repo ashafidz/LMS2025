@@ -8,6 +8,8 @@ use App\Models\OrderItem;
 use App\Models\PointHistory;
 use App\Models\SiteSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class XenditCallbackTest extends TestCase
@@ -191,5 +193,101 @@ class XenditCallbackTest extends TestCase
         $this->postCallback($this->payload($order, 'PAID'))->assertStatus(200);
         $this->assertEquals('paid', $order->fresh()->status);
         $this->assertEquals(1, $order->user->enrollments()->count());
+    }
+
+    private const FLOWPLAY_URL = 'https://flowplay.test/api/v1/webhook/xendit/invoice';
+
+    protected function enableRelay(): void
+    {
+        config(['xendit.flowplay_callback_url' => self::FLOWPLAY_URL]);
+    }
+
+    protected function flowplayPayload(): array
+    {
+        return ['id' => 'inv_fp', 'external_id' => 'sub_1_100', 'status' => 'PAID', 'amount' => 50000];
+    }
+
+    public function test_flowplay_invoice_is_forwarded_untouched(): void
+    {
+        $this->enableRelay();
+        Http::fake([self::FLOWPLAY_URL => Http::response('OK', 200)]);
+        $payload = $this->flowplayPayload();
+
+        $this->postCallback($payload)->assertStatus(200)->assertJson(['message' => 'Forwarded']);
+
+        Http::assertSent(fn ($request) => $request->url() === self::FLOWPLAY_URL
+            && $request->header('x-callback-token')[0] === $this->token
+            && $request->body() === json_encode($payload));
+        $this->assertEquals(0, Order::count());
+    }
+
+    public function test_flowplay_upstream_500_returns_502(): void
+    {
+        $this->enableRelay();
+        Http::fake([self::FLOWPLAY_URL => Http::response('boom', 500)]);
+
+        $this->postCallback($this->flowplayPayload())->assertStatus(502);
+    }
+
+    public function test_flowplay_connection_error_returns_502(): void
+    {
+        $this->enableRelay();
+        Http::fake(fn () => throw new ConnectionException('down'));
+
+        $this->postCallback($this->flowplayPayload())->assertStatus(502);
+    }
+
+    public function test_flowplay_redirect_is_not_followed_and_returns_502(): void
+    {
+        $this->enableRelay();
+        Http::fake([
+            self::FLOWPLAY_URL => Http::response('', 301, ['Location' => 'https://elsewhere.test/hook']),
+            'https://elsewhere.test/*' => Http::response('OK', 200),
+        ]);
+
+        $this->postCallback($this->flowplayPayload())->assertStatus(502);
+
+        Http::assertSentCount(1);
+        Http::assertNotSent(fn ($request) => str_starts_with($request->url(), 'https://elsewhere.test'));
+    }
+
+    public function test_flowplay_upstream_403_is_passed_through(): void
+    {
+        $this->enableRelay();
+        Http::fake([self::FLOWPLAY_URL => Http::response('no', 403)]);
+
+        $this->postCallback($this->flowplayPayload())->assertStatus(403);
+    }
+
+    public function test_flowplay_invoice_without_relay_url_returns_404(): void
+    {
+        config(['xendit.flowplay_callback_url' => null]);
+        Http::fake();
+
+        $this->postCallback($this->flowplayPayload())->assertStatus(404)->assertJson(['message' => 'Order not found']);
+
+        Http::assertNothingSent();
+    }
+
+    public function test_flowplay_invoice_with_bad_token_is_not_forwarded(): void
+    {
+        $this->enableRelay();
+        Http::fake();
+
+        $this->postCallback($this->flowplayPayload(), 'wrong-token')->assertStatus(403);
+
+        Http::assertNothingSent();
+    }
+
+    public function test_own_order_is_not_forwarded_when_relay_enabled(): void
+    {
+        $this->enableRelay();
+        Http::fake();
+        $order = $this->makeOrder(100000, true);
+
+        $this->postCallback($this->payload($order))->assertStatus(200);
+
+        $this->assertEquals('paid', $order->fresh()->status);
+        Http::assertNothingSent();
     }
 }

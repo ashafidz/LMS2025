@@ -53,7 +53,7 @@ Read both before starting any non-trivial task.
 - App timezone: `UTC` (`config/app.php`); per-user display timezone lives in `users.timezone`
 - Environment file: `.env` (keep `.env.example` up to date when adding a new variable)
 - Dev server: `composer dev` (serve + queue + vite)
-- Xendit: callback URL for "Invoices paid" in the Xendit dashboard must be `https://<domain>/xendit/callback`; set `XENDIT_SECRET_KEY` and `XENDIT_CALLBACK_TOKEN`. Locally use a tunnel (ngrok) or rely on the status check on the success page. The dashboard "Test" button sends a fake `external_id`, so a 404 `Order not found` answer is expected.
+- Xendit: callback URL for "Invoices paid" in the Xendit dashboard must be `https://<domain>/xendit/callback`; set `XENDIT_SECRET_KEY` and `XENDIT_CALLBACK_TOKEN`. Locally use a tunnel (ngrok) or rely on the status check on the success page. The dashboard "Test" button sends a fake `external_id`, so a 404 `Order not found` answer is expected. The callback also relays FlowPlay invoices (`external_id` prefix `sub_`) to `XENDIT_FLOWPLAY_CALLBACK_URL` (empty = off, must be the final `https://` URL because redirects are not followed); an upstream 3xx/5xx or connection error answers 502 so Xendit retries. The Xendit account and callback token are shared with FlowPlay.
 - Scheduler: Production needs the Laravel scheduler cron (`* * * * * cd /path && php artisan schedule:run >> /dev/null 2>&1`) for `orders:sync-pending`; the Xendit callback stays the primary path.
 
 ---

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.0] - 2026-11-13
+
+### Added
+
+- **Relay Callback Xendit untuk FlowPlay**: FlowPlay kini memakai akun Xendit yang sama dengan RuangStudi. Callback invoice yang `external_id`-nya berawalan `sub_` (bisa diatur lewat `XENDIT_FLOWPLAY_EXTERNAL_ID_PREFIX`) diteruskan apa adanya ke `XENDIT_FLOWPLAY_CALLBACK_URL` setelah token callback dicek, tanpa menyentuh pesanan RuangStudi. Bila FlowPlay gagal menjawab, dialihkan (redirect), atau tidak bisa dihubungi, RuangStudi menjawab 502 sehingga Xendit mengulang callback. Relay mati selama `XENDIT_FLOWPLAY_CALLBACK_URL` kosong, jadi perilaku RuangStudi tidak berubah sampai env itu diisi.
+
 ## [2.2.0] - 2026-11-11
 
 ### Added
