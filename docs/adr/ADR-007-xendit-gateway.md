@@ -35,3 +35,14 @@ money yet, so the switch carries no financial migration risk.
 - Before deploying, confirm no Midtrans transaction is still payable, because `/midtrans/notification` is gone.
 - Test/live mode follows the secret key type (`xnd_development_` vs `xnd_production_`); there is no `is_production` flag.
 - No multi-gateway abstraction was added; a future gateway change is another service swap.
+
+---
+
+## Addendum 2026-11-13: shared account with FlowPlay
+xenPlatform was rejected by Xendit, so FlowPlay uses this same Xendit account. Xendit allows one "Invoice paid"
+callback URL per account, so it stays pointed at `/xendit/callback`. After the token check, a callback whose
+`external_id` starts with `XENDIT_FLOWPLAY_EXTERNAL_ID_PREFIX` (default `sub_`) is forwarded unchanged (raw body and
+`x-callback-token`) to `XENDIT_FLOWPLAY_CALLBACK_URL` instead of being matched to an order. Upstream 2xx answers 200,
+upstream 4xx is passed through, upstream 3xx (redirects are not followed, so the body and token never go
+elsewhere), 5xx or a connection error answers 502; every non-2xx makes Xendit retry. An empty URL turns
+the relay off. Both apps share the callback token; FlowPlay uses its own Invoice-only API key.
