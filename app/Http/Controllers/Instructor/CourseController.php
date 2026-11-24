@@ -267,12 +267,8 @@ class CourseController extends Controller
         // Ambil ID lesson yang sudah diselesaikan siswa
         $completedLessonIds = $student->completedLessons()->pluck('lessons.id')->toArray();
 
-        // Ambil riwayat poin khusus untuk kursus dan siswa ini, index by lesson_id
-        $pointHistories = \App\Models\PointHistory::where('user_id', $student->id)
-            ->where('course_id', $course->id)
-            ->whereNotNull('lesson_id')
-            ->get()
-            ->keyBy('lesson_id');
+        // Poin per lesson (dijumlah: poin manual bisa lebih dari satu baris per lesson), poin di luar materi, dan total
+        [$lessonPoints, $otherPointHistories, $totalPoints] = \App\Services\PointLedger::progressFor($student->id, $course->id);
 
         // Ambil riwayat pengumpulan tugas (jika ada yang menunggu nilai atau revisi)
         $assignmentSubmissions = \App\Models\AssignmentSubmission::where('user_id', $student->id)
@@ -286,7 +282,9 @@ class CourseController extends Controller
             'course',
             'student',
             'completedLessonIds',
-            'pointHistories',
+            'lessonPoints',
+            'otherPointHistories',
+            'totalPoints',
             'assignmentSubmissions',
             'siteSettings'
         ));

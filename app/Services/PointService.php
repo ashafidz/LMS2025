@@ -102,10 +102,6 @@ class PointService
         // $course = $lesson->module->course;
 
         switch ($activity) {
-            case 'purchase':
-                $pointsToAdd = (int) ($settings?->points_for_purchase ?? 0);
-                $description = 'Membeli kursus: '.$course->title;
-                break;
             case 'complete_article':
                 $pointsToAdd = (int) ($settings?->points_for_article ?? 0);
                 $description = 'Menyelesaikan artikel: '.$description_meta;
@@ -182,32 +178,14 @@ class PointService
     public static function addManualPoints(User $user, Course $course, Lesson $lesson, int $pointsToAdd)
     {
         if ($pointsToAdd > 0) {
-            // $course = $lesson->module->course;
             $description = 'Menerima poin dari sesi: '.$lesson->title;
             DB::transaction(function () use ($user, $course, $lesson, $pointsToAdd, $description) {
-                // $courseUser = $user->coursePoints()->where('course_id', $course->id)->first();
-                // if ($courseUser) {
-                //     $courseUser->increment('points_earned', $pointsToAdd);
-                // } else {
-                //     $user->coursePoints()->attach($course->id, ['points_earned' => $pointsToAdd]);
-                // }
-                // **CORRECTED LOGIC**: Also apply the fix here for consistency
-                CourseUser::updateOrCreate(
-                    [
-                        'user_id' => $user->id,
-                        'course_id' => $course->id,
-                    ],
-                    [
-                        'points_earned' => DB::raw('points_earned + '.$pointsToAdd),
-                    ]
+                // Same pattern as addPoints: safe when the course_user row does not exist yet
+                $courseUser = CourseUser::createOrFirst(
+                    ['user_id' => $user->id, 'course_id' => $course->id],
+                    ['points_earned' => 0]
                 );
-
-                // $user->pointHistories()->create([
-                //     'course_id' => $course->id,
-                //     'lesson_id' => $lesson->id,
-                //     'points' => $pointsToAdd,
-                //     'description' => $description,
-                // ]);
+                $courseUser->increment('points_earned', $pointsToAdd);
 
                 $user->pointHistories()->create([
                     'course_id' => $course->id,

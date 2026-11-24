@@ -383,17 +383,21 @@ class CourseController extends Controller
         }
 
         try {
-            $leaderboardRanks = $course->points()
-                ->with('user.studentProfile')
-                // DIPERBARUI: Tambahkan filter untuk memastikan siswa masih terdaftar
+            // All enrolled students in a fixed order: points, then who reached them first, then id.
+            // Only the top 100 are shown; the full order gives the student's own rank.
+            $allRanks = $course->points()
                 ->whereHas('user.enrollments', function ($query) use ($course) {
                     $query->where('course_id', $course->id);
                 })
-                ->orderBy('points_earned', 'desc')
-                ->take(100)
-                ->get();
+                ->orderByDesc('points_earned')
+                ->orderBy('updated_at')
+                ->orderBy('user_id')
+                ->get(['id', 'user_id', 'points_earned', 'updated_at']);
 
-            $html = view('student.courses.partials._leaderboard', compact('leaderboardRanks'))->render();
+            $leaderboardRanks = $allRanks->take(100)->values()->load('user.studentProfile');
+            $myRank = $this->ownRank($allRanks, $user->id, 'points_earned');
+
+            $html = view('student.courses.partials._leaderboard', compact('leaderboardRanks', 'myRank'))->render();
 
             return response()->json(['success' => true, 'html' => $html]);
         } catch (\Exception $e) {
@@ -438,21 +442,41 @@ class CourseController extends Controller
         $lessonIds = $module->lessons()->pluck('id');
 
         // Hitung total poin per siswa HANYA dari pelajaran-pelajaran tersebut
-        $leaderboardRanks = PointHistory::whereIn('lesson_id', $lessonIds)
-            ->select('user_id', DB::raw('SUM(points) as total_points'))
+        // Hitung total poin per siswa HANYA dari pelajaran-pelajaran tersebut; urutan tetap untuk poin sama
+        $allRanks = PointHistory::whereIn('lesson_id', $lessonIds)
+            ->select('user_id', DB::raw('SUM(points) as total_points'), DB::raw('MAX(created_at) as reached_at'))
             ->groupBy('user_id')
-            // DIPERBARUI: Tambahkan filter untuk memastikan siswa masih terdaftar
             ->whereHas('user.enrollments', function ($query) use ($course) {
                 $query->where('course_id', $course->id);
             })
-            ->orderBy('total_points', 'desc')
-            ->with('user.studentProfile') // Eager load data user
-            ->take(100)
+            ->orderByDesc('total_points')
+            ->orderBy('reached_at')
+            ->orderBy('user_id')
             ->get();
 
-        $html = view('student.courses.partials._module-leaderboard', compact('module', 'leaderboardRanks'))->render();
+        $leaderboardRanks = $allRanks->take(100)->values()->load('user.studentProfile');
+        $myRank = $this->ownRank($allRanks, $user->id, 'total_points');
+
+        $html = view('student.courses.partials._module-leaderboard', compact('module', 'leaderboardRanks', 'myRank'))->render();
 
         return response()->json(['success' => true, 'html' => $html]);
+    }
+
+    /**
+     * The student's own place in a full leaderboard, for the "Peringkat Anda" row shown when they are outside
+     * the top 100. rank is null when the student has no points there yet.
+     *
+     * @return array{rank: int|null, points: int}
+     */
+    private function ownRank($allRanks, int $userId, string $pointsColumn): array
+    {
+        $index = $allRanks->search(fn ($row) => (int) $row->user_id === $userId);
+
+        if ($index === false) {
+            return ['rank' => null, 'points' => 0];
+        }
+
+        return ['rank' => $index + 1, 'points' => (int) $allRanks[$index]->{$pointsColumn}];
     }
 
     public function submitPolling(Request $request, Lesson $lesson)

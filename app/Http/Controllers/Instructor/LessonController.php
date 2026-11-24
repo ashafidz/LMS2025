@@ -13,6 +13,7 @@ use App\Models\LessonVideo;
 use App\Models\Module;
 use App\Models\Quiz;
 use App\Services\CourseMediaCleanupService;
+use App\Services\PointLedger;
 use App\Support\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -553,8 +554,14 @@ class LessonController extends Controller
         Gate::authorize('manage', $lesson->module->course);
 
         DB::transaction(function () use ($lesson) {
+            // Points from this lesson are removed with it (history rows cascade); rebuild the course totals
+            $courseId = (int) $lesson->module->course_id;
+            $userIds = PointLedger::usersWithPointsIn([$lesson->id]);
+
             app(CourseMediaCleanupService::class)->cleanupLessonAndDeleteLessonable($lesson);
             $lesson->delete();
+
+            PointLedger::recalculateMany($userIds, $courseId);
         });
 
         return back()->with('success', 'Pelajaran berhasil dihapus.');

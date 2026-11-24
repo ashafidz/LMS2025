@@ -21,7 +21,7 @@ class OrderSettlementServiceTest extends TestCase
     {
         SiteSetting::create([
             'site_name' => 'ruangstudi.id',
-            'points_for_purchase' => 50,
+            'diamonds_for_purchase' => 50,
         ]);
         cache()->forget('site_settings');
 
@@ -55,7 +55,10 @@ class OrderSettlementServiceTest extends TestCase
         $this->assertTrue($res1);
         $this->assertEquals('paid', $order->fresh()->status);
         $this->assertEquals(1, $student->fresh()->enrollments()->count());
-        $this->assertEquals(1, PointHistory::where('user_id', $student->id)->where('course_id', $course->id)->count());
+        // A paid purchase gives diamonds, not points (ADR-016)
+        $this->assertEquals(0, PointHistory::where('user_id', $student->id)->where('course_id', $course->id)->count());
+        $this->assertEquals(50, $student->fresh()->diamond_balance);
+        $this->assertEquals(1, $student->diamondHistories()->count());
         $this->assertEquals(1, $coupon->fresh()->uses_count);
         $this->assertDatabaseMissing('carts', ['user_id' => $student->id, 'course_id' => $course->id]);
 
@@ -63,7 +66,8 @@ class OrderSettlementServiceTest extends TestCase
         $res2 = $service->markPaid($order);
         $this->assertFalse($res2);
         $this->assertEquals(1, $student->fresh()->enrollments()->count());
-        $this->assertEquals(1, PointHistory::where('user_id', $student->id)->where('course_id', $course->id)->count());
+        $this->assertEquals(50, $student->fresh()->diamond_balance);
+        $this->assertEquals(1, $student->diamondHistories()->count());
         $this->assertEquals(1, $coupon->fresh()->uses_count);
     }
 

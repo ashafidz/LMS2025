@@ -43,7 +43,7 @@
                                                     </td>
                                                     <td>
                                                         <span class="badge badge-info">{{ $anomaly['display_type'] }}</span><br>
-                                                        {{ $anomaly['lesson']->title }}
+                                                        {{ $anomaly['lesson']?->title ?? 'Semua materi di kursus ini' }}
                                                     </td>
                                                     <td class="text-center text-danger font-weight-bold">
                                                         {{ $anomaly['actual_points'] }}
@@ -52,12 +52,19 @@
                                                         {{ $anomaly['expected_points'] }}
                                                     </td>
                                                     <td>
-                                                        @if($anomaly['is_missing'])
-                                                            <span class="text-danger"><i class="fa fa-exclamation-triangle"></i> Data riwayat poin tidak ditemukan di database.</span>
+                                                        @if($anomaly['kind'] === 'total')
+                                                            <span class="text-danger"><i class="fa fa-exclamation-triangle"></i> Total tidak sama dengan riwayat poin.</span>
+                                                            <br><small class="text-muted">Total akan dihitung ulang dari riwayat poin.</small>
                                                         @else
-                                                            <span class="text-warning"><i class="fa fa-exclamation-circle"></i> Poin saat ini tidak sesuai dengan pengaturan bobot.</span>
+                                                            @if($anomaly['kind'] === 'duplicate')
+                                                                <span class="text-danger"><i class="fa fa-exclamation-triangle"></i> Riwayat ganda: poin materi ini tercatat lebih dari sekali.</span>
+                                                            @elseif($anomaly['is_missing'])
+                                                                <span class="text-danger"><i class="fa fa-exclamation-triangle"></i> Data riwayat poin tidak ditemukan di database.</span>
+                                                            @else
+                                                                <span class="text-warning"><i class="fa fa-exclamation-circle"></i> Poin saat ini tidak sesuai dengan pengaturan bobot.</span>
+                                                            @endif
+                                                            <br><small class="text-muted">Akan ditambahkan deskripsi: "{{ $anomaly['description'] }}"</small>
                                                         @endif
-                                                        <br><small class="text-muted">Akan ditambahkan deskripsi: "{{ $anomaly['description'] }}"</small>
                                                     </td>
                                                 </tr>
                                             @endforeach

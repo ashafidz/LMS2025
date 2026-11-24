@@ -39,7 +39,6 @@ class SiteSettingController extends Controller
             'transaction_fee_percentage' => 'required|numeric|min:0|max:100',
 
             // Validasi baru untuk nominal poin
-            'points_for_purchase' => 'required|integer|min:0',
             'points_for_article' => 'required|integer|min:0',
             'points_for_video' => 'required|integer|min:0',
             'points_for_document' => 'required|integer|min:0',
@@ -50,6 +49,7 @@ class SiteSettingController extends Controller
 
             // Validasi konversi poin ke diamond
             'point_to_diamond_rate' => 'required|numeric|min:0',
+            'diamonds_for_purchase' => 'required|integer|min:0',
 
             'email' => 'nullable|email|max:255',
             'facebook_url' => 'nullable|url|max:255',

@@ -36,6 +36,7 @@ class SiteSetting extends Model
         'points_for_polling',
         'points_for_wordcloud',
         'point_to_diamond_rate',
+        'diamonds_for_purchase',
     ];
 
     protected $casts = [

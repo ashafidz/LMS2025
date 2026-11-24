@@ -126,7 +126,7 @@
                                                                 
                                                                 <!-- DELETE SELALU DI DALAM DROPDOWN -->
                                                                 <div class="dropdown-divider d-lg-none"></div>
-                                                                <form action="{{ route('instructor.lessons.destroy', $lesson) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus pelajaran ini?" data-confirm-danger data-confirm-ok="Ya, hapus">
+                                                                <form action="{{ route('instructor.lessons.destroy', $lesson) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus pelajaran ini? Poin siswa dari materi ini ikut terhapus." data-confirm-danger data-confirm-ok="Ya, hapus">
                                                                     @csrf @method('DELETE')
                                                                     <button type="submit" class="dropdown-item text-danger">
                                                                         <i class="fa fa-trash text-danger me-2"></i> Hapus Pelajaran

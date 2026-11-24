@@ -7,6 +7,7 @@ use App\Models\Lesson;
 use App\Models\LessonPointAward;
 use App\Models\User;
 use App\Services\PointService;
+use App\Services\StudentWriteLock;
 use App\Support\ListQuery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,20 +52,20 @@ class LessonPointController extends Controller
         $isEnrolled = $student->enrollments()->where('courses.id', $course->id)->exists();
         abort_unless($isEnrolled, 403, 'Siswa tidak terdaftar di kursus ini.');
 
-        // 1. Simpan catatan pemberian poin di tabel baru yang spesifik
-        LessonPointAward::create([
-            'lesson_id' => $lesson->id,
-            'student_id' => $student->id,
-            'instructor_id' => Auth::id(),
-            'points' => $validated['points'],
-        ]);
+        // Dikunci per siswa: tidak berbenturan dengan aksi siswa itu sendiri atau sinkron poin.
+        // Memberi poin lagi ke siswa yang sama tetap boleh (perilaku lama).
+        StudentWriteLock::run($student, function () use ($lesson, $student, $course, $validated) {
+            // 1. Simpan catatan pemberian poin di tabel baru yang spesifik
+            LessonPointAward::create([
+                'lesson_id' => $lesson->id,
+                'student_id' => $student->id,
+                'instructor_id' => Auth::id(),
+                'points' => $validated['points'],
+            ]);
 
-        // $description = "Poin manual dari pelajaran: " . $lesson->title;
-        // PointService::addManualPoints($student, $course, $lesson, $validated['points'], $description);
-
-        // 2. Gunakan PointService untuk memperbarui total poin dan riwayat umum
-        $description = 'Menerima '.$validated['points'].' poin dari instruktur di sesi: '.$lesson->title;
-        PointService::addManualPoints($student, $course, $lesson, $validated['points']);
+            // 2. Perbarui total poin dan riwayat umum
+            PointService::addManualPoints($student, $course, $lesson, $validated['points']);
+        });
 
         return back()->with('success', 'Poin berhasil diberikan kepada '.$student->name);
     }

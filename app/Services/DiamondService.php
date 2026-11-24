@@ -69,6 +69,37 @@ class DiamondService
     }
 
     /**
+     * Bonus diamond for a paid course purchase (ADR-016). Called by OrderSettlementService only for orders with
+     * final_amount > 0, inside its transaction. Returns the diamonds given (0 when the setting is 0).
+     */
+    public static function awardForPurchase(User $user, Course $course): int
+    {
+        $diamonds = (int) (SiteSetting::first()?->diamonds_for_purchase ?? 0);
+
+        if ($diamonds <= 0) {
+            return 0;
+        }
+
+        DB::transaction(function () use ($user, $course, $diamonds) {
+            $locked = User::whereKey($user->id)->lockForUpdate()->first();
+            if (! $locked) {
+                return;
+            }
+
+            $locked->increment('diamond_balance', $diamonds);
+            $locked->diamondHistories()->create([
+                'diamonds' => $diamonds,
+                // Not "Membeli kursus: ...": that text is the diamonds spent in useForPurchase
+                'description' => 'Bonus pembelian kursus: '.$course->title,
+            ]);
+        });
+
+        $user->refresh();
+
+        return $diamonds;
+    }
+
+    /**
      * Menggunakan diamond untuk membeli kursus.
      *
      * @return bool Berhasil atau tidak.

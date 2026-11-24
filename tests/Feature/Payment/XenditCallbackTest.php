@@ -25,7 +25,7 @@ class XenditCallbackTest extends TestCase
 
         SiteSetting::create([
             'site_name' => 'ruangstudi.id',
-            'points_for_purchase' => 100,
+            'diamonds_for_purchase' => 100,
         ]);
         cache()->forget('site_settings');
     }
@@ -108,7 +108,9 @@ class XenditCallbackTest extends TestCase
 
         $this->assertEquals('paid', $order->fresh()->status);
         $this->assertEquals(1, $student->fresh()->enrollments()->count());
-        $this->assertEquals(1, PointHistory::where('user_id', $student->id)->count());
+        // A paid purchase gives diamonds once, never points (ADR-016)
+        $this->assertEquals(0, PointHistory::where('user_id', $student->id)->count());
+        $this->assertEquals(1, $student->diamondHistories()->count());
     }
 
     public function test_settled_marks_order_paid(): void
@@ -139,7 +141,7 @@ class XenditCallbackTest extends TestCase
         $this->assertEquals('pending', $order->fresh()->status);
     }
 
-    public function test_same_callback_twice_keeps_single_enrollment_and_point_history(): void
+    public function test_same_callback_twice_keeps_single_enrollment_and_diamond_history(): void
     {
         $order = $this->makeOrder(75000, true);
         $student = $order->user;
@@ -149,7 +151,9 @@ class XenditCallbackTest extends TestCase
         $this->postCallback($payload)->assertStatus(200);
 
         $this->assertEquals(1, $student->fresh()->enrollments()->count());
-        $this->assertEquals(1, PointHistory::where('user_id', $student->id)->count());
+        // A paid purchase gives diamonds once, never points (ADR-016)
+        $this->assertEquals(0, PointHistory::where('user_id', $student->id)->count());
+        $this->assertEquals(1, $student->diamondHistories()->count());
     }
 
     public function test_amount_mismatch_returns_422_and_order_stays_pending(): void
