@@ -26,7 +26,7 @@
                             </div>
                             <div class="text-md-end text-center p-3 rounded" style="background: rgba(255,255,255,0.1);">
                                 <h6 class="mb-1 text-white-50 text-uppercase" style="font-size: 11px; letter-spacing: 1px;">Total Perolehan Poin</h6>
-                                <h3 class="mb-0 font-weight-bold text-warning"><i class="fa fa-star me-1"></i> {{ number_format($pointHistories->sum('points'), 0, ',', '.') }}</h3>
+                                <h3 class="mb-0 font-weight-bold rs-points-total"><i class="fa fa-star me-1"></i> {{ number_format($totalPoints, 0, ',', '.') }}</h3>
                             </div>
                         </div>
                     </div>
@@ -40,9 +40,7 @@
                                     $moduleActual = 0;
                                     foreach($module->lessons as $l) {
                                         // actual
-                                        if (isset($pointHistories[$l->id])) {
-                                            $moduleActual += $pointHistories[$l->id]->points;
-                                        }
+                                        $moduleActual += $lessonPoints[$l->id] ?? 0;
                                         
                                         // potential
                                         $t = class_basename($l->lessonable_type);
@@ -69,7 +67,7 @@
                                         @forelse($module->lessons as $lesson)
                                             @php
                                                 $isCompleted = in_array($lesson->id, $completedLessonIds);
-                                                $actualPoints = isset($pointHistories[$lesson->id]) ? $pointHistories[$lesson->id]->points : 0;
+                                                $actualPoints = $lessonPoints[$lesson->id] ?? 0;
                                                 
                                                 // Hitung potensi poin berdasarkan tipe materi
                                                 $potentialPoints = 0;
@@ -146,7 +144,7 @@
                                                             </span>
                                                             @if($actualPoints != $potentialPoints)
                                                                 <small class="text-danger mt-1" style="font-size: 11px; max-width: 250px; text-align: right; line-height: 1.2;">
-                                                                    @if(!isset($pointHistories[$lesson->id]))
+                                                                    @if(! $lessonPoints->has($lesson->id))
                                                                         <i class="fa fa-exclamation-triangle"></i> Data tidak ditemukan, kemungkinan terjadi error saat penyelesaian materi.
                                                                     @else
                                                                         <i class="fa fa-info-circle"></i> Berbeda dengan pengaturan saat ini ({{ $potentialPoints }} poin). Poin yang tercatat adalah berdasarkan waktu saat materi dikerjakan.
@@ -183,7 +181,7 @@
                                                                 <small class="text-success font-weight-bold mb-1" style="font-size: 12px;"><i class="fa fa-star me-1"></i> +{{ number_format($actualPoints, 0, ',', '.') }} Poin Diterima</small>
                                                                 @if($actualPoints != $potentialPoints)
                                                                     <small class="text-danger mt-1" style="font-size: 11px; max-width: 250px; text-align: right; line-height: 1.2;">
-                                                                        @if(!isset($pointHistories[$lesson->id]))
+                                                                        @if(! $lessonPoints->has($lesson->id))
                                                                             <i class="fa fa-exclamation-triangle"></i> Data tidak ditemukan, kemungkinan terjadi error saat penyelesaian materi.
                                                                         @else
                                                                             <i class="fa fa-info-circle"></i> Berbeda dengan pengaturan saat ini ({{ $potentialPoints }} poin). Poin yang tercatat adalah berdasarkan waktu saat materi dikerjakan.
@@ -221,6 +219,8 @@
                                 <p class="text-muted">Kursus ini belum memiliki modul atau materi pelajaran.</p>
                             </div>
                             @endforelse
+
+                            @include('partials.progress-other-points')
                         </div>
                     </div>
                     

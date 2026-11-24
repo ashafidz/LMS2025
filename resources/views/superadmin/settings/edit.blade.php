@@ -178,13 +178,6 @@
                                             <h6 class="font-weight-bold mt-5">Pengaturan Gamifikasi Poin</h6>
                                             <hr>
                                             <div class="form-group row">
-                                                <label class="col-sm-3 col-form-label">Poin Saat Membeli Kursus</label>
-                                                <div class="col-sm-9"><input type="number" name="points_for_purchase"
-                                                        class="form-control"
-                                                        value="{{ old('points_for_purchase', $settings->points_for_purchase) }}"
-                                                        required></div>
-                                            </div>
-                                            <div class="form-group row">
                                                 <label class="col-sm-3 col-form-label">Poin Selesai Pelajaran
                                                     (Artikel)</label>
                                                 <div class="col-sm-9"><input type="number" name="points_for_article"
@@ -246,6 +239,16 @@
                                                         required step="0.01">
                                                     <small class="form-text text-muted">Masukkan nilai rasio. Contoh: 1.0
                                                         untuk 1:1, atau 0.7 untuk 70%.</small>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="col-sm-3 col-form-label">Diamond Saat Membeli Kursus</label>
+                                                <div class="col-sm-9">
+                                                    <input type="number" name="diamonds_for_purchase"
+                                                        class="form-control" min="0"
+                                                        value="{{ old('diamonds_for_purchase', $settings->diamonds_for_purchase) }}"
+                                                        required>
+                                                    <small class="form-text text-muted">Hanya untuk pembelian yang dibayar. Pendaftaran gratis atau kupon 100% tidak mendapat diamond.</small>
                                                 </div>
                                             </div>
 

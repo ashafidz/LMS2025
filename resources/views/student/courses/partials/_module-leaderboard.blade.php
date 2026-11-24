@@ -46,3 +46,14 @@
         </tbody>
     </table>
 </div>
+
+{{-- Own place when the student is outside the top 100 (or has no points here yet) --}}
+@if(isset($myRank) && ($myRank['rank'] === null || $myRank['rank'] > 100))
+    <div class="alert alert-info mt-3 mb-0">
+        @if($myRank['rank'] === null)
+            Anda belum punya poin di modul ini.
+        @else
+            <strong>Peringkat Anda: #{{ $myRank['rank'] }}</strong> ({{ number_format($myRank['points'], 0, ',', '.') }} poin)
+        @endif
+    </div>
+@endif

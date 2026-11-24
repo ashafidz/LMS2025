@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class OrderSettlementService
 {
     /**
-     * Mark an order as paid, enroll student, award points, record coupon usage, and clear cart.
+     * Mark an order as paid, enroll student, award purchase diamonds (paid orders only), record coupon usage, and clear cart.
      */
     public function markPaid(Order $order): bool
     {
@@ -46,8 +46,9 @@ class OrderSettlementService
                         $courseId => ['enrolled_at' => now()],
                     ]);
 
-                    if (! $isAlreadyEnrolled && $item->course) {
-                        PointService::addPoints($user, $item->course, 'purchase');
+                    // A purchase gives diamonds, not points, and only when the order was really paid (ADR-016)
+                    if (! $isAlreadyEnrolled && $item->course && (float) $lockedOrder->final_amount > 0) {
+                        DiamondService::awardForPurchase($user, $item->course);
                     }
                 }
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Module;
 use App\Services\CourseMediaCleanupService;
+use App\Services\PointLedger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -85,8 +86,13 @@ class ModuleController extends Controller
 
         $course = $module->course;
         DB::transaction(function () use ($module) {
+            // Points from the module's lessons are removed with them (history rows cascade); rebuild the totals
+            $userIds = PointLedger::usersWithPointsIn($module->lessons()->pluck('id'));
+
             app(CourseMediaCleanupService::class)->cleanupModuleAndDeleteLessonables($module);
             $module->delete();
+
+            PointLedger::recalculateMany($userIds, (int) $module->course_id);
         });
 
         return redirect()->to($this->courseListUrl($course))->with('success', 'Modul berhasil dihapus.');

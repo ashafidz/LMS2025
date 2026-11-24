@@ -198,7 +198,7 @@
                                                             </li>
                                                             <li><hr class="dropdown-divider"></li>
                                                             <li>
-                                                                <form action="{{ route('instructor.modules.destroy', $module) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus modul ini beserta seluruh pelajarannya?" data-confirm-danger data-confirm-ok="Ya, hapus">
+                                                                <form action="{{ route('instructor.modules.destroy', $module) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus modul ini beserta seluruh pelajarannya? Poin siswa dari materi ini ikut terhapus." data-confirm-danger data-confirm-ok="Ya, hapus">
                                                                     @csrf @method('DELETE')
                                                                     <button type="submit" class="dropdown-item text-danger">
                                                                         <i class="fa fa-trash text-danger me-2"></i> Hapus Modul

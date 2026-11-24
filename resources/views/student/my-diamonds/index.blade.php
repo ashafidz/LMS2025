@@ -21,6 +21,9 @@
                                     <i class="fa fa-diamond text-c-blue d-block f-40"></i>
                                     <h4 class="m-t-20"><span class="text-c-blue">{{ number_format($user->diamond_balance, 0, ',', '.') }}</span> Diamond</h4>
                                     <p class="m-b-20">Saldo Diamond Anda Saat Ini</p>
+                                    @if((int) $siteSettings->diamonds_for_purchase > 0)
+                                        <p class="text-muted m-b-20" style="font-size: var(--rs-fs-xs);"><i class="fa fa-shopping-cart mr-1"></i> Beli kursus berbayar: +{{ number_format((int) $siteSettings->diamonds_for_purchase, 0, ',', '.') }} Diamond</p>
+                                    @endif
                                     <a href="{{ route('courses') }}" class="btn btn-primary btn-sm btn-round">Gunakan Diamond</a>
                                 </div>
                             </div>

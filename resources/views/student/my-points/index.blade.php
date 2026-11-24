@@ -37,7 +37,12 @@
                                             
                                             <div class="mt-3 pt-3 border-top text-left">
                                                 <span class="text-muted" style="font-size: var(--rs-fs-xs);"><i class="fa fa-exchange mr-1"></i> Rasio Konversi Otomatis:</span><br>
-                                                <span class="font-weight-bold text-dark" style="font-size: var(--rs-fs-xs);">{{ $siteSettings->point_to_diamond_rate ? number_format($siteSettings->point_to_diamond_rate, 0, ',', '.') : '0' }} Poin = 1 Diamond</span>
+                                                {{-- DiamondService gives floor(points x rate) diamonds, so the rate is diamonds per point --}}
+                                                <span class="font-weight-bold text-dark" style="font-size: var(--rs-fs-xs);">1 Poin = {{ rtrim(rtrim(number_format((float) $siteSettings->point_to_diamond_rate, 2, ',', '.'), '0'), ',') }} Diamond</span>
+                                                @if((int) $siteSettings->diamonds_for_purchase > 0)
+                                                    <br><span class="text-muted" style="font-size: var(--rs-fs-xs);"><i class="fa fa-shopping-cart mr-1"></i> Beli kursus berbayar:</span>
+                                                    <span class="font-weight-bold text-dark" style="font-size: var(--rs-fs-xs);">+{{ number_format((int) $siteSettings->diamonds_for_purchase, 0, ',', '.') }} Diamond</span>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -51,10 +56,6 @@
                                 </div>
                                 <div class="card-block pt-3">
                                     <div class="d-flex flex-column gap-2" style="gap: 8px;">
-                                        <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
-                                            <span class="text-muted" style="font-size: var(--rs-fs-xs);">Beli Kursus</span>
-                                            <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_purchase ? number_format($siteSettings->points_for_purchase, 0, ',', '.') : '0' }} Poin</span>
-                                        </div>
                                         <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
                                             <span class="text-muted" style="font-size: var(--rs-fs-xs);">Baca Artikel</span>
                                             <span class="badge badge-light-success text-success font-weight-bold">+{{ $siteSettings->points_for_article ? number_format($siteSettings->points_for_article, 0, ',', '.') : '0' }} Poin</span>

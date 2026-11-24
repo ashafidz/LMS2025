@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.1] - 2026-11-24
+
+### Fixed
+
+- **Peringkat Kursus Instruktur**: Tab "Peringkat" di Data Siswa & Peringkat kini menampilkan poin semua siswa. Sebelumnya hanya 100 siswa teratas yang poinnya terbaca, siswa lain tampil 0 dan terurut ke bawah. Peringkat modul instruktur juga tidak lagi berhenti di 100 siswa.
+- **Total Poin di Halaman Progres**: Total di halaman progres siswa (instruktur dan sinkronisasi poin) kini dihitung dari semua riwayat poin, sama dengan peringkat. Poin di luar materi tampil di kartu baru "Poin di luar materi". Poin materi yang dicatat beberapa kali (poin manual) kini dijumlahkan, tidak hanya satu yang terhitung.
+- **Poin Ikut Terhapus Bersama Materi**: Menghapus pelajaran atau modul kini juga mengurangi total poin siswa dari materi itu. Sebelumnya riwayatnya terhapus tetapi total di peringkat tetap.
+- **Sinkronisasi Poin**: Kini menemukan riwayat poin ganda dan total yang tidak sama dengan riwayat, lalu menghitung ulang total dari riwayat. Sinkronisasi per materi menolak materi dari kursus lain.
+- **Poin Manual Instruktur**: Pemberian poin manual kini aman untuk siswa yang belum punya poin di kursus dan tidak bentrok dengan aksi siswa yang berjalan bersamaan.
+- **Warna Angka Poin**: Total poin di halaman progres, angka poin di pratinjau sesi poin, dan poin yang bisa ditukar kini kuning seperti medali, bukan cokelat.
+- **Rasio Konversi di Poin Saya**: Kini tertulis "1 Poin = N Diamond", sesuai perhitungan penukaran.
+
+### Changed
+
+- **Pembelian Kursus Memberi Diamond**: Membeli kursus yang dibayar lewat Xendit kini memberi diamond (pengaturan baru "Diamond Saat Membeli Kursus"), bukan poin. Pendaftaran gratis atau kupon sampai Rp0 tidak mendapat diamond. Poin pembelian lama dihapus dari poin; yang dulu dibayar diganti diamond dengan rasio konversi.
+- **Urutan Peringkat**: Siswa dengan poin sama kini diurutkan tetap: yang lebih dulu mencapai poin itu di atas.
+
+### Added
+
+- **Peringkat Anda**: Papan peringkat siswa menampilkan posisi siswa sendiri bila di luar 100 teratas.
+- **Pembaruan Keamanan**: Laravel diperbarui ke 12.73.0 (CVE-2026-128083).
+- **Pemeriksaan Poin Harian**: Perintah `points:reconcile` (terjadwal tiap hari) menghitung ulang total poin yang tidak sama dengan riwayat dan melaporkan saldo diamond yang tidak sama dengan riwayat diamond.
+
 ## [2.3.0] - 2026-11-13
 
 ### Added

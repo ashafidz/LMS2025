@@ -18,7 +18,7 @@
     <div class="card" style="max-width: 300px; margin: auto;">
         <div class="card-body">
             <p class="mb-2">Total Poin yang Anda Peroleh di Sesi Ini:</p>
-            <h2 class="font-weight-bold text-warning d-flex justify-content-center align-items-center">
+            <h2 class="font-weight-bold rs-points-total d-flex justify-content-center align-items-center">
                 <i class="fa fa-medal me-2"></i> {{ number_format($totalPointsFromThisLesson, 0, ',', '.') }}
             </h2>
         </div>
@@ -44,7 +44,7 @@
     <div class="card" style="max-width: 300px; margin: auto;">
         <div class="card-body">
             <p class="mb-2">Total Poin yang Anda Peroleh di Sesi Ini:</p>
-            <h2 class="font-weight-bold text-warning d-flex justify-content-center align-items-center">
+            <h2 class="font-weight-bold rs-points-total d-flex justify-content-center align-items-center">
                 <i class="fa fa-diamond mr-2"></i> {{ number_format($totalPointsFromThisLesson, 0, ',', '.') }}
             </h2>
         </div>

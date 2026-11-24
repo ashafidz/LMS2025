@@ -18,3 +18,6 @@ Schedule::command('badges:award')->dailyAt('02:00')->withoutOverlapping();
 Schedule::command('certificates:prune-files')->dailyAt('02:30')->withoutOverlapping();
 
 Schedule::command('files:prune-course-media')->dailyAt('03:00')->withoutOverlapping();
+
+// Point totals are a cache of the point history: rebuild any that drifted, report diamond balance drift (ADR-016).
+Schedule::command('points:reconcile --fix')->dailyAt('01:45')->withoutOverlapping();

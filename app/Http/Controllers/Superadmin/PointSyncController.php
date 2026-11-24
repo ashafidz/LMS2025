@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Superadmin;
 use App\Http\Controllers\Controller;
 use App\Models\AssignmentSubmission;
 use App\Models\Course;
-use App\Models\CourseUser;
 use App\Models\Lesson;
 use App\Models\PointHistory;
 use App\Models\SiteSetting;
 use App\Models\User;
+use App\Services\PointLedger;
+use App\Services\StudentWriteLock;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class PointSyncController extends Controller
 {
@@ -61,45 +61,21 @@ class PointSyncController extends Controller
             return back()->with('info', 'Tidak ada data poin yang perlu disinkronkan.');
         }
 
-        DB::transaction(function () use ($course, $anomalies) {
-            foreach ($anomalies as $anomaly) {
-                $student = $anomaly['student'];
-                $lesson = $anomaly['lesson'];
-                $expectedPoints = $anomaly['expected_points'];
-                $description = $anomaly['description'];
-                $actualPoints = $anomaly['actual_points'];
+        // One student at a time under the student's write lock, so a sync never races with the student's own
+        // actions. Lesson rows are fixed first, then the course total is rebuilt from the history.
+        foreach ($anomalies->groupBy(fn ($anomaly) => $anomaly['student']->id) as $studentAnomalies) {
+            $student = $studentAnomalies->first()['student'];
 
-                $pointDifference = $expectedPoints - $actualPoints;
-
-                PointHistory::updateOrCreate(
-                    [
-                        'user_id' => $student->id,
-                        'course_id' => $course->id,
-                        'lesson_id' => $lesson->id,
-                    ],
-                    [
-                        'points' => $expectedPoints,
-                        'description' => $description,
-                    ]
-                );
-
-                if ($pointDifference != 0) {
-                    $courseUser = CourseUser::where('user_id', $student->id)
-                        ->where('course_id', $course->id)
-                        ->first();
-
-                    if ($courseUser) {
-                        $courseUser->increment('points_earned', $pointDifference);
-                    } else {
-                        CourseUser::create([
-                            'user_id' => $student->id,
-                            'course_id' => $course->id,
-                            'points_earned' => max(0, $pointDifference),
-                        ]);
+            StudentWriteLock::run($student, function () use ($course, $student, $studentAnomalies) {
+                foreach ($studentAnomalies as $anomaly) {
+                    if ($anomaly['lesson']) {
+                        $this->writeLessonPoints($student, $course, $anomaly['lesson'], $anomaly['expected_points'], $anomaly['description']);
                     }
                 }
-            }
-        });
+
+                PointLedger::recalculate($student->id, $course->id);
+            });
+        }
 
         return redirect()->route('superadmin.point-sync.mass-sync.preview', $course)
             ->with('success', 'Sinkronisasi massal berhasil dieksekusi. '.count($anomalies).' riwayat poin telah diperbaiki.');
@@ -118,11 +94,7 @@ class PointSyncController extends Controller
         $course->load('modules.lessons', 'instructor');
         $completedLessonIds = $student->completedLessons()->pluck('lessons.id')->toArray();
 
-        $pointHistories = PointHistory::where('user_id', $student->id)
-            ->where('course_id', $course->id)
-            ->whereNotNull('lesson_id')
-            ->get()
-            ->keyBy('lesson_id');
+        [$lessonPoints, $otherPointHistories, $totalPoints] = PointLedger::progressFor($student->id, $course->id);
 
         $assignmentSubmissions = AssignmentSubmission::where('user_id', $student->id)
             ->get()
@@ -134,7 +106,9 @@ class PointSyncController extends Controller
             'course',
             'student',
             'completedLessonIds',
-            'pointHistories',
+            'lessonPoints',
+            'otherPointHistories',
+            'totalPoints',
             'assignmentSubmissions',
             'siteSettings'
         ));
@@ -153,52 +127,49 @@ class PointSyncController extends Controller
 
         $lesson = Lesson::findOrFail($validated['lesson_id']);
 
-        DB::transaction(function () use ($course, $student, $lesson, $validated) {
-            $existingHistory = PointHistory::where('user_id', $student->id)
-                ->where('course_id', $course->id)
-                ->where('lesson_id', $lesson->id)
-                ->first();
+        // The lesson must belong to this course
+        abort_unless((int) $lesson->module?->course_id === (int) $course->id, 404);
 
-            $pointDifference = 0;
-
-            if ($existingHistory) {
-                $pointDifference = $validated['expected_points'] - $existingHistory->points;
-                $existingHistory->update([
-                    'points' => $validated['expected_points'],
-                    'description' => $validated['description'],
-                ]);
-            } else {
-                $pointDifference = $validated['expected_points'];
-                PointHistory::create([
-                    'user_id' => $student->id,
-                    'course_id' => $course->id,
-                    'lesson_id' => $lesson->id,
-                    'points' => $validated['expected_points'],
-                    'description' => $validated['description'],
-                ]);
-            }
-
-            if ($pointDifference != 0) {
-                $courseUser = CourseUser::where('user_id', $student->id)
-                    ->where('course_id', $course->id)
-                    ->first();
-                if ($courseUser) {
-                    $courseUser->increment('points_earned', $pointDifference);
-                } else {
-                    CourseUser::create([
-                        'user_id' => $student->id,
-                        'course_id' => $course->id,
-                        'points_earned' => $pointDifference,
-                    ]);
-                }
-            }
+        StudentWriteLock::run($student, function () use ($course, $student, $lesson, $validated) {
+            $this->writeLessonPoints($student, $course, $lesson, (int) $validated['expected_points'], $validated['description']);
+            PointLedger::recalculate($student->id, $course->id);
         });
 
         return back()->with('success', 'Poin siswa berhasil disinkronkan.');
     }
 
     /**
-     * Get all point anomalies for a given course across all enrolled students.
+     * Keep exactly one history row for this student and lesson (the oldest) with the expected points.
+     */
+    private function writeLessonPoints(User $student, Course $course, Lesson $lesson, int $points, string $description): void
+    {
+        $rows = PointHistory::where('user_id', $student->id)
+            ->where('course_id', $course->id)
+            ->where('lesson_id', $lesson->id)
+            ->orderBy('id')
+            ->get();
+
+        if ($rows->isEmpty()) {
+            PointHistory::create([
+                'user_id' => $student->id,
+                'course_id' => $course->id,
+                'lesson_id' => $lesson->id,
+                'points' => $points,
+                'description' => $description,
+            ]);
+
+            return;
+        }
+
+        $rows->first()->update(['points' => $points, 'description' => $description]);
+        PointHistory::whereIn('id', $rows->slice(1)->pluck('id'))->delete();
+    }
+
+    /**
+     * Get all point anomalies for a given course across all enrolled students:
+     * - a completed lesson whose recorded points differ from the current setting (or are missing),
+     * - a lesson with more than one history row (duplicate award), except manual-points lessons,
+     * - a course total (course_user) that differs from the history.
      */
     private function getMassSyncAnomalies(Course $course)
     {
@@ -206,80 +177,89 @@ class PointSyncController extends Controller
         $course->load('modules.lessons.lessonable');
         $students = $course->students()->get();
 
+        $settingByType = [
+            'LessonArticle' => ['points_for_article', 'Artikel', 'Menyelesaikan artikel: '],
+            'LessonVideo' => ['points_for_video', 'Video', 'Menyelesaikan video: '],
+            'LessonDocument' => ['points_for_document', 'Dokumen / Slide', 'Menyelesaikan dokumen: '],
+            'Quiz' => ['points_for_quiz', 'Kuis', 'Lulus kuis: '],
+            'LessonAssignment' => ['points_for_assignment', 'Tugas', 'Mengirimkan tugas: '],
+            'LessonPolling' => ['points_for_polling', 'Polling', 'Mengisi polling: '],
+            'LessonWordcloud' => ['points_for_wordcloud', 'Word Cloud', 'Mengisi word cloud: '],
+        ];
+
+        $drift = PointLedger::drift($course->id)->keyBy('user_id');
+
         $anomalies = [];
 
         foreach ($students as $student) {
             $completedLessonIds = $student->completedLessons()->pluck('lessons.id')->toArray();
 
-            $pointHistories = PointHistory::where('user_id', $student->id)
+            $historiesByLesson = PointHistory::where('user_id', $student->id)
                 ->where('course_id', $course->id)
                 ->whereNotNull('lesson_id')
                 ->get()
-                ->keyBy('lesson_id');
+                ->groupBy('lesson_id');
 
             $assignmentSubmissions = AssignmentSubmission::where('user_id', $student->id)
                 ->get()
                 ->keyBy('assignment_id');
 
+            $studentHasLessonFix = false;
+
             foreach ($course->modules as $module) {
                 foreach ($module->lessons as $lesson) {
                     $typeStr = class_basename($lesson->lessonable_type);
-                    $potentialPoints = 0;
-                    $syncDescription = '';
-                    $displayType = '';
 
-                    if ($typeStr == 'LessonArticle') {
-                        $potentialPoints = $siteSettings->points_for_article;
-                        $displayType = 'Artikel';
-                        $syncDescription = 'Menyelesaikan artikel: '.$lesson->title;
-                    } elseif ($typeStr == 'LessonVideo') {
-                        $potentialPoints = $siteSettings->points_for_video;
-                        $displayType = 'Video';
-                        $syncDescription = 'Menyelesaikan video: '.$lesson->title;
-                    } elseif ($typeStr == 'LessonDocument') {
-                        $potentialPoints = $siteSettings->points_for_document;
-                        $displayType = 'Dokumen / Slide';
-                        $syncDescription = 'Menyelesaikan dokumen: '.$lesson->title;
-                    } elseif ($typeStr == 'Quiz') {
-                        $potentialPoints = $siteSettings->points_for_quiz;
-                        $displayType = 'Kuis';
-                        $syncDescription = 'Lulus kuis: '.$lesson->title;
-                    } elseif ($typeStr == 'LessonAssignment') {
-                        $potentialPoints = $siteSettings->points_for_assignment;
-                        $displayType = 'Tugas';
-                        $syncDescription = 'Mengirimkan tugas: '.$lesson->title;
-                    } elseif ($typeStr == 'LessonPolling') {
-                        $potentialPoints = $siteSettings->points_for_polling;
-                        $displayType = 'Polling';
-                        $syncDescription = 'Mengisi polling: '.$lesson->title;
-                    } elseif ($typeStr == 'LessonWordcloud') {
-                        $potentialPoints = $siteSettings->points_for_wordcloud;
-                        $displayType = 'Word Cloud';
-                        $syncDescription = 'Mengisi word cloud: '.$lesson->title;
+                    // Manual points (LessonPoint) and lessons without points are never anomalies
+                    if (! isset($settingByType[$typeStr])) {
+                        continue;
                     }
+
+                    [$settingKey, $displayType, $prefix] = $settingByType[$typeStr];
+                    $potentialPoints = (int) $siteSettings->{$settingKey};
+                    $rows = $historiesByLesson->get($lesson->id, collect());
+                    $actualPoints = (int) $rows->sum('points');
 
                     $isCompleted = in_array($lesson->id, $completedLessonIds);
                     $assignmentStatus = null;
                     if ($typeStr == 'LessonAssignment' && isset($assignmentSubmissions[$lesson->lessonable_id])) {
                         $assignmentStatus = $assignmentSubmissions[$lesson->lessonable_id]->status;
                     }
+                    $shouldHavePoints = $isCompleted || in_array($assignmentStatus, ['submitted', 'revision_required']);
 
-                    $actualPoints = isset($pointHistories[$lesson->id]) ? $pointHistories[$lesson->id]->points : 0;
+                    $isDuplicate = $rows->count() > 1;
+                    $isWrong = $shouldHavePoints && $actualPoints != $potentialPoints;
 
-                    if ($isCompleted || in_array($assignmentStatus, ['submitted', 'revision_required'])) {
-                        if ($actualPoints != $potentialPoints) {
-                            $anomalies[] = [
-                                'student' => $student,
-                                'lesson' => $lesson,
-                                'display_type' => $displayType,
-                                'actual_points' => $actualPoints,
-                                'expected_points' => $potentialPoints,
-                                'description' => $syncDescription,
-                                'is_missing' => ! isset($pointHistories[$lesson->id]),
-                            ];
-                        }
+                    if ($isDuplicate || $isWrong) {
+                        $studentHasLessonFix = true;
+                        $anomalies[] = [
+                            'kind' => $isDuplicate ? 'duplicate' : 'lesson',
+                            'student' => $student,
+                            'lesson' => $lesson,
+                            'display_type' => $displayType,
+                            'actual_points' => $actualPoints,
+                            // A duplicate on a lesson the student no longer qualifies for keeps one row as it was
+                            'expected_points' => $shouldHavePoints ? $potentialPoints : (int) $rows->first()->points,
+                            'description' => $prefix.$lesson->title,
+                            'is_missing' => $rows->isEmpty(),
+                        ];
                     }
                 }
+            }
+
+            // Total differs from the history and no lesson fix above will rebuild it anyway
+            if (! $studentHasLessonFix && $drift->has($student->id)) {
+                $row = $drift->get($student->id);
+                $anomalies[] = [
+                    'kind' => 'total',
+                    'student' => $student,
+                    'lesson' => null,
+                    'display_type' => 'Total kursus',
+                    'actual_points' => $row->counter,
+                    'expected_points' => $row->ledger,
+                    'description' => null,
+                    'is_missing' => false,
+                ];
             }
         }
 
