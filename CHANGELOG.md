@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - **Peringkat Anda**: Papan peringkat siswa menampilkan posisi siswa sendiri bila di luar 100 teratas.
+- **Pembaruan Keamanan**: Laravel diperbarui ke 12.73.0 (CVE-2026-128083).
 - **Pemeriksaan Poin Harian**: Perintah `points:reconcile` (terjadwal tiap hari) menghitung ulang total poin yang tidak sama dengan riwayat dan melaporkan saldo diamond yang tidak sama dengan riwayat diamond.
 
 ## [2.3.0] - 2026-11-13
